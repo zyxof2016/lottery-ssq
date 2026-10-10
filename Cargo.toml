@@ -1,0 +1,24 @@
+[package]
+name = "ssq"
+version = "1.0.0"
+edition = "2021"
+description = "双色球严格滚动样本外验证与可审计预测"
+license = "MIT"
+
+[lib]
+name = "ssq"
+path = "src/lib.rs"
+
+[[bin]]
+name = "ssq"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
