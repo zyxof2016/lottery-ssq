@@ -5,7 +5,7 @@ use crate::model::{roll_all, Row};
 use crate::protocol::Protocol;
 use crate::select::{
     aggressive_spec, build_tickets, equal7, forecast, fuse6, fuse7, hits_prefix, mask_min_votes,
-    max_red_hits, mean_red_hits, mild_spec, rank_desc, rank_log_score, rescue,
+    max_red_hits, mean_red_hits, mild_spec, rank_desc, rank_log_score, rescue, score_key,
     softmax_shrink, top_mask, votes, Forecast,
 };
 use crate::stats::{
@@ -30,6 +30,10 @@ pub struct TopkPoint {
     pub iiv_high: f64,
     pub iiv_pos_frac: f64,
     pub iiv_slope: Option<f64>,
+    pub n: usize,
+    pub p_raw: f64,
+    /// 确认窗 Top-K 曲线内部的 Holm 校正。开发窗不进入这族。
+    pub p_curve: Option<f64>,
 }
 
 pub struct Stability {
@@ -83,7 +87,7 @@ pub struct Funnel {
 }
 
 pub struct TradeCell {
-    pub rho: f64,
+    pub mass: f64,
     pub pool: usize,
     pub tickets: usize,
     pub overlap: u32,
@@ -172,6 +176,11 @@ pub struct Backtest {
     pub n_weight: usize,
     pub n_confirm: usize,
     pub n_repl: usize,
+    pub n_track: usize,
+    pub track_issue_start: Option<u32>,
+    pub track_issue_end: Option<u32>,
+    pub track_fusion_excess: Option<f64>,
+    pub track_mild_excess: Option<f64>,
     pub elapsed_ms: u128,
     pub mde_red: f64,
     pub mde_red_bonf: f64,
@@ -233,7 +242,7 @@ impl CellAcc {
 }
 
 struct Spec {
-    rho: f64,
+    mass: f64,
     pool: usize,
     tickets: usize,
     overlap: u32,
@@ -259,11 +268,9 @@ struct Draft {
 
 pub fn prepare_forecast(draws: &[Draw]) -> Result<Prepared, String> {
     let snap = roll_all(draws)?;
-    if snap.rows.len() < 30 {
-        return Err("样本外期数不足，无法拟合融合权重".into());
-    }
-    let weights = fit_red(&snap.rows);
-    let blue_weights = fit_blue(&snap.rows);
+    let weight_rows = weight_rows_for_publish(&snap.rows)?;
+    let weights = fit_red(weight_rows);
+    let blue_weights = fit_blue(weight_rows);
     let forecast = forecast(
         &snap.next_red,
         &snap.next_blue,
@@ -283,20 +290,27 @@ pub fn prepare_forecast(draws: &[Draw]) -> Result<Prepared, String> {
 }
 
 pub fn backtest(draws: &[Draw]) -> Result<Backtest, String> {
+    backtest_span(
+        draws,
+        Protocol::CONFIRM_START_ISSUE,
+        Protocol::CONFIRMATION_LEN,
+    )
+}
+
+pub fn backtest_span(
+    draws: &[Draw],
+    confirm_start_issue: u32,
+    confirm_len: usize,
+) -> Result<Backtest, String> {
     let started = Instant::now();
-    let need = Protocol::BURN_IN + Protocol::CONFIRMATION_LEN + 30;
-    if draws.len() < need {
-        return Err(format!("至少需要 {need} 期，当前 {}", draws.len()));
-    }
     let snap = roll_all(draws)?;
-    let n_confirm = Protocol::CONFIRMATION_LEN;
-    let n_weight = snap.rows.len() - n_confirm;
-    if n_weight < 30 {
-        return Err("开发窗样本外期数不足".into());
-    }
-    let weight_rows = &snap.rows[..n_weight];
-    let confirm_rows = &snap.rows[n_weight..];
-    let n_repl = Protocol::CONFIRMATION_LEN.min(n_weight);
+    let (weight_end, confirm_end) = locate_span(&snap.rows, confirm_start_issue, confirm_len)?;
+    let n_weight = weight_end;
+    let n_confirm = confirm_end - weight_end;
+    let weight_rows = &snap.rows[..weight_end];
+    let confirm_rows = &snap.rows[weight_end..confirm_end];
+    let track_rows = &snap.rows[confirm_end..];
+    let n_repl = confirm_len.min(n_weight);
     let repl_rows = &snap.rows[n_weight - n_repl..n_weight];
 
     let weights = fit_red(weight_rows);
@@ -324,6 +338,7 @@ pub fn backtest(draws: &[Draw]) -> Result<Backtest, String> {
         &fusion_prefixes(confirm_rows, &weights),
         z95,
     );
+    adjust_curve(&mut topk);
 
     let dev_hits = collect_hits(weight_rows, &weights);
     let confirm_hits = collect_hits(confirm_rows, &weights);
@@ -370,6 +385,19 @@ pub fn backtest(draws: &[Draw]) -> Result<Backtest, String> {
     let blue_sd = (p0 * (1.0 - p0)).sqrt();
     let mde_blue = (z95 + z80) * blue_sd / n_c.sqrt();
     let mde_blue_bonf = (z_b + z80) * blue_sd / n_c.sqrt();
+    let (n_track, track_issue_start, track_issue_end, track_fusion_excess, track_mild_excess) =
+        if track_rows.is_empty() {
+            (0, None, None, None, None)
+        } else {
+            let pack = collect_hits(track_rows, &weights);
+            (
+                track_rows.len(),
+                Some(track_rows[0].issue),
+                Some(track_rows.last().unwrap().issue),
+                Some(mean_of(&excess_from_hits(&pack.fusion))),
+                Some(mean_of(&excess_from_hits(&pack.mild))),
+            )
+        };
 
     Ok(Backtest {
         protocol_sha: Protocol::sha256(),
@@ -385,6 +413,11 @@ pub fn backtest(draws: &[Draw]) -> Result<Backtest, String> {
         n_weight,
         n_confirm,
         n_repl,
+        n_track,
+        track_issue_start,
+        track_issue_end,
+        track_fusion_excess,
+        track_mild_excess,
         elapsed_ms: started.elapsed().as_millis(),
         mde_red,
         mde_red_bonf,
@@ -497,7 +530,8 @@ fn curves(model: &str, window: &'static str, prefixes: &[[u32; 8]], z: f64) -> V
     let ks = Protocol::KS;
     let mut prev: Option<Vec<f64>> = None;
     let mut out = Vec::new();
-    let n = prefixes.len() as f64;
+    let n_draws = prefixes.len();
+    let n = n_draws as f64;
     for (ki, &k) in ks.iter().enumerate() {
         let hits: Vec<f64> = prefixes.iter().map(|p| p[ki] as f64).collect();
         let expected = expected_red_hits(k);
@@ -537,6 +571,13 @@ fn curves(model: &str, window: &'static str, prefixes: &[[u32; 8]], z: f64) -> V
             iiv_high: iiv_hi,
             iiv_pos_frac: pos,
             iiv_slope: slope,
+            n: n_draws,
+            p_raw: if n_draws == 0 {
+                1.0
+            } else {
+                hg_total_p(hits.iter().sum(), k, n_draws)
+            },
+            p_curve: None,
         });
         prev = Some(hits);
     }
@@ -767,19 +808,10 @@ fn funnel_and_tickets(
         pool_true += (pool_mask & win).count_ones() as u64;
         ticket_true += (ticket_mask & win).count_ones() as u64;
 
-        let max_p = fc
-            .mild
-            .members
-            .iter()
-            .map(|&i| fc.fusion[i])
-            .fold(0.0_f64, f64::max);
-        let thr = Protocol::EVIDENCE_RHO * max_p;
-        for &i in &fc.mild.members {
-            if fc.fusion[i] + 1e-15 >= thr {
-                evidence_keep += 1;
-                if (win >> i) & 1 == 1 {
-                    evidence_true += 1;
-                }
+        for &i in &take_mass(&fc.mild.members, &fc.fusion, Protocol::EVIDENCE_MASS) {
+            evidence_keep += 1;
+            if (win >> i) & 1 == 1 {
+                evidence_true += 1;
             }
         }
         ticket_n += fc.tickets.len() as u64;
@@ -919,11 +951,11 @@ fn ticket_null(tickets: &[Vec<u64>], obs: &[u32]) -> (Vec<f64>, f64, f64) {
 
 fn grid_specs() -> Vec<Spec> {
     let mut v = Vec::new();
-    for &rho in &[0.0, 0.5, 0.75] {
+    for &mass in &[1.0_f64, 0.70, 0.50] {
         for &pool in &[10usize, 12, 15] {
             for &tickets in &[1usize, 8, 20] {
                 v.push(Spec {
-                    rho,
+                    mass,
                     pool,
                     tickets,
                     overlap: 4,
@@ -932,13 +964,13 @@ fn grid_specs() -> Vec<Spec> {
         }
     }
     v.push(Spec {
-        rho: 0.0,
+        mass: 1.0,
         pool: 12,
         tickets: 8,
         overlap: 3,
     });
     v.push(Spec {
-        rho: 0.0,
+        mass: 1.0,
         pool: 12,
         tickets: 8,
         overlap: 5,
@@ -955,7 +987,7 @@ fn eval_grid(rows: &[Row], w: &[f64; 7], specs: &[Spec]) -> Vec<CellAcc> {
         let fusion = fuse7(&row.expert_p, w);
         let order = rank_desc(&fusion);
         for (s, spec) in specs.iter().enumerate() {
-            let cand = candidates(&order, &fusion, spec.rho, spec.pool);
+            let cand = candidates(&order, &fusion, spec.mass, spec.pool);
             let tickets = build_tickets(&cand, &fusion, spec.tickets, spec.overlap);
             let metrics = coverage_of(&order, &fusion, &tickets, row.red_mask);
             let lift = max_red_hits(&tickets, row.red_mask) as f64 - emax_iid(spec.tickets);
@@ -977,16 +1009,29 @@ fn eval_grid(rows: &[Row], w: &[f64; 7], specs: &[Spec]) -> Vec<CellAcc> {
     acc
 }
 
-fn candidates(order: &[usize; 33], scores: &[f64; 33], rho: f64, pool: usize) -> Vec<usize> {
-    let thr = rho * scores[order[0]];
-    let mut kept = Vec::new();
-    for &i in &order[..Protocol::PRIMARY_K] {
-        if rho <= 0.0 || scores[i] + 1e-15 >= thr {
-            kept.push(i);
-        }
-    }
+fn candidates(order: &[usize; 33], scores: &[f64; 33], mass: f64, pool: usize) -> Vec<usize> {
+    let mut kept = take_mass(&order[..Protocol::PRIMARY_K], scores, mass);
     if kept.len() > pool {
         kept.truncate(pool);
+    }
+    kept
+}
+
+fn take_mass(members: &[usize], scores: &[f64; 33], mass: f64) -> Vec<usize> {
+    let mut order = members.to_vec();
+    order.sort_by(|&a, &b| score_key(scores[b]).cmp(&score_key(scores[a])).then(a.cmp(&b)));
+    if order.is_empty() || mass >= 1.0 - 1e-12 {
+        return order;
+    }
+    let total: f64 = order.iter().map(|&i| scores[i]).sum();
+    let mut kept = Vec::new();
+    let mut acc = 0.0;
+    for &i in &order {
+        kept.push(i);
+        acc += scores[i];
+        if total <= 0.0 || acc + 1e-15 >= mass * total {
+            break;
+        }
     }
     kept
 }
@@ -1034,7 +1079,7 @@ fn trade_cells(specs: &[Spec], confirm: &[CellAcc], repl: &[CellAcc]) -> Vec<Tra
         let cn = c.n.max(1.0);
         let rn = r.n.max(1.0);
         cells.push(TradeCell {
-            rho: spec.rho,
+            mass: spec.mass,
             pool: spec.pool,
             tickets: spec.tickets,
             overlap: spec.overlap,
@@ -1058,10 +1103,10 @@ fn trade_cells(specs: &[Spec], confirm: &[CellAcc], repl: &[CellAcc]) -> Vec<Tra
             }
             other.confirm_evidence + 1e-12 >= cells[i].confirm_evidence
                 && other.confirm_coverage + 1e-12 >= cells[i].confirm_coverage
-                && other.confirm_lift + 1e-12 >= cells[i].confirm_lift
+                && other.confirm_avg + 1e-12 >= cells[i].confirm_avg
                 && (other.confirm_evidence > cells[i].confirm_evidence + 1e-12
                     || other.confirm_coverage > cells[i].confirm_coverage + 1e-12
-                    || other.confirm_lift > cells[i].confirm_lift + 1e-12)
+                    || other.confirm_avg > cells[i].confirm_avg + 1e-12)
         });
         cells[i].pareto = !dominated;
     }
@@ -1204,10 +1249,11 @@ fn robustness(
         ev_arr[i] = *v;
     }
     ev_arr.sort_by(|a, b| b.total_cmp(a));
-    let (mean_corr, mean_abs_corr) = offdiag_mean(&corr_score);
+    let (mean_corr, mean_abs_corr, corr_span) = offdiag_span(&corr_score);
     let denom = 1.0 + 6.0 * mean_corr;
-    let n_eff_eq = if denom > 0.05 {
-        Some(7.0 / denom)
+    let n_eff_eq = if denom > 0.05 && corr_span < 0.25 {
+        let v = 7.0 / denom;
+        if v <= 7.05 { Some(v) } else { None }
     } else {
         None
     };
@@ -1285,18 +1331,68 @@ fn series_corr(series: &[Vec<f64>; 7]) -> [[f64; 7]; 7] {
     m
 }
 
-fn offdiag_mean(corr: &[[f64; 7]; 7]) -> (f64, f64) {
+fn offdiag_span(corr: &[[f64; 7]; 7]) -> (f64, f64, f64) {
     let mut sum = 0.0;
     let mut abs_sum = 0.0;
     let mut n = 0.0;
+    let mut lo = f64::INFINITY;
+    let mut hi = f64::NEG_INFINITY;
     for i in 0..7 {
         for j in (i + 1)..7 {
             sum += corr[i][j];
             abs_sum += corr[i][j].abs();
+            lo = lo.min(corr[i][j]);
+            hi = hi.max(corr[i][j]);
             n += 1.0;
         }
     }
-    (sum / n, abs_sum / n)
+    (sum / n, abs_sum / n, hi - lo)
+}
+
+fn adjust_curve(topk: &mut [TopkPoint]) {
+    let idx: Vec<usize> = topk
+        .iter()
+        .enumerate()
+        .filter(|(_, p)| p.window == "确认窗")
+        .map(|(i, _)| i)
+        .collect();
+    let raw: Vec<f64> = idx.iter().map(|&i| topk[i].p_raw).collect();
+    let holm = adjust_holm(&raw);
+    for (j, &i) in idx.iter().enumerate() {
+        topk[i].p_curve = Some(holm[j]);
+    }
+}
+
+fn locate_span(rows: &[Row], start_issue: u32, confirm_len: usize) -> Result<(usize, usize), String> {
+    let start = rows
+        .iter()
+        .position(|r| r.issue == start_issue)
+        .ok_or_else(|| format!("数据中没有确认窗起点 {start_issue}"))?;
+    if start < 30 {
+        return Err("确认窗之前的样本外期数不足".into());
+    }
+    let end = start + confirm_len;
+    if end > rows.len() {
+        return Err(format!(
+            "确认窗需要 {confirm_len} 期，起点 {start_issue} 之后只剩 {} 期",
+            rows.len() - start
+        ));
+    }
+    Ok((start, end))
+}
+
+fn weight_rows_for_publish(rows: &[Row]) -> Result<&[Row], String> {
+    if rows.len() < 30 {
+        return Err("样本外期数不足，无法拟合融合权重".into());
+    }
+    match rows
+        .iter()
+        .position(|r| r.issue == Protocol::CONFIRM_START_ISSUE)
+    {
+        Some(start) if start >= 30 => Ok(&rows[..start]),
+        Some(_) => Err("确认窗之前的样本外期数不足".into()),
+        None => Ok(rows),
+    }
 }
 
 fn assemble_tests(
@@ -1597,7 +1693,8 @@ mod tests {
     #[test]
     fn synthetic_protocol_runs() {
         let draws = synth_draws(400, 11);
-        let report = backtest(&draws).unwrap();
+        let start = draws[400 - 156].issue;
+        let report = backtest_span(&draws, start, 156).unwrap();
         assert_eq!(report.tests.len(), 25);
         let wsum: f64 = report.robust.weights.iter().sum();
         assert!((wsum - 1.0).abs() < 1e-9);
@@ -1605,5 +1702,52 @@ mod tests {
         assert_eq!(report.funnel.mean_alive.len(), 5);
         assert!(report.tradeoff.iter().any(|c| c.pareto));
         assert!(report.elapsed_ms > 0);
+        let curve: Vec<_> = report
+            .topk
+            .iter()
+            .filter(|p| p.window == "确认窗")
+            .collect();
+        assert_eq!(curve.len(), 64);
+        assert!(curve.iter().all(|p| p.p_curve.is_some()));
+    }
+
+    #[test]
+    fn publish_weights_stay_before_confirm_start() {
+        let mut draws = synth_draws(400, 11);
+        for (i, d) in draws.iter_mut().enumerate() {
+            d.issue = 24881 + i as u32;
+        }
+        let early = &draws[..386];
+        let a = prepare_forecast(early).unwrap();
+        let b = prepare_forecast(&draws).unwrap();
+        for i in 0..7 {
+            assert!((a.weights[i] - b.weights[i]).abs() < 1e-15);
+        }
+        for i in 0..6 {
+            assert!((a.blue_weights[i] - b.blue_weights[i]).abs() < 1e-15);
+        }
+        let snap = crate::model::roll_all(&draws).unwrap();
+        let start = snap
+            .rows
+            .iter()
+            .position(|r| r.issue == Protocol::CONFIRM_START_ISSUE)
+            .unwrap();
+        assert!(start >= 30);
+        let w = fit_red(&snap.rows[..start]);
+        for i in 0..7 {
+            assert!((b.weights[i] - w[i]).abs() < 1e-15);
+        }
+    }
+
+    #[test]
+    fn real_confirmation_window_is_pinned() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("data/ssq.csv");
+        let draws = crate::draw::load_csv(&path).expect("data/ssq.csv");
+        let bt = backtest(&draws).unwrap();
+        assert_eq!(bt.confirm_issue_start, 25111);
+        assert_eq!(bt.confirm_issue_end, 26115);
+        assert_eq!(bt.n_confirm, 156);
+        assert_eq!(bt.tests.len(), 25);
+        assert!(bt.tests.iter().all(|t| t.p_holm + 1e-15 >= 0.05));
     }
 }

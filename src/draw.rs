@@ -176,13 +176,26 @@ pub fn fetch_500(out: &Path) -> Result<usize, String> {
         .status()
         .map_err(|e| format!("无法启动 curl：{e}"))?;
     if !status.success() {
-        return Err(format!("下载双色球历史失败，curl 退出码 {status}"));
+        return Err(format!(
+            "下载双色球历史失败，curl 退出码 {status}。回测请直接使用 data/ssq.csv"
+        ));
     }
     let html = fs::read_to_string(&tmp).map_err(|e| format!("无法读取下载结果：{e}"))?;
     let _ = fs::remove_file(&tmp);
-    let draws = parse_500_html(&html)?;
+    let draws = parse_500_html(&html).map_err(|e| {
+        format!("页面结构无法解析（{e}）。回测仍使用已有的 CSV，抓取失败不会改动它")
+    })?;
+    if draws.len() < crate::protocol::Protocol::MIN_FETCH_DRAWS {
+        return Err(format!(
+            "下载结果只有 {} 期，少于 {}。已保留本地 CSV",
+            draws.len(),
+            crate::protocol::Protocol::MIN_FETCH_DRAWS
+        ));
+    }
     let n = draws.len();
-    write_csv(out, &draws)?;
+    let tmp_out = out.with_extension("csv.tmp");
+    write_csv(&tmp_out, &draws)?;
+    fs::rename(&tmp_out, out).map_err(|e| format!("无法替换 {}: {e}", out.display()))?;
     Ok(n)
 }
 

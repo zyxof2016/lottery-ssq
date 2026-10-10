@@ -40,6 +40,9 @@ pub fn to_json(bt: &Backtest) -> Value {
             "end": fmt_issue(bt.confirm_issue_end),
             "n": bt.n_confirm,
             "weight_end": fmt_issue(bt.weight_issue_end),
+            "track_n": bt.n_track,
+            "track_start": bt.track_issue_start.map(fmt_issue),
+            "track_end": bt.track_issue_end.map(fmt_issue),
         },
         "mde": {
             "red_hits": bt.mde_red,
@@ -59,7 +62,8 @@ pub fn to_json(bt: &Backtest) -> Value {
         "funnel_death_hist": bt.funnel.death_hist,
         "tests": bt.tests.iter().map(test_json).collect::<Vec<_>>(),
         "tradeoff": bt.tradeoff.iter().map(|c| json!({
-            "rho": c.rho,
+            "mass": c.mass,
+            "avg_hits": c.confirm_avg,
             "pool": c.pool,
             "tickets": c.tickets,
             "overlap": c.overlap,
@@ -131,6 +135,24 @@ fn render_conclusion(o: &mut String, bt: &Backtest) {
             line(o, &format!("- {}", t.name));
         }
     }
+    let curve_sig = bt
+        .topk
+        .iter()
+        .filter(|p| p.p_curve.is_some_and(|q| q < 0.05))
+        .count();
+    if curve_sig == 0 {
+        line(
+            o,
+            "确认窗 8 个模型、8 个 K 共 64 项累计超额是另一族描述性检验，Holm 校正后也没有一项低于 0.05。未校正区间盖不住 0，不能单独当成发现。",
+        );
+    } else {
+        line(
+            o,
+            &format!(
+                "确认窗 Top-K 曲线的 64 项累计超额里，Holm 校正后有 {curve_sig} 项低于 0.05。这族不在预注册的 25 项里。"
+            ),
+        );
+    }
     line(
         o,
         &format!(
@@ -176,7 +198,9 @@ fn render_protocol(o: &mut String, bt: &Backtest) {
     line(
         o,
         &format!(
-            "开发窗到 {} 为止，共 {} 个样本外期，只用于拟合融合权重和指定对照专家。确认窗 {} 至 {}，共 {} 期，不参与规则选择。",
+            "确认窗起点冻结为 {}，长度 {}。开发窗到 {} 为止，共 {} 个样本外期，只用于拟合融合权重和指定对照专家。确认窗 {} 至 {}，共 {} 期，不参与规则选择，也不回流进权重。",
+            fmt_issue(Protocol::CONFIRM_START_ISSUE),
+            Protocol::CONFIRMATION_LEN,
             fmt_issue(bt.weight_issue_end),
             bt.n_weight,
             fmt_issue(bt.confirm_issue_start),
@@ -184,10 +208,28 @@ fn render_protocol(o: &mut String, bt: &Backtest) {
             bt.n_confirm
         ),
     );
+    if bt.n_track == 0 {
+        line(
+            o,
+            "确认窗终点之后没有跟踪期。以后追加的开奖只记入跟踪窗，不移动确认窗，也不进入 Holm 族。",
+        );
+    } else {
+        line(
+            o,
+            &format!(
+                "跟踪窗 {} 至 {}，共 {} 期。融合超额 {}，温和救援超额 {}。跟踪窗使用冻结权重，不计进预注册族。",
+                fmt_issue(bt.track_issue_start.unwrap_or(0)),
+                fmt_issue(bt.track_issue_end.unwrap_or(0)),
+                bt.n_track,
+                opt(bt.track_fusion_excess),
+                opt(bt.track_mild_excess)
+            ),
+        );
+    }
     line(
         o,
         &format!(
-            "发布路径写死为：加权融合，温和救援（专家 Top-{} 中至少 {} 票、最多换入 {} 个、只从融合第 {}-{} 名里救），出票池 {} 个并预留救援席，{} 张票，任意两张红球重合不超过 {}。证据阈值 ρ={} 只出现在漏斗支路和权衡网格里，不进入发布。",
+            "发布路径写死为：加权融合，温和救援（专家 Top-{} 中至少 {} 票、最多换入 {} 个、只从融合第 {}-{} 名里救），出票池 {} 个并预留救援席，{} 张票，任意两张红球重合不超过 {}。漏斗支路按融合分数保留定稿集累计质量的 {:.0}%，只用于观察，不进入出票。排序使用 {:.0e} 的分数步长，权重使用 {:.0e}。",
             Protocol::RESCUE_M,
             Protocol::RESCUE_Q,
             Protocol::RESCUE_S,
@@ -196,7 +238,9 @@ fn render_protocol(o: &mut String, bt: &Backtest) {
             Protocol::POOL,
             Protocol::TICKETS,
             Protocol::MAX_OVERLAP,
-            Protocol::EVIDENCE_RHO
+            Protocol::EVIDENCE_MASS * 100.0,
+            Protocol::SCORE_QUANTUM,
+            Protocol::WEIGHT_QUANTUM
         ),
     );
 }
@@ -209,7 +253,7 @@ fn render_topk(o: &mut String, bt: &Backtest) {
     );
     line(
         o,
-        "模型 | 窗 | K | 命中 | 期望 | 超额 | 95%区间 | 带 | IIV | IIV区间 | 块为正 | 斜率",
+        "模型 | 窗 | K | 命中 | 期望 | 超额 | 95%区间 | 带 | IIV | IIV区间 | 块为正 | 斜率 | 曲线Holm",
     );
     for p in &bt.topk {
         if p.window == "开发窗" && p.k != Protocol::PRIMARY_K && p.model == "加权融合" {
@@ -221,7 +265,7 @@ fn render_topk(o: &mut String, bt: &Backtest) {
         line(
             o,
             &format!(
-                "{} | {} | {} | {} | {} | {} | [{}, {}] | {}-{} | {} | [{}, {}] | {} | {}",
+                "{} | {} | {} | {} | {} | {} | [{}, {}] | {}-{} | {} | [{}, {}] | {} | {} | {}",
                 p.model,
                 p.window,
                 p.k,
@@ -237,12 +281,13 @@ fn render_topk(o: &mut String, bt: &Backtest) {
                 f4(p.iiv_high),
                 f4(p.iiv_pos_frac),
                 opt(p.iiv_slope),
+                p.p_curve.map(fp).unwrap_or_else(|| "—".into()),
             ),
         );
     }
     line(
         o,
-        "开发窗只保留主终点 K=15，避免拿整条曲线做事后挑选。确认窗给出全部预注册带宽。",
+        "开发窗只保留主终点 K=15，避免拿整条曲线做事后挑选。确认窗给出全部预注册带宽。曲线 Holm 只在确认窗的 64 项累计超额里校正，不并入主检验的 25 项。",
     );
 }
 
@@ -347,8 +392,12 @@ fn render_funnel(o: &mut String, bt: &Backtest) {
     line(
         o,
         &format!(
-            "救援换入的真实红球平均 {:.3} 个，被挤出的真实红球平均 {:.3} 个。若在定稿集上再加证据阈值，平均保留 {:.2} 个号，其中真实红球 {:.3} 个。",
-            f.rescued_true, f.displaced_true, f.evidence_keep, f.evidence_recall
+            "救援换入的真实红球平均 {:.3} 个，被挤出的真实红球平均 {:.3} 个。若在定稿集上按融合分数保留累计质量的 {:.0}%，平均保留 {:.2} 个号，其中真实红球 {:.3} 个。",
+            f.rescued_true,
+            f.displaced_true,
+            Protocol::EVIDENCE_MASS * 100.0,
+            f.evidence_keep,
+            f.evidence_recall
         ),
     );
     line(
@@ -371,18 +420,18 @@ fn render_tradeoff(o: &mut String, bt: &Backtest) {
     h(o, "号码证据与票组覆盖");
     line(
         o,
-        "网格只使用加权融合名次，不含救援，以免和上一节混在一起。证据保留是票面覆盖号码的融合概率质量除以融合 Top-15 的质量。覆盖率的分母也是这 15 个号。最佳票超额对比的是从全部 33 个号里买同样张数的独立均匀票。多张票的超额明显为负，是因为票被关在前 15 个号里，盖不住全号段随机票的最大值；票均命中仍贴着 6×6/33≈1.09，那一列才表示单张票有没有排序优势。帕累托标记只描述确认窗，不回写发布规则。对照窗是确认窗之前的同样长度。",
+        "网格只使用加权融合名次，不含救援，以免和上一节混在一起。质量比例是融合 Top-15 里按分数从高到低累计到该比例后留下的前缀，再按池大小截断。证据保留是票面覆盖号码的融合概率质量除以融合 Top-15 的质量。覆盖率的分母也是这 15 个号。最佳票超额对比的是从全部 33 个号里买同样张数的独立均匀票。多张票的超额明显为负，是因为票被关在前 15 个号里，盖不住全号段随机票的最大值；票均命中仍贴着 6×6/33≈1.09，那一列才表示单张票有没有排序优势。帕累托按证据、号码覆盖和票均命中三者比较，只描述确认窗，不回写发布规则。对照窗是确认窗之前的同样长度。",
     );
     line(
         o,
-        "ρ | 池 | 张数 | 重合上限 | 证据 | 号码覆盖 | 号码对覆盖 | 票均命中 | 最佳票超额 | 填满率 | 对照证据 | 对照超额 | 帕累托",
+        "质量比例 | 池 | 张数 | 重合上限 | 证据 | 号码覆盖 | 号码对覆盖 | 票均命中 | 最佳票超额 | 填满率 | 对照证据 | 对照超额 | 帕累托",
     );
     for c in &bt.tradeoff {
         line(
             o,
             &format!(
                 "{} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {}",
-                f4(c.rho),
+                f4(c.mass),
                 c.pool,
                 c.tickets,
                 c.overlap,
@@ -452,11 +501,8 @@ fn render_experts(o: &mut String, bt: &Backtest) {
     );
     let eq_note = match r.n_eff_eq {
         Some(v) if v <= 7.05 => format!("等相关近似 {}", f4(v)),
-        Some(v) => format!(
-            "等相关近似 {} 已经高于 7，因为平均相关为负而各对相关差很大，这个近似作废",
-            f4(v)
-        ),
-        None => "等相关近似不适用".into(),
+        Some(v) => format!("等相关近似 {v:.4} 已经越出专家个数，这个近似作废"),
+        None => "各对相关差得太大，或平均相关使公式越界，等相关近似作废，不以它当作信息源个数".into(),
     };
     line(
         o,
@@ -547,7 +593,7 @@ fn render_audit_guide(o: &mut String, bt: &Backtest) {
     h(o, "开奖前留痕与复算");
     line(
         o,
-        "回测确认窗的权重停在窗口边界。发布下一期时，权重用到截止期为止的全部样本外结果，票数、救援和重合上限仍用上面的冻结常数，不会改成网格里看起来最好的那一格。",
+        "专家状态用到截止期为止的全部开奖。融合权重停在确认窗起点之前，与回测同一套；截止期若还没到 25111，才用当时已有的样本外结果。分数在排序前收到 1e-9，权重收到 1e-12。票数、救援和重合上限仍用冻结常数，不会改成网格里看起来最好的那一格。",
     );
     line(o, "开奖前执行：");
     line(

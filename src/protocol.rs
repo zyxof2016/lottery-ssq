@@ -4,8 +4,10 @@ use crate::hash::sha256_hex;
 pub struct Protocol;
 
 impl Protocol {
-    pub const VERSION: u32 = 1;
+    pub const VERSION: u32 = 2;
     pub const BURN_IN: usize = 150;
+    /// 确认窗起点。追加新开奖不会把窗口往后滑。
+    pub const CONFIRM_START_ISSUE: u32 = 25111;
     pub const CONFIRMATION_LEN: usize = 156;
     pub const EWMA_ALPHA: f64 = 0.08;
     pub const WEIGHT_SHRINKAGE: f64 = 0.5;
@@ -25,7 +27,12 @@ impl Protocol {
     pub const TICKETS: usize = 8;
     pub const MAX_OVERLAP: u32 = 4;
     pub const BLUE_SLOTS: usize = 2;
-    pub const EVIDENCE_RHO: f64 = 0.55;
+    /// 漏斗支路保留定稿集里累计融合质量的比例，不进入出票。
+    pub const EVIDENCE_MASS: f64 = 0.70;
+    /// 排序前把分数收成这个步长，避免二进制浮点的末位差别改写名次。
+    pub const SCORE_QUANTUM: f64 = 1e-9;
+    pub const WEIGHT_QUANTUM: f64 = 1e-12;
+    pub const MIN_FETCH_DRAWS: usize = 3000;
     pub const ZONE_WINDOW: usize = 30;
     pub const STABILITY_BLOCK: usize = 26;
     pub const SIGNFLIP_BLOCK: usize = 20;
@@ -81,6 +88,7 @@ impl Protocol {
             "\
 ssq-protocol-v{version}
 burn_in={burn}
+confirm_start_issue={start_issue}
 confirmation_len={confirm}
 ewma_alpha={ewma:.8}
 weight_shrinkage={shrink:.8}
@@ -100,7 +108,9 @@ pool={pool}
 tickets={tickets}
 max_overlap={overlap}
 blue_slots={blue_slots}
-evidence_rho={rho:.8}
+evidence_mass={mass:.8}
+score_quantum={score_q:.12}
+weight_quantum={weight_q:.12}
 zone_window={zone}
 stability_block={block}
 signflip_block={sb}
@@ -115,6 +125,7 @@ blues={blues}
 ",
             version = Self::VERSION,
             burn = Self::BURN_IN,
+            start_issue = Self::CONFIRM_START_ISSUE,
             confirm = Self::CONFIRMATION_LEN,
             ewma = Self::EWMA_ALPHA,
             shrink = Self::WEIGHT_SHRINKAGE,
@@ -134,7 +145,9 @@ blues={blues}
             tickets = Self::TICKETS,
             overlap = Self::MAX_OVERLAP,
             blue_slots = Self::BLUE_SLOTS,
-            rho = Self::EVIDENCE_RHO,
+            mass = Self::EVIDENCE_MASS,
+            score_q = Self::SCORE_QUANTUM,
+            weight_q = Self::WEIGHT_QUANTUM,
             zone = Self::ZONE_WINDOW,
             block = Self::STABILITY_BLOCK,
             sb = Self::SIGNFLIP_BLOCK,

@@ -1,12 +1,33 @@
 use crate::protocol::Protocol;
 
+pub fn score_key(x: f64) -> i64 {
+    (x / Protocol::SCORE_QUANTUM).round() as i64
+}
+
 pub fn rank_desc<const N: usize>(s: &[f64; N]) -> [usize; N] {
     let mut idx = [0usize; N];
     for (i, slot) in idx.iter_mut().enumerate() {
         *slot = i;
     }
-    idx.sort_by(|&a, &b| s[b].total_cmp(&s[a]).then(a.cmp(&b)));
+    idx.sort_by(|&a, &b| score_key(s[b]).cmp(&score_key(s[a])).then(a.cmp(&b)));
     idx
+}
+
+/// 权重先落到固定小数，再把残差补进最大的一项，使总和回到 1。
+pub fn quantize_simplex<const K: usize>(w: [f64; K]) -> [f64; K] {
+    let q = Protocol::WEIGHT_QUANTUM;
+    let mut out = [0.0; K];
+    let mut sum = 0.0;
+    let mut max_i = 0usize;
+    for i in 0..K {
+        out[i] = (w[i] / q).round() * q;
+        if out[i] > out[max_i] {
+            max_i = i;
+        }
+        sum += out[i];
+    }
+    out[max_i] += 1.0 - sum;
+    out
 }
 
 pub fn hits_prefix(order: &[usize; 33], mask: u64) -> [u32; 8] {
@@ -337,7 +358,7 @@ pub fn softmax_shrink<const K: usize>(sum_score: &[f64; K], n: f64) -> [f64; K] 
     for i in 0..K {
         w[i] = (1.0 - shrink) * (e[i] / s) + shrink / K as f64;
     }
-    w
+    quantize_simplex(w)
 }
 
 pub struct Forecast {
