@@ -38,6 +38,15 @@ enum Cmd {
         #[arg(long)]
         json: Option<PathBuf>,
     },
+    /// 比较14–24红的全6红率、数量增益与基准；JSON含完整6–33红曲线
+    PoolReview {
+        #[arg(long)]
+        data: PathBuf,
+        #[arg(long)]
+        out: Option<PathBuf>,
+        #[arg(long)]
+        json: Option<PathBuf>,
+    },
     /// 用截止期以前的数据发布下一期预测，并追加审计日志
     Publish {
         #[arg(long)]
@@ -48,11 +57,33 @@ enum Cmd {
         out: PathBuf,
         #[arg(long)]
         target: Option<String>,
-        /// 开奖时刻的 Unix 秒。当前时间晚于它时拒绝发布
+        /// 留痕截止时间的 Unix 秒。到达该时刻即拒绝发布
         #[arg(long)]
-        not_after: Option<u64>,
+        not_after: u64,
     },
-    /// 复算清单哈希；若 CSV 已包含截止期之后的开奖则计分
+    /// 在浏览器里查看票面、验证报告、发布和复算
+    Serve {
+        #[arg(long)]
+        data: PathBuf,
+        #[arg(long)]
+        audit: PathBuf,
+        #[arg(long)]
+        out: PathBuf,
+        #[arg(long, default_value = "127.0.0.1:6791")]
+        bind: String,
+    },
+    /// 同步 500.com 开奖数据、在开奖前封存下一期，并在开奖后写复盘
+    Cycle {
+        #[arg(long)]
+        data: PathBuf,
+        #[arg(long)]
+        audit: PathBuf,
+        #[arg(long)]
+        out: PathBuf,
+        #[arg(long)]
+        review_dir: PathBuf,
+    },
+    /// 复算清单哈希；目标期号匹配截止期后的第一期开奖时计分
     Verify {
         #[arg(long)]
         data: PathBuf,
@@ -93,6 +124,13 @@ fn run() -> Result<(), String> {
             }
             print!("{text}");
         }
+        Cmd::PoolReview { data, out, json } => {
+            let report = ssq::pool::analyze(&load_csv(&data)?)?;
+            let text = ssq::pool::render(&report);
+            if let Some(path) = out { write_text(&path, &text)?; }
+            if let Some(path) = json { write_text(&path, &serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?)?; }
+            print!("{text}");
+        }
         Cmd::Publish {
             data,
             audit,
@@ -100,7 +138,7 @@ fn run() -> Result<(), String> {
             target,
             not_after,
         } => {
-            let outcome = publish(&data, &audit, &out, target, not_after)?;
+            let outcome = publish(&data, &audit, &out, target, Some(not_after))?;
             if outcome.already {
                 println!(
                     "目标 {} 的留痕已存在，哈希 {}，清单 {}",
@@ -115,6 +153,21 @@ fn run() -> Result<(), String> {
                     outcome.content_sha256
                 );
             }
+        }
+        Cmd::Serve {
+            data,
+            audit,
+            out,
+            bind,
+        } => ssq::web::serve(data, audit, out, &bind)?,
+        Cmd::Cycle {
+            data,
+            audit,
+            out,
+            review_dir,
+        } => {
+            let text = ssq::cycle::run_cycle(&data, &audit, &out, &review_dir)?;
+            println!("{text}");
         }
         Cmd::Verify {
             data,

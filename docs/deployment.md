@@ -1,0 +1,23 @@
+# 现有生产部署
+
+入口为 <http://1.14.208.189/ssq/>，HTTPS 同路径也可访问。通过 `ssh ubuntu@1.14.208.189` 使用现有 SSH 密钥连接，管理服务可用 `sudo -n systemctl`。不要在仓库中保存密钥或其他凭据。
+
+应用根目录为 `/data/apps/lottery-ssq`，`current` 是指向 `releases/` 内某个版本目录的符号链接。版本目录包含 `ssq` 二进制和 `data/ssq.csv`。二进制内置网页与静态资源，无需单独上传前端。
+
+`ssq-web.service` 以 `ubuntu` 运行，监听 `127.0.0.1:6791`；Nginx 将 `/ssq/` 代理到该端口。`ssq-cycle.timer` 每 30 分钟调用 `ssq-cycle.service`，继续使用原有同步、封存和复盘规则。两个服务都从 `current/ssq` 启动，开奖文件为 `current/data/ssq.csv`，审计和发布参数分别为根目录下的 `audit/log.jsonl` 与 `publish`。
+
+以下目录属于持续保存的运行数据，位于版本目录外：`audit`、`publish`、`history`、`plans`、`reviews`、`recommendations`。不存在的目录由相应功能按需创建。部署不得清空或用本地目录整体覆盖这些记录。旧推荐不补造，已存在的每日档案不替换。
+
+## 发布步骤
+
+1. 核对实际分支和远端，完成本次改动所需验证，提交并推送。使用 `cargo build --release --locked` 构建；生产环境为 Linux x86_64、glibc 2.39，上传前确认二进制兼容。
+2. 新建带提交号与时间的版本目录，上传二进制和版本清单，校验 SHA256。保存切换前的 `current` 目标和运行数据备份。
+3. 暂停 `ssq-cycle.timer`，等当前 `ssq-cycle.service` 结束。短暂停止网页服务后，将生产正在使用的开奖 CSV 复制到新版本；保留生产数据，不用仓库内的快照替换它。
+4. 通过同目录临时符号链接与 `mv -T` 原子切换 `current`，启动 `ssq-web.service`。运行 `systemctl is-active ssq-web.service`、访问 `/ssq/health` 和 `/ssq/api/overview`，并核对网页、静态资源及本次新增功能。
+5. 失败时将 `current` 原子恢复到原目标并重启网页服务。成功或回滚后均恢复原本启用的 `ssq-cycle.timer`，保留旧版本和备份。
+
+本地存在而生产缺少的真实推荐档案，只能在核对原始摘要、输入历史及目标期号后单独导入；用原子创建保证不覆盖同名档案。导入不改原文件内容、推荐时间或独立时间证明字段。临时验证目录及模拟开奖不得上传到生产。
+
+## 发布后核验
+
+核对提交号、二进制摘要、服务状态和定时任务状态；浏览器检查七个页签、复盘原始号码、六档观察池、代理前缀和移动端。线上检查优先使用只读接口，避免为验证而生成或保存新方案。存档、审计和已有个人方案必须保留。

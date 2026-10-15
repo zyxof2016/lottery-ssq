@@ -1,4 +1,8 @@
 /target
 /publish
 /audit
+/recommendations
+/history
+/plans
+/reviews
 *.log

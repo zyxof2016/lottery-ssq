@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>每期推荐与复盘 · 双色球</title>
+  <link rel="stylesheet" href="static/app.css"><script src="static/shell.js"></script><script src="static/vendor/vue-3.5.24.js"></script>
+  <style>
+    :root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#172033;background:#f4f6f9;font-size:14px}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button,a,select{touch-action:manipulation}a{color:#b91c1c;text-decoration:none}a:hover{text-decoration:underline}button{cursor:pointer;border:1px solid #dce1e9;background:#fff;color:#273449;border-radius:8px;padding:9px 13px}button:hover{background:#f5f7fa}button:disabled{opacity:.5;cursor:default}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}.primary{background:#b91c1c;color:#fff;border-color:#b91c1c}.primary:hover{background:#991b1b}header{background:#831d29;color:#fff;padding:22px max(20px,calc((100vw - 1440px)/2));display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}header a{color:#ffe4e6}h1{font-size:23px;margin:4px 0}h2{font-size:18px;margin:0 0 16px}h3{font-size:14px;margin:0 0 10px}p{line-height:1.65;margin:8px 0}.muted{color:#64748b;font-size:12px}.toolbar,.flex{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:20px;max-width:1440px;margin:24px auto;padding:0 20px}.card{background:#fff;border:1px solid #e0e5ed;border-radius:12px;padding:20px;margin-bottom:16px;min-width:0}.aside{align-self:start;position:sticky;top:16px;padding:14px}.issue-list{max-height:70vh;overflow:auto;margin-top:12px}.issue{display:block;width:100%;text-align:left;margin:4px 0;padding:10px;border-color:transparent}.issue.active{background:#fff1f2;border-color:#fda4af;color:#9f1239}.issue .muted{display:block;margin-top:3px}.tag{display:inline-block;border-radius:5px;padding:3px 7px;background:#eef2f7;font-size:11px}.warn{background:#fffbeb;color:#92400e;border-color:#fde68a}.notice{padding:12px 15px;border:1px solid #fde68a;border-radius:8px;background:#fffbeb;color:#92400e;line-height:1.6;margin:12px 0}.error{background:#fff1f2;border-color:#fecdd3;color:#9f1239}.success{background:#f0fdf4;border-color:#bbf7d0;color:#166534}.strategies{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.strategy{text-align:left;line-height:1.8;padding:13px}.strategy.active{border-color:#be123c;background:#fff1f2}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.metric{padding:15px;background:#f8fafc;border-radius:8px}.metric strong{display:block;font-size:24px;margin:6px 0}.balls{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.ball{display:inline-flex;width:29px;height:29px;border-radius:50%;align-items:center;justify-content:center;font:600 12px ui-monospace,monospace;border:1px solid #e2e8f0;background:#f8fafc;color:#94a3b8;position:relative}.ball.selected.red{background:#fff1f2;color:#be123c;border-color:#fda4af}.ball.selected.blue{background:#eff6ff;color:#1d4ed8;border-color:#93c5fd}.ball.hit{outline:2px solid #d97706;outline-offset:1px;color:#92400e}.ball.hit:after{content:'✓';position:absolute;right:-5px;top:-8px;background:#fff;font-size:11px;border-radius:50%;line-height:12px}.number-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:10px;max-width:720px;margin:14px 0 20px}.columns{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px}.scroll{overflow-x:auto;max-width:100%}table{border-collapse:collapse;width:100%;font-size:12px;text-align:left}th{font-weight:600;color:#64748b;background:#f8fafc;white-space:nowrap}th,td{padding:11px 10px;border-bottom:1px solid #e8edf3;vertical-align:top}td small{display:block;line-height:1.65;color:#64748b}tr.winner{background:#fffbeb}select,input{padding:8px 10px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;max-width:100%}code{font-size:11px;overflow-wrap:anywhere}.provenance{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.empty{text-align:center;padding:48px 20px}.loading{padding:35px;color:#64748b}.exports{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap;font-size:12px}.ticket-balls{min-width:245px}.ticket-balls .ball{width:25px;height:25px}.pager{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:12px}[v-cloak]{display:none}footer{max-width:1440px;margin:20px auto;padding:0 20px 24px;color:#64748b;font-size:12px;line-height:1.7}@media(max-width:900px){.layout{grid-template-columns:minmax(0,1fr)}.aside{position:static}.issue-list{display:flex;max-height:none;overflow-x:auto}.issue{min-width:130px;width:auto}.columns{grid-template-columns:minmax(0,1fr)}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){header{padding:18px 16px}h1{font-size:21px}.layout{padding:0 12px;margin:14px auto;gap:12px}.card{padding:16px}.toolbar{align-items:stretch}.toolbar button{flex:1}.provenance{grid-template-columns:minmax(0,1fr)}.exports{margin:8px 0 0}.metric{padding:11px}.metric strong{font-size:21px}}
+    .comparison-table{min-width:640px}.comparison-table td{white-space:nowrap}
+    .small-pool-table{min-width:600px}.small-pool-table td,.small-pool-table button{white-space:nowrap}
+  </style>
+
+<style>
+.layout{display:block;max-width:1280px}.review-selection{display:flex;gap:14px;align-items:end;flex-wrap:wrap}.review-selection label{display:flex;flex-direction:column;gap:6px}.review-selection select{max-width:340px}.strategy-number-cards,.pool-number-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:16px 0}.strategy-number-cards{max-height:850px;overflow:auto;padding:2px}.strategy-number-card,.pool-number-card{padding:16px;border:1px solid #dde3ed;border-radius:12px;min-width:0}.strategy-number-card.active,.pool-number-card.active{border-color:#b91c1c;background:#fffafa}.strategy-number-card .balls,.pool-number-card .balls{margin:13px 0}.strategy-number-card .ball,.pool-number-card .ball{box-shadow:none}.is-embedded .layout{margin:0;padding:0}.is-embedded .layout>main{max-width:none}.card h2:focus{outline:2px solid #f59e0b;outline-offset:5px}@media(max-width:800px){.strategy-number-cards,.pool-number-cards{grid-template-columns:minmax(0,1fr)}}@media(max-width:600px){.review-selection>label{width:100%}.review-selection select{width:100%;max-width:100%}}
+</style>
+</head>
+<body>
+<div id="app" v-cloak>
+  <header>
+<div>
+<a :href="home">← 返回选号与验证</a>
+<a :href="home + 'pools'" style="margin-left:18px">分档号码池与覆盖观察 ↗</a>
+<h1>每期推荐与复盘</h1>
+<span style="color:#fecdd3;font-size:12px">保留当时的票组与依据，开奖后按原记录核对</span>
+</div>
+</header>
+  <div class="layout">
+    <main style="min-width:0">
+<section class="card"><h2>每期推荐与复盘</h2><p class="muted">选择实际留档的期号与来源，直接比较每组号码，再查看完整票组与对奖。历史缺档不补造。</p>
+<div class="review-selection">
+<label for="review-issue">期号<select id="review-issue" v-model="issue" @change="chooseIssue(issue)"><option v-if="issue&&!issues.some(p=>p.issue===issue)" :value="issue">{{ issue }} · 指定期号</option><option v-for="p in issues" :key="p.issue" :value="p.issue">{{ p.issue }} · {{ p.status==='pending'?'待开奖':'已开奖' }} · {{ p.archives?p.archives+'份档案':p.saved_plans?'旧方案':'缺档' }}</option></select></label>
+<label v-if="view?.sources?.length" for="review-archive">记录来源<select id="review-archive" :value="view.archive_id" @change="chooseArchive($event.target.value)"><option v-for="s in view.sources" :key="s.id" :value="s.id">{{ sourceName(s) }}</option></select></label>
+<label for="period-count">展示期数<select id="period-count" v-model.number="limit" @change="refresh"><option v-for="n in [30,60,150,500]" :value="n">最近 {{ n }} 期</option></select></label>
+<button @click="refresh(issue,view?.archive_id,view?.strategy)" :disabled="loading||busy">{{ loading?'读取中…':'刷新' }}</button><button @click="settle" :disabled="busy">核对本地开奖</button><button class="primary" @click="freeze" :disabled="busy||!next.can_freeze">留档下一期 · {{ next.issue || '…' }}</button>
+</div></section>
+      <div v-if="message" role="status" class="notice" :class="messageType">{{ message }}</div>
+      <div class="muted" style="margin:0 0 14px">下一档截止：{{ next.deadline || '…' }}。{{ next.reason }}</div>
+      <div v-if="loading" class="card loading" role="status">正在读取 {{ issue }} 期档案…</div>
+      <template v-if="view">
+        <section class="card">
+<div class="flex">
+<h2 style="margin:0">第 {{ view.issue }} 期</h2>
+<span class="tag" :class="view.draw ? '' : 'warn'">{{ view.draw ? '已开奖 · ' + view.draw.date : '待开奖，命中与奖金暂不计分' }}</span>
+</div>
+<div v-if="view.draw" class="balls" style="margin-top:16px">
+<span class="muted">开奖号码</span>
+<span v-for="n in view.draw.red" :key="n" class="ball selected red">{{ pad(n) }}</span>
+<span class="ball selected blue">{{ pad(view.draw.blue) }}</span>
+</div>
+          <div v-if="view.missing" class="empty">
+<h2>本期没有实际推荐档案</h2>
+<p class="muted">历史缺档不会用今天的模型补造。事后回放请到首页的回测页面查看。</p>
+</div>
+          <template v-else>
+<div class="flex" style="margin-top:18px">
+<div class="exports">
+<a v-if="provenance.raw_file" :href="fileUrl(provenance.raw_file)" :download="'recommendation-' + issue + '.json'">原始档案 JSON</a>
+<a v-if="provenance.review_file" :href="fileUrl(provenance.review_file)" :download="'review-' + issue + '.json'">已封存复盘 JSON</a>
+<button @click="exportJson">当前复盘 JSON</button>
+<button @click="exportCsv">号码 CSV</button>
+</div>
+</div>
+          <div v-if="provenance.known_outcome_at_generation" class="notice">该方案生成时，输入数据已包含目标期或后续开奖。它属于事后生成记录，不能作为开奖前推荐成绩。</div>
+<div v-if="!provenance.known_outcome_at_generation && provenance.saved_after_scheduled_draw" class="notice">本地保存时间晚于该期常规开奖时刻，不能作为开奖前推荐成绩。具体开奖时间仍需核对公告。</div>
+<div v-if="!provenance.evidence_available" class="notice">这是旧版保存的原票组。未保存当时的完整模型证据，评分、权重及筛选原因无法恢复。</div>
+<div class="provenance muted">
+<div>留档时间：{{ time(provenance.published_at_unix) }}<br>数据截止：{{ provenance.data_cutoff || '未知' }}</div>
+<div>{{ provenance.sha256 ? '本地哈希校验' : '旧版保存记录' }} · 无独立时间戳证明<br>{{ provenance.review_persisted ? '复盘已保存，原文件不会覆盖' : view.draw ? '复盘预览，可点击“核对本地开奖”保存' : '开奖后生成并保存复盘' }}</div>
+</div>
+<p v-if="provenance.sha256" class="muted">SHA-256：<code>{{ provenance.sha256 }}</code>
+</p>
+</template>
+        </section>
+        <section v-if="view.number_pools" class="card" aria-label="实际小号码池复盘">
+<h2>当时的模型号码池 · 分档核对覆盖</h2>
+<p class="muted">只读取当时封存的原始号码。{{ hasObservationTiers ? '本档案包含14／16／18／20／22／24红六个观察档及原小池对照。' : '本档案仅保存原小池，未补造六档观察池。' }}命中率以开奖红球与真实开奖期数为分母。</p>
+<div class="toolbar" style="margin-bottom:14px"><label for="archived-pool-group">号码池范围</label><select id="archived-pool-group" v-model="effectivePoolGroup"><option v-if="hasObservationTiers" value="observation">六档观察池</option><option value="legacy">原小池对照</option></select><label for="archived-pool-blue">蓝球数量</label><select id="archived-pool-blue" v-model.number="poolBlueCount"><option v-for="n in [1,2,3]" :key="n" :value="n">{{ n }} 个</option></select></div>
+<p v-if="hasObservationTiers" class="muted">本期最小全 6 红观察档：{{ !view.draw?'待开奖':view.number_pools.smallest_full_red_tier?view.number_pools.smallest_full_red_tier+' 红':'六档均未全包' }}。<a :href="home+'pools'">查看累计实际覆盖</a></p>
+<div class="pool-number-cards" role="region" aria-label="各档实际号码池">
+<article v-for="p in shownPools" :key="p.id" class="pool-number-card" :data-pool="p.id" :class="{active:numberPool?.id===p.id}"><h3>{{ p.tier_id?p.tier_id+'档 · ':'' }}{{ p.red_count }} 红 + {{ p.blue_count }} 蓝</h3><div class="balls"><span v-for="n in p.reds.slice().sort((a,b)=>a-b)" :key="'r'+n" class="ball selected red" :class="{hit:isDrawNumber(n,'red')}">{{ pad(n) }}</span><span v-for="n in p.blues.slice().sort((a,b)=>a-b)" :key="'b'+n" class="ball selected blue" :class="{hit:isDrawNumber(n,'blue')}">{{ pad(n) }}</span></div><p class="muted">中红 {{ nullable(p.red_hits) }}/6 · 全6红 {{ flag(p.full_red) }} · 蓝球入池 {{ flag(p.blue_hit) }}</p><p class="muted">漏红：{{ p.missed_reds==null?'待开奖':p.missed_reds.map(pad).join(' ')||'无' }}</p></article></div>
+<details><summary>展开各档覆盖指标</summary><div class="scroll"><table class="small-pool-table"><thead><tr><th>原池规格</th><th>中红 / 漏红</th><th>全6红</th><th>蓝球入池</th><th>6红1蓝全包</th></tr></thead><tbody><tr v-for="p in shownPools" :key="p.id"><td><button @click="selectedPool=p.id">{{ p.tier_id ? p.tier_id+'档 · ' : '' }}{{ p.red_count }} 红 + {{ p.blue_count }} 蓝</button></td><td>{{ nullable(p.red_hits) }} / {{ p.missed_reds == null ? '—' : p.missed_reds.length }}</td><td>{{ flag(p.full_red) }}</td><td>{{ flag(p.blue_hit) }}</td><td><b>{{ flag(p.full_draw) }}</b></td></tr></tbody></table></div>
+</details><template v-if="numberPool"><h3 style="margin-top:18px">查看原池：{{ numberPool.red_count }} 红 + {{ numberPool.blue_count }} 蓝</h3>
+<div class="balls"><span v-for="n in numberPool.reds" :key="n" class="ball selected red" :class="{hit:(numberPool.hit_reds || []).includes(n)}">{{ pad(n) }}</span><span v-for="n in numberPool.blues" :key="n" class="ball selected blue" :class="{hit:view.draw && view.draw.blue===n}">{{ pad(n) }}</span></div>
+<p class="muted">漏掉的开奖红球：{{ numberPool.missed_reds == null ? '待开奖' : numberPool.missed_reds.map(pad).join(' ') || '无' }}。小池全包表示开奖号都在池内，不等于已组成中奖单注。</p></template>
+</section>
+<section v-else-if="!view.missing" class="card"><h2>本档案未留存号码池</h2><p class="muted">后续首次留档的新期会保存六档观察池及原小池对照。历史研究可在 <a :href="home + 'pools'">分档号码池与覆盖观察</a> 查看因果回放。</p></section>
+        <template v-if="detail">
+          <section class="card">
+<h2>本份档案的方案对照</h2><p class="muted">各策略实际号码直接列在下方，带 ✓ 的球表示本期开出；号码并集不能作为一注购买。点击“查看完整票组”查看逐注对奖。</p>
+<div class="flex" style="margin-bottom:14px">
+<label for="strategy-group">方案范围</label>
+<select id="strategy-group" v-model="strategyGroup"><option value="all">全部实际留档</option><option value="original">原有方案</option><option value="efficiency">少注覆盖方案</option></select>
+<label for="comparison-cost">同预算比较</label>
+<select id="comparison-cost" v-model="comparisonCost"><option value="all">全部预算</option><option v-for="cost in comparisonCosts" :key="cost" :value="String(cost)">{{ cost }} 元</option></select>
+<span class="muted">{{ comparedStrategies.length }} 个方案</span>
+</div>
+<div class="strategy-number-cards" role="region" aria-label="各策略实际推荐号码" tabindex="0">
+<article v-for="s in comparedStrategies" :key="s.name" :data-strategy="s.name" class="strategy-number-card" :class="{active:view.strategy===s.name}">
+<div class="flex" style="justify-content:space-between"><button @click="chooseStrategy(s.name)" :disabled="loading||busy"><b>{{ s.title }}</b></button><span class="muted">{{ s.summary.bets }} 注 · {{ s.summary.cost }} 元</span></div>
+<p class="muted">实际推荐：{{ s.summary.red_coverage }} 个不同红球、{{ s.summary.blue_coverage }} 个不同蓝球 · 额外重复红球位置 {{ s.summary.repeated_red_positions }}</p>
+<div class="balls"><span v-for="n in s.summary.unique_reds" :key="'r'+n" class="ball selected red" :class="{hit:isDrawNumber(n,'red')}" :aria-label="numberLabel(n,'red')" :title="numberLabel(n,'red')">{{ pad(n) }}</span><span v-for="n in s.summary.unique_blues" :key="'b'+n" class="ball selected blue" :class="{hit:isDrawNumber(n,'blue')}" :aria-label="numberLabel(n,'blue')" :title="numberLabel(n,'blue')">{{ pad(n) }}</span></div>
+<p v-if="view.draw" class="muted">覆盖 {{ s.summary.covered_red_count }}/6 红 · 蓝球{{ s.summary.blue_covered?'入池':'未入池' }} · 漏红 {{ s.summary.missed_reds.map(pad).join(' ') || '无' }}</p><p v-else class="muted">待开奖，命中与漏号暂不计算。</p>
+<p class="muted">单注最多中红 {{ nullable(s.summary.max_ticket_red_hits) }} · 中奖 {{ nullable(s.summary.prize_tickets) }} 注 · 固定奖金 {{ nullable(s.summary.fixed_prize) }} 元</p><button @click="viewTickets(s.name)" :disabled="loading||busy">查看完整票组{{ view.draw?'与对奖':'' }}</button>
+</article></div>
+<p v-if="!comparedStrategies.length" class="muted">此档案没有符合当前范围和预算的方案。历史档案只展示当时保存的方案。</p>
+<p class="muted">少注方案包括同覆盖重组、2–5 注融合排名分散及同预算均匀分散对照。方案只在首次留档时保存，历史档案不追加。扩大覆盖会同时提高均匀基准；不同预算的覆盖和单期奖金不能直接说明预测优势。</p>
+</section>
+          <section class="card">
+<h2>{{ detail.title }}</h2>
+<p class="muted">{{ detail.rationale }}</p>
+<div class="metrics">
+<div class="metric">
+<span class="muted">投注 / 成本</span>
+<strong>{{ summary.bets }} 注</strong>
+<span class="muted">{{ summary.cost }} 元，含重复投注</span>
+</div>
+<div class="metric">
+<span class="muted">红球并集覆盖</span>
+<strong>{{ summary.red_coverage }} / 33</strong>
+<span class="muted">命中 {{ nullable(summary.covered_red_count) }} / 6，蓝球 {{ summary.blue_coverage }} / 16</span>
+</div>
+<div class="metric">
+<span class="muted">单注最好红球 / 中奖注数</span>
+<strong>{{ nullable(summary.max_ticket_red_hits) }} / {{ nullable(summary.prize_tickets) }}</strong>
+<span class="muted">中奖以每注 6 红 + 1 蓝核对</span>
+</div>
+<div class="metric">
+<span class="muted">已知固定奖金</span>
+<strong>{{ nullable(summary.fixed_prize) }}<small style="font-size:12px"> 元</small>
+</strong>
+<span class="muted">浮动奖 {{ nullable(summary.floating_prize_tickets) }} 注，福运待核实 {{ nullable(summary.special_prize_candidates) }} 注</span>
+</div>
+</div>
+<p class="muted">红球重复位置 {{ summary.repeated_red_positions }} / {{ summary.total_red_positions }} · 蓝球重复位置 {{ summary.repeated_blue_positions }} · 完全重复票 {{ summary.duplicate_tickets }} 注 · 最大红球曝光 {{ summary.max_red_exposure }} 注。相同覆盖数下，均匀随机红球命中期望 {{ Number(summary.uniform_expected_red_hits).toFixed(2) }}。</p>
+<div class="metrics" style="margin-top:16px">
+<div class="metric"><span class="muted">每元红球覆盖</span><strong>{{ decimal(summary.red_coverage_per_yuan) }}</strong><span class="muted">不同红球数 / 总成本</span></div>
+<div class="metric"><span class="muted">红球覆盖超额</span><strong>{{ signed(summary.red_coverage_excess) }}</strong><span class="muted">并集命中 − 并集大小 × 6 / 33</span></div>
+<div class="metric"><span class="muted">每注平均中红球</span><strong>{{ decimal(summary.mean_ticket_red_hits) }}</strong><span class="muted">均匀基准 {{ decimal(summary.uniform_expected_ticket_red_hits) }}，与覆盖分别统计</span></div>
+<div class="metric"><span class="muted">命中蓝球的注数</span><strong>{{ nullable(summary.blue_hit_bets) }}</strong><span class="muted">均匀期望 {{ decimal(summary.uniform_expected_blue_hit_bets) }} 注</span></div>
+</div>
+<p class="muted">每注都出现的红球：{{ (summary.all_ticket_reds || []).map(pad).join(' ') || '无' }}。蓝球并集覆盖概率基准：{{ decimal(summary.uniform_expected_blue_coverage * 100) }}%。</p>
+<p v-if="summary.missed_reds_by_reason" class="muted">漏中红球分布：{{ missedReasons.map(r=>r.label + ' ' + r.count + ' 个').join('；') || '没有漏中红球' }}。这些原因说明算法筛选过程。</p>
+<p class="muted">{{ detail.explanation_limit }} <a :href="detail.prize_rules_url" target="_blank" rel="noopener">官方规则</a>
+</p>
+</section>
+          <section v-if="compactPreview" class="card" aria-label="同覆盖减注结构试算">
+<h2>同覆盖减注 · 结构试算</h2>
+<div class="notice">{{ compactPreview.note }}</div>
+<p>分别保留 {{ summary.red_coverage }} 个红球和 {{ summary.blue_coverage }} 个蓝球，{{ summary.bets }} 注可重组为 {{ compactPreview.summary.bets }} 注，成本 {{ summary.cost }} → {{ compactPreview.summary.cost }} 元，减少 {{ compactPreview.saved_cost }} 元。</p>
+<p class="muted">注数下界取“红球并集大小 ÷ 6 向上取整”与“蓝球并集大小”的较大值。保留两个并集不会保留每注红蓝组合或奖金。</p>
+<div class="scroll"><table class="comparison-table">
+<thead><tr><th>对照</th><th>注数 / 成本</th><th>红球覆盖命中</th><th>每注平均中红球</th><th>中奖注数 / 已知固定奖金</th></tr></thead>
+<tbody><tr><td>原实际推荐</td><td>{{ summary.bets }} 注 / {{ summary.cost }} 元</td><td>{{ nullable(summary.covered_red_count) }}</td><td>{{ decimal(summary.mean_ticket_red_hits) }}</td><td>{{ nullable(summary.prize_tickets) }} / {{ nullable(summary.fixed_prize) }} 元</td></tr>
+<tr><td>结构试算 · 未发布</td><td>{{ compactPreview.summary.bets }} 注 / {{ compactPreview.summary.cost }} 元</td><td>{{ nullable(compactPreview.summary.covered_red_count) }}</td><td>{{ decimal(compactPreview.summary.mean_ticket_red_hits) }}</td><td>{{ nullable(compactPreview.summary.prize_tickets) }} / {{ nullable(compactPreview.summary.fixed_prize) }} 元</td></tr></tbody>
+</table></div>
+<details style="margin-top:14px"><summary style="cursor:pointer">查看完整试算票组</summary><div v-for="t in compactPreview.tickets" :key="t.index" class="balls" style="margin-top:12px"><span class="muted">{{ t.index }} 注</span><span v-for="n in t.red" :key="n" class="ball selected red" :class="{hit:(t.hit_reds || []).includes(n)}">{{ pad(n) }}</span><span class="ball selected blue" :class="{hit:t.blue_hit}">{{ pad(t.blue) }}</span><span class="muted">{{ prizeName(t) }}</span></div></details>
+<button style="margin-top:16px" @click="exportCompactJson">导出结构试算 JSON</button>
+</section>
+          <section class="card">
+<h2>全号码轨迹</h2>
+<p class="muted">着色表示进入原票组，金色 ✓ 表示开奖号码；未着色但带 ✓ 的号码是漏中的开奖号码。鼠标悬停可查看排名和曝光次数。</p>
+<h3>红球 · 01–33</h3>
+<div class="number-grid">
+<span v-for="n in redNumbers" :key="n.number" class="ball red" :class="{selected:n.ticket_exposure > 0,hit:n.draw_hit}" :title="numberTitle(n)">{{ pad(n.number) }}</span>
+</div>
+<h3>蓝球 · 01–16</h3>
+<div class="number-grid">
+<span v-for="n in blueNumbers" :key="n.number" class="ball blue" :class="{selected:n.ticket_exposure > 0,hit:n.draw_hit}" :title="numberTitle(n)">{{ pad(n.number) }}</span>
+</div>
+<div class="flex" style="margin-bottom:14px">
+<label for="color-filter" class="muted">颜色</label>
+<select id="color-filter" v-model="color">
+<option value="all">全部 49 个号码</option>
+<option value="red">红球</option>
+<option value="blue">蓝球</option>
+</select>
+<label for="number-filter" class="muted">筛选</label>
+<select id="number-filter" v-model="filter">
+<option value="all">全部轨迹</option>
+<option value="selected">进入票组</option>
+<option value="winner">全部开奖号</option><option value="nonwinner">推荐但未开出</option><option value="repeated">重复出现的号码</option><option value="missed">遗漏开奖号码</option>
+<option value="rescued">救援号码</option>
+<option value="displaced">被替换号码</option>
+</select>
+<span class="muted">{{ filteredNumbers.length }} 行</span>
+</div>
+<div class="scroll">
+<table>
+<thead>
+<tr>
+<th>号码</th>
+<th>融合排名 / 分数</th>
+<th>筛选路径</th>
+<th>进入票组</th>
+<th>开奖结果</th>
+<th>专家证据（当时评分）</th>
+</tr>
+</thead>
+<tbody>
+<tr v-for="n in filteredNumbers" :key="n.color + n.number" :class="{winner:n.draw_hit}">
+<td>
+<span class="ball" :class="[n.color,{selected:n.ticket_exposure > 0,hit:n.draw_hit}]">{{ pad(n.number) }}</span>
+</td>
+<td>{{ n.fusion_rank == null ? detail.structural ? '无模型评分' : '未留存' : '#' + n.fusion_rank }}<small>{{ n.fusion_score == null && detail.structural ? '固定种子结构对照' : score(n.fusion_score) }}</small>
+</td>
+<td>{{ n.reason_text }}<small v-if="n.rescued">救援进入最终集合</small>
+<small v-if="n.displaced">被救援名额替换</small>
+<small v-if="n.in_candidate_pool">在候选池内</small>
+</td>
+<td>{{ n.ticket_exposure }} 注</td>
+<td>{{ resultName(n.recommendation_result) }}</td>
+<td>
+<details v-if="(n.expert_scores || []).length">
+<summary style="cursor:pointer;color:#475569">{{ n.expert_scores.length }} 位专家 · 展开评分</summary>
+<small v-for="e in n.expert_scores" :key="e.name">{{ e.label }} {{ score(e.score) }}</small>
+</details>
+<small v-else>{{ detail.structural ? '未使用专家评分' : '未留存' }}</small>
+<small v-if="(n.nominating_experts || []).length">专家前列：{{ n.nominating_experts.join('、') }}</small>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+          <section class="card columns">
+<div>
+<h2>选号漏斗</h2>
+<div class="scroll">
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>数量 / 命中</th>
+<th>号码</th>
+</tr>
+</thead>
+<tbody>
+<tr v-for="stage in detail.funnel" :key="stage.stage">
+<td>{{ stageName(stage.stage) }}</td>
+<td>{{ stage.size }} / {{ nullable(stage.draw_hits) }}</td>
+<td>{{ stage.numbers.map(pad).join(' ') || '无' }}<small v-if="stage.hit_numbers">命中 {{ stage.hit_numbers.map(pad).join(' ') || '无' }}</small>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div>
+<h2>当时的融合权重</h2>
+<p v-if="detail.structural" class="muted">该方案按固定种子分散号码，不使用专家评分或融合权重。</p>
+<div v-else class="scroll">
+<table>
+<thead>
+<tr>
+<th>专家</th>
+<th>红球</th>
+<th>蓝球</th>
+</tr>
+</thead>
+<tbody>
+<tr v-for="name in expertNames" :key="name">
+<td>{{ name }}</td>
+<td>{{ weight('red', name) }}</td>
+<td>{{ weight('blue', name) }}</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p v-if="!detail.structural" class="muted">权重与分数来自原始留档。未提供因果解释或校准后的中奖概率。</p>
+</div>
+</section>
+          <section class="card">
+<h2 id="ticket-review" tabindex="-1">逐注核对 · 完整展开票组</h2>
+<p class="muted">复式、胆拖已经展开为单注。重复票按实际购买次数保留，中奖注数和固定奖金逐注累加。</p>
+<div class="scroll">
+<table>
+<thead>
+<tr>
+<th>注号</th>
+<th>原始票面</th>
+<th>命中红球</th>
+<th>蓝球</th>
+<th>奖项 / 固定奖金</th>
+</tr>
+</thead>
+<tbody>
+<tr v-for="t in shownTickets" :key="t.index">
+<td>{{ t.index }}</td>
+<td class="ticket-balls">
+<div class="balls">
+<span v-for="n in t.red" :key="n" class="ball red selected" :class="{hit:(t.hit_reds || []).includes(n)}">{{ pad(n) }}</span>
+<span class="ball blue selected" :class="{hit:t.blue_hit}">{{ pad(t.blue) }}</span>
+</div>
+</td>
+<td>{{ nullable(t.red_hits) }}</td>
+<td>{{ t.blue_hit == null ? '待开奖' : t.blue_hit ? '✓ 命中' : '未中' }}</td>
+<td>{{ prizeName(t) }}<small v-if="t.prize_level >= 3">{{ t.fixed_prize }} 元</small>
+<small v-else-if="t.prize_level">奖金以当期公告为准</small>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pager">
+<span class="muted">{{ ticketPage + 1 }} / {{ ticketPages }} 页，共 {{ detail.tickets.length }} 注</span>
+<button @click="ticketPage--" :disabled="ticketPage === 0">上一页</button>
+<button @click="ticketPage++" :disabled="ticketPage + 1 >= ticketPages">下一页</button>
+</div>
+</section>
+        </template>
+      </template>
+      <div v-else-if="!loading" class="card empty">选择期号查看实际推荐。</div>
+    </main>
+  </div>
+  <footer>推荐档案保存本地 SHA-256 摘要，不能单独证明开奖前已经公开。开奖日与截止时间采用本地常规日历，节假日休市需核对公告。复盘展示实际留档结果，不承诺提高中奖率。</footer>
+</div>
+<script>
+const {createApp,ref,computed,onMounted,nextTick} = Vue;
+createApp({setup(){
+  const base=new URL(location.href);base.pathname=base.pathname.replace(/reviews(?:\.html)?\/?$/,'');base.search='';base.hash='';
+  const home=base.pathname,params=new URLSearchParams(location.search);
+  const issues=ref([]),next=ref({}),limit=ref(60),issue=ref(params.get('issue') || ''),view=ref(null),loading=ref(false),busy=ref(false),message=ref(''),messageType=ref(''),color=ref('all'),filter=ref('all'),ticketPage=ref(0),strategyGroup=ref('all'),comparisonCost=ref('all'),selectedPool=ref('red18_blue2'),poolGroup=ref('observation'),poolBlueCount=ref(2);
+  let requestId=0;
+  const detail=computed(()=>view.value?.detail),summary=computed(()=>detail.value?.summary || {}),provenance=computed(()=>view.value?.provenance || {}),redNumbers=computed(()=>(detail.value?.numbers || []).filter(n=>n.color==='red')),blueNumbers=computed(()=>(detail.value?.numbers || []).filter(n=>n.color==='blue'));
+  const compactPreview=computed(()=>view.value?.compact_preview),comparisonCosts=computed(()=>[...new Set((view.value?.strategies || []).map(s=>s.summary.cost))].sort((a,b)=>a-b));
+  const hasObservationTiers=computed(()=>(view.value?.number_pools?.pools || []).some(p=>p.group==='observation'));
+  const effectivePoolGroup=computed({get:()=>hasObservationTiers.value?poolGroup.value:'legacy',set:v=>poolGroup.value=v});
+  const shownPools=computed(()=>(view.value?.number_pools?.pools || []).filter(p=>p.blue_count===poolBlueCount.value&&(hasObservationTiers.value?effectivePoolGroup.value==='observation'?p.group==='observation':p.group!=='observation':true)));
+  const numberPool=computed(()=>shownPools.value.find(p=>p.id===selectedPool.value) || shownPools.value[0]);
+  const comparedStrategies=computed(()=>(view.value?.strategies || []).filter(s=>(strategyGroup.value==='all'||(strategyGroup.value==='efficiency')===s.name.startsWith('efficiency:'))&&(comparisonCost.value==='all'||s.summary.cost===Number(comparisonCost.value))));
+  const missedReasons=computed(()=>Object.entries(summary.value.missed_reds_by_reason || {}).map(([reason,count])=>({count,label:detail.value.numbers.find(n=>n.reason===reason)?.reason_text || reason})));
+  const filteredNumbers=computed(()=>(detail.value?.numbers || []).filter(n=>(color.value==='all'||n.color===color.value) && (filter.value==='all'||filter.value==='selected'&&n.ticket_exposure>0||filter.value==='winner'&&n.draw_hit===true||filter.value==='nonwinner'&&n.draw_hit===false&&n.ticket_exposure>0||filter.value==='repeated'&&n.ticket_exposure>1||filter.value==='missed'&&n.draw_hit===true&&n.ticket_exposure===0||filter.value==='rescued'&&n.rescued||filter.value==='displaced'&&n.displaced)));
+  const shownTickets=computed(()=>(detail.value?.tickets || []).slice(ticketPage.value*50,(ticketPage.value+1)*50)),ticketPages=computed(()=>Math.max(1,Math.ceil((detail.value?.tickets.length || 0)/50)));
+  const redExperts=['长期频率','指数近期','遗漏回补','近期热号','上期共现','区间均衡','上期重号'],blueExperts=['长期频率','指数近期','遗漏回补','近期热号','回避上期','转移矩阵'],expertNames=[...new Set([...redExperts,...blueExperts])];
+  const pad=n=>String(n).padStart(2,'0'),nullable=v=>v==null?'—':v,score=v=>v==null?'未留存':Number(v).toFixed(6),time=t=>t?new Date(t*1000).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false})+'（北京时间）':'未留存';
+  const decimal=v=>v==null?'—':Number(v).toFixed(2),signed=v=>v==null?'—':(v>0?'+':'')+Number(v).toFixed(2);
+  const flag=v=>v==null?'—':v?'是':'否';
+  const sourceName=s=>(s.kind==='daily'?'每期自动留档':s.kind==='saved'?'旧版保存记录':'实际生成方案')+' · '+time(s.published_at_unix)+(s.kind==='daily'?'':' · '+s.id.slice(-8));
+  const stageName=s=>({fusion_top_k:'融合前 15',final_set:'救援后的最终集合',rescued:'救援进入',candidate_pool:'构票候选池',final_union:'票组红球并集'}[s]||s);
+  const resultName=s=>({pending:'待开奖',covered_winner:'✓ 覆盖开奖号码',uncovered_winner:'漏中开奖号码',recommended_nonwinner:'入票未中',not_selected_nonwinner:'未选入'}[s]||s);
+  const numberTitle=n=>`${n.color==='red'?'红球':'蓝球'} ${pad(n.number)} · 排名 ${nullable(n.fusion_rank)} · 曝光 ${n.ticket_exposure} 注 · ${n.reason_text}`;
+  const prizeName=t=>t.result==='pending'?'待开奖':t.prize_level?['','一等奖','二等奖','三等奖','四等奖','五等奖','六等奖'][t.prize_level]:t.special_prize_candidate?'福运奖待核实':'常规奖未中';
+  function weight(c,name){const names=c==='red'?redExperts:blueExperts,idx=names.indexOf(name),weights=detail.value?.[c+'_weights'];return idx<0?'—':weights?.[idx]==null?'未留存':(weights[idx]*100).toFixed(2)+'%';}
+  async function api(path,options){const r=await fetch(new URL(path,base),options),data=await r.json();if(!r.ok)throw Error(data.error||'读取失败');return data;}
+  function notice(text,type=''){message.value=text;messageType.value=type;}
+  async function refresh(preferred,archive,strategy){try{const data=await api('api/recommendations/issues?limit='+limit.value);issues.value=data.issues;next.value=data.next;await loadIssue(typeof preferred==='string'&&preferred?preferred:issue.value || data.issues[0]?.issue,archive,strategy);}catch(e){notice(e.message,'error');}}
+  async function loadIssue(id,archive,strategy){if(!id)return;const token=++requestId;issue.value=id;loading.value=true;if(view.value?.issue!==id||(archive&&view.value?.archive_id!==archive))view.value=null;ticketPage.value=0;const q=new URLSearchParams();if(archive)q.set('archive',archive);if(strategy)q.set('strategy',strategy);try{const data=await api('api/recommendations/issues/'+encodeURIComponent(id)+'?'+q);if(token!==requestId)return;view.value=data;const url=new URL(location.href);url.search='';if(SSQApp.embedded)url.searchParams.set('embed','1');url.searchParams.set('issue',id);if(data.archive_id)url.searchParams.set('archive',data.archive_id);if(data.strategy)url.searchParams.set('strategy',data.strategy);history.replaceState(null,'',url);}catch(e){if(token===requestId)notice(e.message,'error');}finally{if(token===requestId)loading.value=false;}}
+  function chooseIssue(id){message.value='';return loadIssue(id);}function chooseArchive(id){return loadIssue(issue.value,id);}function chooseStrategy(name){return loadIssue(issue.value,view.value.archive_id,name);}
+  const isDrawNumber=(n,color)=>view.value?.draw?(color==='blue'?view.value.draw.blue===n:view.value.draw.red.includes(n)):false;
+  const numberLabel=(n,color)=>`${color==='blue'?'蓝球':'红球'} ${pad(n)} · ${view.value?.draw?isDrawNumber(n,color)?'本期已开出':'本期未开出':'待开奖'}`;
+  async function viewTickets(name){await chooseStrategy(name);if(view.value?.strategy!==name)return;await nextTick();const el=document.getElementById('ticket-review');el?.focus({preventScroll:true});el?.scrollIntoView({block:'start'});}
+
+  async function action(path,after){if(busy.value)return;busy.value=true;try{const data=await api(path,{method:'POST'});await after(data);}catch(e){notice(e.message,'error');}finally{busy.value=false;}}
+  function freeze(){return action('api/recommendations/freeze',async d=>{notice(`已保留 ${d.number_pools || 0} 个小池、${d.strategies} 个票组，已有档案保持首次版本。`,'success');await refresh(d.issue,'daily');});}
+  async function settled(data){const d=data.recommendations || data;notice(d.errors?.length?'部分档案未能复盘：'+d.errors.join('；'):`已核对，新增 ${d.settled} 份复盘。`,d.errors?.length?'error':'success');await refresh(issue.value,view.value?.archive_id,view.value?.strategy);}
+  function settle(){return action('api/recommendations/settle',settled);}function sync(){return action('api/sync',settled);}
+  function fileUrl(path){const url=new URL('api/recommendations/files',base);url.searchParams.set('path',path);return url.href;}
+  function download(text,type,name){const url=URL.createObjectURL(new Blob([text],{type})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+  function exportJson(){download(JSON.stringify(view.value,null,2),'application/json',`ssq-review-${issue.value}-${view.value.strategy}.json`);}
+  function exportCompactJson(){download(JSON.stringify({issue:issue.value,source_archive_sha256:provenance.value.sha256 || null,source_strategy:view.value.strategy,draw:view.value.draw,...compactPreview.value},null,2),'application/json',`ssq-structural-preview-${issue.value}.json`);}
+  function exportCsv(){const cols=['color','number','fusion_rank','fusion_score','in_candidate_pool','rescued','displaced','ticket_exposure','draw_hit','recommendation_result','reason_text','expert_scores','nominating_experts'];const cell=v=>'"'+String(v==null?'':typeof v==='object'?JSON.stringify(v):v).replace(/"/g,'""')+'"';const rows=[cols,...detail.value.numbers.map(n=>cols.map(c=>n[c]))];download('\ufeff'+rows.map(r=>r.map(cell).join(',')).join('\r\n'),'text/csv;charset=utf-8',`ssq-numbers-${issue.value}-${view.value.strategy}.csv`);}
+  onMounted(()=>refresh(issue.value,params.get('archive'),params.get('strategy')));
+  return {home,issues,next,limit,issue,view,detail,summary,provenance,compactPreview,comparisonCosts,comparedStrategies,missedReasons,strategyGroup,comparisonCost,selectedPool,effectivePoolGroup,poolBlueCount,hasObservationTiers,shownPools,numberPool,loading,busy,message,messageType,color,filter,ticketPage,redNumbers,blueNumbers,filteredNumbers,shownTickets,ticketPages,expertNames,isDrawNumber,numberLabel,viewTickets,pad,nullable,decimal,signed,flag,score,time,sourceName,stageName,resultName,numberTitle,prizeName,weight,refresh,chooseIssue,chooseArchive,chooseStrategy,freeze,settle,sync,fileUrl,exportJson,exportCompactJson,exportCsv};
+}}).mount('#app');
+</script>
+</body>
+</html>

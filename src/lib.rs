@@ -1,9 +1,17 @@
 pub mod audit;
+pub mod cycle;
 pub mod draw;
+pub mod efficiency;
 pub mod eval;
 pub mod hash;
+pub mod history;
 pub mod model;
+pub mod plan;
+pub mod pool;
 pub mod protocol;
+pub mod recommendations;
 pub mod report;
+pub mod review;
 pub mod select;
 pub mod stats;
+pub mod web;

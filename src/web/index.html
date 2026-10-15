@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>双色球科学量化决策系统</title>
+<link rel="stylesheet" href="static/app.css">
+<script src="static/shell.js"></script><script src="static/vendor/vue-3.5.24.js"></script>
+</head>
+<body><div id="app" v-cloak>
+<header class="shell-header"><div class="shell-width">
+<div class="brand-row"><div class="brand"><span class="brand-mark">双色</span><div><h1>双色球科学量化决策系统</h1><div class="muted desktop-only">方案生成 · 原始号码留档 · 开奖后逐注核对</div></div></div><div class="row"><span v-if="overview.latest_draw" class="muted desktop-only">最新开奖：{{ overview.latest_draw.issue }} 期</span><button class="sync" @click="syncDraws" :disabled="syncing || generating || saving">{{ syncing?'同步中…':'同步开奖' }}</button></div></div>
+<nav class="tabs" role="tablist" aria-label="主要功能"><button v-for="tab in tabs" :key="tab.id" :id="'tab-'+tab.id" role="tab" :aria-selected="currentTab===tab.id" :aria-controls="'panel-'+tab.id" :class="{active:currentTab===tab.id}" @click="openTab(tab.id)">{{ tab.icon }} {{ tab.name }} <span v-if="tab.id==='records'&&overview.pending" class="badge">{{ overview.pending }}</span></button></nav>
+</div></header>
+<main class="page">
+<div v-if="toast.show" :class="['notice',toast.type==='error'?'error':'success']" role="status"><div class="row between"><span>{{ toast.message }}</span><button @click="toast.show=false" aria-label="关闭提示">×</button></div></div>
+<section v-show="currentTab==='generator'" id="panel-generator" role="tabpanel" aria-labelledby="tab-generator">
+<div class="notice">以更少红球覆盖全部 6 个开奖号为观察目标；模型排序尚未证明稳定优于均匀选号。号码池覆盖与单注中奖分别核对。<a href="?tab=reviews" @click.prevent="openTab('reviews')">查看每期实际推荐与复盘</a></div>
+<div class="card"><h2>⚡ 按目标生成方案</h2><div class="grid3"><button v-for="p in presets" :key="p.id" :id="'preset-'+p.id" :class="['preset',{selected:activePreset===p.id}]" :disabled="generating||saving||syncing" @click="applyPreset(p.id)"><strong>{{ p.name }}</strong><small>{{ p.desc }}</small></button></div></div>
+<form class="card" @submit.prevent="generateCustom"><h2>🛠️ 自定义参数生成</h2><div class="grid4">
+<label class="field">选择玩法<input value="双色球 · 6 红 + 1 蓝" readonly></label>
+<label class="field" for="plan-mode">投注形态<select id="plan-mode" v-model="form.mode" @change="activePreset=''">
+<option value="pool_observation">分档号码池观察</option><option value="single">单式多注</option><option value="compound_red">红球复式</option><option value="compound_blue">蓝球复式</option><option value="dantuo">胆拖投注</option><option value="frozen">协议冻结票组</option></select></label>
+<label class="field">选号机制<input value="按期更新 · 冻结融合排序" readonly></label>
+<label class="field" for="target-issue">目标期号<input id="target-issue" v-model="target" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" required placeholder="如 26118"></label>
+</div><div class="grid4 divider">
+<label v-if="form.mode==='pool_observation'" class="field" for="observation-size">观察档位<select id="observation-size" v-model.number="form.observation_size"><option v-for="(n,i) in [14,16,18,20,22,24]" :value="n">{{ String.fromCharCode(65+i) }}档 · {{ n }} 红</option></select></label>
+<label v-if="form.mode==='single'" class="field">单式注数<input v-model.number="form.tickets" type="number" min="1" max="20" required></label>
+<label v-if="form.mode==='single'" class="field">候选红球数<input v-model.number="form.pool" type="number" min="6" max="33" required></label>
+<label v-if="form.mode==='single'" class="field">注间红球重合上限<input v-model.number="form.overlap" type="number" min="0" max="5" required></label>
+<label v-if="form.mode==='compound_red'" class="field">复式红球数<input v-model.number="form.red_count" type="number" min="7" max="10" required></label>
+<label v-if="form.mode==='dantuo'" class="field">胆码个数<input v-model.number="form.bankers" type="number" min="1" max="5" required></label>
+<label v-if="form.mode==='dantuo'" class="field">拖码个数<input v-model.number="form.drags" type="number" min="2" max="15" required></label>
+<label v-if="form.mode!=='frozen'" class="field">蓝球个数<select v-model.number="form.blue_count"><option v-for="n in (form.mode==='pool_observation'?[1,2,3]:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])" :value="n">{{ n }} 个</option></select></label>
+<label v-if="form.mode==='frozen'" class="field" for="seal-deadline">封存截止（北京时间）<input id="seal-deadline" v-model="deadline" type="datetime-local" required></label>
+<div class="field"><span class="muted">{{ form.mode==='pool_observation'?'只生成号码池，不展开复式':'按完整展开票组计算，最多 300 注' }}</span><button class="primary" type="submit" :disabled="generating||saving||syncing">{{ generating?'生成计算中…':'立即生成方案' }}</button></div>
+</div></form>
+<div v-if="!plan&&!poolPreview" class="card empty">选择上方目标预设，或填写参数后点击“立即生成方案”。</div>
+<article v-if="plan||poolPreview" id="generated-plan" class="card result">
+<div class="result-header"><div class="row between"><div><div class="muted">第 {{ generatedIssue }} 期 · {{ poolPreview?'号码池观察':plan.known_outcome_at_generation?'历史试算':'按期选号' }}</div><h2 style="margin:6px 0">{{ poolPreview?poolPreview.red_count+'红号码池 · 模型观察':plan.title }}</h2></div><div class="row"><button :class="['save',{success:planSaved}]" @click="savePlan" :disabled="saving||generating||planSaved||stalePreview||(poolPreview&&!poolCanFreeze)">{{ saving?'保存中…':planSaved?'✓ 已保存':poolPreview?'封存六档观察池':'保存到我的方案库' }}</button><button class="copy" @click="copyPlan">{{ poolPreview?'复制号码池':'复制打单文本' }}</button></div></div></div>
+<div class="result-body">
+<p v-if="stalePreview" class="notice">开奖输入已变化，这份预览仍显示生成时的号码；请重新生成后保存。</p>
+<div class="row between"><p class="muted">依据截止 {{ currentResult.cutoff_issue }}（{{ currentResult.cutoff_date }}）的数据。修改上方参数后，点击生成才会替换本次结果。</p><a v-if="resultArchive" :href="resultArchive.url" @click.prevent="openReviewUrl(resultArchive.url)">查看本次推荐留档 →</a></div>
+<template v-if="poolPreview"><p v-if="!poolCanFreeze" class="notice">{{ cycle?.reason }}。当前仅查看号码预览。</p>
+<div class="grid3"><div class="metric">所选红球<strong>{{ poolPreview.red_count }} 个</strong>较大档逐层包含较小档</div><div class="metric">共用蓝球<strong>{{ poolPreview.blue_count }} 个</strong>同一冻结排名</div><div class="metric">同大小均匀全 6 红基准<strong>{{ percent(poolPreview.uniform_full_red_rate) }}</strong>作为参照，不是模型置信度</div></div>
+<h3 style="margin-top:20px">本次观察号码池</h3><div class="balls"><span v-for="n in poolPreview.reds" :key="'r'+n" class="ball red">{{ pad(n) }}</span><span v-for="n in poolPreview.blues" :key="'b'+n" class="ball blue">{{ pad(n) }}</span></div>
+<p class="muted" style="margin-top:16px">封存时同时保存 14／16／18／20／22／24 红六档 × 1–3 蓝，开奖后比较命中、漏号与最小全包档；已有每期档案保持首次版本。</p><a :href="researchUrl" @click.prevent="openTab('research',{view:'observations'})">查看六档号码与历史覆盖曲线 →</a>
+</template>
+<template v-else>
+<div class="grid4"><div class="metric">每期注数<strong>{{ plan.bet_count }} 注</strong>完整展开</div><div class="metric">每期成本<strong>{{ plan.cost }} 元</strong>每注 2 元</div><div class="metric">不同红球<strong>{{ planRedUnion.length }} 个</strong>票组红球并集</div><div class="metric">不同蓝球<strong>{{ planBlueUnion.length }} 个</strong>票组蓝球并集</div></div>
+<p class="muted" style="margin-top:16px">{{ plan.detail }}</p><p v-if="plan.requires_seal" class="muted">冻结票组保存时以生成时选定的北京时间截止封存。</p>
+<div v-if="plan.bankers.length" style="margin-bottom:16px"><h3>胆码 / 拖码</h3><div class="balls"><span v-for="n in plan.bankers" :key="'bank'+n" class="ball red ring">{{ pad(n) }}</span><span class="muted">／</span><span v-for="n in plan.drags" :key="'drag'+n" class="ball red">{{ pad(n) }}</span></div></div>
+<div class="ticket-list"><div v-for="(t,i) in plan.tickets" :key="i" class="ticket-row"><span class="muted">第 {{ pad(i+1) }} 注</span><div class="balls"><span v-for="n in t.red" :key="n" :class="['ball','red','sm',{ring:plan.rescued.includes(n)}]">{{ pad(n) }}</span><span class="ball blue sm">{{ pad(t.blue) }}</span></div></div></div>
+</template>
+</div></article>
+</section>
+<section v-show="currentTab==='records'" id="panel-records" role="tabpanel" aria-labelledby="tab-records">
+<div class="grid4" style="margin-bottom:20px"><div class="card metric">累计方案<strong>{{ overview.total_plans }}</strong></div><div class="card metric">待开奖<strong>{{ overview.pending }}</strong></div><div class="card metric">已开奖<strong>{{ overview.scored }}</strong></div><div class="card metric">平均覆盖开奖红球<strong>{{ scoredCover }}</strong></div></div>
+<div class="card row between"><label class="row">状态<select v-model="recordFilter"><option value="all">全部状态</option><option value="pending">待开奖</option><option value="scored">已开奖</option><option value="invalid">记录异常</option></select></label><div class="row"><button @click="loadRecords" :disabled="recordsLoading">{{ recordsLoading?'读取中…':'刷新方案库' }}</button><button class="primary" @click="settle" :disabled="settling">{{ settling?'正在对奖…':'一键对奖' }}</button></div></div>
+<div v-if="!shownRecords.length" class="card empty">当前没有符合筛选的已保存方案。生成方案后点击“保存到我的方案库”。</div>
+<article v-for="rec in shownRecords" :key="rec.file" class="card" style="padding:0;overflow:hidden"><div class="record-header row between"><strong>第 {{ rec.target }} 期 · {{ rec.title }}</strong><span :class="['badge',rec.status==='pending'?'':'success']">{{ {pending:'待开奖',scored:'已对奖',invalid:'记录异常'}[rec.status] }}</span></div><div class="record-body">
+<div class="row between"><p class="muted">{{ rec.tickets.length }} 注 · {{ rec.cost || rec.tickets.length*2 }} 元 · {{ freezeTime(rec.published_at) }} · 依据截止 {{ rec.cutoff_issue }}</p><button @click="openTab('reviews',{issue:rec.target,archive:'saved:'+rec.file})">查看完整复盘</button></div>
+<p v-if="rec.error" class="notice error">{{ rec.error }}</p><p v-if="!rec.draw" class="muted">待开奖，命中和漏号暂不计算。</p>
+<div v-if="rec.draw" style="margin-bottom:14px"><h3>当期开奖</h3><div class="balls"><span v-for="n in rec.draw.red" :key="n" class="ball red sm">{{ pad(n) }}</span><span class="ball blue sm">{{ pad(rec.draw.blue) }}</span></div><p v-if="rec.coverage" class="muted" style="margin-top:10px">覆盖 {{ rec.coverage.red_hit_n }}/6 个红球，单注最多中 {{ rec.best_red }} 红；蓝球{{ rec.coverage.blue_covered?'已覆盖':'未覆盖' }}。</p></div>
+<details><summary>查看 {{ rec.tickets.length }} 注号码{{ rec.draw?'与对奖':'' }}</summary><div class="ticket-list"><div v-for="(t,i) in rec.tickets" :key="i" class="ticket-row"><span class="muted">第 {{ i+1 }} 注</span><div class="balls"><span v-for="n in t.red" :key="n" :class="['ball','sm',hitRed(n,rec)?'hit':'red']">{{ pad(n) }}</span><span :class="['ball','sm',hitBlue(t.blue,rec)?'hit':'blue']">{{ pad(t.blue) }}</span></div><span v-if="rec.ticket_hits?.[i]" class="muted">{{ rec.ticket_hits[i].red_hits }} 红{{ rec.ticket_hits[i].blue_hit?' + 蓝':'' }}</span></div></div></details>
+</div></article>
+</section>
+<section v-show="currentTab==='reviews'" id="panel-reviews" role="tabpanel" aria-labelledby="tab-reviews"><div class="frame-toolbar"><span>实际留档 → 选择期号与来源 → 对比号码 → 查看完整票组</span><a :href="reviewsStandalone" target="_blank" rel="noopener">独立打开复盘页 ↗</a></div><iframe v-if="openedFrames.reviews" :src="reviewsSrc" class="shell-frame" title="每期推荐与复盘" @load="frameLoaded"></iframe></section>
+<section v-show="currentTab==='draws'" id="panel-draws" role="tabpanel" aria-labelledby="tab-draws">
+<div v-if="overview.latest_draw" class="card draw-hero"><div class="row between"><div><p class="muted">最新已入库开奖</p><h2>第 {{ overview.latest_draw.issue }} 期</h2></div><strong>{{ overview.latest_draw.date }}</strong></div><div class="balls"><span v-for="n in overview.latest_draw.red" :key="n" class="ball red">{{ pad(n) }}</span><span class="ball blue">{{ pad(overview.latest_draw.blue) }}</span></div></div>
+<div class="card"><div class="row between"><h2>开奖历史</h2><span class="muted">本地 {{ overview.total_draws }} 期 · 来源 500.com</span></div><div v-for="draw in draws" :key="draw.issue" class="draw-row row between"><span><strong>{{ draw.issue }}</strong> <span class="muted">{{ draw.date }}</span></span><div class="balls"><span v-for="n in draw.red" :key="n" class="ball red sm">{{ pad(n) }}</span><span class="ball blue sm">{{ pad(draw.blue) }}</span></div></div><button @click="loadDraws(drawBefore)" :disabled="drawsLoading||!moreDraws" style="margin-top:16px">{{ drawsLoading?'读取中…':moreDraws?'加载更早开奖':'已到最早开奖' }}</button></div>
+</section>
+<section v-show="currentTab==='backtest'" id="panel-backtest" role="tabpanel" aria-labelledby="tab-backtest"><div class="card"><div class="row between"><h2>科学回测与优化</h2><button @click="loadReport(true)" :disabled="reportLoading">{{ reportLoading?'计算中…':'重新评估' }}</button></div><p>{{ verdict }}</p><div class="grid4"><div v-for="c in reportCards" :key="c.k" class="metric">{{ c.k }}<strong>{{ c.v }}</strong><span class="muted">{{ c.s }}</span></div></div><p class="muted" style="margin-top:16px">原协议确认窗固定，新增开奖进入跟踪窗。号码池探索和实际留档在各自页面单独观察。</p><div class="scroll"><table><thead><tr><th>检验</th><th>估计</th><th>95%区间</th><th>Holm p</th></tr></thead><tbody><tr v-for="t in tests" :key="t.name"><td>{{ t.name }}</td><td>{{ f4(t.estimate) }}</td><td>{{ t.ci95.map(f4).join(' ～ ') }}</td><td>{{ f4(t.p_holm) }}</td></tr></tbody></table></div></div><div class="card"><h2>继续查看</h2><div class="row"><button @click="openTab('research',{view:'pools'})">号码池覆盖曲线</button><button @click="openTab('research',{view:'replay'})">逐期因果回放</button><button @click="openTab('reviews')">实际留档表现</button></div></div></section>
+<section v-show="currentTab==='research'" id="panel-research" role="tabpanel" aria-labelledby="tab-research"><div class="frame-toolbar"><span>历史研究与实际留档分别计数</span><a :href="researchStandalone" target="_blank" rel="noopener">独立打开研究页 ↗</a></div><iframe v-if="openedFrames.research" :src="researchSrc" class="shell-frame" title="研究评估" @load="frameLoaded"></iframe></section>
+<section v-show="currentTab==='settings'" id="panel-settings" role="tabpanel" aria-labelledby="tab-settings"><div class="card"><h2>系统设置 · 冻结协议</h2><div class="grid2"><label class="field">主种子（协议固定）<input :value="overview.master_seed || '由冻结协议定义'" readonly></label><label class="field">开奖缓存<input :value="overview.total_draws+' 期，截止 '+(overview.latest_draw?.issue || '—')" readonly></label></div><p style="margin-top:18px">确认窗从 25111 期开始，共 156 期。融合权重只用此前的数据拟合；号码规则按双色球执行。</p><p class="hash">协议 SHA-256：{{ overview.protocol_sha256 }}</p></div><div class="card"><h2>留档与同步状态</h2><p>{{ cycle?.reason || '正在读取周期状态…' }}</p><p class="muted">网页提供同步、留档和核对操作。自动运行由服务器已有外部定时任务调用 cycle；本页不修改冻结协议参数。</p><details v-if="cycle?.log?.length"><summary>最近周期记录</summary><pre class="hash" style="white-space:pre-wrap">{{ cycle.log.join('\n') }}</pre></details></div></section>
+</main><footer class="shell-footer">双色球 · 号码池覆盖、单注命中和奖金分别核对</footer>
+</div><script src="static/main.js"></script></body></html>

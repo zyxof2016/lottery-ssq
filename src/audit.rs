@@ -63,18 +63,14 @@ pub fn publish(
     target: Option<String>,
     not_after: Option<u64>,
 ) -> Result<PublishOutcome, String> {
-    if let Some(deadline) = not_after {
-        let now = now_unix();
-        if now > deadline {
-            return Err(format!("已过留痕截止时间 {deadline}，当前 {now}，拒绝发布"));
-        }
-    }
+    let deadline = not_after.ok_or("开奖前发布必须提供截止时间 --not-after")?;
+    check_deadline(deadline)?;
     let draws = load_csv(data)?;
     let prepared = prepare_forecast(&draws)?;
-    let target = target.unwrap_or_else(|| format!("after:{}", fmt_issue(prepared.cutoff_issue)));
-    if target.trim().is_empty() {
-        return Err("目标期号不能为空".into());
-    }
+    let target = target
+        .map(|value| value.trim().to_string())
+        .unwrap_or_else(|| format!("after:{}", fmt_issue(prepared.cutoff_issue)));
+    target_draw(&draws, prepared.cutoff_issue, &target)?;
     let canonical = canonical_manifest(
         &prepared.forecast,
         &prepared.weights,
@@ -99,6 +95,7 @@ pub fn publish(
         }
         let path = manifest_path(out_dir, &target, &digest);
         if !path.exists() {
+            check_deadline(deadline)?;
             write_manifest(&path, &canonical, &digest)?;
         }
         return Ok(PublishOutcome {
@@ -108,6 +105,7 @@ pub fn publish(
             target,
         });
     }
+    check_deadline(deadline)?;
     fs::create_dir_all(out_dir).map_err(|e| format!("无法创建目录 {}: {e}", out_dir.display()))?;
     let path = manifest_path(out_dir, &target, &digest);
     write_manifest(&path, &canonical, &digest)?;
@@ -177,7 +175,8 @@ pub fn verify(data: &Path, manifest: &Path, audit: Option<&Path>) -> Result<Veri
             first_diff(&file.canonical, &recomputed)
         ));
     }
-    let score = draws.iter().find(|d| d.issue > cutoff).map(|d| score_draw(&prepared.forecast, d));
+    let score = target_draw(&draws, cutoff, &target)?
+        .map(|draw| score_draw(&prepared.forecast, draw));
     if let Some(path) = audit {
         if let Some(card) = &score {
             append_audit(
@@ -201,6 +200,42 @@ pub fn verify(data: &Path, manifest: &Path, audit: Option<&Path>) -> Result<Veri
         cutoff_issue: cutoff,
         score,
     })
+}
+
+/// 清单只预测截止期后的第一期；旧版 after:截止期 清单继续使用这个含义。
+pub(crate) fn target_draw<'a>(
+    draws: &'a [Draw],
+    cutoff: u32,
+    target: &str,
+) -> Result<Option<&'a Draw>, String> {
+    let next = draws.iter().find(|draw| draw.issue > cutoff);
+    if target == format!("after:{}", fmt_issue(cutoff)) {
+        return Ok(next);
+    }
+    if target.len() != 5 || !target.bytes().all(|c| c.is_ascii_digit()) {
+        return Err("目标期号必须是 5 位数字，或 after:截止期".into());
+    }
+    let issue: u32 = target.parse().map_err(|_| "目标期号无法解析")?;
+    if issue <= cutoff {
+        return Err(format!("目标期号 {target} 必须晚于截止期 {}", fmt_issue(cutoff)));
+    }
+    if let Some(draw) = next {
+        if draw.issue != issue {
+            return Err(format!(
+                "目标期号 {target} 与截止期后的第一期开奖 {} 不一致，拒绝计分",
+                fmt_issue(draw.issue)
+            ));
+        }
+    }
+    Ok(next)
+}
+
+fn check_deadline(deadline: u64) -> Result<(), String> {
+    let now = now_unix();
+    if now >= deadline {
+        return Err(format!("已到留痕截止时间 {deadline}，当前 {now}，拒绝发布"));
+    }
+    Ok(())
 }
 
 pub fn render_score(card: &ScoreCard) -> String {
@@ -437,26 +472,42 @@ mod tests {
     use super::*;
     use crate::draw::{synth_draws, write_csv};
 
-    #[test]
-    fn publish_then_verify_and_refuse_rewrite() {
-        let mut draws = synth_draws(180, 21);
-        let dir = std::env::temp_dir().join(format!("ssq-audit-{}", std::process::id()));
-        let _ = fs::remove_dir_all(&dir);
+    fn fixture(name: &str, draws: &[Draw]) -> (PathBuf, PathBuf, PathBuf, PathBuf) {
+        let stamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+        let dir = std::env::temp_dir().join(format!("ssq-audit-{name}-{}-{stamp}", std::process::id()));
         fs::create_dir_all(&dir).unwrap();
         let data = dir.join("ssq.csv");
         let audit = dir.join("log.jsonl");
         let out = dir.join("pub");
-        write_csv(&data, &draws).unwrap();
+        write_csv(&data, draws).unwrap();
+        (dir, data, audit, out)
+    }
+
+    #[test]
+    fn publish_then_verify_and_refuse_rewrite() {
+        let mut draws = synth_draws(180, 21);
+        let (dir, data, audit, out) = fixture("roundtrip", &draws);
+        let target = fmt_issue(draws.last().unwrap().issue + 1);
+        let deadline = Some(now_unix() + 3600);
         let past = now_unix().saturating_sub(10);
-        let err = publish(&data, &audit, &out, Some("90001".into()), Some(past));
+        let err = publish(&data, &audit, &out, Some(target.clone()), Some(past));
         assert!(err.is_err());
-        let first = publish(&data, &audit, &out, Some("90001".into()), None).unwrap();
+        assert!(publish(&data, &audit, &out, Some(target.clone()), None).is_err());
+        assert!(publish(&data, &audit, &out, Some(target.clone()), Some(now_unix())).is_err());
+        assert!(!out.exists());
+        assert!(!audit.exists());
+        let first = publish(&data, &audit, &out, Some(target.clone()), deadline).unwrap();
         assert!(!first.already);
-        let again = publish(&data, &audit, &out, Some("90001".into()), None).unwrap();
+        let again = publish(&data, &audit, &out, Some(target.clone()), deadline).unwrap();
         assert!(again.already);
         assert_eq!(again.content_sha256, first.content_sha256);
         let checked = verify(&data, &first.path, None).unwrap();
         assert!(checked.score.is_none());
+        let original_blue = draws[0].blue;
+        draws[0].blue = original_blue % 16 + 1;
+        write_csv(&data, &draws).unwrap();
+        assert!(publish(&data, &audit, &out, Some(target), deadline).err().unwrap().contains("拒绝覆盖"));
+        draws[0].blue = original_blue;
         let extra = synth_draws(1, 99);
         let mut one = extra[0].clone();
         one.issue = draws.last().unwrap().issue + 1;
@@ -464,7 +515,54 @@ mod tests {
         draws.push(one);
         write_csv(&data, &draws).unwrap();
         let scored = verify(&data, &first.path, Some(&audit)).unwrap();
-        assert!(scored.score.is_some());
+        assert_eq!(scored.score.unwrap().issue, draws.last().unwrap().issue);
         let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn verify_rejects_a_different_next_issue_without_writing_a_score() {
+        let mut draws = synth_draws(180, 21);
+        let (dir, data, audit, out) = fixture("target", &draws);
+        let cutoff = draws.last().unwrap().issue;
+        let target = fmt_issue(cutoff + 2);
+        let published = publish(&data, &audit, &out, Some(target), Some(now_unix() + 3600)).unwrap();
+        assert!(verify(&data, &published.path, None).unwrap().score.is_none());
+        let mut next = draws.last().unwrap().clone();
+        next.issue = cutoff + 1;
+        draws.push(next.clone());
+        write_csv(&data, &draws).unwrap();
+        let error = verify(&data, &published.path, Some(&audit)).err().unwrap();
+        assert!(error.contains("不一致"));
+        assert_eq!(read_audit(&audit).unwrap().len(), 1);
+        next.issue = cutoff + 2;
+        draws.push(next);
+        write_csv(&data, &draws).unwrap();
+        assert!(verify(&data, &published.path, None).is_err());
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn legacy_after_manifest_still_verifies_and_scores() {
+        let mut draws = synth_draws(180, 21);
+        let (dir, data, audit, out) = fixture("legacy", &draws);
+        let published = publish(&data, &audit, &out, None, Some(now_unix() + 3600)).unwrap();
+        let mut next = draws.last().unwrap().clone();
+        next.issue += 1;
+        draws.push(next);
+        write_csv(&data, &draws).unwrap();
+        let checked = verify(&data, &published.path, None).unwrap();
+        assert_eq!(checked.score.unwrap().issue, draws.last().unwrap().issue);
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn target_validation_handles_invalid_targets_and_year_boundaries() {
+        for target in ["", "next", "123456", "after:26114", "26115", "25111"] {
+            assert!(target_draw(&[], 26115, target).is_err(), "{target}");
+        }
+        assert!(target_draw(&[], 26115, "26116").unwrap().is_none());
+        let mut next = synth_draws(1, 21).remove(0);
+        next.issue = 27001;
+        assert_eq!(target_draw(&[next], 26153, "27001").unwrap().unwrap().issue, 27001);
     }
 }

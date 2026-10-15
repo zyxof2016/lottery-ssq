@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>分档模型号码池与覆盖观察 · 双色球</title>
+<link rel="stylesheet" href="static/app.css"><script src="static/shell.js"></script><script src="static/vendor/vue-3.5.24.js"></script>
+<style>
+:root{font:14px system-ui,-apple-system,"Segoe UI",sans-serif;color:#172033;background:#f4f6f9}*{box-sizing:border-box}body{margin:0}header{background:#831d29;color:white;padding:22px max(20px,calc((100vw - 1180px)/2))}header a{color:#ffe4e6}h1{font-size:24px;margin:10px 0}h2{font-size:18px;margin:0 0 15px}p{line-height:1.7}a{color:#b91c1c}button,select{font:inherit;border:1px solid #cbd5e1;border-radius:7px;padding:9px 12px;background:white;color:#273449}button{cursor:pointer}button:disabled{opacity:.5;cursor:default}button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}.primary{background:#b91c1c;color:white;border-color:#b91c1c}main{max-width:1220px;margin:24px auto;padding:0 20px}.card{background:white;border:1px solid #e0e5ed;border-radius:12px;padding:22px;margin:0 0 18px;min-width:0}.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.muted{color:#64748b;font-size:12px}.notice{background:#fffbeb;border:1px solid #fde68a;color:#92400e;padding:13px;border-radius:8px;line-height:1.7;margin:14px 0}.error{background:#fff1f2;color:#9f1239;border-color:#fecdd3}.scroll{overflow-x:auto;max-width:100%}table{border-collapse:collapse;width:100%;font-size:13px;min-width:850px}th,td{padding:13px 11px;border-bottom:1px solid #e8edf3;text-align:left;vertical-align:top}th{color:#64748b;background:#f8fafc;white-space:nowrap}td small{display:block;color:#64748b;line-height:1.8}tr.active{background:#fff1f2}.balls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:18px 0}.ball{width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font:600 13px ui-monospace,monospace;background:#fff1f2;border:1px solid #fda4af;color:#be123c}.ball.blue{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}.metric{background:#f8fafc;padding:15px;border-radius:8px}.metric strong{font-size:24px;display:block;margin:7px 0}.links{display:flex;gap:18px;flex-wrap:wrap}code{font-size:11px;overflow-wrap:anywhere}[v-cloak]{display:none}@media(max-width:600px){main{padding:0 12px;margin:14px auto}.card{padding:16px}header{padding:18px 16px}.metrics{grid-template-columns:1fr}.toolbar select{max-width:100%}.ball{width:30px;height:30px}}
+</style>
+<style>
+.tier-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}.tier{border:1px solid #e0e5ed;border-radius:10px;padding:17px;min-width:0}.tier h3{margin:0;font-size:16px}.tier .balls{gap:6px;margin:13px 0}.tier .ball{width:30px;height:30px}.tier .ball.added{outline:2px dashed #d97706;outline-offset:1px}.tier .toolbar{justify-content:space-between}.tier small{line-height:1.7}.observation-table{min-width:720px}.period-links{display:flex;gap:10px;flex-wrap:wrap}.period-links a{padding:8px 10px;background:#f8fafc;border-radius:6px;font-size:12px}@media(max-width:700px){.tier-grid{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body><div id="app" v-cloak>
+<header><div class="links"><a :href="home">← 选号首页</a><a :href="reviewsUrl">每期实际留档与复盘</a></div><h1>分档模型号码池与覆盖观察</h1><div>14／16／18／20／22／24 红六档，观察少选号码与全 6 红覆盖的取舍</div></header>
+<main>
+<div v-if="error" class="notice error" role="alert">{{ error }}</div>
+<div v-if="!report && !error" class="card" role="status">正在逐期核对不同大小的号码池…</div>
+<template v-if="report">
+<section class="card" aria-label="分档模型号码池">
+<h2>第 {{ next.issue || report.suggested_target }} 期 · 六档模型号码池</h2>
+<p class="muted">依据截止 {{ report.cutoff_issue }}（{{ report.cutoff_date }}）的开奖，全部使用协议加权融合排序。较大档逐层包含较小档，虚线圈标出比前一档新增的红球；档位表示号码数量，不表示置信度。</p>
+<div class="toolbar"><label for="tier-blue">观察蓝球数量</label><select id="tier-blue" v-model.number="blueCount"><option v-for="n in report.blue_sizes" :key="n" :value="n">{{ n }} 个</option></select><span class="muted">红球排序固定；蓝球共用同一排名</span></div>
+<div class="tier-grid"><article v-for="t in tiers" :key="t.id" class="tier" :data-tier="t.id">
+<div class="toolbar"><h3>{{ t.label }} · {{ t.red_count }} 红 + {{ blueCount }} 蓝</h3><a href="#pool-replay" @click="model='weighted';redCount=t.red_count">查看 {{ t.red_count }} 红历史</a></div>
+<div class="balls"><span v-for="n in sorted(t.reds)" :key="n" class="ball" :class="{added:t.id!=='A'&&t.added_reds.includes(n)}" :title="t.id!=='A'&&t.added_reds.includes(n)?'比前一档新增':'该档红球'">{{ pad(n) }}</span></div>
+<div class="balls"><span class="muted">蓝球</span><span v-for="n in sorted(t.blues)" :key="n" class="ball blue">{{ pad(n) }}</span></div>
+<small class="muted">{{ t.id==='A'?'基础池':'比前一档新增：'+sorted(t.added_reds).map(pad).join(' ') }}。{{ t.actual.n ? '实际留档全6红：'+t.actual.full_red_periods+'/'+t.actual.n+'期（'+percent(t.actual.full_red_rate)+'）' : '实际留档暂无已开奖样本' }}</small>
+</article></div>
+<div class="toolbar"><button @click="exportTiers">导出六档观察池 JSON</button><button class="primary" @click="freeze" :disabled="busy || !next.can_freeze">封存下一期六档观察池 · {{ next.issue || '待核对' }}</button><a v-if="archiveUrl" :href="archiveUrl">查看实际号码池留档</a></div>
+<div v-if="message" class="notice" role="status">{{ message }}</div><p class="muted">{{ next.reason }}。封存会同时保存六档 × 1–3 蓝共 18 个观察池及原有 9 个小池。未封存的号码属于预览，旧档案保持首次版本。</p>
+</section>
+<section v-if="observations" class="card" aria-label="实际分档覆盖统计">
+<h2>实际留档覆盖观察</h2>
+<p class="muted">{{ observations.note }}</p>
+<div v-if="observations.errors.length" class="notice error" role="alert">部分档案未计入：{{ observations.errors.join('；') }}</div>
+<p v-if="actualCells.every(c=>c.n===0)" class="notice">六档尚无已开奖的留档样本，实际全包率暂为空；待开奖不计为未命中。</p>
+<div class="scroll"><table class="observation-table"><thead><tr><th>档位</th><th>已开奖 / 待开奖</th><th>全 6 红次数 / 比例</th><th>平均中红 / 漏红</th><th>辅助：6 红 1 蓝全包</th></tr></thead><tbody><tr v-for="c in actualCells" :key="c.red_count"><td>{{ c.red_count }} 红 + {{ blueCount }} 蓝</td><td>{{ c.n }} / {{ c.pending }} 期</td><td>{{ c.n ? c.full_red_periods+' / '+c.n+' 期' : '—' }}<small>{{ percent(c.full_red_rate) }}</small></td><td>{{ decimal(c.mean_red_hits) }} / {{ decimal(c.mean_missed_reds) }}</td><td>{{ c.n ? c.full_draw_periods+' / '+c.n+' 期' : '—' }}<small>{{ percent(c.full_draw_rate) }}</small></td></tr></tbody></table></div>
+<p v-if="observations.missing_tier_archives" class="muted">另有 {{ observations.missing_tier_archives }} 期每日档案没有保存六档，保持缺档，不补造历史观察池。</p>
+<div class="period-links" style="margin-top:16px"><a v-for="p in observations.periods.slice().reverse().slice(0,30)" :key="p.issue" :href="issueUrl(p.issue)">{{ p.issue }} · {{ p.pending?'待开奖':p.smallest_full_red_tier?p.smallest_full_red_tier+'红为最小全包档':'六档均未全包' }}</a></div>
+</section>
+<section id="pool-replay" class="card" aria-label="历史红球数量回放">
+<h2>先看全 6 红率，再权衡数量</h2>
+<p class="muted">数据截止 {{ report.cutoff_issue }}（{{ report.cutoff_date }}）。这是按真实开奖进行的历史因果回放，每期只使用之前的数据；实际推荐表现请查看每期留档。主指标是全部 6 个开奖红球入池的期数比例，蓝球仅作辅助。</p>
+<div class="toolbar"><label for="pool-window">观察窗口</label><select id="pool-window" v-model="window"><option value="recent30">最近30期</option><option value="recent60">最近60期</option><option value="confirmation">原冻结确认窗 · 探索性复盘</option><option value="tracking">确认窗后的跟踪期</option><option value="all_oos">全部因果回放</option></select><label for="pool-model">红球排序</label><select id="pool-model" v-model="model"><option v-for="m in report.next.candidate_models" :key="m.model" :value="m.model">{{ m.label }}</option></select></div>
+<div class="toolbar" style="margin-top:12px"><label for="range-min">比较数量</label><select id="range-min" v-model.number="rangeMin"><option v-for="n in report.red_sizes.filter(n=>n<=rangeMax)" :key="n" :value="n">{{ n }} 红</option></select><span>至</span><label for="range-max" class="muted">上限</label><select id="range-max" v-model.number="rangeMax"><option v-for="n in report.red_sizes.filter(n=>n>=rangeMin)" :key="n" :value="n">{{ n }} 红</option></select><label for="compare-blue">辅助蓝球数量</label><select id="compare-blue" v-model.number="blueCount"><option v-for="n in report.blue_sizes" :key="n" :value="n">{{ n }} 蓝</option></select></div>
+<p v-if="observed" class="muted">{{ observed.from }}—{{ observed.to }}，共 {{ observed.n }} 个真实开奖样本。各红球排序共用同一份冻结蓝球排序。</p>
+<div v-if="observed && cells.every(c=>c.full_red_periods===0)" class="notice">当前窗口、排序和数量范围内，全 6 红次数均为 0，尚无法按全包表现区分规格。</div>
+<div v-if="observed" class="scroll"><table>
+<thead><tr><th>红球数量</th><th>全 6 红次数 / 比例</th><th>同大小均匀基准</th><th>比少 1 红新增全包</th><th>平均中红 / 漏红</th><th>至少 5 红</th><th>辅助：6 红 1 蓝全包</th></tr></thead>
+<tbody><tr v-for="c in cells" :key="c.red_count" :class="{active:c.red_count===redCount}"><td><button @click="redCount=c.red_count" :aria-label="'预览'+c.red_count+'个红球'" style="white-space:nowrap">{{ c.red_count }} 红</button></td><td><b>{{ c.full_red_periods }} / {{ observed.n }} 期 · {{ percent(c.full_red_rate) }}</b><small>描述性区间 {{ percent(c.full_red_wilson95[0]) }}–{{ percent(c.full_red_wilson95[1]) }}</small></td><td>{{ percent(c.uniform_full_red_rate) }}<small>实测差值 {{ points(c.full_red_rate_excess) }} 个百分点</small></td><td>{{ c.additional_full_red_periods===null ? '—' : '+'+c.additional_full_red_periods+' 期' }}<small v-if="c.additional_full_red_periods===0">本窗口全包次数未增加</small></td><td>{{ decimal(c.mean_red_hits) }} / {{ decimal(c.mean_missed_reds) }}<small>平均找回 {{ percent(c.red_draw_recall) }} 开奖红球</small></td><td>{{ c.at_least_5_red_periods }} / {{ observed.n }} 期</td><td>{{ c.full_draw_periods_by_blue[blueCount-1] }} / {{ observed.n }} 期<small>{{ blueCount }} 个蓝球；同时全包 {{ percent(c.full_draw_periods_by_blue[blueCount-1]/observed.n) }}</small></td></tr></tbody>
+</table></div>
+<p v-else class="notice">这个窗口尚无可用开奖样本。</p>
+<p v-if="observed" class="muted">当前范围内，全包次数相同时保留较少红球：{{ frontierText }}。这里只描述本窗口的历史结果，不自动挑选下一期最优档。</p>
+<p class="muted">全 6 红均匀基准 = C(红球数量, 6) / C(33, 6)。多选号码本身就会提高全包率，应同时看相同大小的基准。所有排序均可查看，历史率和描述性区间不能当作下一期覆盖承诺。</p>
+</section>
+<section class="card">
+<h2>手动查看号码池 · 研究预览</h2>
+<div class="toolbar"><label for="red-count">红球数量</label><select id="red-count" v-model.number="redCount"><option v-for="n in report.red_sizes" :key="n" :value="n">{{ n }} 个</option></select><label for="blue-count">蓝球数量</label><select id="blue-count" v-model.number="blueCount"><option v-for="n in report.blue_sizes" :key="n" :value="n">{{ n }} 个</option></select><span class="muted">当前排序：{{ nextModel.label }}</span></div>
+<div class="balls"><span class="muted">红球</span><span v-for="n in reds" :key="n" class="ball">{{ pad(n) }}</span></div>
+<div class="balls"><span class="muted">蓝球</span><span v-for="n in blues" :key="n" class="ball blue">{{ pad(n) }}</span></div>
+<div v-if="selectedCell && observed" class="metrics"><div class="metric"><span class="muted">当前数量的历史全 6 红率</span><strong>{{ percent(selectedCell.full_red_rate) }}</strong><span class="muted">{{ selectedCell.full_red_periods }} / {{ observed.n }} 期；不代表下一期概率</span></div><div class="metric"><span class="muted">当前数量的历史平均漏红</span><strong>{{ decimal(selectedCell.mean_missed_reds) }}</strong><span class="muted">个 / 期</span></div><div class="metric"><span class="muted">辅助：历史 6 红 1 蓝全包</span><strong>{{ selectedCell.full_draw_periods_by_blue[blueCount-1] }} / {{ observed.n }}</strong><span class="muted">期；蓝球池 {{ blueCount }} 个</span></div></div>
+<p class="muted">这里的自选排序和数量仅供研究。正式观察采用上方固定融合排序的六档；只有成功封存后才计入实际留档观察，不展开复式。</p>
+<div class="toolbar"><button @click="exportPool">导出当前研究池 JSON</button></div>
+</section>
+<section class="card"><h2>验证口径</h2><p class="muted" v-for="note in report.notes" :key="note">{{ note }}</p><details><summary>输入与版本摘要</summary><p class="muted">数据：<code>{{ report.data_sha256 }}</code></p><p class="muted">研究源码：<code>{{ report.source_sha256 }}</code></p></details></section>
+</template>
+</main></div>
+<script>
+const {createApp,ref,computed,onMounted}=Vue;
+createApp({setup(){
+const base=new URL(location.href);base.pathname=base.pathname.replace(/pools(?:\.html)?\/?$/,'');base.search='';base.hash='';
+const home=base.pathname,reviewsUrl=new URL('reviews',base).href,report=ref(null),observations=ref(null),window=ref('confirmation'),model=ref('weighted'),rangeMin=ref(14),rangeMax=ref(24),redCount=ref(14),blueCount=ref(2),error=ref(''),message=ref(''),next=ref({}),busy=ref(false),archiveUrl=ref('');
+const actualCells=computed(()=>(observations.value?.cells || []).filter(c=>c.blue_count===blueCount.value));
+const tiers=computed(()=>{const saved=report.value.next.weighted_pools;return report.value.observation_tiers.map((t,i)=>{const p=saved.pools.find(p=>p.red_count===t.red_count&&p.blue_count===blueCount.value),previous=i?report.value.observation_tiers[i-1].red_count:0;return {...t,...p,id:t.id,added_reds:saved.red_ranking.slice(previous,t.red_count),actual:actualCells.value.find(c=>c.red_count===t.red_count)||{n:0}};});});
+const observed=computed(()=>report.value?.windows[window.value]),modelCurves=computed(()=>(observed.value?.red_curves || []).filter(c=>c.model===model.value)),cells=computed(()=>modelCurves.value.filter(c=>c.red_count>=rangeMin.value&&c.red_count<=rangeMax.value));
+const frontierText=computed(()=>{let last=-1;return cells.value.filter(c=>{if(c.full_red_periods<=last)return false;last=c.full_red_periods;return true;}).map(c=>`${c.red_count}红（${c.full_red_periods}期）`).join('、');});
+const nextModel=computed(()=>report.value.next.candidate_models.find(m=>m.model===model.value)),reds=computed(()=>nextModel.value.red_ranking.slice(0,redCount.value).sort((a,b)=>a-b)),blues=computed(()=>report.value.next.weighted_pools.blue_ranking.slice(0,blueCount.value).sort((a,b)=>a-b)),selectedCell=computed(()=>modelCurves.value.find(c=>c.red_count===redCount.value));
+const pad=n=>String(n).padStart(2,'0'),sorted=ns=>ns.slice().sort((a,b)=>a-b),decimal=n=>n==null?'—':Number(n).toFixed(2),percent=(n,d=2)=>n==null?'—':(Number(n)*100).toFixed(d)+'%',points=n=>(n>=0?'+':'')+(n*100).toFixed(2);
+function issueUrl(issue){const url=new URL('reviews',base);url.searchParams.set('issue',issue);url.searchParams.set('archive','daily');return url.href;}
+async function api(path,options){const r=await fetch(new URL(path,base),options),data=await r.json();if(!r.ok)throw Error(data.error||'读取失败');return data;}
+async function load(){try{const [data,index,actual]=await Promise.all([api('api/pools'),api('api/recommendations/issues?limit=1'),api('api/pools/observations')]);report.value=data;next.value=index.next;observations.value=actual;}catch(e){error.value=e.message;}}
+async function freeze(){busy.value=true;message.value='';try{const d=await api('api/recommendations/freeze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data_sha256:report.value.data_sha256,target:next.value.issue})});observations.value=await api('api/pools/observations');message.value=d.observation_tiers===6?'已封存六档 × 1–3 蓝共 18 个观察池及原有 9 个小池，开奖后按原号码核对。':'该期已有首次档案，未保存六档观察池；保持旧档案，后续新期开始保存。';archiveUrl.value=issueUrl(d.issue);}catch(e){error.value=e.message;}finally{busy.value=false;}}
+function download(data,name){const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function exportTiers(){const data={kind:'model_pool_observation_preview',actual_recommendation:false,issue:next.value.issue||report.value.suggested_target,data_cutoff:report.value.cutoff_issue,input_history_sha256:report.value.data_sha256,source_sha256:report.value.source_sha256,model:'weighted',blue_count:blueCount.value,tiers:tiers.value.map(t=>({id:t.id,label:t.label,red_count:t.red_count,reds:sorted(t.reds),blues:sorted(t.blues),added_reds:sorted(t.added_reds)})),note:'当前六档号码预览；成功封存后按原号码观察实际覆盖，不自动展开复式。'};download(data,`ssq-observation-tiers-${data.issue}.json`);}
+function exportPool(){const data={kind:'small_pool_research_preview',version:report.value.version,actual_recommendation:false,data_cutoff:report.value.cutoff_issue,input_history_sha256:report.value.data_sha256,source_sha256:report.value.source_sha256,model:model.value,reds:reds.value,blues:blues.value,red_count:redCount.value,blue_count:blueCount.value,note:'自选研究预览未封存；正式观察为固定融合排序的六档。'};download(data,`ssq-research-${data.red_count}red-${data.blue_count}blue-after-${data.data_cutoff}.json`);}
+onMounted(load);return{home,reviewsUrl,report,observations,actualCells,tiers,window,model,rangeMin,rangeMax,redCount,blueCount,error,message,next,busy,archiveUrl,observed,cells,frontierText,nextModel,reds,blues,selectedCell,pad,sorted,decimal,percent,points,freeze,exportPool,exportTiers,issueUrl};
+}}).mount('#app');
+</script></body></html>

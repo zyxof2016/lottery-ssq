@@ -200,6 +200,8 @@ pub struct Backtest {
 pub struct Prepared {
     pub weights: [f64; 7],
     pub blue_weights: [f64; 6],
+    pub expert_red: [[f64; 33]; 7],
+    pub expert_blue: [[f64; 16]; 6],
     pub forecast: Forecast,
     pub n: usize,
     pub cutoff_issue: u32,
@@ -281,6 +283,8 @@ pub fn prepare_forecast(draws: &[Draw]) -> Result<Prepared, String> {
     Ok(Prepared {
         weights,
         blue_weights,
+        expert_red: snap.next_red,
+        expert_blue: snap.next_blue,
         forecast,
         n: draws.len(),
         cutoff_issue: last.issue,
@@ -1382,17 +1386,14 @@ fn locate_span(rows: &[Row], start_issue: u32, confirm_len: usize) -> Result<(us
 }
 
 fn weight_rows_for_publish(rows: &[Row]) -> Result<&[Row], String> {
-    if rows.len() < 30 {
-        return Err("样本外期数不足，无法拟合融合权重".into());
-    }
-    match rows
+    let end = rows
         .iter()
-        .position(|r| r.issue == Protocol::CONFIRM_START_ISSUE)
-    {
-        Some(start) if start >= 30 => Ok(&rows[..start]),
-        Some(_) => Err("确认窗之前的样本外期数不足".into()),
-        None => Ok(rows),
+        .take_while(|r| r.issue < Protocol::CONFIRM_START_ISSUE)
+        .count();
+    if end < 30 {
+        return Err("确认窗之前的样本外期数不足，无法拟合融合权重".into());
     }
+    Ok(&rows[..end])
 }
 
 fn assemble_tests(
@@ -1737,6 +1738,28 @@ mod tests {
         for i in 0..7 {
             assert!((b.weights[i] - w[i]).abs() < 1e-15);
         }
+    }
+
+    #[test]
+    fn missing_confirmation_start_does_not_change_frozen_weights() {
+        let mut draws = synth_draws(400, 11);
+        for (i, draw) in draws.iter_mut().enumerate() {
+            draw.issue = 24881 + i as u32;
+        }
+        let baseline = prepare_forecast(&draws).unwrap();
+        draws.retain(|draw| draw.issue != Protocol::CONFIRM_START_ISSUE);
+        let early = prepare_forecast(&draws[..draws.len() - 1]).unwrap();
+        let late = prepare_forecast(&draws).unwrap();
+        assert_eq!(baseline.weights, early.weights);
+        assert_eq!(baseline.blue_weights, early.blue_weights);
+        assert_eq!(early.weights, late.weights);
+        assert_eq!(early.blue_weights, late.blue_weights);
+
+        let mut only_confirmation = synth_draws(400, 11);
+        for (i, draw) in only_confirmation.iter_mut().enumerate() {
+            draw.issue = Protocol::CONFIRM_START_ISSUE + i as u32;
+        }
+        assert!(prepare_forecast(&only_confirmation).is_err());
     }
 
     #[test]

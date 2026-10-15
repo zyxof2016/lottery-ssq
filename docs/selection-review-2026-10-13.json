@@ -1,0 +1,4280 @@
+{
+  "blue_weights": [
+    0.3799075605440001,
+    0.083347610968,
+    0.083349163898,
+    0.083336800808,
+    0.19345631958099999,
+    0.176602544201
+  ],
+  "confirmation": {
+    "from": "25111",
+    "mean_candidate_pool_hits": 2.1858974358974357,
+    "mean_equal_top15_hits": 2.8076923076923075,
+    "mean_final_set_hits": 2.75,
+    "mean_fusion_top15_hits": 2.7115384615384617,
+    "methods": {
+      "balanced12": {
+        "at_least_4_red_periods": 4,
+        "blue_coverage_wilson95": [
+          0.07424445619253985,
+          0.1750116449131639
+        ],
+        "blue_covered_periods": 18,
+        "mean_best_red": 1.9871794871794872,
+        "mean_blue_hit_bets": 0.46153846153846156,
+        "mean_covered_red_hits": 2.1858974358974357,
+        "mean_covered_red_n": 12.0,
+        "mean_max_red_exposure": 4.0,
+        "mean_red_per_bet": 1.0929487179487178,
+        "paired_descriptive_iid_normal95": [
+          -0.08395337612397881,
+          0.058312350482953176
+        ],
+        "paired_red_per_bet_minus_frozen": -0.01282051282051282,
+        "uniform_blue_covered_periods": 19.5,
+        "uniform_blue_hit_bets": 0.5,
+        "uniform_covered_red_hits": 2.1818181818181857,
+        "uniform_red_per_bet": 1.0909090909090908
+      },
+      "blue4": {
+        "at_least_4_red_periods": 4,
+        "blue_coverage_wilson95": [
+          0.16597464536165646,
+          0.2959922270974312
+        ],
+        "blue_covered_periods": 35,
+        "mean_best_red": 1.7628205128205128,
+        "mean_blue_hit_bets": 0.44871794871794873,
+        "mean_covered_red_hits": 1.858974358974359,
+        "mean_covered_red_n": 10.26923076923077,
+        "mean_max_red_exposure": 7.647435897435898,
+        "mean_red_per_bet": 1.1057692307692308,
+        "paired_descriptive_iid_normal95": [
+          0.0,
+          0.0
+        ],
+        "paired_red_per_bet_minus_frozen": 0.0,
+        "uniform_blue_covered_periods": 39.0,
+        "uniform_blue_hit_bets": 0.5,
+        "uniform_covered_red_hits": 1.8671328671328644,
+        "uniform_red_per_bet": 1.0909090909090908
+      },
+      "frozen": {
+        "at_least_4_red_periods": 4,
+        "blue_coverage_wilson95": [
+          0.07424445619253985,
+          0.1750116449131639
+        ],
+        "blue_covered_periods": 18,
+        "mean_best_red": 1.7628205128205128,
+        "mean_blue_hit_bets": 0.46153846153846156,
+        "mean_covered_red_hits": 1.858974358974359,
+        "mean_covered_red_n": 10.26923076923077,
+        "mean_max_red_exposure": 7.647435897435898,
+        "mean_red_per_bet": 1.1057692307692308,
+        "paired_descriptive_iid_normal95": [
+          0.0,
+          0.0
+        ],
+        "paired_red_per_bet_minus_frozen": 0.0,
+        "uniform_blue_covered_periods": 19.5,
+        "uniform_blue_hit_bets": 0.5,
+        "uniform_covered_red_hits": 1.8671328671328644,
+        "uniform_red_per_bet": 1.0909090909090908
+      },
+      "pool15": {
+        "at_least_4_red_periods": 3,
+        "blue_coverage_wilson95": [
+          0.07424445619253985,
+          0.1750116449131639
+        ],
+        "blue_covered_periods": 18,
+        "mean_best_red": 1.7756410256410255,
+        "mean_blue_hit_bets": 0.46153846153846156,
+        "mean_covered_red_hits": 1.8846153846153846,
+        "mean_covered_red_n": 10.371794871794872,
+        "mean_max_red_exposure": 7.666666666666667,
+        "mean_red_per_bet": 1.1057692307692308,
+        "paired_descriptive_iid_normal95": [
+          -0.007046037554679705,
+          0.007046037554679705
+        ],
+        "paired_red_per_bet_minus_frozen": 0.0,
+        "uniform_blue_covered_periods": 19.5,
+        "uniform_blue_hit_bets": 0.5,
+        "uniform_covered_red_hits": 1.8857808857808833,
+        "uniform_red_per_bet": 1.0909090909090908
+      }
+    },
+    "n": 156,
+    "to": "26115"
+  },
+  "cutoff_issue": "26116",
+  "data_sha256": "4a2a345f1569f5f9b395a3b4ea46dfb2a928db06455f7e658d4e4964adab09db",
+  "kind": "exploratory_causal_replay",
+  "next_research_tickets": {
+    "balanced12": [
+      {
+        "blue": 12,
+        "red": [
+          2,
+          10,
+          19,
+          24,
+          27,
+          33
+        ]
+      },
+      {
+        "blue": 12,
+        "red": [
+          4,
+          8,
+          14,
+          21,
+          25,
+          28
+        ]
+      },
+      {
+        "blue": 3,
+        "red": [
+          2,
+          8,
+          19,
+          21,
+          24,
+          28
+        ]
+      },
+      {
+        "blue": 3,
+        "red": [
+          4,
+          10,
+          14,
+          25,
+          27,
+          33
+        ]
+      },
+      {
+        "blue": 12,
+        "red": [
+          2,
+          4,
+          10,
+          25,
+          27,
+          28
+        ]
+      },
+      {
+        "blue": 12,
+        "red": [
+          8,
+          14,
+          19,
+          21,
+          24,
+          33
+        ]
+      },
+      {
+        "blue": 3,
+        "red": [
+          10,
+          14,
+          21,
+          24,
+          25,
+          33
+        ]
+      },
+      {
+        "blue": 3,
+        "red": [
+          2,
+          4,
+          8,
+          19,
+          27,
+          28
+        ]
+      }
+    ],
+    "blue4": [
+      {
+        "blue": 12,
+        "red": [
+          10,
+          19,
+          24,
+          27,
+          28,
+          33
+        ]
+      },
+      {
+        "blue": 3,
+        "red": [
+          8,
+          10,
+          19,
+          21,
+          24,
+          27
+        ]
+      },
+      {
+        "blue": 13,
+        "red": [
+          8,
+          19,
+          21,
+          24,
+          28,
+          33
+        ]
+      },
+      {
+        "blue": 11,
+        "red": [
+          10,
+          19,
+          21,
+          24,
+          25,
+          33
+        ]
+      },
+      {
+        "blue": 12,
+        "red": [
+          19,
+          21,
+          24,
+          25,
+          27,
+          28
+        ]
+      },
+      {
+        "blue": 3,
+        "red": [
+          4,
+          19,
+          21,
+          24,
+          27,
+          33
+        ]
+      },
+      {
+        "blue": 13,
+        "red": [
+          4,
+          10,
+          19,
+          21,
+          24,
+          28
+        ]
+      },
+      {
+        "blue": 11,
+        "red": [
+          10,
+          14,
+          21,
+          24,
+          27,
+          33
+        ]
+      }
+    ],
+    "frozen": [
+      {
+        "blue": 12,
+        "red": [
+          10,
+          19,
+          24,
+          27,
+          28,
+          33
+        ]
+      },
+      {
+        "blue": 3,
+        "red": [
+          8,
+          10,
+          19,
+          21,
+          24,
+          27
+        ]
+      },
+      {
+        "blue": 12,
+        "red": [
+          8,
+          19,
+          21,
+          24,
+          28,
+          33
+        ]
+      },
+      {
+        "blue": 3,
+        "red": [
+          10,
+          19,
+          21,
+          24,
+          25,
+          33
+        ]
+      },
+      {
+        "blue": 12,
+        "red": [
+          19,
+          21,
+          24,
+          25,
+          27,
+          28
+        ]
+      },
+      {
+        "blue": 3,
+        "red": [
+          4,
+          19,
+          21,
+          24,
+          27,
+          33
+        ]
+      },
+      {
+        "blue": 12,
+        "red": [
+          4,
+          10,
+          19,
+          21,
+          24,
+          28
+        ]
+      },
+      {
+        "blue": 3,
+        "red": [
+          10,
+          14,
+          21,
+          24,
+          27,
+          33
+        ]
+      }
+    ],
+    "pool15": [
+      {
+        "blue": 12,
+        "red": [
+          10,
+          19,
+          24,
+          27,
+          28,
+          33
+        ]
+      },
+      {
+        "blue": 3,
+        "red": [
+          8,
+          10,
+          19,
+          21,
+          24,
+          27
+        ]
+      },
+      {
+        "blue": 12,
+        "red": [
+          8,
+          19,
+          21,
+          24,
+          28,
+          33
+        ]
+      },
+      {
+        "blue": 3,
+        "red": [
+          10,
+          19,
+          21,
+          24,
+          25,
+          33
+        ]
+      },
+      {
+        "blue": 12,
+        "red": [
+          19,
+          21,
+          24,
+          25,
+          27,
+          28
+        ]
+      },
+      {
+        "blue": 3,
+        "red": [
+          4,
+          19,
+          21,
+          24,
+          27,
+          33
+        ]
+      },
+      {
+        "blue": 12,
+        "red": [
+          4,
+          10,
+          19,
+          21,
+          24,
+          28
+        ]
+      },
+      {
+        "blue": 3,
+        "red": [
+          10,
+          14,
+          21,
+          24,
+          27,
+          33
+        ]
+      }
+    ]
+  },
+  "notes": [
+    "事后逐期回放，不是实际推荐或投注记录。每期专家状态只用该期之前的开奖。",
+    "所有方案每期 8 注、16 元；均匀基准按实际红球并集和蓝球并集计算。",
+    "balanced12 保留冻结候选池，每个红球出现 4 次，每个红蓝配对出现 2 次；其余实验单独改变池大小或蓝球数量。",
+    "最近 30/60 期互相重叠，确认窗内的实验是探索性比较，不能当作新确认结果或提高中奖率的证明。",
+    "描述性区间以期为单位计算，未校正多重比较或时间相关性；跟踪窗不足 30 期不报告此类区间。",
+    "扩大并集增加覆盖基准；覆盖命中不能替代单注命中。未估算奖金、收益率或净利润。",
+    "同为 8 注时，双蓝每蓝 4 注，四蓝每蓝 2 注；四蓝扩大命中期覆盖，但均匀开奖下蓝球命中注数期望仍为 0.5。",
+    "next_research_tickets 仅供前瞻研究，未发布或封存，冻结生产规则保持原样。"
+  ],
+  "protocol_sha256": "5cd478353038ca0093103559987de9ea6c3c230ef147eaa729fdb85b7e8dca02",
+  "recent30": {
+    "from": "26087",
+    "mean_candidate_pool_hits": 2.033333333333333,
+    "mean_equal_top15_hits": 2.8666666666666667,
+    "mean_final_set_hits": 2.7333333333333334,
+    "mean_fusion_top15_hits": 2.7333333333333334,
+    "methods": {
+      "balanced12": {
+        "at_least_4_red_periods": 1,
+        "blue_coverage_wilson95": [
+          0.0733654237184855,
+          0.3356435050641603
+        ],
+        "blue_covered_periods": 5,
+        "mean_best_red": 1.9333333333333333,
+        "mean_blue_hit_bets": 0.6666666666666666,
+        "mean_covered_red_hits": 2.033333333333333,
+        "mean_covered_red_n": 12.0,
+        "mean_max_red_exposure": 4.0,
+        "mean_red_per_bet": 1.0166666666666666,
+        "paired_descriptive_iid_normal95": [
+          -0.24711087588116043,
+          0.038777542547827074
+        ],
+        "paired_red_per_bet_minus_frozen": -0.10416666666666667,
+        "uniform_blue_covered_periods": 3.75,
+        "uniform_blue_hit_bets": 0.5,
+        "uniform_covered_red_hits": 2.1818181818181803,
+        "uniform_red_per_bet": 1.0909090909090908
+      },
+      "blue4": {
+        "at_least_4_red_periods": 1,
+        "blue_coverage_wilson95": [
+          0.0733654237184855,
+          0.3356435050641603
+        ],
+        "blue_covered_periods": 5,
+        "mean_best_red": 1.8,
+        "mean_blue_hit_bets": 0.3333333333333333,
+        "mean_covered_red_hits": 1.8333333333333333,
+        "mean_covered_red_n": 10.2,
+        "mean_max_red_exposure": 7.8,
+        "mean_red_per_bet": 1.1208333333333333,
+        "paired_descriptive_iid_normal95": [
+          0.0,
+          0.0
+        ],
+        "paired_red_per_bet_minus_frozen": 0.0,
+        "uniform_blue_covered_periods": 7.5,
+        "uniform_blue_hit_bets": 0.5,
+        "uniform_covered_red_hits": 1.8545454545454545,
+        "uniform_red_per_bet": 1.0909090909090908
+      },
+      "frozen": {
+        "at_least_4_red_periods": 1,
+        "blue_coverage_wilson95": [
+          0.0733654237184855,
+          0.3356435050641603
+        ],
+        "blue_covered_periods": 5,
+        "mean_best_red": 1.8,
+        "mean_blue_hit_bets": 0.6666666666666666,
+        "mean_covered_red_hits": 1.8333333333333333,
+        "mean_covered_red_n": 10.2,
+        "mean_max_red_exposure": 7.8,
+        "mean_red_per_bet": 1.1208333333333333,
+        "paired_descriptive_iid_normal95": [
+          0.0,
+          0.0
+        ],
+        "paired_red_per_bet_minus_frozen": 0.0,
+        "uniform_blue_covered_periods": 3.75,
+        "uniform_blue_hit_bets": 0.5,
+        "uniform_covered_red_hits": 1.8545454545454545,
+        "uniform_red_per_bet": 1.0909090909090908
+      },
+      "pool15": {
+        "at_least_4_red_periods": 1,
+        "blue_coverage_wilson95": [
+          0.0733654237184855,
+          0.3356435050641603
+        ],
+        "blue_covered_periods": 5,
+        "mean_best_red": 1.8,
+        "mean_blue_hit_bets": 0.6666666666666666,
+        "mean_covered_red_hits": 1.8666666666666667,
+        "mean_covered_red_n": 10.366666666666667,
+        "mean_max_red_exposure": 7.8,
+        "mean_red_per_bet": 1.1291666666666667,
+        "paired_descriptive_iid_normal95": [
+          -0.017757244997041455,
+          0.034423911663708125
+        ],
+        "paired_red_per_bet_minus_frozen": 0.008333333333333333,
+        "uniform_blue_covered_periods": 3.75,
+        "uniform_blue_hit_bets": 0.5,
+        "uniform_covered_red_hits": 1.8848484848484846,
+        "uniform_red_per_bet": 1.0909090909090908
+      }
+    },
+    "n": 30,
+    "to": "26116"
+  },
+  "recent60": {
+    "from": "26057",
+    "mean_candidate_pool_hits": 2.1666666666666665,
+    "mean_equal_top15_hits": 2.8833333333333333,
+    "mean_final_set_hits": 2.8,
+    "mean_fusion_top15_hits": 2.8,
+    "methods": {
+      "balanced12": {
+        "at_least_4_red_periods": 2,
+        "blue_coverage_wilson95": [
+          0.08097440580167739,
+          0.2611458906977855
+        ],
+        "blue_covered_periods": 9,
+        "mean_best_red": 2.0166666666666666,
+        "mean_blue_hit_bets": 0.6,
+        "mean_covered_red_hits": 2.1666666666666665,
+        "mean_covered_red_n": 12.0,
+        "mean_max_red_exposure": 4.0,
+        "mean_red_per_bet": 1.0833333333333333,
+        "paired_descriptive_iid_normal95": [
+          -0.16160146713580847,
+          0.05326813380247514
+        ],
+        "paired_red_per_bet_minus_frozen": -0.05416666666666667,
+        "uniform_blue_covered_periods": 7.5,
+        "uniform_blue_hit_bets": 0.5,
+        "uniform_covered_red_hits": 2.181818181818184,
+        "uniform_red_per_bet": 1.0909090909090908
+      },
+      "blue4": {
+        "at_least_4_red_periods": 2,
+        "blue_coverage_wilson95": [
+          0.13123044048190308,
+          0.33620027573194783
+        ],
+        "blue_covered_periods": 13,
+        "mean_best_red": 1.8333333333333333,
+        "mean_blue_hit_bets": 0.43333333333333335,
+        "mean_covered_red_hits": 1.9333333333333333,
+        "mean_covered_red_n": 10.3,
+        "mean_max_red_exposure": 7.716666666666667,
+        "mean_red_per_bet": 1.1375,
+        "paired_descriptive_iid_normal95": [
+          0.0,
+          0.0
+        ],
+        "paired_red_per_bet_minus_frozen": 0.0,
+        "uniform_blue_covered_periods": 15.0,
+        "uniform_blue_hit_bets": 0.5,
+        "uniform_covered_red_hits": 1.8727272727272715,
+        "uniform_red_per_bet": 1.0909090909090908
+      },
+      "frozen": {
+        "at_least_4_red_periods": 2,
+        "blue_coverage_wilson95": [
+          0.08097440580167739,
+          0.2611458906977855
+        ],
+        "blue_covered_periods": 9,
+        "mean_best_red": 1.8333333333333333,
+        "mean_blue_hit_bets": 0.6,
+        "mean_covered_red_hits": 1.9333333333333333,
+        "mean_covered_red_n": 10.3,
+        "mean_max_red_exposure": 7.716666666666667,
+        "mean_red_per_bet": 1.1375,
+        "paired_descriptive_iid_normal95": [
+          0.0,
+          0.0
+        ],
+        "paired_red_per_bet_minus_frozen": 0.0,
+        "uniform_blue_covered_periods": 7.5,
+        "uniform_blue_hit_bets": 0.5,
+        "uniform_covered_red_hits": 1.8727272727272715,
+        "uniform_red_per_bet": 1.0909090909090908
+      },
+      "pool15": {
+        "at_least_4_red_periods": 2,
+        "blue_coverage_wilson95": [
+          0.08097440580167739,
+          0.2611458906977855
+        ],
+        "blue_covered_periods": 9,
+        "mean_best_red": 1.85,
+        "mean_blue_hit_bets": 0.6,
+        "mean_covered_red_hits": 1.9833333333333334,
+        "mean_covered_red_n": 10.483333333333333,
+        "mean_max_red_exposure": 7.716666666666667,
+        "mean_red_per_bet": 1.1416666666666666,
+        "paired_descriptive_iid_normal95": [
+          -0.013270944266624302,
+          0.021604277599957634
+        ],
+        "paired_red_per_bet_minus_frozen": 0.004166666666666667,
+        "uniform_blue_covered_periods": 7.5,
+        "uniform_blue_hit_bets": 0.5,
+        "uniform_covered_red_hits": 1.9060606060606053,
+        "uniform_red_per_bet": 1.0909090909090908
+      }
+    },
+    "n": 60,
+    "to": "26116"
+  },
+  "red_weights": [
+    0.21413439674600007,
+    0.110761955861,
+    0.147449264215,
+    0.114768370981,
+    0.173218575488,
+    0.10692923772,
+    0.132738198989
+  ],
+  "tracking": {
+    "from": "26116",
+    "mean_candidate_pool_hits": 2.0,
+    "mean_equal_top15_hits": 3.0,
+    "mean_final_set_hits": 3.0,
+    "mean_fusion_top15_hits": 3.0,
+    "methods": {
+      "balanced12": {
+        "at_least_4_red_periods": 0,
+        "blue_coverage_wilson95": [
+          0.0,
+          0.7934506856227626
+        ],
+        "blue_covered_periods": 0,
+        "mean_best_red": 2.0,
+        "mean_blue_hit_bets": 0.0,
+        "mean_covered_red_hits": 2.0,
+        "mean_covered_red_n": 12.0,
+        "mean_max_red_exposure": 4.0,
+        "mean_red_per_bet": 1.0,
+        "paired_descriptive_iid_normal95": null,
+        "paired_red_per_bet_minus_frozen": 0.25,
+        "uniform_blue_covered_periods": 0.125,
+        "uniform_blue_hit_bets": 0.5,
+        "uniform_covered_red_hits": 2.1818181818181817,
+        "uniform_red_per_bet": 1.0909090909090908
+      },
+      "blue4": {
+        "at_least_4_red_periods": 0,
+        "blue_coverage_wilson95": [
+          0.0,
+          0.7934506856227626
+        ],
+        "blue_covered_periods": 0,
+        "mean_best_red": 2.0,
+        "mean_blue_hit_bets": 0.0,
+        "mean_covered_red_hits": 2.0,
+        "mean_covered_red_n": 10.0,
+        "mean_max_red_exposure": 8.0,
+        "mean_red_per_bet": 0.75,
+        "paired_descriptive_iid_normal95": null,
+        "paired_red_per_bet_minus_frozen": 0.0,
+        "uniform_blue_covered_periods": 0.25,
+        "uniform_blue_hit_bets": 0.5,
+        "uniform_covered_red_hits": 1.8181818181818181,
+        "uniform_red_per_bet": 1.0909090909090908
+      },
+      "frozen": {
+        "at_least_4_red_periods": 0,
+        "blue_coverage_wilson95": [
+          0.0,
+          0.7934506856227626
+        ],
+        "blue_covered_periods": 0,
+        "mean_best_red": 2.0,
+        "mean_blue_hit_bets": 0.0,
+        "mean_covered_red_hits": 2.0,
+        "mean_covered_red_n": 10.0,
+        "mean_max_red_exposure": 8.0,
+        "mean_red_per_bet": 0.75,
+        "paired_descriptive_iid_normal95": null,
+        "paired_red_per_bet_minus_frozen": 0.0,
+        "uniform_blue_covered_periods": 0.125,
+        "uniform_blue_hit_bets": 0.5,
+        "uniform_covered_red_hits": 1.8181818181818181,
+        "uniform_red_per_bet": 1.0909090909090908
+      },
+      "pool15": {
+        "at_least_4_red_periods": 0,
+        "blue_coverage_wilson95": [
+          0.0,
+          0.7934506856227626
+        ],
+        "blue_covered_periods": 0,
+        "mean_best_red": 2.0,
+        "mean_blue_hit_bets": 0.0,
+        "mean_covered_red_hits": 3.0,
+        "mean_covered_red_n": 11.0,
+        "mean_max_red_exposure": 8.0,
+        "mean_red_per_bet": 1.0,
+        "paired_descriptive_iid_normal95": null,
+        "paired_red_per_bet_minus_frozen": 0.25,
+        "uniform_blue_covered_periods": 0.125,
+        "uniform_blue_hit_bets": 0.5,
+        "uniform_covered_red_hits": 2.0,
+        "uniform_red_per_bet": 1.0909090909090908
+      }
+    },
+    "n": 1,
+    "to": "26116"
+  },
+  "weight_cutoff_exclusive": "25111",
+  "recent10": [
+    {
+      "actual_blue": 4,
+      "actual_red": [
+        1,
+        5,
+        9,
+        17,
+        24,
+        33
+      ],
+      "candidate_pool_hits": 1,
+      "date": "2026-09-15",
+      "equal_top15_hits": 3,
+      "final_set_hits": 3,
+      "frozen_diagnosis": {
+        "blue_covered": false,
+        "blue_picks": [
+          {
+            "count": 4,
+            "hit": false,
+            "n": 3,
+            "note": "开奖蓝球不是 03。它出现在 4 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 14,
+            "note": "开奖蓝球不是 14。它出现在 4 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          }
+        ],
+        "blue_rank": 8,
+        "blue_repeat": [
+          {
+            "count": 4,
+            "n": 3
+          },
+          {
+            "count": 4,
+            "n": 14
+          }
+        ],
+        "covered_blues": [
+          3,
+          14
+        ],
+        "covered_red_n": 10,
+        "covered_reds": [
+          4,
+          6,
+          7,
+          11,
+          13,
+          14,
+          22,
+          23,
+          30,
+          32
+        ],
+        "gaps": [
+          {
+            "color": "red",
+            "n": 1,
+            "rank": 16,
+            "reason": "红球 01 融合名次第 16 名，当时在出票池里。8 注要限制红球重合，选票时没有任何一注带上它。"
+          },
+          {
+            "color": "red",
+            "n": 5,
+            "rank": 23,
+            "reason": "红球 05 融合名次第 23 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 9,
+            "rank": 26,
+            "reason": "红球 09 融合名次第 26 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 17,
+            "rank": 11,
+            "reason": "红球 17 融合名次第 11 名，本来靠前。出票池的 12 个位置先留给救援号，它没有进入池子，所以票面没有它。"
+          },
+          {
+            "color": "red",
+            "n": 24,
+            "rank": 18,
+            "reason": "红球 24 融合名次第 18 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 33,
+            "rank": 12,
+            "reason": "红球 33 融合名次第 12 名，本来靠前。出票池的 12 个位置先留给救援号，它没有进入池子，所以票面没有它。"
+          },
+          {
+            "color": "blue",
+            "n": 4,
+            "rank": 8,
+            "reason": "蓝球融合名次第 8 名。票面只轮换前 2 个蓝球，它不在这些号码里。"
+          }
+        ],
+        "picks": [
+          {
+            "count": 3,
+            "hit": false,
+            "n": 4,
+            "note": "开奖红球没有 04。它出现在 3 注里，是因为融合名次第 10 名。",
+            "rank": 10
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 6,
+            "note": "开奖红球没有 06。它出现在 4 注里，是因为融合名次第 4 名。",
+            "rank": 4
+          },
+          {
+            "count": 3,
+            "hit": false,
+            "n": 7,
+            "note": "开奖红球没有 07。它出现在 3 注里，是因为融合名次第 8 名。",
+            "rank": 8
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 11,
+            "note": "开奖红球没有 11。它出现在 4 注里，是因为融合名次第 6 名。",
+            "rank": 6
+          },
+          {
+            "count": 8,
+            "hit": false,
+            "n": 13,
+            "note": "开奖红球没有 13。它出现在 8 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 14,
+            "note": "开奖红球没有 14。它出现在 5 注里，是因为融合名次第 3 名。",
+            "rank": 3
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 22,
+            "note": "开奖红球没有 22。它出现在 5 注里，是因为融合名次第 5 名。",
+            "rank": 5
+          },
+          {
+            "count": 2,
+            "hit": false,
+            "n": 23,
+            "note": "开奖红球没有 23。它出现在 2 注里，是因为融合名次第 9 名。",
+            "rank": 9
+          },
+          {
+            "count": 8,
+            "hit": false,
+            "n": 30,
+            "note": "开奖红球没有 30。它出现在 8 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          },
+          {
+            "count": 6,
+            "hit": false,
+            "n": 32,
+            "note": "开奖红球没有 32。它出现在 6 注里，是因为融合名次第 7 名。",
+            "rank": 7
+          }
+        ],
+        "red_draw_n": 6,
+        "red_hit_n": 0,
+        "red_repeat": [
+          {
+            "count": 8,
+            "n": 13
+          },
+          {
+            "count": 8,
+            "n": 30
+          },
+          {
+            "count": 6,
+            "n": 32
+          },
+          {
+            "count": 5,
+            "n": 14
+          },
+          {
+            "count": 5,
+            "n": 22
+          },
+          {
+            "count": 4,
+            "n": 6
+          },
+          {
+            "count": 4,
+            "n": 11
+          },
+          {
+            "count": 3,
+            "n": 4
+          },
+          {
+            "count": 3,
+            "n": 7
+          },
+          {
+            "count": 2,
+            "n": 23
+          }
+        ],
+        "win_red_covered": [],
+        "win_red_missed": [
+          1,
+          5,
+          9,
+          17,
+          24,
+          33
+        ]
+      },
+      "fusion_top15_hits": 2,
+      "issue": "26107",
+      "methods": {
+        "balanced12": {
+          "at_least_4_red": false,
+          "best_red": 1,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 1,
+          "covered_red_n": 12,
+          "max_red_exposure": 4,
+          "red_per_bet": 0.5,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.1818181818181817
+        },
+        "blue4": {
+          "at_least_4_red": false,
+          "best_red": 0,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 0,
+          "covered_red_n": 10,
+          "max_red_exposure": 8,
+          "red_per_bet": 0.0,
+          "uniform_blue_coverage": 0.25,
+          "uniform_covered_red_hits": 1.8181818181818181
+        },
+        "frozen": {
+          "at_least_4_red": false,
+          "best_red": 0,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 0,
+          "covered_red_n": 10,
+          "max_red_exposure": 8,
+          "red_per_bet": 0.0,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 1.8181818181818181
+        },
+        "pool15": {
+          "at_least_4_red": false,
+          "best_red": 0,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 0,
+          "covered_red_n": 10,
+          "max_red_exposure": 8,
+          "red_per_bet": 0.0,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 1.8181818181818181
+        }
+      }
+    },
+    {
+      "actual_blue": 16,
+      "actual_red": [
+        6,
+        11,
+        13,
+        14,
+        20,
+        28
+      ],
+      "candidate_pool_hits": 2,
+      "date": "2026-09-17",
+      "equal_top15_hits": 3,
+      "final_set_hits": 3,
+      "frozen_diagnosis": {
+        "blue_covered": false,
+        "blue_picks": [
+          {
+            "count": 4,
+            "hit": false,
+            "n": 4,
+            "note": "开奖蓝球不是 04。它出现在 4 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 14,
+            "note": "开奖蓝球不是 14。它出现在 4 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          }
+        ],
+        "blue_rank": 8,
+        "blue_repeat": [
+          {
+            "count": 4,
+            "n": 4
+          },
+          {
+            "count": 4,
+            "n": 14
+          }
+        ],
+        "covered_blues": [
+          4,
+          14
+        ],
+        "covered_red_n": 9,
+        "covered_reds": [
+          1,
+          5,
+          7,
+          9,
+          17,
+          23,
+          24,
+          32,
+          33
+        ],
+        "gaps": [
+          {
+            "color": "red",
+            "n": 6,
+            "rank": 18,
+            "reason": "红球 06 融合名次第 18 名，当时在出票池里。8 注要限制红球重合，选票时没有任何一注带上它。"
+          },
+          {
+            "color": "red",
+            "n": 11,
+            "rank": 20,
+            "reason": "红球 11 融合名次第 20 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 13,
+            "rank": 10,
+            "reason": "红球 13 融合名次第 10 名，当时在出票池里。8 注要限制红球重合，选票时没有任何一注带上它。"
+          },
+          {
+            "color": "red",
+            "n": 14,
+            "rank": 11,
+            "reason": "红球 14 融合名次第 11 名，本来靠前。出票池的 12 个位置先留给救援号，它没有进入池子，所以票面没有它。"
+          },
+          {
+            "color": "red",
+            "n": 20,
+            "rank": 24,
+            "reason": "红球 20 融合名次第 24 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 28,
+            "rank": 32,
+            "reason": "红球 28 融合名次第 32 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "blue",
+            "n": 16,
+            "rank": 8,
+            "reason": "蓝球融合名次第 8 名。票面只轮换前 2 个蓝球，它不在这些号码里。"
+          }
+        ],
+        "picks": [
+          {
+            "count": 5,
+            "hit": false,
+            "n": 1,
+            "note": "开奖红球没有 01。它出现在 5 注里，是因为融合名次第 4 名。",
+            "rank": 4
+          },
+          {
+            "count": 7,
+            "hit": false,
+            "n": 5,
+            "note": "开奖红球没有 05。它出现在 7 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 7,
+            "note": "开奖红球没有 07。它出现在 5 注里，是因为融合名次第 8 名。",
+            "rank": 8
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 9,
+            "note": "开奖红球没有 09。它出现在 5 注里，是因为融合名次第 3 名。",
+            "rank": 3
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 17,
+            "note": "开奖红球没有 17。它出现在 5 注里，是因为融合名次第 5 名。",
+            "rank": 5
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 23,
+            "note": "开奖红球没有 23。它出现在 4 注里，是因为融合名次第 9 名。",
+            "rank": 9
+          },
+          {
+            "count": 7,
+            "hit": false,
+            "n": 24,
+            "note": "开奖红球没有 24。它出现在 7 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 32,
+            "note": "开奖红球没有 32。它出现在 5 注里，是因为融合名次第 7 名。",
+            "rank": 7
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 33,
+            "note": "开奖红球没有 33。它出现在 5 注里，是因为融合名次第 6 名。",
+            "rank": 6
+          }
+        ],
+        "red_draw_n": 6,
+        "red_hit_n": 0,
+        "red_repeat": [
+          {
+            "count": 7,
+            "n": 5
+          },
+          {
+            "count": 7,
+            "n": 24
+          },
+          {
+            "count": 5,
+            "n": 1
+          },
+          {
+            "count": 5,
+            "n": 7
+          },
+          {
+            "count": 5,
+            "n": 9
+          },
+          {
+            "count": 5,
+            "n": 17
+          },
+          {
+            "count": 5,
+            "n": 32
+          },
+          {
+            "count": 5,
+            "n": 33
+          },
+          {
+            "count": 4,
+            "n": 23
+          }
+        ],
+        "win_red_covered": [],
+        "win_red_missed": [
+          6,
+          11,
+          13,
+          14,
+          20,
+          28
+        ]
+      },
+      "fusion_top15_hits": 2,
+      "issue": "26108",
+      "methods": {
+        "balanced12": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 12,
+          "max_red_exposure": 4,
+          "red_per_bet": 1.0,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.1818181818181817
+        },
+        "blue4": {
+          "at_least_4_red": false,
+          "best_red": 0,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 0,
+          "covered_red_n": 9,
+          "max_red_exposure": 7,
+          "red_per_bet": 0.0,
+          "uniform_blue_coverage": 0.25,
+          "uniform_covered_red_hits": 1.6363636363636365
+        },
+        "frozen": {
+          "at_least_4_red": false,
+          "best_red": 0,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 0,
+          "covered_red_n": 9,
+          "max_red_exposure": 7,
+          "red_per_bet": 0.0,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 1.6363636363636365
+        },
+        "pool15": {
+          "at_least_4_red": false,
+          "best_red": 0,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 0,
+          "covered_red_n": 9,
+          "max_red_exposure": 7,
+          "red_per_bet": 0.0,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 1.6363636363636365
+        }
+      }
+    },
+    {
+      "actual_blue": 6,
+      "actual_red": [
+        9,
+        12,
+        15,
+        26,
+        30,
+        33
+      ],
+      "candidate_pool_hits": 1,
+      "date": "2026-09-20",
+      "equal_top15_hits": 2,
+      "final_set_hits": 2,
+      "frozen_diagnosis": {
+        "blue_covered": false,
+        "blue_picks": [
+          {
+            "count": 4,
+            "hit": false,
+            "n": 4,
+            "note": "开奖蓝球不是 04。它出现在 4 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 16,
+            "note": "开奖蓝球不是 16。它出现在 4 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          }
+        ],
+        "blue_rank": 9,
+        "blue_repeat": [
+          {
+            "count": 4,
+            "n": 4
+          },
+          {
+            "count": 4,
+            "n": 16
+          }
+        ],
+        "covered_blues": [
+          4,
+          16
+        ],
+        "covered_red_n": 10,
+        "covered_reds": [
+          6,
+          7,
+          11,
+          13,
+          14,
+          20,
+          23,
+          26,
+          28,
+          32
+        ],
+        "gaps": [
+          {
+            "color": "red",
+            "n": 9,
+            "rank": 20,
+            "reason": "红球 09 融合名次第 20 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 12,
+            "rank": 29,
+            "reason": "红球 12 融合名次第 29 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 15,
+            "rank": 32,
+            "reason": "红球 15 融合名次第 32 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 30,
+            "rank": 12,
+            "reason": "红球 30 融合名次第 12 名，本来靠前。出票池的 12 个位置先留给救援号，它没有进入池子，所以票面没有它。"
+          },
+          {
+            "color": "red",
+            "n": 33,
+            "rank": 26,
+            "reason": "红球 33 融合名次第 26 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "blue",
+            "n": 6,
+            "rank": 9,
+            "reason": "蓝球融合名次第 9 名。票面只轮换前 2 个蓝球，它不在这些号码里。"
+          }
+        ],
+        "picks": [
+          {
+            "count": 4,
+            "hit": false,
+            "n": 6,
+            "note": "开奖红球没有 06。它出现在 4 注里，是因为融合名次第 3 名。",
+            "rank": 3
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 7,
+            "note": "开奖红球没有 07。它出现在 4 注里，是因为融合名次第 8 名。",
+            "rank": 8
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 11,
+            "note": "开奖红球没有 11。它出现在 5 注里，是因为融合名次第 4 名。",
+            "rank": 4
+          },
+          {
+            "count": 8,
+            "hit": false,
+            "n": 13,
+            "note": "开奖红球没有 13。它出现在 8 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          },
+          {
+            "count": 8,
+            "hit": false,
+            "n": 14,
+            "note": "开奖红球没有 14。它出现在 8 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 20,
+            "note": "开奖红球没有 20。它出现在 5 注里，是因为融合名次第 5 名。",
+            "rank": 5
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 23,
+            "note": "开奖红球没有 23。它出现在 4 注里，是因为融合名次第 9 名。",
+            "rank": 9
+          },
+          {
+            "count": 1,
+            "hit": true,
+            "n": 26,
+            "note": "开奖红球有 26，它出现在 1 注里，融合名次第 10 名。",
+            "rank": 10
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 28,
+            "note": "开奖红球没有 28。它出现在 4 注里，是因为融合名次第 6 名。",
+            "rank": 6
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 32,
+            "note": "开奖红球没有 32。它出现在 5 注里，是因为融合名次第 7 名。",
+            "rank": 7
+          }
+        ],
+        "red_draw_n": 6,
+        "red_hit_n": 1,
+        "red_repeat": [
+          {
+            "count": 8,
+            "n": 13
+          },
+          {
+            "count": 8,
+            "n": 14
+          },
+          {
+            "count": 5,
+            "n": 11
+          },
+          {
+            "count": 5,
+            "n": 20
+          },
+          {
+            "count": 5,
+            "n": 32
+          },
+          {
+            "count": 4,
+            "n": 6
+          },
+          {
+            "count": 4,
+            "n": 7
+          },
+          {
+            "count": 4,
+            "n": 23
+          },
+          {
+            "count": 4,
+            "n": 28
+          },
+          {
+            "count": 1,
+            "n": 26
+          }
+        ],
+        "win_red_covered": [
+          26
+        ],
+        "win_red_missed": [
+          9,
+          12,
+          15,
+          30,
+          33
+        ]
+      },
+      "fusion_top15_hits": 2,
+      "issue": "26109",
+      "methods": {
+        "balanced12": {
+          "at_least_4_red": false,
+          "best_red": 1,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 1,
+          "covered_red_n": 12,
+          "max_red_exposure": 4,
+          "red_per_bet": 0.5,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.1818181818181817
+        },
+        "blue4": {
+          "at_least_4_red": false,
+          "best_red": 1,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 1,
+          "covered_red_n": 10,
+          "max_red_exposure": 8,
+          "red_per_bet": 0.125,
+          "uniform_blue_coverage": 0.25,
+          "uniform_covered_red_hits": 1.8181818181818181
+        },
+        "frozen": {
+          "at_least_4_red": false,
+          "best_red": 1,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 1,
+          "covered_red_n": 10,
+          "max_red_exposure": 8,
+          "red_per_bet": 0.125,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 1.8181818181818181
+        },
+        "pool15": {
+          "at_least_4_red": false,
+          "best_red": 1,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 1,
+          "covered_red_n": 10,
+          "max_red_exposure": 8,
+          "red_per_bet": 0.125,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 1.8181818181818181
+        }
+      }
+    },
+    {
+      "actual_blue": 14,
+      "actual_red": [
+        2,
+        5,
+        16,
+        19,
+        26,
+        32
+      ],
+      "candidate_pool_hits": 2,
+      "date": "2026-09-22",
+      "equal_top15_hits": 2,
+      "final_set_hits": 2,
+      "frozen_diagnosis": {
+        "blue_covered": false,
+        "blue_picks": [
+          {
+            "count": 4,
+            "hit": false,
+            "n": 6,
+            "note": "开奖蓝球不是 06。它出现在 4 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 16,
+            "note": "开奖蓝球不是 16。它出现在 4 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          }
+        ],
+        "blue_rank": 12,
+        "blue_repeat": [
+          {
+            "count": 4,
+            "n": 6
+          },
+          {
+            "count": 4,
+            "n": 16
+          }
+        ],
+        "covered_blues": [
+          6,
+          16
+        ],
+        "covered_red_n": 10,
+        "covered_reds": [
+          7,
+          9,
+          12,
+          14,
+          15,
+          23,
+          26,
+          30,
+          32,
+          33
+        ],
+        "gaps": [
+          {
+            "color": "red",
+            "n": 2,
+            "rank": 31,
+            "reason": "红球 02 融合名次第 31 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 5,
+            "rank": 24,
+            "reason": "红球 05 融合名次第 24 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 16,
+            "rank": 22,
+            "reason": "红球 16 融合名次第 22 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 19,
+            "rank": 33,
+            "reason": "红球 19 融合名次第 33 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "blue",
+            "n": 14,
+            "rank": 12,
+            "reason": "蓝球融合名次第 12 名。票面只轮换前 2 个蓝球，它不在这些号码里。"
+          }
+        ],
+        "picks": [
+          {
+            "count": 3,
+            "hit": false,
+            "n": 7,
+            "note": "开奖红球没有 07。它出现在 3 注里，是因为融合名次第 8 名。",
+            "rank": 8
+          },
+          {
+            "count": 8,
+            "hit": false,
+            "n": 9,
+            "note": "开奖红球没有 09。它出现在 8 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 12,
+            "note": "开奖红球没有 12。它出现在 4 注里，是因为融合名次第 6 名。",
+            "rank": 6
+          },
+          {
+            "count": 2,
+            "hit": false,
+            "n": 14,
+            "note": "开奖红球没有 14。它出现在 2 注里，是因为融合名次第 10 名。",
+            "rank": 10
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 15,
+            "note": "开奖红球没有 15。它出现在 4 注里，是因为融合名次第 3 名。",
+            "rank": 3
+          },
+          {
+            "count": 3,
+            "hit": false,
+            "n": 23,
+            "note": "开奖红球没有 23。它出现在 3 注里，是因为融合名次第 9 名。",
+            "rank": 9
+          },
+          {
+            "count": 5,
+            "hit": true,
+            "n": 26,
+            "note": "开奖红球有 26，它出现在 5 注里，融合名次第 4 名。",
+            "rank": 4
+          },
+          {
+            "count": 8,
+            "hit": false,
+            "n": 30,
+            "note": "开奖红球没有 30。它出现在 8 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          },
+          {
+            "count": 6,
+            "hit": true,
+            "n": 32,
+            "note": "开奖红球有 32，它出现在 6 注里，融合名次第 7 名。",
+            "rank": 7
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 33,
+            "note": "开奖红球没有 33。它出现在 5 注里，是因为融合名次第 5 名。",
+            "rank": 5
+          }
+        ],
+        "red_draw_n": 6,
+        "red_hit_n": 2,
+        "red_repeat": [
+          {
+            "count": 8,
+            "n": 9
+          },
+          {
+            "count": 8,
+            "n": 30
+          },
+          {
+            "count": 6,
+            "n": 32
+          },
+          {
+            "count": 5,
+            "n": 26
+          },
+          {
+            "count": 5,
+            "n": 33
+          },
+          {
+            "count": 4,
+            "n": 12
+          },
+          {
+            "count": 4,
+            "n": 15
+          },
+          {
+            "count": 3,
+            "n": 7
+          },
+          {
+            "count": 3,
+            "n": 23
+          },
+          {
+            "count": 2,
+            "n": 14
+          }
+        ],
+        "win_red_covered": [
+          26,
+          32
+        ],
+        "win_red_missed": [
+          2,
+          5,
+          16,
+          19
+        ]
+      },
+      "fusion_top15_hits": 2,
+      "issue": "26110",
+      "methods": {
+        "balanced12": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 12,
+          "max_red_exposure": 4,
+          "red_per_bet": 1.0,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.1818181818181817
+        },
+        "blue4": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 10,
+          "max_red_exposure": 8,
+          "red_per_bet": 1.375,
+          "uniform_blue_coverage": 0.25,
+          "uniform_covered_red_hits": 1.8181818181818181
+        },
+        "frozen": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 10,
+          "max_red_exposure": 8,
+          "red_per_bet": 1.375,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 1.8181818181818181
+        },
+        "pool15": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 10,
+          "max_red_exposure": 8,
+          "red_per_bet": 1.375,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 1.8181818181818181
+        }
+      }
+    },
+    {
+      "actual_blue": 5,
+      "actual_red": [
+        6,
+        7,
+        14,
+        22,
+        31,
+        32
+      ],
+      "candidate_pool_hits": 3,
+      "date": "2026-09-24",
+      "equal_top15_hits": 4,
+      "final_set_hits": 4,
+      "frozen_diagnosis": {
+        "blue_covered": false,
+        "blue_picks": [
+          {
+            "count": 4,
+            "hit": false,
+            "n": 6,
+            "note": "开奖蓝球不是 06。它出现在 4 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 14,
+            "note": "开奖蓝球不是 14。它出现在 4 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          }
+        ],
+        "blue_rank": 10,
+        "blue_repeat": [
+          {
+            "count": 4,
+            "n": 6
+          },
+          {
+            "count": 4,
+            "n": 14
+          }
+        ],
+        "covered_blues": [
+          6,
+          14
+        ],
+        "covered_red_n": 10,
+        "covered_reds": [
+          2,
+          5,
+          7,
+          16,
+          18,
+          19,
+          21,
+          23,
+          26,
+          32
+        ],
+        "gaps": [
+          {
+            "color": "red",
+            "n": 6,
+            "rank": 17,
+            "reason": "红球 06 融合名次第 17 名，当时在出票池里。8 注要限制红球重合，选票时没有任何一注带上它。"
+          },
+          {
+            "color": "red",
+            "n": 14,
+            "rank": 14,
+            "reason": "红球 14 融合名次第 14 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 22,
+            "rank": 21,
+            "reason": "红球 22 融合名次第 21 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 31,
+            "rank": 29,
+            "reason": "红球 31 融合名次第 29 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "blue",
+            "n": 5,
+            "rank": 10,
+            "reason": "蓝球融合名次第 10 名。票面只轮换前 2 个蓝球，它不在这些号码里。"
+          }
+        ],
+        "picks": [
+          {
+            "count": 5,
+            "hit": false,
+            "n": 2,
+            "note": "开奖红球没有 02。它出现在 5 注里，是因为融合名次第 4 名。",
+            "rank": 4
+          },
+          {
+            "count": 7,
+            "hit": false,
+            "n": 5,
+            "note": "开奖红球没有 05。它出现在 7 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          },
+          {
+            "count": 7,
+            "hit": true,
+            "n": 7,
+            "note": "开奖红球有 07，它出现在 7 注里，融合名次第 7 名。",
+            "rank": 7
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 16,
+            "note": "开奖红球没有 16。它出现在 5 注里，是因为融合名次第 3 名。",
+            "rank": 3
+          },
+          {
+            "count": 2,
+            "hit": false,
+            "n": 18,
+            "note": "开奖红球没有 18。它出现在 2 注里，是因为融合名次第 10 名。",
+            "rank": 10
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 19,
+            "note": "开奖红球没有 19。它出现在 5 注里，是因为融合名次第 5 名。",
+            "rank": 5
+          },
+          {
+            "count": 2,
+            "hit": false,
+            "n": 21,
+            "note": "开奖红球没有 21。它出现在 2 注里，是因为融合名次第 9 名。",
+            "rank": 9
+          },
+          {
+            "count": 3,
+            "hit": false,
+            "n": 23,
+            "note": "开奖红球没有 23。它出现在 3 注里，是因为融合名次第 8 名。",
+            "rank": 8
+          },
+          {
+            "count": 7,
+            "hit": false,
+            "n": 26,
+            "note": "开奖红球没有 26。它出现在 7 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          },
+          {
+            "count": 5,
+            "hit": true,
+            "n": 32,
+            "note": "开奖红球有 32，它出现在 5 注里，融合名次第 6 名。",
+            "rank": 6
+          }
+        ],
+        "red_draw_n": 6,
+        "red_hit_n": 2,
+        "red_repeat": [
+          {
+            "count": 7,
+            "n": 5
+          },
+          {
+            "count": 7,
+            "n": 7
+          },
+          {
+            "count": 7,
+            "n": 26
+          },
+          {
+            "count": 5,
+            "n": 2
+          },
+          {
+            "count": 5,
+            "n": 16
+          },
+          {
+            "count": 5,
+            "n": 19
+          },
+          {
+            "count": 5,
+            "n": 32
+          },
+          {
+            "count": 3,
+            "n": 23
+          },
+          {
+            "count": 2,
+            "n": 18
+          },
+          {
+            "count": 2,
+            "n": 21
+          }
+        ],
+        "win_red_covered": [
+          7,
+          32
+        ],
+        "win_red_missed": [
+          6,
+          14,
+          22,
+          31
+        ]
+      },
+      "fusion_top15_hits": 3,
+      "issue": "26111",
+      "methods": {
+        "balanced12": {
+          "at_least_4_red": false,
+          "best_red": 3,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 3,
+          "covered_red_n": 12,
+          "max_red_exposure": 4,
+          "red_per_bet": 1.5,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.1818181818181817
+        },
+        "blue4": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 10,
+          "max_red_exposure": 7,
+          "red_per_bet": 1.5,
+          "uniform_blue_coverage": 0.25,
+          "uniform_covered_red_hits": 1.8181818181818181
+        },
+        "frozen": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 10,
+          "max_red_exposure": 7,
+          "red_per_bet": 1.5,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 1.8181818181818181
+        },
+        "pool15": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 10,
+          "max_red_exposure": 7,
+          "red_per_bet": 1.5,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 1.8181818181818181
+        }
+      }
+    },
+    {
+      "actual_blue": 11,
+      "actual_red": [
+        1,
+        4,
+        11,
+        12,
+        17,
+        29
+      ],
+      "candidate_pool_hits": 1,
+      "date": "2026-09-27",
+      "equal_top15_hits": 1,
+      "final_set_hits": 1,
+      "frozen_diagnosis": {
+        "blue_covered": false,
+        "blue_picks": [
+          {
+            "count": 4,
+            "hit": false,
+            "n": 5,
+            "note": "开奖蓝球不是 05。它出现在 4 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 14,
+            "note": "开奖蓝球不是 14。它出现在 4 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          }
+        ],
+        "blue_rank": 11,
+        "blue_repeat": [
+          {
+            "count": 4,
+            "n": 5
+          },
+          {
+            "count": 4,
+            "n": 14
+          }
+        ],
+        "covered_blues": [
+          5,
+          14
+        ],
+        "covered_red_n": 11,
+        "covered_reds": [
+          6,
+          7,
+          14,
+          18,
+          21,
+          22,
+          23,
+          25,
+          29,
+          31,
+          32
+        ],
+        "gaps": [
+          {
+            "color": "red",
+            "n": 1,
+            "rank": 27,
+            "reason": "红球 01 融合名次第 27 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 4,
+            "rank": 16,
+            "reason": "红球 04 融合名次第 16 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 11,
+            "rank": 25,
+            "reason": "红球 11 融合名次第 25 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 12,
+            "rank": 29,
+            "reason": "红球 12 融合名次第 29 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 17,
+            "rank": 31,
+            "reason": "红球 17 融合名次第 31 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "blue",
+            "n": 11,
+            "rank": 11,
+            "reason": "蓝球融合名次第 11 名。票面只轮换前 2 个蓝球，它不在这些号码里。"
+          }
+        ],
+        "picks": [
+          {
+            "count": 7,
+            "hit": false,
+            "n": 6,
+            "note": "开奖红球没有 06。它出现在 7 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 7,
+            "note": "开奖红球没有 07。它出现在 4 注里，是因为融合名次第 6 名。",
+            "rank": 6
+          },
+          {
+            "count": 8,
+            "hit": false,
+            "n": 14,
+            "note": "开奖红球没有 14。它出现在 8 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          },
+          {
+            "count": 2,
+            "hit": false,
+            "n": 18,
+            "note": "开奖红球没有 18。它出现在 2 注里，是因为融合名次第 9 名。",
+            "rank": 9
+          },
+          {
+            "count": 2,
+            "hit": false,
+            "n": 21,
+            "note": "开奖红球没有 21。它出现在 2 注里，是因为融合名次第 8 名。",
+            "rank": 8
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 22,
+            "note": "开奖红球没有 22。它出现在 5 注里，是因为融合名次第 3 名。",
+            "rank": 3
+          },
+          {
+            "count": 7,
+            "hit": false,
+            "n": 23,
+            "note": "开奖红球没有 23。它出现在 7 注里，是因为融合名次第 7 名。",
+            "rank": 7
+          },
+          {
+            "count": 1,
+            "hit": false,
+            "n": 25,
+            "note": "开奖红球没有 25。它出现在 1 注里，是因为融合名次第 11 名。",
+            "rank": 11
+          },
+          {
+            "count": 2,
+            "hit": true,
+            "n": 29,
+            "note": "开奖红球有 29，它出现在 2 注里，融合名次第 10 名。",
+            "rank": 10
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 31,
+            "note": "开奖红球没有 31。它出现在 5 注里，是因为融合名次第 5 名。",
+            "rank": 5
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 32,
+            "note": "开奖红球没有 32。它出现在 5 注里，是因为融合名次第 4 名。",
+            "rank": 4
+          }
+        ],
+        "red_draw_n": 6,
+        "red_hit_n": 1,
+        "red_repeat": [
+          {
+            "count": 8,
+            "n": 14
+          },
+          {
+            "count": 7,
+            "n": 6
+          },
+          {
+            "count": 7,
+            "n": 23
+          },
+          {
+            "count": 5,
+            "n": 22
+          },
+          {
+            "count": 5,
+            "n": 31
+          },
+          {
+            "count": 5,
+            "n": 32
+          },
+          {
+            "count": 4,
+            "n": 7
+          },
+          {
+            "count": 2,
+            "n": 18
+          },
+          {
+            "count": 2,
+            "n": 21
+          },
+          {
+            "count": 2,
+            "n": 29
+          },
+          {
+            "count": 1,
+            "n": 25
+          }
+        ],
+        "win_red_covered": [
+          29
+        ],
+        "win_red_missed": [
+          1,
+          4,
+          11,
+          12,
+          17
+        ]
+      },
+      "fusion_top15_hits": 1,
+      "issue": "26112",
+      "methods": {
+        "balanced12": {
+          "at_least_4_red": false,
+          "best_red": 1,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 1,
+          "covered_red_n": 12,
+          "max_red_exposure": 4,
+          "red_per_bet": 0.5,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.1818181818181817
+        },
+        "blue4": {
+          "at_least_4_red": false,
+          "best_red": 1,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 1,
+          "covered_red_n": 11,
+          "max_red_exposure": 8,
+          "red_per_bet": 0.25,
+          "uniform_blue_coverage": 0.25,
+          "uniform_covered_red_hits": 2.0
+        },
+        "frozen": {
+          "at_least_4_red": false,
+          "best_red": 1,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 1,
+          "covered_red_n": 11,
+          "max_red_exposure": 8,
+          "red_per_bet": 0.25,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.0
+        },
+        "pool15": {
+          "at_least_4_red": false,
+          "best_red": 1,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 1,
+          "covered_red_n": 11,
+          "max_red_exposure": 8,
+          "red_per_bet": 0.25,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.0
+        }
+      }
+    },
+    {
+      "actual_blue": 11,
+      "actual_red": [
+        3,
+        4,
+        20,
+        24,
+        29,
+        30
+      ],
+      "candidate_pool_hits": 2,
+      "date": "2026-09-29",
+      "equal_top15_hits": 3,
+      "final_set_hits": 3,
+      "frozen_diagnosis": {
+        "blue_covered": true,
+        "blue_picks": [
+          {
+            "count": 4,
+            "hit": false,
+            "n": 5,
+            "note": "开奖蓝球不是 05。它出现在 4 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          },
+          {
+            "count": 4,
+            "hit": true,
+            "n": 11,
+            "note": "开奖蓝球是 11，它出现在 4 注里，融合名次第 1 名。",
+            "rank": 1
+          }
+        ],
+        "blue_rank": 1,
+        "blue_repeat": [
+          {
+            "count": 4,
+            "n": 5
+          },
+          {
+            "count": 4,
+            "n": 11
+          }
+        ],
+        "covered_blues": [
+          5,
+          11
+        ],
+        "covered_red_n": 12,
+        "covered_reds": [
+          1,
+          4,
+          8,
+          11,
+          12,
+          14,
+          17,
+          18,
+          21,
+          23,
+          25,
+          29
+        ],
+        "gaps": [
+          {
+            "color": "red",
+            "n": 3,
+            "rank": 19,
+            "reason": "红球 03 融合名次第 19 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 20,
+            "rank": 26,
+            "reason": "红球 20 融合名次第 26 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 24,
+            "rank": 22,
+            "reason": "红球 24 融合名次第 22 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 30,
+            "rank": 15,
+            "reason": "红球 30 融合名次第 15 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          }
+        ],
+        "picks": [
+          {
+            "count": 5,
+            "hit": false,
+            "n": 1,
+            "note": "开奖红球没有 01。它出现在 5 注里，是因为融合名次第 3 名。",
+            "rank": 3
+          },
+          {
+            "count": 7,
+            "hit": true,
+            "n": 4,
+            "note": "开奖红球有 04，它出现在 7 注里，融合名次第 1 名。",
+            "rank": 1
+          },
+          {
+            "count": 1,
+            "hit": false,
+            "n": 8,
+            "note": "开奖红球没有 08。它出现在 1 注里，是因为融合名次第 12 名。",
+            "rank": 12
+          },
+          {
+            "count": 7,
+            "hit": false,
+            "n": 11,
+            "note": "开奖红球没有 11。它出现在 7 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          },
+          {
+            "count": 6,
+            "hit": false,
+            "n": 12,
+            "note": "开奖红球没有 12。它出现在 6 注里，是因为融合名次第 4 名。",
+            "rank": 4
+          },
+          {
+            "count": 1,
+            "hit": false,
+            "n": 14,
+            "note": "开奖红球没有 14。它出现在 1 注里，是因为融合名次第 10 名。",
+            "rank": 10
+          },
+          {
+            "count": 6,
+            "hit": false,
+            "n": 17,
+            "note": "开奖红球没有 17。它出现在 6 注里，是因为融合名次第 5 名。",
+            "rank": 5
+          },
+          {
+            "count": 2,
+            "hit": false,
+            "n": 18,
+            "note": "开奖红球没有 18。它出现在 2 注里，是因为融合名次第 9 名。",
+            "rank": 9
+          },
+          {
+            "count": 2,
+            "hit": false,
+            "n": 21,
+            "note": "开奖红球没有 21。它出现在 2 注里，是因为融合名次第 8 名。",
+            "rank": 8
+          },
+          {
+            "count": 7,
+            "hit": false,
+            "n": 23,
+            "note": "开奖红球没有 23。它出现在 7 注里，是因为融合名次第 7 名。",
+            "rank": 7
+          },
+          {
+            "count": 1,
+            "hit": false,
+            "n": 25,
+            "note": "开奖红球没有 25。它出现在 1 注里，是因为融合名次第 11 名。",
+            "rank": 11
+          },
+          {
+            "count": 3,
+            "hit": true,
+            "n": 29,
+            "note": "开奖红球有 29，它出现在 3 注里，融合名次第 6 名。",
+            "rank": 6
+          }
+        ],
+        "red_draw_n": 6,
+        "red_hit_n": 2,
+        "red_repeat": [
+          {
+            "count": 7,
+            "n": 4
+          },
+          {
+            "count": 7,
+            "n": 11
+          },
+          {
+            "count": 7,
+            "n": 23
+          },
+          {
+            "count": 6,
+            "n": 12
+          },
+          {
+            "count": 6,
+            "n": 17
+          },
+          {
+            "count": 5,
+            "n": 1
+          },
+          {
+            "count": 3,
+            "n": 29
+          },
+          {
+            "count": 2,
+            "n": 18
+          },
+          {
+            "count": 2,
+            "n": 21
+          },
+          {
+            "count": 1,
+            "n": 8
+          },
+          {
+            "count": 1,
+            "n": 14
+          },
+          {
+            "count": 1,
+            "n": 25
+          }
+        ],
+        "win_red_covered": [
+          4,
+          29
+        ],
+        "win_red_missed": [
+          3,
+          20,
+          24,
+          30
+        ]
+      },
+      "fusion_top15_hits": 3,
+      "issue": "26113",
+      "methods": {
+        "balanced12": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": true,
+          "blue_hit_bets": 4,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 12,
+          "max_red_exposure": 4,
+          "red_per_bet": 1.0,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.1818181818181817
+        },
+        "blue4": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": true,
+          "blue_hit_bets": 2,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 12,
+          "max_red_exposure": 7,
+          "red_per_bet": 1.25,
+          "uniform_blue_coverage": 0.25,
+          "uniform_covered_red_hits": 2.1818181818181817
+        },
+        "frozen": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": true,
+          "blue_hit_bets": 4,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 12,
+          "max_red_exposure": 7,
+          "red_per_bet": 1.25,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.1818181818181817
+        },
+        "pool15": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": true,
+          "blue_hit_bets": 4,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 12,
+          "max_red_exposure": 7,
+          "red_per_bet": 1.25,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.1818181818181817
+        }
+      }
+    },
+    {
+      "actual_blue": 10,
+      "actual_red": [
+        7,
+        18,
+        23,
+        24,
+        29,
+        31
+      ],
+      "candidate_pool_hits": 4,
+      "date": "2026-10-06",
+      "equal_top15_hits": 4,
+      "final_set_hits": 4,
+      "frozen_diagnosis": {
+        "blue_covered": true,
+        "blue_picks": [
+          {
+            "count": 4,
+            "hit": true,
+            "n": 10,
+            "note": "开奖蓝球是 10，它出现在 4 注里，融合名次第 2 名。",
+            "rank": 2
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 11,
+            "note": "开奖蓝球不是 11。它出现在 4 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          }
+        ],
+        "blue_rank": 2,
+        "blue_repeat": [
+          {
+            "count": 4,
+            "n": 10
+          },
+          {
+            "count": 4,
+            "n": 11
+          }
+        ],
+        "covered_blues": [
+          10,
+          11
+        ],
+        "covered_red_n": 11,
+        "covered_reds": [
+          3,
+          4,
+          8,
+          18,
+          20,
+          21,
+          23,
+          24,
+          25,
+          29,
+          30
+        ],
+        "gaps": [
+          {
+            "color": "red",
+            "n": 7,
+            "rank": 31,
+            "reason": "红球 07 融合名次第 31 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 31,
+            "rank": 29,
+            "reason": "红球 31 融合名次第 29 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          }
+        ],
+        "picks": [
+          {
+            "count": 4,
+            "hit": false,
+            "n": 3,
+            "note": "开奖红球没有 03。它出现在 4 注里，是因为融合名次第 6 名。",
+            "rank": 6
+          },
+          {
+            "count": 8,
+            "hit": false,
+            "n": 4,
+            "note": "开奖红球没有 04。它出现在 8 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          },
+          {
+            "count": 1,
+            "hit": false,
+            "n": 8,
+            "note": "开奖红球没有 08。它出现在 1 注里，是因为融合名次第 11 名。",
+            "rank": 11
+          },
+          {
+            "count": 2,
+            "hit": true,
+            "n": 18,
+            "note": "开奖红球有 18，它出现在 2 注里，融合名次第 9 名。",
+            "rank": 9
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 20,
+            "note": "开奖红球没有 20。它出现在 5 注里，是因为融合名次第 4 名。",
+            "rank": 4
+          },
+          {
+            "count": 2,
+            "hit": false,
+            "n": 21,
+            "note": "开奖红球没有 21。它出现在 2 注里，是因为融合名次第 8 名。",
+            "rank": 8
+          },
+          {
+            "count": 7,
+            "hit": true,
+            "n": 23,
+            "note": "开奖红球有 23，它出现在 7 注里，融合名次第 7 名。",
+            "rank": 7
+          },
+          {
+            "count": 5,
+            "hit": true,
+            "n": 24,
+            "note": "开奖红球有 24，它出现在 5 注里，融合名次第 3 名。",
+            "rank": 3
+          },
+          {
+            "count": 2,
+            "hit": false,
+            "n": 25,
+            "note": "开奖红球没有 25。它出现在 2 注里，是因为融合名次第 10 名。",
+            "rank": 10
+          },
+          {
+            "count": 5,
+            "hit": true,
+            "n": 29,
+            "note": "开奖红球有 29，它出现在 5 注里，融合名次第 5 名。",
+            "rank": 5
+          },
+          {
+            "count": 7,
+            "hit": false,
+            "n": 30,
+            "note": "开奖红球没有 30。它出现在 7 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          }
+        ],
+        "red_draw_n": 6,
+        "red_hit_n": 4,
+        "red_repeat": [
+          {
+            "count": 8,
+            "n": 4
+          },
+          {
+            "count": 7,
+            "n": 23
+          },
+          {
+            "count": 7,
+            "n": 30
+          },
+          {
+            "count": 5,
+            "n": 20
+          },
+          {
+            "count": 5,
+            "n": 24
+          },
+          {
+            "count": 5,
+            "n": 29
+          },
+          {
+            "count": 4,
+            "n": 3
+          },
+          {
+            "count": 2,
+            "n": 18
+          },
+          {
+            "count": 2,
+            "n": 21
+          },
+          {
+            "count": 2,
+            "n": 25
+          },
+          {
+            "count": 1,
+            "n": 8
+          }
+        ],
+        "win_red_covered": [
+          18,
+          23,
+          24,
+          29
+        ],
+        "win_red_missed": [
+          7,
+          31
+        ]
+      },
+      "fusion_top15_hits": 4,
+      "issue": "26114",
+      "methods": {
+        "balanced12": {
+          "at_least_4_red": true,
+          "best_red": 4,
+          "bets": 8,
+          "blue_covered": true,
+          "blue_hit_bets": 4,
+          "cost": 16,
+          "covered_red_hits": 4,
+          "covered_red_n": 12,
+          "max_red_exposure": 4,
+          "red_per_bet": 2.0,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.1818181818181817
+        },
+        "blue4": {
+          "at_least_4_red": true,
+          "best_red": 4,
+          "bets": 8,
+          "blue_covered": true,
+          "blue_hit_bets": 2,
+          "cost": 16,
+          "covered_red_hits": 4,
+          "covered_red_n": 11,
+          "max_red_exposure": 8,
+          "red_per_bet": 2.375,
+          "uniform_blue_coverage": 0.25,
+          "uniform_covered_red_hits": 2.0
+        },
+        "frozen": {
+          "at_least_4_red": true,
+          "best_red": 4,
+          "bets": 8,
+          "blue_covered": true,
+          "blue_hit_bets": 4,
+          "cost": 16,
+          "covered_red_hits": 4,
+          "covered_red_n": 11,
+          "max_red_exposure": 8,
+          "red_per_bet": 2.375,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.0
+        },
+        "pool15": {
+          "at_least_4_red": true,
+          "best_red": 4,
+          "bets": 8,
+          "blue_covered": true,
+          "blue_hit_bets": 4,
+          "cost": 16,
+          "covered_red_hits": 4,
+          "covered_red_n": 11,
+          "max_red_exposure": 8,
+          "red_per_bet": 2.375,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.0
+        }
+      }
+    },
+    {
+      "actual_blue": 3,
+      "actual_red": [
+        4,
+        13,
+        14,
+        18,
+        22,
+        24
+      ],
+      "candidate_pool_hits": 2,
+      "date": "2026-10-08",
+      "equal_top15_hits": 5,
+      "final_set_hits": 5,
+      "frozen_diagnosis": {
+        "blue_covered": false,
+        "blue_picks": [
+          {
+            "count": 4,
+            "hit": false,
+            "n": 10,
+            "note": "开奖蓝球不是 10。它出现在 4 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 11,
+            "note": "开奖蓝球不是 11。它出现在 4 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          }
+        ],
+        "blue_rank": 12,
+        "blue_repeat": [
+          {
+            "count": 4,
+            "n": 10
+          },
+          {
+            "count": 4,
+            "n": 11
+          }
+        ],
+        "covered_blues": [
+          10,
+          11
+        ],
+        "covered_red_n": 11,
+        "covered_reds": [
+          7,
+          8,
+          10,
+          18,
+          21,
+          23,
+          24,
+          25,
+          27,
+          29,
+          31
+        ],
+        "gaps": [
+          {
+            "color": "red",
+            "n": 4,
+            "rank": 12,
+            "reason": "红球 04 融合名次第 12 名，本来靠前。出票池的 12 个位置先留给救援号，它没有进入池子，所以票面没有它。"
+          },
+          {
+            "color": "red",
+            "n": 13,
+            "rank": 13,
+            "reason": "红球 13 融合名次第 13 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 14,
+            "rank": 14,
+            "reason": "红球 14 融合名次第 14 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 22,
+            "rank": 20,
+            "reason": "红球 22 融合名次第 20 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "blue",
+            "n": 3,
+            "rank": 12,
+            "reason": "蓝球融合名次第 12 名。票面只轮换前 2 个蓝球，它不在这些号码里。"
+          }
+        ],
+        "picks": [
+          {
+            "count": 5,
+            "hit": false,
+            "n": 7,
+            "note": "开奖红球没有 07。它出现在 5 注里，是因为融合名次第 4 名。",
+            "rank": 4
+          },
+          {
+            "count": 2,
+            "hit": false,
+            "n": 8,
+            "note": "开奖红球没有 08。它出现在 2 注里，是因为融合名次第 8 名。",
+            "rank": 8
+          },
+          {
+            "count": 2,
+            "hit": false,
+            "n": 10,
+            "note": "开奖红球没有 10。它出现在 2 注里，是因为融合名次第 10 名。",
+            "rank": 10
+          },
+          {
+            "count": 5,
+            "hit": true,
+            "n": 18,
+            "note": "开奖红球有 18，它出现在 5 注里，融合名次第 5 名。",
+            "rank": 5
+          },
+          {
+            "count": 7,
+            "hit": false,
+            "n": 21,
+            "note": "开奖红球没有 21。它出现在 7 注里，是因为融合名次第 7 名。",
+            "rank": 7
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 23,
+            "note": "开奖红球没有 23。它出现在 4 注里，是因为融合名次第 6 名。",
+            "rank": 6
+          },
+          {
+            "count": 8,
+            "hit": true,
+            "n": 24,
+            "note": "开奖红球有 24，它出现在 8 注里，融合名次第 1 名。",
+            "rank": 1
+          },
+          {
+            "count": 2,
+            "hit": false,
+            "n": 25,
+            "note": "开奖红球没有 25。它出现在 2 注里，是因为融合名次第 9 名。",
+            "rank": 9
+          },
+          {
+            "count": 1,
+            "hit": false,
+            "n": 27,
+            "note": "开奖红球没有 27。它出现在 1 注里，是因为融合名次第 11 名。",
+            "rank": 11
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 29,
+            "note": "开奖红球没有 29。它出现在 5 注里，是因为融合名次第 3 名。",
+            "rank": 3
+          },
+          {
+            "count": 7,
+            "hit": false,
+            "n": 31,
+            "note": "开奖红球没有 31。它出现在 7 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          }
+        ],
+        "red_draw_n": 6,
+        "red_hit_n": 2,
+        "red_repeat": [
+          {
+            "count": 8,
+            "n": 24
+          },
+          {
+            "count": 7,
+            "n": 21
+          },
+          {
+            "count": 7,
+            "n": 31
+          },
+          {
+            "count": 5,
+            "n": 7
+          },
+          {
+            "count": 5,
+            "n": 18
+          },
+          {
+            "count": 5,
+            "n": 29
+          },
+          {
+            "count": 4,
+            "n": 23
+          },
+          {
+            "count": 2,
+            "n": 8
+          },
+          {
+            "count": 2,
+            "n": 10
+          },
+          {
+            "count": 2,
+            "n": 25
+          },
+          {
+            "count": 1,
+            "n": 27
+          }
+        ],
+        "win_red_covered": [
+          18,
+          24
+        ],
+        "win_red_missed": [
+          4,
+          13,
+          14,
+          22
+        ]
+      },
+      "fusion_top15_hits": 5,
+      "issue": "26115",
+      "methods": {
+        "balanced12": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 12,
+          "max_red_exposure": 4,
+          "red_per_bet": 1.0,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.1818181818181817
+        },
+        "blue4": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 11,
+          "max_red_exposure": 8,
+          "red_per_bet": 1.625,
+          "uniform_blue_coverage": 0.25,
+          "uniform_covered_red_hits": 2.0
+        },
+        "frozen": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 11,
+          "max_red_exposure": 8,
+          "red_per_bet": 1.625,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.0
+        },
+        "pool15": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 11,
+          "max_red_exposure": 8,
+          "red_per_bet": 1.625,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.0
+        }
+      }
+    },
+    {
+      "actual_blue": 12,
+      "actual_red": [
+        10,
+        19,
+        24,
+        27,
+        28,
+        33
+      ],
+      "candidate_pool_hits": 2,
+      "date": "2026-10-11",
+      "equal_top15_hits": 3,
+      "final_set_hits": 3,
+      "frozen_diagnosis": {
+        "blue_covered": false,
+        "blue_picks": [
+          {
+            "count": 4,
+            "hit": false,
+            "n": 3,
+            "note": "开奖蓝球不是 03。它出现在 4 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 11,
+            "note": "开奖蓝球不是 11。它出现在 4 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          }
+        ],
+        "blue_rank": 10,
+        "blue_repeat": [
+          {
+            "count": 4,
+            "n": 3
+          },
+          {
+            "count": 4,
+            "n": 11
+          }
+        ],
+        "covered_blues": [
+          3,
+          11
+        ],
+        "covered_red_n": 10,
+        "covered_reds": [
+          4,
+          8,
+          10,
+          13,
+          14,
+          18,
+          21,
+          22,
+          24,
+          25
+        ],
+        "gaps": [
+          {
+            "color": "red",
+            "n": 19,
+            "rank": 31,
+            "reason": "红球 19 融合名次第 31 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 27,
+            "rank": 11,
+            "reason": "红球 27 融合名次第 11 名，本来靠前。出票池的 12 个位置先留给救援号，它没有进入池子，所以票面没有它。"
+          },
+          {
+            "color": "red",
+            "n": 28,
+            "rank": 29,
+            "reason": "红球 28 融合名次第 29 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "red",
+            "n": 33,
+            "rank": 27,
+            "reason": "红球 33 融合名次第 27 名。出票池只有 12 个红球，它在池外，票面不会出现。"
+          },
+          {
+            "color": "blue",
+            "n": 12,
+            "rank": 10,
+            "reason": "蓝球融合名次第 10 名。票面只轮换前 2 个蓝球，它不在这些号码里。"
+          }
+        ],
+        "picks": [
+          {
+            "count": 8,
+            "hit": false,
+            "n": 4,
+            "note": "开奖红球没有 04。它出现在 8 注里，是因为融合名次第 1 名。",
+            "rank": 1
+          },
+          {
+            "count": 3,
+            "hit": false,
+            "n": 8,
+            "note": "开奖红球没有 08。它出现在 3 注里，是因为融合名次第 8 名。",
+            "rank": 8
+          },
+          {
+            "count": 2,
+            "hit": true,
+            "n": 10,
+            "note": "开奖红球有 10，它出现在 2 注里，融合名次第 10 名。",
+            "rank": 10
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 13,
+            "note": "开奖红球没有 13。它出现在 5 注里，是因为融合名次第 4 名。",
+            "rank": 4
+          },
+          {
+            "count": 8,
+            "hit": false,
+            "n": 14,
+            "note": "开奖红球没有 14。它出现在 8 注里，是因为融合名次第 2 名。",
+            "rank": 2
+          },
+          {
+            "count": 4,
+            "hit": false,
+            "n": 18,
+            "note": "开奖红球没有 18。它出现在 4 注里，是因为融合名次第 6 名。",
+            "rank": 6
+          },
+          {
+            "count": 6,
+            "hit": false,
+            "n": 21,
+            "note": "开奖红球没有 21。它出现在 6 注里，是因为融合名次第 7 名。",
+            "rank": 7
+          },
+          {
+            "count": 5,
+            "hit": false,
+            "n": 22,
+            "note": "开奖红球没有 22。它出现在 5 注里，是因为融合名次第 5 名。",
+            "rank": 5
+          },
+          {
+            "count": 4,
+            "hit": true,
+            "n": 24,
+            "note": "开奖红球有 24，它出现在 4 注里，融合名次第 3 名。",
+            "rank": 3
+          },
+          {
+            "count": 3,
+            "hit": false,
+            "n": 25,
+            "note": "开奖红球没有 25。它出现在 3 注里，是因为融合名次第 9 名。",
+            "rank": 9
+          }
+        ],
+        "red_draw_n": 6,
+        "red_hit_n": 2,
+        "red_repeat": [
+          {
+            "count": 8,
+            "n": 4
+          },
+          {
+            "count": 8,
+            "n": 14
+          },
+          {
+            "count": 6,
+            "n": 21
+          },
+          {
+            "count": 5,
+            "n": 13
+          },
+          {
+            "count": 5,
+            "n": 22
+          },
+          {
+            "count": 4,
+            "n": 18
+          },
+          {
+            "count": 4,
+            "n": 24
+          },
+          {
+            "count": 3,
+            "n": 8
+          },
+          {
+            "count": 3,
+            "n": 25
+          },
+          {
+            "count": 2,
+            "n": 10
+          }
+        ],
+        "win_red_covered": [
+          10,
+          24
+        ],
+        "win_red_missed": [
+          19,
+          27,
+          28,
+          33
+        ]
+      },
+      "fusion_top15_hits": 3,
+      "issue": "26116",
+      "methods": {
+        "balanced12": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 12,
+          "max_red_exposure": 4,
+          "red_per_bet": 1.0,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.1818181818181817
+        },
+        "blue4": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 10,
+          "max_red_exposure": 8,
+          "red_per_bet": 0.75,
+          "uniform_blue_coverage": 0.25,
+          "uniform_covered_red_hits": 1.8181818181818181
+        },
+        "frozen": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 2,
+          "covered_red_n": 10,
+          "max_red_exposure": 8,
+          "red_per_bet": 0.75,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 1.8181818181818181
+        },
+        "pool15": {
+          "at_least_4_red": false,
+          "best_red": 2,
+          "bets": 8,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_hits": 3,
+          "covered_red_n": 11,
+          "max_red_exposure": 8,
+          "red_per_bet": 1.0,
+          "uniform_blue_coverage": 0.125,
+          "uniform_covered_red_hits": 2.0
+        }
+      }
+    }
+  ],
+  "observed_at": "2026-10-13T16:16:06+08:00",
+  "evidence": {
+    "records": {
+      "records": [
+        {
+          "any_blue": false,
+          "best_red": 0,
+          "cost": 16,
+          "coverage": null,
+          "cutoff_date": "20261011",
+          "cutoff_issue": "26116",
+          "draw": null,
+          "file": "26117_ce9bdc552c7d.json",
+          "published_at": 1791770316,
+          "sha": "ce9bdc552c7d03ed33526888a8faa3329877d65bf0408df3eba82eaccd90625e",
+          "source": "seal",
+          "status": "pending",
+          "target": "26117",
+          "ticket_hits": [],
+          "tickets": [
+            {
+              "blue": 12,
+              "red": [
+                10,
+                19,
+                24,
+                27,
+                28,
+                33
+              ]
+            },
+            {
+              "blue": 3,
+              "red": [
+                8,
+                10,
+                19,
+                21,
+                24,
+                27
+              ]
+            },
+            {
+              "blue": 12,
+              "red": [
+                8,
+                19,
+                21,
+                24,
+                28,
+                33
+              ]
+            },
+            {
+              "blue": 3,
+              "red": [
+                10,
+                19,
+                21,
+                24,
+                25,
+                33
+              ]
+            },
+            {
+              "blue": 12,
+              "red": [
+                19,
+                21,
+                24,
+                25,
+                27,
+                28
+              ]
+            },
+            {
+              "blue": 3,
+              "red": [
+                4,
+                19,
+                21,
+                24,
+                27,
+                33
+              ]
+            },
+            {
+              "blue": 12,
+              "red": [
+                4,
+                10,
+                19,
+                21,
+                24,
+                28
+              ]
+            },
+            {
+              "blue": 3,
+              "red": [
+                10,
+                14,
+                21,
+                24,
+                27,
+                33
+              ]
+            }
+          ],
+          "title": "开奖前哈希"
+        }
+      ]
+    },
+    "online_overview_url": "http://1.14.208.189/ssq/api/overview",
+    "online_records_url": "http://1.14.208.189/ssq/api/records",
+    "online_replay_url": "http://1.14.208.189/ssq/api/history?limit=30",
+    "official_latest_draw_url": "https://www.szlottery.org/fcw/kjxx/szzjxx/ssq/content/post_1979988.html",
+    "cross_checks": [
+      "99 recent historical draws matched before appending 26116",
+      "full data hash matched online report",
+      "30 frozen replay periods matched online",
+      "next frozen tickets matched online",
+      "confirmation, weights, 25 tests and funnel matched online"
+    ],
+    "frozen_confirmation_tests": [
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.22640586876036453,
+          0.07955272190721832
+        ],
+        "ci_bonferroni": [
+          -0.31462567899175664,
+          0.1677725321386104
+        ],
+        "effect": -0.07531932125535461,
+        "effect_kind": "dz",
+        "estimate": -0.0734265734265731,
+        "name": "红球超额|长期频率",
+        "p": 0.4130216889998686,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.056171762974586606,
+          0.26829297509579975
+        ],
+        "ci_bonferroni": [
+          -0.14972761821921804,
+          0.3618488303404312
+        ],
+        "effect": 0.1025893756039484,
+        "effect_kind": "dz",
+        "estimate": 0.10606060606060656,
+        "name": "红球超额|指数近期",
+        "p": 0.23704549729808755,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.27098667170009105,
+          0.0856719863854067
+        ],
+        "ci_bonferroni": [
+          -0.37382529134803844,
+          0.18851060603335412
+        ],
+        "effect": -0.08153477131370998,
+        "effect_kind": "dz",
+        "estimate": -0.09265734265734217,
+        "name": "红球超额|遗漏回补",
+        "p": 0.30161355438331494,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.09934814583789274,
+          0.23454628103602876
+        ],
+        "ci_bonferroni": [
+          -0.19562294862040452,
+          0.3308210838185406
+        ],
+        "effect": 0.06354001651753668,
+        "effect_kind": "dz",
+        "estimate": 0.06759906759906802,
+        "name": "红球超额|近期热号",
+        "p": 0.45107715178780117,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.2626616027978307,
+          0.09016743030365915
+        ],
+        "ci_bonferroni": [
+          -0.3643959920052815,
+          0.19190181951110996
+        ],
+        "effect": -0.07671775847131079,
+        "effect_kind": "dz",
+        "estimate": -0.08624708624708577,
+        "name": "红球超额|上期共现",
+        "p": 0.3362930374894837,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.1463325346035751,
+          0.21742810569914683
+        ],
+        "ci_bonferroni": [
+          -0.2512189330770922,
+          0.32231450417266394
+        ],
+        "effect": 0.030669919331707502,
+        "effect_kind": "dz",
+        "estimate": 0.035547785547785864,
+        "name": "红球超额|区间均衡",
+        "p": 0.691883605315144,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          0.01828423368195395,
+          0.34768313228541314
+        ],
+        "ci_bonferroni": [
+          -0.0766943327371836,
+          0.44266169870455063
+        ],
+        "effect": 0.17434360011078334,
+        "effect_kind": "dz",
+        "estimate": 0.18298368298368353,
+        "name": "红球超额|上期重号",
+        "p": 0.04135297943204175,
+        "p_bh": 0.741778105857623,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.20855144126672642,
+          0.1770829097981959
+        ],
+        "ci_bonferroni": [
+          -0.31974488478280044,
+          0.28827635331427
+        ],
+        "effect": -0.01280520560345536,
+        "effect_kind": "dz",
+        "estimate": -0.01573426573426525,
+        "name": "红球超额|加权融合",
+        "p": 0.860756227670749,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.10916184277499585,
+          0.27000100361415763
+        ],
+        "ci_bonferroni": [
+          -0.21848929876261972,
+          0.3793284596017815
+        ],
+        "effect": 0.06656590117112143,
+        "effect_kind": "dz",
+        "estimate": 0.08041958041958089,
+        "name": "红球超额|等权融合",
+        "p": 0.3699599805153855,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.16728072832431456,
+          0.2127352737788608
+        ],
+        "ci_bonferroni": [
+          -0.27685418242241683,
+          0.322308727876963
+        ],
+        "effect": 0.01876986835512029,
+        "effect_kind": "dz",
+        "estimate": 0.022727272727273113,
+        "name": "红球超额|温和救援",
+        "p": 0.7999806234098483,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.11844160661872441,
+          0.21517820335532198
+        ],
+        "ci_bonferroni": [
+          -0.21463722662444126,
+          0.3113738233610388
+        ],
+        "effect": 0.04550140070259844,
+        "effect_kind": "dz",
+        "estimate": 0.04836829836829878,
+        "name": "红球超额|强救援",
+        "p": 0.5897293065535902,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.20571567819166114,
+          0.013407985883968826
+        ],
+        "ci_bonferroni": [
+          -0.26889758793892543,
+          0.0765898956312331
+        ],
+        "effect": -0.13771878012786076,
+        "effect_kind": "dz",
+        "estimate": -0.09615384615384616,
+        "name": "配对|加权融合-等权融合",
+        "p": 0.08541291890812097,
+        "p_bh": 0.741778105857623,
+        "p_block": 0.10844577711144428,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.1849143853148889,
+          0.30029900069950427
+        ],
+        "ci_bonferroni": [
+          -0.324820353447773,
+          0.4402049688323884
+        ],
+        "effect": 0.0373165018733606,
+        "effect_kind": "dz",
+        "estimate": 0.057692307692307696,
+        "name": "配对|加权融合-开发窗最优(长期频率)",
+        "p": 0.6411561443194684,
+        "p_bh": 1.0,
+        "p_block": 0.6876561719140429,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.05396290727722572,
+          0.13088598420030265
+        ],
+        "ci_bonferroni": [
+          -0.10726206155836274,
+          0.18418513848143966
+        ],
+        "effect": 0.06530186569674183,
+        "effect_kind": "dz",
+        "estimate": 0.038461538461538464,
+        "name": "配对|温和救援-加权融合",
+        "p": 0.4147173610782229,
+        "p_bh": 1.0,
+        "p_block": 0.638680659670165,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.11652198935202371,
+          0.2447271175571519
+        ],
+        "ci_bonferroni": [
+          -0.22068421466575144,
+          0.34888934287087964
+        ],
+        "effect": 0.05569092192704953,
+        "effect_kind": "dz",
+        "estimate": 0.0641025641025641,
+        "name": "配对|强救援-加权融合",
+        "p": 0.48669212817500807,
+        "p_bh": 1.0,
+        "p_block": 0.7511244377811095,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.031854257851481424,
+          0.04349877415649679
+        ],
+        "ci_bonferroni": [
+          -0.040831347002419915,
+          0.08224398948473438
+        ],
+        "effect": -0.020232762093186696,
+        "effect_kind": "h",
+        "estimate": -0.0048076923076923045,
+        "name": "蓝球命中差|长期频率",
+        "p": 0.9340980423036416,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.02731141727199113,
+          0.05146833189142655
+        ],
+        "ci_bonferroni": [
+          -0.03722885183068686,
+          0.09072247050890977
+        ],
+        "effect": 0.006581388699978041,
+        "effect_kind": "h",
+        "estimate": 0.0016025641025640969,
+        "name": "蓝球命中差|指数近期",
+        "p": 1.0,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.031854257851481424,
+          0.04349877415649679
+        ],
+        "ci_bonferroni": [
+          -0.040831347002419915,
+          0.08224398948473438
+        ],
+        "effect": -0.020232762093186696,
+        "effect_kind": "h",
+        "estimate": -0.0048076923076923045,
+        "name": "蓝球命中差|遗漏回补",
+        "p": 0.9340980423036416,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.036288506559476554,
+          0.03542062455007186
+        ],
+        "ci_bonferroni": [
+          -0.04429531373693635,
+          0.07362698002334231
+        ],
+        "effect": -0.04848650675149618,
+        "effect_kind": "h",
+        "estimate": -0.01121794871794872,
+        "name": "蓝球命中差|近期热号",
+        "p": 0.6792776734830126,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.02731141727199113,
+          0.05146833189142655
+        ],
+        "ci_bonferroni": [
+          -0.03722885183068686,
+          0.09072247050890977
+        ],
+        "effect": 0.006581388699978041,
+        "effect_kind": "h",
+        "estimate": 0.0016025641025640969,
+        "name": "蓝球命中差|回避上期",
+        "p": 1.0,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.02731141727199113,
+          0.05146833189142655
+        ],
+        "ci_bonferroni": [
+          -0.03722885183068686,
+          0.09072247050890977
+        ],
+        "effect": 0.006581388699978041,
+        "effect_kind": "h",
+        "estimate": 0.0016025641025640969,
+        "name": "蓝球命中差|转移矩阵",
+        "p": 1.0,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.031854257851481424,
+          0.04349877415649679
+        ],
+        "ci_bonferroni": [
+          -0.040831347002419915,
+          0.08224398948473438
+        ],
+        "effect": -0.020232762093186696,
+        "effect_kind": "h",
+        "estimate": -0.0048076923076923045,
+        "name": "蓝球命中差|加权融合",
+        "p": 0.9340980423036416,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": false,
+        "ci95": [
+          -0.008641400926365027,
+          0.02728219672758344
+        ],
+        "ci_bonferroni": [
+          -0.01899957704734034,
+          0.037640372848558756
+        ],
+        "effect": 0.08142737182772508,
+        "effect_kind": "dz",
+        "estimate": 0.009320397900609206,
+        "name": "蓝球损失|融合-匹配随机",
+        "p": 0.3091403489141118,
+        "p_bh": 1.0,
+        "p_block": 0.4367816091954023,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": false,
+        "ci95": [
+          -0.002375678885392911,
+          0.0335328770828879
+        ],
+        "ci_bonferroni": [
+          -0.012729517900970183,
+          0.04388671609846517
+        ],
+        "effect": 0.13615896717465895,
+        "effect_kind": "dz",
+        "estimate": 0.015578599098747495,
+        "name": "蓝球损失|融合-均匀",
+        "p": 0.08901337270291476,
+        "p_bh": 0.741778105857623,
+        "p_block": 0.2108945527236382,
+        "p_holm": 1.0
+      },
+      {
+        "better_if_positive": true,
+        "ci95": [
+          -0.11563769740371266,
+          0.17986846663448186
+        ],
+        "ci_bonferroni": [
+          -0.2008436648412476,
+          0.2650744340720168
+        ],
+        "effect": 0.034108480387075674,
+        "effect_kind": "dz",
+        "estimate": 0.032115384615384594,
+        "name": "票组红球|最佳票-条件零假设",
+        "p": 0.651587103224194,
+        "p_bh": 1.0,
+        "p_block": null,
+        "p_holm": 1.0
+      }
+    ]
+  },
+  "source_files_sha256": {
+    "examples/selection_review.rs": "3a5b5c10628af73bee01e8b0823f6f4d64e102c425e7a588ad89d9fb3bc63d96",
+    "src/model.rs": "dd5e7562cdaed3ccaadbdd21086d6387a39c7ebce604087e2ba76958ba6b6262",
+    "src/select.rs": "f29c6009d464b96a3c9e0c7cc5fff52e4b53a7b3c3ad93bd6b142fbfbc650ee3",
+    "src/eval.rs": "e90c8e70aab0155c2a3157470e9d03fafeca78e09d27ffa2343e98c74b719cbb",
+    "src/protocol.rs": "75700e0c1650f0606233d8bed09845c74731c93f5f0ff2fd1c6d2572918ca6a6"
+  },
+  "prospective_plan": {
+    "candidate": "balanced12",
+    "control": "frozen",
+    "start_issue": "26117",
+    "minimum_periods": 60,
+    "primary_metric": "mean red hits per bet; paired by issue",
+    "secondary_metrics": [
+      "red union coverage excess over its own uniform baseline",
+      "best red hits per issue",
+      "maximum red exposure",
+      "blue coverage and blue hit bets"
+    ],
+    "status": "research proposal; no production archive or publication",
+    "decision": "Do not select a replacement using these retrospective overlapping windows; evaluate unchanged candidate on future draws."
+  }
+}
