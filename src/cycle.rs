@@ -56,7 +56,7 @@ pub fn run_cycle(data: &Path, audit: &Path, publish_dir: &Path, review_dir: &Pat
                     notes.push(format!("已封存 {}，哈希 {}", outcome.target, outcome.content_sha256));
                 }
                 match recommendations::freeze_daily(&recommendation_dir, &draws, &gate.target, gate.deadline_unix) {
-                    Ok(value) => notes.push(format!("每期推荐 {}：{}（{} 个小池、{} 个票组）", gate.target, value["status"].as_str().unwrap_or(""), value["number_pools"].as_u64().unwrap_or(0), value["strategies"].as_u64().unwrap_or(0))),
+                    Ok(value) => notes.push(format!("每期推荐 {}：{}（{} 个主模型池、{} 个对照池、{} 个票组）", gate.target, value["status"].as_str().unwrap_or(""), value["number_pools"].as_u64().unwrap_or(0), value["comparison_number_pools"].as_u64().unwrap_or(0), value["strategies"].as_u64().unwrap_or(0))),
                     Err(error) => notes.push(format!("每期推荐未留档：{error}")),
                 }
             }

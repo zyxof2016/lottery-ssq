@@ -1310,7 +1310,7 @@ mod tests {
         assert_eq!(status, 200);
         let report: Value = serde_json::from_slice(&bytes).unwrap();
         assert_eq!(report["version"], 3);
-        assert_eq!(report["archive_version"], 2);
+        assert_eq!(report["archive_version"], 3);
         assert_eq!(report["red_sizes"], json!((6..=33).collect::<Vec<_>>()));
         assert_eq!(report["archived_red_sizes"], json!([8, 10, 12, 14, 16, 18, 20, 22, 24]));
         assert_eq!(report["observation_tiers"].as_array().unwrap().len(), 6);

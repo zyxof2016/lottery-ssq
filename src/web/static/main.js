@@ -79,7 +79,7 @@ createApp({setup(){
         const result=await post('api/recommendations/freeze',{data_sha256:poolPreview.value.input_history_sha256,target:poolPreview.value.issue});
         if(result.observation_tiers!==6)throw Error('本期首次档案未保存六档，已保留旧档案；新期再开始观察。');
         poolPreview.value.recommendation_archive={url:url('reviews',{issue:result.issue,archive:'daily'}),sha256:result.sha256};
-        planSaved.value=true;showToast('六档×1–3蓝已封存，开奖后按原号码观察覆盖。');
+        planSaved.value=true;showToast(result.comparison_models===3?'三模型共54个六档观察池和9个原小池已封存。':'已保留本期原加权模型六档；三模型对照从后续新期开始冻结。');
       }else{
         const body={...lastRequest.value,expected_archive_sha256:plan.value.recommendation_archive.sha256};
         const result=await post('api/plans',body);plan.value=result.plan;planSaved.value=true;

@@ -73,18 +73,25 @@
         </section>
         <section v-if="view.number_pools" class="card" aria-label="实际小号码池复盘">
 <h2>当时的模型号码池 · 分档核对覆盖</h2>
+<div class="toolbar" style="margin-bottom:14px"><label for="archived-pool-model">已留档红球模型</label><select id="archived-pool-model" v-model="effectivePoolModel"><option v-for="m in archivedModels" :key="m.model" :value="m.model">{{ poolModelName(m.model) }}</option></select></div>
+<p v-if="archivedModels.length===1" class="muted">本期仅保存加权模型，等权和均匀对照保持缺档；后续首次冻结的新期开始三模型对照。</p>
 <p class="muted">只读取当时封存的原始号码。{{ hasObservationTiers ? '本档案包含14／16／18／20／22／24红六个观察档及原小池对照。' : '本档案仅保存原小池，未补造六档观察池。' }}命中率以开奖红球与真实开奖期数为分母。</p>
-<div class="toolbar" style="margin-bottom:14px"><label for="archived-pool-group">号码池范围</label><select id="archived-pool-group" v-model="effectivePoolGroup"><option v-if="hasObservationTiers" value="observation">六档观察池</option><option value="legacy">原小池对照</option></select><label for="archived-pool-blue">蓝球数量</label><select id="archived-pool-blue" v-model.number="poolBlueCount"><option v-for="n in [1,2,3]" :key="n" :value="n">{{ n }} 个</option></select></div>
-<p v-if="hasObservationTiers" class="muted">本期最小全 6 红观察档：{{ !view.draw?'待开奖':view.number_pools.smallest_full_red_tier?view.number_pools.smallest_full_red_tier+' 红':'六档均未全包' }}。<a :href="home+'pools'">查看累计实际覆盖</a></p>
+<div class="toolbar" style="margin-bottom:14px"><label for="archived-pool-group">号码池范围</label><select id="archived-pool-group" v-model="effectivePoolGroup"><option v-if="hasObservationTiers" value="observation">六档观察池</option><option v-if="hasLegacyPools" value="legacy">原小池对照</option></select><label for="archived-pool-blue">蓝球数量</label><select id="archived-pool-blue" v-model.number="poolBlueCount"><option v-for="n in [1,2,3]" :key="n" :value="n">{{ n }} 个</option></select></div>
+<p v-if="hasObservationTiers" class="muted">本模型最小全 6 红观察档：{{ !view.draw?'待开奖':activePoolModel.smallest_full_red_tier?activePoolModel.smallest_full_red_tier+' 红':'六档均未全包' }}。<a :href="home+'pools'">查看累计实际覆盖与三模型共同期次对照</a></p>
+<div v-if="poolDiagnostics" class="notice" id="pool-rank-diagnostic"><b>开奖后漏号排名诊断</b><p>原排名至少取前 {{ poolDiagnostics.minimum_full_red_prefix }} 红才能包含本期全部 6 红；开奖蓝球原排名 {{ poolDiagnostics.winning_blue_rank || '未留存' }}。</p><div class="flex"><span v-for="r in poolDiagnostics.winning_red_ranks" :key="r.number">{{ pad(r.number) }}：第 {{ r.rank }} 名</span></div><p class="muted">{{ poolDiagnostics.note }}</p></div>
+<p v-else class="muted">{{ view.draw?'本档案未保存可用的完整排名，无法诊断最小前缀。':'待开奖，漏号排名与最小全包前缀暂不计算。' }}</p>
 <div class="pool-number-cards" role="region" aria-label="各档实际号码池">
 <article v-for="p in shownPools" :key="p.id" class="pool-number-card" :data-pool="p.id" :class="{active:numberPool?.id===p.id}"><h3>{{ p.tier_id?p.tier_id+'档 · ':'' }}{{ p.red_count }} 红 + {{ p.blue_count }} 蓝</h3><div class="balls"><span v-for="n in p.reds.slice().sort((a,b)=>a-b)" :key="'r'+n" class="ball selected red" :class="{hit:isDrawNumber(n,'red')}">{{ pad(n) }}</span><span v-for="n in p.blues.slice().sort((a,b)=>a-b)" :key="'b'+n" class="ball selected blue" :class="{hit:isDrawNumber(n,'blue')}">{{ pad(n) }}</span></div><p class="muted">中红 {{ nullable(p.red_hits) }}/6 · 全6红 {{ flag(p.full_red) }} · 蓝球入池 {{ flag(p.blue_hit) }}</p><p class="muted">漏红：{{ p.missed_reds==null?'待开奖':p.missed_reds.map(pad).join(' ')||'无' }}</p></article></div>
 <details><summary>展开各档覆盖指标</summary><div class="scroll"><table class="small-pool-table"><thead><tr><th>原池规格</th><th>中红 / 漏红</th><th>全6红</th><th>蓝球入池</th><th>6红1蓝全包</th></tr></thead><tbody><tr v-for="p in shownPools" :key="p.id"><td><button @click="selectedPool=p.id">{{ p.tier_id ? p.tier_id+'档 · ' : '' }}{{ p.red_count }} 红 + {{ p.blue_count }} 蓝</button></td><td>{{ nullable(p.red_hits) }} / {{ p.missed_reds == null ? '—' : p.missed_reds.length }}</td><td>{{ flag(p.full_red) }}</td><td>{{ flag(p.blue_hit) }}</td><td><b>{{ flag(p.full_draw) }}</b></td></tr></tbody></table></div>
 </details><template v-if="numberPool"><h3 style="margin-top:18px">查看原池：{{ numberPool.red_count }} 红 + {{ numberPool.blue_count }} 蓝</h3>
 <div class="balls"><span v-for="n in numberPool.reds" :key="n" class="ball selected red" :class="{hit:(numberPool.hit_reds || []).includes(n)}">{{ pad(n) }}</span><span v-for="n in numberPool.blues" :key="n" class="ball selected blue" :class="{hit:view.draw && view.draw.blue===n}">{{ pad(n) }}</span></div>
-<p class="muted">漏掉的开奖红球：{{ numberPool.missed_reds == null ? '待开奖' : numberPool.missed_reds.map(pad).join(' ') || '无' }}。小池全包表示开奖号都在池内，不等于已组成中奖单注。</p></template>
+<p class="muted">漏掉的开奖红球：{{ numberPool.missed_reds == null ? '待开奖' : numberPool.missed_reds.map(pad).join(' ') || '无' }}。小池全包表示开奖号都在池内，不等于已组成中奖单注。</p><p v-if="numberPool.missed_red_ranks?.length" class="muted">漏号原排名：{{ numberPool.missed_red_ranks.map(r=>pad(r.number)+'（第'+r.rank+'名）').join('、') }}</p></template>
 </section>
 <section v-else-if="!view.missing" class="card"><h2>本档案未留存号码池</h2><p class="muted">后续首次留档的新期会保存六档观察池及原小池对照。历史研究可在 <a :href="home + 'pools'">分档号码池与覆盖观察</a> 查看因果回放。</p></section>
         <template v-if="detail">
+          <section v-if="compactArchived && originalArchived" class="card" aria-label="已留档同覆盖少注对照">
+<h2>已留档同覆盖少注对照</h2><p>原冻结票组 {{ originalArchived.summary.bets }} 注 / {{ originalArchived.summary.cost }} 元；同覆盖重组 {{ compactArchived.summary.bets }} 注 / {{ compactArchived.summary.cost }} 元。两者分别保留相同红球与蓝球并集。</p><p class="muted">原方案每注都出现的红球：{{ originalArchived.summary.all_ticket_reds.map(pad).join(' ') || '无' }}；最大单号曝光 {{ originalArchived.summary.max_red_exposure }} / {{ originalArchived.summary.bets }} 注。重组会改变单注组合和对奖结果，按各自原票面核对。</p><button @click="viewTickets(compactArchived.name)" :disabled="loading||busy">查看已留档最少注票组</button>
+</section>
           <section class="card">
 <h2>本份档案的方案对照</h2><p class="muted">各策略实际号码直接列在下方，带 ✓ 的球表示本期开出；号码并集不能作为一注购买。点击“查看完整票组”查看逐注对奖。</p>
 <div class="flex" style="margin-bottom:14px">
@@ -319,13 +326,19 @@ const {createApp,ref,computed,onMounted,nextTick} = Vue;
 createApp({setup(){
   const base=new URL(location.href);base.pathname=base.pathname.replace(/reviews(?:\.html)?\/?$/,'');base.search='';base.hash='';
   const home=base.pathname,params=new URLSearchParams(location.search);
-  const issues=ref([]),next=ref({}),limit=ref(60),issue=ref(params.get('issue') || ''),view=ref(null),loading=ref(false),busy=ref(false),message=ref(''),messageType=ref(''),color=ref('all'),filter=ref('all'),ticketPage=ref(0),strategyGroup=ref('all'),comparisonCost=ref('all'),selectedPool=ref('red18_blue2'),poolGroup=ref('observation'),poolBlueCount=ref(2);
+  const issues=ref([]),next=ref({}),limit=ref(60),issue=ref(params.get('issue') || ''),view=ref(null),loading=ref(false),busy=ref(false),message=ref(''),messageType=ref(''),color=ref('all'),filter=ref('all'),ticketPage=ref(0),strategyGroup=ref('all'),comparisonCost=ref('all'),selectedPool=ref('red18_blue2'),poolGroup=ref('observation'),poolBlueCount=ref(2),poolModel=ref('weighted');
   let requestId=0;
   const detail=computed(()=>view.value?.detail),summary=computed(()=>detail.value?.summary || {}),provenance=computed(()=>view.value?.provenance || {}),redNumbers=computed(()=>(detail.value?.numbers || []).filter(n=>n.color==='red')),blueNumbers=computed(()=>(detail.value?.numbers || []).filter(n=>n.color==='blue'));
   const compactPreview=computed(()=>view.value?.compact_preview),comparisonCosts=computed(()=>[...new Set((view.value?.strategies || []).map(s=>s.summary.cost))].sort((a,b)=>a-b));
-  const hasObservationTiers=computed(()=>(view.value?.number_pools?.pools || []).some(p=>p.group==='observation'));
-  const effectivePoolGroup=computed({get:()=>hasObservationTiers.value?poolGroup.value:'legacy',set:v=>poolGroup.value=v});
-  const shownPools=computed(()=>(view.value?.number_pools?.pools || []).filter(p=>p.blue_count===poolBlueCount.value&&(hasObservationTiers.value?effectivePoolGroup.value==='observation'?p.group==='observation':p.group!=='observation':true)));
+  const archivedModels=computed(()=>view.value?.number_pools?[{model:'weighted',pools:view.value.number_pools.pools,diagnostics:view.value.number_pools.diagnostics,smallest_full_red_tier:view.value.number_pools.smallest_full_red_tier},...(view.value.number_pools.comparison_models||[])]:[]);
+  const activePoolModel=computed(()=>archivedModels.value.find(m=>m.model===poolModel.value)||archivedModels.value[0]);
+  const effectivePoolModel=computed({get:()=>activePoolModel.value?.model||'weighted',set:v=>poolModel.value=v});
+  const poolDiagnostics=computed(()=>activePoolModel.value?.diagnostics),poolModelName=m=>({weighted:'协议加权融合',equal:'等权融合',uniform:'均匀红球对照'}[m]||m);
+  const compactArchived=computed(()=>view.value?.strategies?.find(s=>s.name==='efficiency:compact')),originalArchived=computed(()=>view.value?.strategies?.find(s=>s.name==='frozen'));
+  const hasObservationTiers=computed(()=>(activePoolModel.value?.pools || []).some(p=>p.group==='observation'));
+  const hasLegacyPools=computed(()=>(activePoolModel.value?.pools || []).some(p=>p.group!=='observation'));
+  const effectivePoolGroup=computed({get:()=>hasObservationTiers.value?(hasLegacyPools.value?poolGroup.value:'observation'):'legacy',set:v=>poolGroup.value=v});
+  const shownPools=computed(()=>(activePoolModel.value?.pools || []).filter(p=>p.blue_count===poolBlueCount.value&&(hasObservationTiers.value?effectivePoolGroup.value==='observation'?p.group==='observation':p.group!=='observation':true)));
   const numberPool=computed(()=>shownPools.value.find(p=>p.id===selectedPool.value) || shownPools.value[0]);
   const comparedStrategies=computed(()=>(view.value?.strategies || []).filter(s=>(strategyGroup.value==='all'||(strategyGroup.value==='efficiency')===s.name.startsWith('efficiency:'))&&(comparisonCost.value==='all'||s.summary.cost===Number(comparisonCost.value))));
   const missedReasons=computed(()=>Object.entries(summary.value.missed_reds_by_reason || {}).map(([reason,count])=>({count,label:detail.value.numbers.find(n=>n.reason===reason)?.reason_text || reason})));
@@ -351,7 +364,7 @@ createApp({setup(){
   async function viewTickets(name){await chooseStrategy(name);if(view.value?.strategy!==name)return;await nextTick();const el=document.getElementById('ticket-review');el?.focus({preventScroll:true});el?.scrollIntoView({block:'start'});}
 
   async function action(path,after){if(busy.value)return;busy.value=true;try{const data=await api(path,{method:'POST'});await after(data);}catch(e){notice(e.message,'error');}finally{busy.value=false;}}
-  function freeze(){return action('api/recommendations/freeze',async d=>{notice(`已保留 ${d.number_pools || 0} 个小池、${d.strategies} 个票组，已有档案保持首次版本。`,'success');await refresh(d.issue,'daily');});}
+  function freeze(){return action('api/recommendations/freeze',async d=>{notice(`已保留 ${d.number_pools || 0} 个主模型池、${d.comparison_number_pools || 0} 个对照池、${d.strategies} 个票组，已有档案保持首次版本。`,'success');await refresh(d.issue,'daily');});}
   async function settled(data){const d=data.recommendations || data;notice(d.errors?.length?'部分档案未能复盘：'+d.errors.join('；'):`已核对，新增 ${d.settled} 份复盘。`,d.errors?.length?'error':'success');await refresh(issue.value,view.value?.archive_id,view.value?.strategy);}
   function settle(){return action('api/recommendations/settle',settled);}function sync(){return action('api/sync',settled);}
   function fileUrl(path){const url=new URL('api/recommendations/files',base);url.searchParams.set('path',path);return url.href;}
@@ -360,7 +373,7 @@ createApp({setup(){
   function exportCompactJson(){download(JSON.stringify({issue:issue.value,source_archive_sha256:provenance.value.sha256 || null,source_strategy:view.value.strategy,draw:view.value.draw,...compactPreview.value},null,2),'application/json',`ssq-structural-preview-${issue.value}.json`);}
   function exportCsv(){const cols=['color','number','fusion_rank','fusion_score','in_candidate_pool','rescued','displaced','ticket_exposure','draw_hit','recommendation_result','reason_text','expert_scores','nominating_experts'];const cell=v=>'"'+String(v==null?'':typeof v==='object'?JSON.stringify(v):v).replace(/"/g,'""')+'"';const rows=[cols,...detail.value.numbers.map(n=>cols.map(c=>n[c]))];download('\ufeff'+rows.map(r=>r.map(cell).join(',')).join('\r\n'),'text/csv;charset=utf-8',`ssq-numbers-${issue.value}-${view.value.strategy}.csv`);}
   onMounted(()=>refresh(issue.value,params.get('archive'),params.get('strategy')));
-  return {home,issues,next,limit,issue,view,detail,summary,provenance,compactPreview,comparisonCosts,comparedStrategies,missedReasons,strategyGroup,comparisonCost,selectedPool,effectivePoolGroup,poolBlueCount,hasObservationTiers,shownPools,numberPool,loading,busy,message,messageType,color,filter,ticketPage,redNumbers,blueNumbers,filteredNumbers,shownTickets,ticketPages,expertNames,isDrawNumber,numberLabel,viewTickets,pad,nullable,decimal,signed,flag,score,time,sourceName,stageName,resultName,numberTitle,prizeName,weight,refresh,chooseIssue,chooseArchive,chooseStrategy,freeze,settle,sync,fileUrl,exportJson,exportCompactJson,exportCsv};
+  return {home,issues,next,limit,issue,view,detail,summary,provenance,compactPreview,comparisonCosts,comparedStrategies,missedReasons,strategyGroup,comparisonCost,selectedPool,effectivePoolGroup,poolBlueCount,hasObservationTiers,hasLegacyPools,shownPools,numberPool,archivedModels,activePoolModel,effectivePoolModel,poolDiagnostics,poolModelName,compactArchived,originalArchived,loading,busy,message,messageType,color,filter,ticketPage,redNumbers,blueNumbers,filteredNumbers,shownTickets,ticketPages,expertNames,isDrawNumber,numberLabel,viewTickets,pad,nullable,decimal,signed,flag,score,time,sourceName,stageName,resultName,numberTitle,prizeName,weight,refresh,chooseIssue,chooseArchive,chooseStrategy,freeze,settle,sync,fileUrl,exportJson,exportCompactJson,exportCsv};
 }}).mount('#app');
 </script>
 </body>

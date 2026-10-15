@@ -326,7 +326,9 @@ fn freeze_daily_with_clock(
             json!({"status": "already_frozen", "issue": issue, "sha256": old["sha256"],
             "strategies": old["payload"]["strategies"].as_object().map(|v| v.len()),
             "observation_tiers": old["payload"]["number_pools"]["observation_tiers"].as_array().map_or(0, Vec::len),
-            "number_pools": old["payload"]["number_pools"]["pools"].as_array().map_or(0, Vec::len)}),
+            "number_pools": old["payload"]["number_pools"]["pools"].as_array().map_or(0, Vec::len),
+            "comparison_models": pool::reviewed_models(&old["payload"]["number_pools"]).len(),
+            "comparison_number_pools": comparison_pool_count(&old["payload"]["number_pools"])}),
         );
     }
     let started = clock();
@@ -370,8 +372,16 @@ fn freeze_daily_with_clock(
         json!({"status": if created { "frozen" } else { "already_frozen" }, "issue": issue, "sha256": envelope["sha256"],
             "strategies": envelope["payload"]["strategies"].as_object().map(|v| v.len()),
             "observation_tiers": envelope["payload"]["number_pools"]["observation_tiers"].as_array().map_or(0, Vec::len),
-            "number_pools": envelope["payload"]["number_pools"]["pools"].as_array().map_or(0, Vec::len)}),
+            "number_pools": envelope["payload"]["number_pools"]["pools"].as_array().map_or(0, Vec::len),
+            "comparison_models": pool::reviewed_models(&envelope["payload"]["number_pools"]).len(),
+            "comparison_number_pools": comparison_pool_count(&envelope["payload"]["number_pools"])}),
     )
+}
+
+fn comparison_pool_count(saved: &Value) -> usize {
+    if saved["version"] != 3 { return 0; }
+    saved["comparison_models"].as_array().into_iter().flatten()
+        .map(|m| m["pools"].as_array().map_or(0, Vec::len)).sum()
 }
 
 pub fn archive_plan(
@@ -457,6 +467,9 @@ fn validate_archive(payload: &Value, issue: &str, draws: &[Draw]) -> Result<(), 
         return Err("档案期号与路径不一致".into());
     }
     validate_prefix(payload, draws)?;
+    if payload["number_pools"]["version"] == 3 && payload["number_pools"]["target_issue"] != issue {
+        return Err("三模型号码池目标期号与档案不一致".into());
+    }
     if payload["kind"] == "daily" {
         let cutoff = payload["data_cutoff"]
             .as_str()
@@ -559,7 +572,8 @@ pub fn pool_observations(root: &Path, draws: &[Draw]) -> Result<Value, String> {
             Ok(Some(
                 json!({"issue": issue, "archive_sha256": envelope["sha256"],
                 "published_at_unix": payload["published_at_unix"], "draw": draw.map(draw_json),
-                "smallest_full_red_tier": reviewed["smallest_full_red_tier"], "pools": reviewed["pools"]}),
+                "smallest_full_red_tier": reviewed["smallest_full_red_tier"], "pools": reviewed["pools"],
+                "models": pool::reviewed_models(&reviewed)}),
             ))
         })();
         match result {
@@ -569,54 +583,85 @@ pub fn pool_observations(root: &Path, draws: &[Draw]) -> Result<Value, String> {
         }
     }
     let mut cells = Vec::new();
+    let mut comparison_cells = Vec::new();
+    let mut paired_cells = Vec::new();
     for red_count in pool::TIER_RED_SIZES {
         for blue_count in pool::BLUE_SIZES {
-            let mut n = 0usize;
-            let mut pending = 0usize;
-            let mut red_hits = 0u64;
-            let mut full_red = 0usize;
-            let mut blue_hits = 0usize;
-            let mut full_draw = 0usize;
-            for record in &records {
-                if let Some(p) = record["pools"].as_array().unwrap().iter().find(|p| {
-                    p["group"] == "observation"
-                        && p["red_count"] == red_count
-                        && p["blue_count"] == blue_count
-                }) {
-                    if let Some(hits) = p["red_hits"].as_u64() {
-                        n += 1;
-                        red_hits += hits;
-                        full_red += usize::from(p["full_red"] == true);
-                        blue_hits += usize::from(p["blue_hit"] == true);
-                        full_draw += usize::from(p["full_draw"] == true);
-                    } else {
-                        pending += 1;
-                    }
-                }
+            cells.push(observation_cell(&records, "weighted", red_count, blue_count, false));
+            for model in pool::COMPARISON_MODELS {
+                comparison_cells.push(observation_cell(&records, model, red_count, blue_count, false));
             }
-            cells.push(json!({"red_count": red_count, "blue_count": blue_count,
-                "n": n, "pending": pending, "full_red_periods": full_red,
-                "full_red_rate": (n > 0).then(|| full_red as f64 / n as f64),
-                "mean_red_hits": (n > 0).then(|| red_hits as f64 / n as f64),
-                "mean_missed_reds": (n > 0).then(|| 6.0 - red_hits as f64 / n as f64),
-                "blue_covered_periods": blue_hits, "full_draw_periods": full_draw,
-                "full_draw_rate": (n > 0).then(|| full_draw as f64 / n as f64),
-                "uniform_full_red_rate": pool::uniform_full_red(red_count)}));
+            let paired: Vec<_> = pool::COMPARISON_MODELS.into_iter()
+                .map(|model| observation_cell(&records, model, red_count, blue_count, true)).collect();
+            paired_cells.push(json!({"red_count": red_count, "blue_count": blue_count,
+                "n": paired[0]["n"], "pending": paired[0]["pending"],
+                "excluded_missing_comparison": paired[0]["excluded_missing_comparison"], "models": paired}));
         }
     }
     let periods: Vec<_> = records
         .iter()
         .map(|r| {
             json!({"issue": r["issue"],
-        "pending": r["draw"].is_null(), "smallest_full_red_tier": r["smallest_full_red_tier"]})
+        "pending": r["draw"].is_null(), "smallest_full_red_tier": r["smallest_full_red_tier"],
+        "model_diagnostics": r["models"].as_array().unwrap().iter().map(|m| json!({"model": m["model"],
+            "diagnostics": m["diagnostics"], "smallest_full_red_tier": m["smallest_full_red_tier"]})).collect::<Vec<_>>()})
         })
         .collect();
     Ok(
         json!({"kind": "saved_model_pool_observations", "actual_recommendation": true,
         "independent_timestamp_verified": false, "cells": cells, "periods": periods,
+        "comparison_cells": comparison_cells, "paired_cells": paired_cells,
+        "comparison_policy": pool::comparison_policy(),
+        "first_comparison_issue": records.iter().find(|r| r["models"].as_array().unwrap().len() == 3).map(|r| &r["issue"]),
         "missing_tier_archives": missing_tier_archives, "errors": errors,
         "note": "只核对每日档案原始号码，每档只计实际保存且已开奖的期数；待开奖不计入比例，旧期缺档不补造。本地留档无独立时间戳证明。"}),
     )
+}
+
+fn observation_pool<'a>(record: &'a Value, model: &str, red: usize, blue: usize) -> Option<(&'a Value, &'a Value)> {
+    let m = record["models"].as_array()?.iter().find(|m| m["model"] == model)?;
+    let p = m["pools"].as_array()?.iter().find(|p| p["group"] == "observation"
+        && p["red_count"] == red && p["blue_count"] == blue)?;
+    Some((m, p))
+}
+
+fn observation_cell(records: &[Value], model: &str, red: usize, blue: usize, paired: bool) -> Value {
+    let (mut n, mut pending, mut missing, mut excluded, mut full, mut five, mut blue_hits, mut joint) = (0usize, 0usize, 0usize, 0usize, 0usize, 0usize, 0usize, 0usize);
+    let (mut red_hits, mut prefix_sum, mut prefix_n) = (0u64, 0u64, 0u64);
+    let mut issues = Vec::new();
+    for record in records {
+        if paired && !pool::COMPARISON_MODELS.iter().all(|m| observation_pool(record, m, red, blue).is_some()) {
+            excluded += 1;
+            continue;
+        }
+        let Some((m, p)) = observation_pool(record, model, red, blue) else { missing += 1; continue; };
+        let Some(hits) = p["red_hits"].as_u64() else { pending += 1; continue; };
+        n += 1;
+        red_hits += hits;
+        full += usize::from(p["full_red"] == true);
+        five += usize::from(hits >= 5);
+        blue_hits += usize::from(p["blue_hit"] == true);
+        joint += usize::from(p["full_draw"] == true);
+        issues.push(record["issue"].clone());
+        if let Some(prefix) = m["diagnostics"]["minimum_full_red_prefix"].as_u64() {
+            prefix_sum += prefix;
+            prefix_n += 1;
+        }
+    }
+    let rate = (n > 0).then(|| full as f64 / n as f64);
+    json!({"model": model, "label": pool::COMPARISON_LABELS[pool::COMPARISON_MODELS.iter().position(|m| *m == model).unwrap()],
+        "red_count": red, "blue_count": blue, "n": n, "pending": pending, "missing": missing,
+        "excluded_missing_comparison": excluded, "paired_periods_only": paired, "scored_issues": issues,
+        "full_red_periods": full, "full_red_rate": rate,
+        "full_red_wilson95": (n > 0).then(|| {let (l,h)=crate::stats::wilson(full as f64,n as f64,1.959963984540054);[l,h]}),
+        "full_red_rate_excess": rate.map(|r| r - pool::uniform_full_red(red)),
+        "at_least_5_red_periods": five,
+        "mean_red_hits": (n > 0).then(|| red_hits as f64 / n as f64),
+        "mean_missed_reds": (n > 0).then(|| 6.0 - red_hits as f64 / n as f64),
+        "mean_minimum_full_red_prefix": (prefix_n > 0).then(|| prefix_sum as f64 / prefix_n as f64),
+        "diagnostic_periods": prefix_n, "blue_covered_periods": blue_hits, "full_draw_periods": joint,
+        "full_draw_rate": (n > 0).then(|| joint as f64 / n as f64),
+        "uniform_full_red_rate": pool::uniform_full_red(red)})
 }
 
 fn reason_text(reason: &str) -> &'static str {
@@ -1054,9 +1099,9 @@ pub fn issue_detail(
         let p = &envelope["payload"];
         validate_archive(p, issue, draws)?;
         let (mut review, persisted) = checked_review(root, issue, id, &envelope, draw)?;
-        if review["number_pools"].is_null() {
-            review["number_pools"] = pool::review(&p["number_pools"], draw)?;
-        }
+        // Derive new diagnostics from original saved rankings without rewriting
+        // the original archive or an already persisted settlement.
+        review["number_pools"] = pool::review(&p["number_pools"], draw)?;
         let raw = if id == "daily" {
             format!("daily/{issue}.json")
         } else {
@@ -1390,6 +1435,87 @@ mod tests {
             .unwrap()
             .iter()
             .all(|c| c["n"] == 0 && c["pending"] == 1));
+    }
+
+    #[test]
+    fn model_comparisons_use_the_same_saved_periods_and_never_backfill_v2() {
+        let temp = Temp::new();
+        let mut draws = synth_draws(220, 9);
+        let old_issue = next(&draws);
+        freeze_daily_with_clock(&temp.0, &draws, &old_issue, 100, || 10).unwrap();
+        let old_path = temp.0.join(format!("daily/{old_issue}.json"));
+        let mut legacy = read_checked(&old_path).unwrap()["payload"].clone();
+        legacy["number_pools"]["version"] = json!(2);
+        legacy["number_pools"].as_object_mut().unwrap().remove("comparison_models");
+        legacy["number_pools"].as_object_mut().unwrap().remove("comparison_policy");
+        fs::remove_file(&old_path).unwrap();
+        write_new(&old_path, legacy).unwrap();
+        let old_bytes = fs::read(&old_path).unwrap();
+        let mut winner = draws.last().unwrap().clone();
+        winner.issue = old_issue.parse().unwrap();
+        draws.push(winner);
+        let common_issue = next(&draws);
+        let frozen = freeze_daily_with_clock(&temp.0, &draws, &common_issue, 100, || 10).unwrap();
+        assert_eq!(frozen["comparison_models"], 3);
+        assert_eq!(frozen["comparison_number_pools"], 36);
+        let mut winner = draws.last().unwrap().clone();
+        winner.issue = common_issue.parse().unwrap();
+        draws.push(winner);
+        freeze_daily_with_clock(&temp.0, &draws, &next(&draws), 100, || 10).unwrap();
+        let result = pool_observations(&temp.0, &draws).unwrap();
+        assert_eq!(result["errors"], json!([]));
+        assert_eq!(result["first_comparison_issue"], common_issue);
+        assert_eq!(result["comparison_cells"].as_array().unwrap().len(), 54);
+        for cell in result["comparison_cells"].as_array().unwrap() {
+            assert_eq!(cell["n"], if cell["model"] == "weighted" { 2 } else { 1 });
+            assert_eq!(cell["pending"], 1);
+            assert_eq!(cell["missing"], usize::from(cell["model"] != "weighted"));
+        }
+        for paired in result["paired_cells"].as_array().unwrap() {
+            assert_eq!(paired["n"], 1);
+            assert_eq!(paired["pending"], 1);
+            assert_eq!(paired["excluded_missing_comparison"], 1);
+            for model in paired["models"].as_array().unwrap() {
+                assert_eq!(model["scored_issues"], json!([common_issue]));
+                assert_eq!(model["diagnostic_periods"], 1);
+            }
+        }
+        assert_eq!(fs::read(&old_path).unwrap(), old_bytes);
+        assert!(!temp.0.join("reviews").exists());
+        let again = freeze_daily_with_clock(&temp.0, &draws, &old_issue, 100, || 10).unwrap();
+        assert_eq!(again["comparison_models"], 1);
+        assert_eq!(again["comparison_number_pools"], 0);
+        assert_eq!(fs::read(&old_path).unwrap(), old_bytes);
+    }
+
+    #[test]
+    fn old_persisted_review_gets_read_only_rank_diagnostics_from_original_archive() {
+        let temp = Temp::new();
+        let mut draws = synth_draws(220, 9);
+        let issue = next(&draws);
+        freeze_daily_with_clock(&temp.0, &draws, &issue, 100, || 10).unwrap();
+        let archive_path = temp.0.join(format!("daily/{issue}.json"));
+        let mut payload = read_checked(&archive_path).unwrap()["payload"].clone();
+        payload["number_pools"]["version"] = json!(2);
+        payload["number_pools"].as_object_mut().unwrap().remove("comparison_models");
+        payload["number_pools"].as_object_mut().unwrap().remove("comparison_policy");
+        fs::remove_file(&archive_path).unwrap();
+        write_new(&archive_path, payload).unwrap();
+        append_outcome(&mut draws);
+        assert_eq!(settle_archives(&temp.0, &draws).settled, 1);
+        let review_path = review_path(&temp.0, &issue, "daily");
+        let mut old_review = read_checked(&review_path).unwrap()["payload"].clone();
+        old_review["number_pools"].as_object_mut().unwrap().remove("diagnostics");
+        fs::remove_file(&review_path).unwrap();
+        write_new(&review_path, old_review).unwrap();
+        let archive_bytes = fs::read(&archive_path).unwrap();
+        let review_bytes = fs::read(&review_path).unwrap();
+        let detail = issue_detail(&temp.0, &draws, &[], &issue, Some("daily"), None).unwrap();
+        assert!(detail["provenance"]["review_persisted"].as_bool().unwrap());
+        assert!(detail["number_pools"]["diagnostics"]["minimum_full_red_prefix"].is_number());
+        assert!(detail["number_pools"]["comparison_models"].is_null());
+        assert_eq!(fs::read(&archive_path).unwrap(), archive_bytes);
+        assert_eq!(fs::read(&review_path).unwrap(), review_bytes);
     }
 
     #[test]

@@ -6,9 +6,11 @@ use crate::eval::{prepare_forecast, Prepared};
 use crate::model::roll_all;
 use crate::protocol::Protocol;
 use crate::select::{equal7, fuse6, fuse7, rank_desc, rank_log_score, softmax_shrink};
-use crate::stats::{binom, wilson};
+use crate::stats::{binom, wilson, Rng};
 
-pub const VERSION: u32 = 2;
+pub const VERSION: u32 = 3;
+pub const COMPARISON_MODELS: [&str; 3] = ["weighted", "equal", "uniform"];
+pub const COMPARISON_LABELS: [&str; 3] = ["协议加权融合", "等权融合", "均匀红球对照"];
 pub const REPORT_VERSION: u32 = 3;
 // Keep v1 sizes for legacy replay cells and archive validation.
 pub const RED_SIZES: [usize; 3] = [8, 10, 12];
@@ -239,7 +241,25 @@ pub fn saved(prepared: &Prepared) -> Value {
             );
         }
     }
+    let equal_scores = fuse7(&prepared.expert_red, &equal7());
+    let equal_ranking: Vec<_> = rank_desc(&equal_scores).iter().map(|n| *n as u8 + 1).collect();
+    let issue = fmt_issue(prepared.cutoff_issue + 1);
+    let uniform_ranking = uniform_ranking(&issue);
+    let comparisons: Vec<_> = [("equal", &equal_ranking), ("uniform", &uniform_ranking)]
+        .into_iter().map(|(model, ranking)| {
+            let pools: Vec<_> = TIER_RED_SIZES.into_iter().enumerate().flat_map(|(i, r)| {
+                BLUE_SIZES.into_iter().map(move |b| json!({"id": format!("{model}_red{r}_blue{b}"),
+                    "model": model, "group": "observation", "tier_id": ((b'A' + i as u8) as char).to_string(),
+                    "red_count": r, "blue_count": b, "reds": ranking[..r],
+                    "blues": fc.blue_order[..b].iter().map(|n| *n + 1).collect::<Vec<_>>() }))
+            }).collect();
+            json!({"model": model, "red_ranking": ranking, "pools": pools,
+                "red_scores": if model == "equal" { Some(equal_scores.to_vec()) } else { None },
+                "red_weights": if model == "equal" { Some(equal7().to_vec()) } else { None },
+                "score_kind": if model == "equal" { "ranking_evidence_not_probability" } else { "fixed_seed_uniform_control" }})
+        }).collect();
     json!({"version": VERSION, "objective": "all_six_reds_with_fewer_selected_reds", "pools": pools,
+        "target_issue": issue, "comparison_models": comparisons, "comparison_policy": comparison_policy(),
         "observation_tiers": tier_definitions(), "default_blue_count": 2,
         "red_ranking": fc.red_order.iter().map(|i| *i + 1).collect::<Vec<_>>(),
         "blue_ranking": fc.blue_order.iter().map(|i| *i + 1).collect::<Vec<_>>(),
@@ -248,16 +268,98 @@ pub fn saved(prepared: &Prepared) -> Value {
         "score_kind": "ranking_evidence_not_probability"})
 }
 
+pub fn comparison_policy() -> Value {
+    json!({"version": 1, "models": COMPARISON_MODELS, "labels": COMPARISON_LABELS,
+        "red_sizes": TIER_RED_SIZES, "blue_sizes": BLUE_SIZES,
+        "primary_metric": "full_red_rate_at_same_red_count", "secondary_metric": "mean_missed_reds",
+        "blue_scope": "shared_weighted_blue_ranking", "paired_periods_only": true,
+        "seed": format!("0x{:016x}", Protocol::SEED), "uniform_stream": "ssq-pool-comparison-v1:seed:issue:red",
+        "automatic_promotion": false,
+        "note": "规则从首次保存三模型的期次起前瞻观察；只比较相同期次、相同红蓝数量。旧期不补造对照，不按近期胜率自动换模型。"})
+}
+
+fn uniform_ranking(issue: &str) -> Vec<u8> {
+    let hash = crate::hash::sha256_hex(format!("ssq-pool-comparison-v1:{}:{issue}:red", Protocol::SEED).as_bytes());
+    let mut rng = Rng::new(u64::from_str_radix(&hash[..16], 16).expect("sha256 prefix"));
+    let mut numbers: Vec<_> = (1..=33).collect();
+    for i in (1..numbers.len()).rev() { numbers.swap(i, rng.gen_range(i + 1)); }
+    numbers
+}
+
+fn ranking(saved: &Value, key: &str, size: usize) -> Result<Option<Vec<u8>>, String> {
+    if saved[key].is_null() { return Ok(None); }
+    let values: Vec<u8> = serde_json::from_value(saved[key].clone()).map_err(|_| "原始排名格式无效")?;
+    if values.len() != size || values.iter().any(|&n| n == 0 || n as usize > size)
+        || values.iter().collect::<std::collections::BTreeSet<_>>().len() != size {
+        return Err("原始排名须完整且号码不重复".into());
+    }
+    Ok(Some(values))
+}
+
+fn diagnostics(order: Option<&[u8]>, blue: Option<&[u8]>, draw: Option<&Draw>) -> Value {
+    let (Some(order), Some(draw)) = (order, draw) else { return Value::Null; };
+    let winners: Vec<_> = draw.red.iter().map(|n| json!({"number": n,
+        "rank": order.iter().position(|r| r == n).unwrap() + 1})).collect();
+    let minimum = winners.iter().map(|v| v["rank"].as_u64().unwrap()).max().unwrap();
+    json!({"kind": "post_draw_saved_ranking_diagnostic", "is_recommended_pool": false,
+        "winning_red_ranks": winners, "minimum_full_red_prefix": minimum,
+        "winning_blue_rank": blue.map(|b| b.iter().position(|n| *n == draw.blue).unwrap() + 1),
+        "note": "按开奖前保存的完整排名计算，仅用于漏号诊断；这个最小前缀不是当时推荐的号码池。"})
+}
+
+/// A normalized view of saved models; never constructs absent comparisons.
+pub fn reviewed_models(reviewed: &Value) -> Vec<Value> {
+    if reviewed.is_null() { return Vec::new(); }
+    let mut models = vec![json!({"model": "weighted", "pools": reviewed["pools"],
+        "diagnostics": reviewed["diagnostics"], "smallest_full_red_tier": reviewed["smallest_full_red_tier"]})];
+    if reviewed["version"] == 3 {
+        models.extend(reviewed["comparison_models"].as_array().into_iter().flatten().cloned());
+    }
+    models
+}
+
 /// Score the originally saved pools, without running a model or building bets.
 pub fn review(saved: &Value, draw: Option<&Draw>) -> Result<Value, String> {
     if saved.is_null() {
         return Ok(Value::Null);
     }
-    let allowed_red_sizes = match saved["version"].as_u64() {
-        Some(1) => RED_SIZES.as_slice(),
-        Some(2) => ARCHIVED_RED_SIZES.as_slice(),
+    let version = saved["version"].as_u64().ok_or("缺少选号池版本")?;
+    let allowed_red_sizes = match version {
+        1 => RED_SIZES.as_slice(),
+        2 | 3 => ARCHIVED_RED_SIZES.as_slice(),
         _ => return Err("不支持的选号池档案版本".into()),
     };
+    let red_order = ranking(saved, "red_ranking", 33)?;
+    let blue_order = ranking(saved, "blue_ranking", 16)?;
+    if version == 3 && (red_order.is_none() || blue_order.is_none()
+        || saved["comparison_policy"] != comparison_policy()) {
+        return Err("三模型档案缺少完整排名或固定对照规则".into());
+    }
+    let mut result = review_set(saved, draw, allowed_red_sizes, red_order.as_deref(), blue_order.as_deref(), "weighted", version == 3)?;
+    if version == 3 {
+        let comparisons = saved["comparison_models"].as_array().ok_or("缺少对照模型")?;
+        if comparisons.len() != 2 { return Err("三模型档案必须保存等权和均匀两个对照".into()); }
+        let mut reviewed = Vec::new();
+        let mut names = std::collections::BTreeSet::new();
+        for model in comparisons {
+            let name = model["model"].as_str().ok_or("缺少对照名称")?;
+            if !["equal", "uniform"].contains(&name) || !names.insert(name) {
+                return Err("对照模型重复或无效".into());
+            }
+            let order = ranking(model, "red_ranking", 33)?.ok_or("对照缺少完整红球排名")?;
+            reviewed.push(review_set(model, draw, &TIER_RED_SIZES, Some(&order), blue_order.as_deref(), name, true)?);
+        }
+        result["comparison_models"] = json!(reviewed);
+    } else {
+        // A v1/v2 archive never gains a model it did not save.
+        result.as_object_mut().unwrap().remove("comparison_models");
+        result.as_object_mut().unwrap().remove("comparison_policy");
+    }
+    Ok(result)
+}
+
+fn review_set(saved: &Value, draw: Option<&Draw>, allowed_red_sizes: &[usize], red_order: Option<&[u8]>,
+    blue_order: Option<&[u8]>, model: &str, strict: bool) -> Result<Value, String> {
     let mut result = saved.clone();
     let mut specs = std::collections::BTreeSet::new();
     for pool in result["pools"]
@@ -284,6 +386,16 @@ pub fn review(saved: &Value, draw: Option<&Draw>) -> Result<Value, String> {
         {
             return Err("选号池档案号码或数量无效".into());
         }
+        if strict {
+            let reds_set: std::collections::BTreeSet<_> = reds.iter().copied().collect();
+            let blues_set: std::collections::BTreeSet<_> = blues.iter().copied().collect();
+            if pool["model"] != model
+                || reds_set != red_order.unwrap()[..reds.len()].iter().copied().collect()
+                || blues_set != blue_order.unwrap()[..blues.len()].iter().copied().collect()
+                || pool["group"] != if TIER_RED_SIZES.contains(&reds.len()) { "observation" } else { "legacy" } {
+                return Err("号码池与保存的模型排名或共享蓝球排名不一致".into());
+            }
+        }
         let hits = draw.map(|d| {
             d.red
                 .iter()
@@ -299,12 +411,19 @@ pub fn review(saved: &Value, draw: Option<&Draw>) -> Result<Value, String> {
             .filter(|n| !reds.contains(n))
             .collect::<Vec<_>>()));
         pool["red_hits"] = json!(hits.as_ref().map(Vec::len));
+        pool["missed_red_ranks"] = json!(draw.zip(red_order).map(|(d, order)| d.red.iter()
+            .filter(|n| !reds.contains(n)).map(|n| json!({"number": n,
+                "rank": order.iter().position(|r| r == n).unwrap() + 1})).collect::<Vec<_>>()));
         pool["full_red"] = json!(hits.as_ref().map(|r| r.len() == 6));
         pool["blue_hit"] = json!(draw.map(|d| blues.contains(&d.blue)));
         pool["full_draw"] =
             json!(draw
                 .map(|d| hits.as_ref().is_some_and(|r| r.len() == 6) && blues.contains(&d.blue)));
     }
+    if strict && specs.len() != allowed_red_sizes.len() * BLUE_SIZES.len() {
+        return Err("三模型号码池规格不完整".into());
+    }
+    result["diagnostics"] = diagnostics(red_order, blue_order, draw);
     result["smallest_full_red_tier"] = json!(result["pools"]
         .as_array()
         .unwrap()
@@ -439,7 +558,7 @@ mod tests {
     fn observation_tiers_are_nested_and_v1_pools_remain_reviewable() {
         let prepared = prepare_forecast(&crate::draw::synth_draws(220, 9)).unwrap();
         let saved = saved(&prepared);
-        assert_eq!(saved["version"], 2);
+        assert_eq!(saved["version"], 3);
         let pools = saved["pools"].as_array().unwrap();
         assert_eq!(pools.len(), 27);
         for blue_count in BLUE_SIZES {
@@ -501,6 +620,80 @@ mod tests {
             .unwrap()
             .push(pools[0].clone());
         assert!(review(&invalid, None).is_err());
+    }
+
+    #[test]
+    fn comparison_controls_are_fixed_share_blues_and_validate_saved_prefixes() {
+        let mut prepared = prepare_forecast(&crate::draw::synth_draws(220, 9)).unwrap();
+        let original = saved(&prepared);
+        let reviewed = review(&original, None).unwrap();
+        let models = reviewed_models(&reviewed);
+        assert_eq!(models.len(), 3);
+        assert_eq!(original["comparison_policy"]["automatic_promotion"], false);
+        for model in &models {
+            let pools = model["pools"].as_array().unwrap();
+            for b in BLUE_SIZES {
+                let mut previous = Vec::<Value>::new();
+                for r in TIER_RED_SIZES {
+                    let p = pools.iter().find(|p| p["red_count"] == r && p["blue_count"] == b).unwrap();
+                    let primary = original["pools"].as_array().unwrap().iter()
+                        .find(|p| p["red_count"] == r && p["blue_count"] == b).unwrap();
+                    assert_eq!(p["blues"], primary["blues"]);
+                    let reds = p["reds"].as_array().unwrap();
+                    assert_eq!(&reds[..previous.len()], previous.as_slice());
+                    previous = reds.clone();
+                    assert!(p["red_hits"].is_null());
+                }
+            }
+            assert!(model["diagnostics"].is_null());
+        }
+        for expert in &mut prepared.expert_red {
+            for (i, score) in expert.iter_mut().enumerate() { *score = (i + 1) as f64; }
+        }
+        let changed = saved(&prepared);
+        assert_eq!(original["comparison_models"][1]["red_ranking"], changed["comparison_models"][1]["red_ranking"]);
+        assert_ne!(original["comparison_models"][0]["red_ranking"], changed["comparison_models"][0]["red_ranking"]);
+        assert_ne!(uniform_ranking("26119"), uniform_ranking("26120"));
+        let mut corrupt = original.clone();
+        corrupt["comparison_models"][0]["pools"][0]["blues"] = json!([17]);
+        assert!(review(&corrupt, None).is_err());
+        corrupt = original.clone();
+        let omitted = corrupt["comparison_models"][0]["red_ranking"][32].clone();
+        corrupt["comparison_models"][0]["pools"][0]["reds"][0] = omitted;
+        assert!(review(&corrupt, None).is_err());
+        corrupt = original.clone();
+        corrupt["comparison_models"][0]["pools"].as_array_mut().unwrap().pop();
+        assert!(review(&corrupt, None).is_err());
+        corrupt = original;
+        corrupt["comparison_models"][1]["model"] = json!("equal");
+        assert!(review(&corrupt, None).is_err());
+    }
+
+    #[test]
+    fn exact_prefix_diagnostic_is_not_the_recommended_tier_or_a_backfilled_model() {
+        let original = saved(&prepare_forecast(&crate::draw::synth_draws(220, 9)).unwrap());
+        let order: Vec<u8> = serde_json::from_value(original["red_ranking"].clone()).unwrap();
+        let draw = Draw::from_parts(26001, 20260101,
+            [order[0], order[1], order[2], order[3], order[4], order[16]],
+            original["blue_ranking"][1].as_u64().unwrap() as u8).unwrap();
+        let scored = review(&original, Some(&draw)).unwrap();
+        assert_eq!(scored["smallest_full_red_tier"], 18);
+        assert_eq!(scored["diagnostics"]["minimum_full_red_prefix"], 17);
+        assert_eq!(scored["diagnostics"]["winning_blue_rank"], 2);
+        assert_eq!(scored["diagnostics"]["is_recommended_pool"], false);
+        let p = scored["pools"].as_array().unwrap().iter()
+            .find(|p| p["red_count"] == 14 && p["blue_count"] == 2).unwrap();
+        assert_eq!(p["missed_red_ranks"], json!([{"number": order[16], "rank": 17}]));
+        let mut old = original;
+        old["version"] = json!(2);
+        old.as_object_mut().unwrap().remove("comparison_models");
+        old.as_object_mut().unwrap().remove("comparison_policy");
+        let old_bytes = serde_json::to_vec(&old).unwrap();
+        let reviewed = review(&old, Some(&draw)).unwrap();
+        assert_eq!(reviewed_models(&reviewed).len(), 1);
+        assert!(reviewed["comparison_models"].is_null());
+        assert_eq!(reviewed["diagnostics"]["minimum_full_red_prefix"], 17);
+        assert_eq!(serde_json::to_vec(&old).unwrap(), old_bytes);
     }
 
     #[test]
