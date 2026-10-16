@@ -19,7 +19,7 @@ use crate::pool;
 use crate::protocol::Protocol;
 use crate::select::rank_desc;
 
-pub const PRESETS: [&str; 8] = [
+pub const PRESETS: [&str; 9] = [
     "frozen",
     "disjoint5",
     "single8",
@@ -28,6 +28,7 @@ pub const PRESETS: [&str; 8] = [
     "blue2",
     "dantuo",
     "balanced14",
+    "calibrated14",
 ];
 pub const PRIZE_RULES_URL: &str = "https://www.scflcp.com.cn/yxgz/823145252.jhtml";
 
@@ -63,7 +64,8 @@ fn source_sha() -> String {
             include_str!("efficiency.rs"),
             include_str!("stats.rs"),
             include_str!("pool.rs"),
-            include_str!("coverage.rs")
+            include_str!("coverage.rs"),
+            include_str!("ranking.rs")
         )
         .as_bytes(),
     )
@@ -244,11 +246,12 @@ fn strategy(plan: &Plan, prepared: &Prepared) -> Value {
     };
     json!({
         "title": plan.title, "mode": plan.mode, "rationale": plan.detail, "tickets": tickets,
-        "coverage_optimization": if plan.mode == "balanced" { crate::coverage::ticket_policy(plan.spec.pool,plan.spec.tickets,plan.spec.blue_count) } else { Value::Null },
+        "coverage_optimization": if plan.mode == "balanced" { let mut p=crate::coverage::ticket_policy(plan.spec.pool,plan.spec.tickets,plan.spec.blue_count);if prepared.ranking.is_some() {p["ranking"]=json!(crate::ranking::MODEL);p["note"]=json!("完整使用校准排名号码池并均衡曝光；排名策略与组票分别留档。");}p } else { Value::Null },
         "parameters": {"mode": plan.spec.mode, "tickets": plan.spec.tickets, "pool": plan.spec.pool,
             "overlap": plan.spec.overlap, "red_count": plan.spec.red_count, "blue_count": plan.spec.blue_count,
             "bankers": plan.spec.bankers, "drags": plan.spec.drags},
-        "evidence": evidence, "funnel": stages, "red_weights": prepared.weights,
+        "evidence": evidence, "funnel": stages, "red_weights": if prepared.ranking.is_some() { Value::Null } else {json!(prepared.weights)},
+        "ranking": prepared.ranking,
         "blue_weights": prepared.blue_weights, "bankers": plan.bankers, "drags": plan.drags,
     })
 }
@@ -345,8 +348,10 @@ fn freeze_daily_with_clock(
         return Err("每期推荐仅支持本地开奖紧邻下一期；跨年或缺期需核对".into());
     }
     let prepared = prepare_forecast(draws)?;
+    let ranked = crate::ranking::prepare(draws)?;
     let mut variants = BTreeMap::new();
     for name in PRESETS {
+        let prepared = if name == "calibrated14" {&ranked} else {&prepared};
         let spec = plan::resolve(Some(name), None, None, None, None, None, None, None, None)?;
         variants.insert(
             name.to_string(),
@@ -366,7 +371,7 @@ fn freeze_daily_with_clock(
     let mut payload = base_payload(&prepared, issue, "daily", completed, Some(deadline));
     payload["strategies"] = json!(variants);
     payload["presets"] = json!(PRESETS);
-    payload["number_pools"] = pool::saved(&prepared);
+    payload["number_pools"] = pool::saved_ranked(&prepared, last.red_mask);
     payload["efficiency"] = json!({"version": efficiency::VERSION, "seed": format!("0x{:016x}", Protocol::SEED),
         "profiles": efficiency::PROFILE_COUNT, "objective": "marginal_number_coverage"});
     let (envelope, created) = write_new_before(&path, payload, Some(deadline), &clock)?;
@@ -382,7 +387,7 @@ fn freeze_daily_with_clock(
 }
 
 fn comparison_pool_count(saved: &Value) -> usize {
-    if saved["version"] != 3 { return 0; }
+    if saved["version"] != 3 && saved["version"] != pool::RANKED_VERSION { return 0; }
     saved["comparison_models"].as_array().into_iter().flatten()
         .map(|m| m["pools"].as_array().map_or(0, Vec::len)).sum()
 }
@@ -470,8 +475,16 @@ fn validate_archive(payload: &Value, issue: &str, draws: &[Draw]) -> Result<(), 
         return Err("档案期号与路径不一致".into());
     }
     validate_prefix(payload, draws)?;
-    if payload["number_pools"]["version"] == 3 && payload["number_pools"]["target_issue"] != issue {
+    if payload["number_pools"]["version"].as_u64().is_some_and(|v|v>=3) && payload["number_pools"]["target_issue"] != issue {
         return Err("三模型号码池目标期号与档案不一致".into());
+    }
+    if payload["number_pools"]["version"] == pool::RANKED_VERSION {
+        let previous=draws.iter().find(|d|payload["data_cutoff"]==fmt_issue(d.issue)).ok_or("缺少校准输入开奖")?;
+        let models=payload["number_pools"]["comparison_models"].as_array().ok_or("缺少排名模型")?;
+        let ranked=models.iter().find(|m|m["model"]==crate::ranking::MODEL).ok_or("缺少校准排名")?;
+        let mut numbers=previous.red.to_vec();numbers.sort_unstable();
+        if ranked["previous_reds"]!=json!(numbers) {return Err("校准排名上期号码与输入开奖不一致".into());}
+        pool::review(&payload["number_pools"],None)?;
     }
     if payload["kind"] == "daily" {
         let cutoff = payload["data_cutoff"]
@@ -588,10 +601,12 @@ pub fn pool_observations(root: &Path, draws: &[Draw]) -> Result<Value, String> {
     let mut cells = Vec::new();
     let mut comparison_cells = Vec::new();
     let mut paired_cells = Vec::new();
+    let mut ranking_paired_cells = Vec::new();
+    let ranking_records: Vec<_> = records.iter().filter(|r| observation_pool(r, crate::ranking::MODEL, 14, 1).is_some()).cloned().collect();
     for red_count in pool::TIER_RED_SIZES {
         for blue_count in pool::BLUE_SIZES {
             cells.push(observation_cell(&records, "weighted", red_count, blue_count, false));
-            for model in pool::COMPARISON_MODELS {
+            for model in pool::OBSERVATION_MODELS {
                 comparison_cells.push(observation_cell(&records, model, red_count, blue_count, false));
             }
             let paired: Vec<_> = pool::COMPARISON_MODELS.into_iter()
@@ -599,6 +614,14 @@ pub fn pool_observations(root: &Path, draws: &[Draw]) -> Result<Value, String> {
             paired_cells.push(json!({"red_count": red_count, "blue_count": blue_count,
                 "n": paired[0]["n"], "pending": paired[0]["pending"],
                 "excluded_missing_comparison": paired[0]["excluded_missing_comparison"], "models": paired}));
+            let models:Vec<_>=["weighted",crate::ranking::MODEL].into_iter().map(|m| {
+                let mut cell=observation_cell(&ranking_records,m,red_count,blue_count,false);
+                cell["paired_periods_only"]=json!(true);
+                cell["excluded_missing_comparison"]=json!(records.len()-ranking_records.len());
+                cell
+            }).collect();
+            ranking_paired_cells.push(json!({"red_count":red_count,"blue_count":blue_count,"n":models[0]["n"],"pending":models[0]["pending"],
+                "excluded_missing_comparison":records.len()-ranking_records.len(),"models":models}));
         }
     }
     let periods: Vec<_> = records
@@ -614,8 +637,10 @@ pub fn pool_observations(root: &Path, draws: &[Draw]) -> Result<Value, String> {
         json!({"kind": "saved_model_pool_observations", "actual_recommendation": true,
         "independent_timestamp_verified": false, "cells": cells, "periods": periods,
         "comparison_cells": comparison_cells, "paired_cells": paired_cells,
+        "ranking_paired_cells":ranking_paired_cells,"ranking_policy":crate::ranking::policy(),
+        "first_ranking_issue":ranking_records.first().map(|r|&r["issue"]),
         "comparison_policy": pool::comparison_policy(),
-        "first_comparison_issue": records.iter().find(|r| r["models"].as_array().unwrap().len() == 3).map(|r| &r["issue"]),
+        "first_comparison_issue": records.iter().find(|r| r["models"].as_array().unwrap().len() >= 3).map(|r| &r["issue"]),
         "missing_tier_archives": missing_tier_archives, "errors": errors,
         "note": "只核对每日档案原始号码，每档只计实际保存且已开奖的期数；待开奖不计入比例，旧期缺档不补造。本地留档无独立时间戳证明。"}),
     )
@@ -652,7 +677,7 @@ fn observation_cell(records: &[Value], model: &str, red: usize, blue: usize, pai
         }
     }
     let rate = (n > 0).then(|| full as f64 / n as f64);
-    json!({"model": model, "label": pool::COMPARISON_LABELS[pool::COMPARISON_MODELS.iter().position(|m| *m == model).unwrap()],
+    json!({"model": model, "label": if model == crate::ranking::MODEL {crate::ranking::LABEL} else {pool::COMPARISON_LABELS[pool::COMPARISON_MODELS.iter().position(|m| *m == model).unwrap()]},
         "red_count": red, "blue_count": blue, "n": n, "pending": pending, "missing": missing,
         "excluded_missing_comparison": excluded, "paired_periods_only": paired, "scored_issues": issues,
         "full_red_periods": full, "full_red_rate": rate,
@@ -817,7 +842,7 @@ fn review_strategy(saved: &Value, draw: Option<&Draw>) -> Result<Value, String> 
         stage["hit_numbers"] = json!(hits);
     }
     let mut result = json!({"title": saved["title"], "rationale": saved["rationale"],
-        "mode": saved["mode"], "coverage_optimization": saved["coverage_optimization"],
+        "mode": saved["mode"], "ranking": saved["ranking"], "coverage_optimization": saved["coverage_optimization"],
         "efficiency": saved["efficiency"], "structural": saved["structural"],
         "red_weights": saved["red_weights"], "blue_weights": saved["blue_weights"],
         "summary": {"bets": tickets.len(), "cost": tickets.len() * 2, "unique_reds": reds, "unique_blues": blues,
@@ -1153,7 +1178,7 @@ pub fn issue_detail(
     response["archive_id"] = json!(id);
     response["provenance"] = provenance;
     response["strategy"] = json!(selected);
-    response["strategies"] = json!(variants.iter().map(|(name, value)| json!({"name": name, "title": value["title"], "mode": value["mode"], "coverage_optimization": value["coverage_optimization"], "summary": value["summary"]})).collect::<Vec<_>>());
+    response["strategies"] = json!(variants.iter().map(|(name, value)| json!({"name": name, "title": value["title"], "mode": value["mode"], "ranking": value["ranking"], "coverage_optimization": value["coverage_optimization"], "summary": value["summary"]})).collect::<Vec<_>>());
     response["detail"] = detail.clone();
     response["compact_preview"] = compact_preview(detail, draw)?;
     Ok(response)
@@ -1227,6 +1252,43 @@ mod tests {
     }
 
     #[test]
+    fn v3_daily_stays_sealed_and_new_daily_binds_calibrated_tickets_to_saved_pool() {
+        let temp=Temp::new();
+        let mut draws=synth_draws(220,9);
+        let prepared=prepare_forecast(&draws).unwrap();
+        let issue=next(&draws);
+        let mut payload=base_payload(&prepared,&issue,"daily",10,Some(100));
+        payload["number_pools"]=pool::saved(&prepared);
+        payload["strategies"]=json!({"frozen":strategy(&build("frozen",&prepared),&prepared)});
+        let path=temp.0.join(format!("daily/{issue}.json"));
+        write_new(&path,payload).unwrap();
+        let old=fs::read(&path).unwrap();
+        assert_eq!(freeze_daily_with_clock(&temp.0,&draws,&issue,100,||10).unwrap()["comparison_models"],3);
+        assert_eq!(fs::read(&path).unwrap(),old);
+        append_outcome(&mut draws);
+        let new_issue=next(&draws);
+        let result=freeze_daily_with_clock(&temp.0,&draws,&new_issue,100,||10).unwrap();
+        assert_eq!(result["strategies"],18);
+        assert_eq!(result["comparison_models"],4);
+        assert_eq!(result["comparison_number_pools"],54);
+        let raw=read_checked(&temp.0.join(format!("daily/{new_issue}.json"))).unwrap();
+        let p=&raw["payload"]["strategies"]["calibrated14"];
+        let saved=&raw["payload"]["number_pools"]["comparison_models"][2];
+        assert_eq!(p["ranking"],*saved);
+        assert!(p["red_weights"].is_null());
+        let reds:BTreeSet<_>=p["tickets"].as_array().unwrap().iter().flat_map(|t|t["red"].as_array().unwrap().iter().map(|n|n.as_u64().unwrap())).collect();
+        assert_eq!(reds,saved["red_ranking"].as_array().unwrap()[..14].iter().map(|n|n.as_u64().unwrap()).collect());
+        let observations=pool_observations(&temp.0,&draws).unwrap();
+        for cell in observations["ranking_paired_cells"].as_array().unwrap() {
+            assert_eq!(cell["n"],0);assert_eq!(cell["pending"],1);
+            assert_eq!(cell["excluded_missing_comparison"],1);
+            assert_eq!(cell["models"][1]["paired_periods_only"],true);
+            assert!(cell["models"][1]["full_red_rate"].is_null());
+        }
+        assert_eq!(fs::read(&path).unwrap(),old);
+    }
+
+    #[test]
     fn daily_archives_all_presets_and_pending_metrics_remain_null() {
         let temp = Temp::new();
         let draws = synth_draws(220, 9);
@@ -1288,7 +1350,7 @@ mod tests {
         let mut payload = base_payload(&prepared, &issue, "daily", 10, Some(100));
         payload["strategies"] = json!(PRESETS
             .into_iter()
-            .filter(|name| *name != "balanced14")
+            .filter(|name| !["balanced14","calibrated14"].contains(name))
             .map(|name| (name, strategy(&build(name, &prepared), &prepared)))
             .collect::<BTreeMap<_, _>>());
         let path = temp.0.join(format!("daily/{issue}.json"));
@@ -1461,8 +1523,8 @@ mod tests {
         draws.push(winner);
         let common_issue = next(&draws);
         let frozen = freeze_daily_with_clock(&temp.0, &draws, &common_issue, 100, || 10).unwrap();
-        assert_eq!(frozen["comparison_models"], 3);
-        assert_eq!(frozen["comparison_number_pools"], 36);
+        assert_eq!(frozen["comparison_models"], 4);
+        assert_eq!(frozen["comparison_number_pools"], 54);
         let mut winner = draws.last().unwrap().clone();
         winner.issue = common_issue.parse().unwrap();
         draws.push(winner);
@@ -1470,7 +1532,7 @@ mod tests {
         let result = pool_observations(&temp.0, &draws).unwrap();
         assert_eq!(result["errors"], json!([]));
         assert_eq!(result["first_comparison_issue"], common_issue);
-        assert_eq!(result["comparison_cells"].as_array().unwrap().len(), 54);
+        assert_eq!(result["comparison_cells"].as_array().unwrap().len(), 72);
         for cell in result["comparison_cells"].as_array().unwrap() {
             assert_eq!(cell["n"], if cell["model"] == "weighted" { 2 } else { 1 });
             assert_eq!(cell["pending"], 1);

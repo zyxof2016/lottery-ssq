@@ -198,6 +198,7 @@ pub struct Backtest {
 }
 
 pub struct Prepared {
+    pub ranking: Option<serde_json::Value>,
     pub weights: [f64; 7],
     pub blue_weights: [f64; 6],
     pub expert_red: [[f64; 33]; 7],
@@ -281,6 +282,7 @@ pub fn prepare_forecast(draws: &[Draw]) -> Result<Prepared, String> {
     );
     let last = draws.last().ok_or("没有开奖数据")?;
     Ok(Prepared {
+        ranking: None,
         weights,
         blue_weights,
         expert_red: snap.next_red,

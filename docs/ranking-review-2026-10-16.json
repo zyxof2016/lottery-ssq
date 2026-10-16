@@ -1,0 +1,1765 @@
+{
+  "kind": "exploratory_ranking_review",
+  "actual_recommendation": false,
+  "cutoff_issue": "26118",
+  "data_sha256": "a88c8efb73b537bfd85450f3df2e42b613e920e939ce80b5271afef05703818e",
+  "source_sha256": "2bb3cc2cc78b74ddef14e7801df1164cbf1b47880f686f3ba528e324509a6c1e",
+  "ranking_policy": {
+    "automatic_promotion": false,
+    "base_ranking": "frozen_weighted_fusion",
+    "blue_scope": "shared_weighted_blue_ranking",
+    "label": "重号偏置校准 · 试验",
+    "method": "preserve_within_group_order_normalize_previous_group_mass",
+    "model": "repeat_calibrated",
+    "note": "上期6红与其余27红分别归一化，按6:27分配总评分；保留两组内部的原融合顺序，不强制重号名额。修正集中偏置，尚未证实提高未来全6红率。",
+    "other_red_mass": 0.8181818181818182,
+    "previous_red_mass": 0.18181818181818182,
+    "score_kind": "ranking_evidence_not_probability",
+    "version": 1
+  },
+  "windows": {
+    "all_oos": {
+      "n": 3335,
+      "from": "04092",
+      "to": "26118",
+      "cells": [
+        {
+          "full_red_periods": 7,
+          "full_red_rate": 0.002098950524737631,
+          "mean_minimum_full_red_prefix": 29.082458770614693,
+          "mean_missed_reds": 3.457271364317841,
+          "mean_previous_selected": 5.935832083958021,
+          "mean_red_hits": 2.542728635682159,
+          "model": "weighted",
+          "n": 3335,
+          "red_count": 14,
+          "uniform_full_red_rate": 0.0027113459399332593
+        },
+        {
+          "full_red_periods": 31,
+          "full_red_rate": 0.009295352323838081,
+          "mean_minimum_full_red_prefix": 29.082458770614693,
+          "mean_missed_reds": 3.0857571214392805,
+          "mean_previous_selected": 5.96911544227886,
+          "mean_red_hits": 2.9142428785607195,
+          "model": "weighted",
+          "n": 3335,
+          "red_count": 16,
+          "uniform_full_red_rate": 0.007230255839822024
+        },
+        {
+          "full_red_periods": 65,
+          "full_red_rate": 0.019490254872563718,
+          "mean_minimum_full_red_prefix": 29.082458770614693,
+          "mean_missed_reds": 2.7337331334332835,
+          "mean_previous_selected": 5.988905547226387,
+          "mean_red_hits": 3.2662668665667165,
+          "model": "weighted",
+          "n": 3335,
+          "red_count": 18,
+          "uniform_full_red_rate": 0.01676104762867833
+        },
+        {
+          "full_red_periods": 120,
+          "full_red_rate": 0.035982008995502246,
+          "mean_minimum_full_red_prefix": 29.082458770614693,
+          "mean_missed_reds": 2.3778110944527735,
+          "mean_previous_selected": 5.999100449775113,
+          "mean_red_hits": 3.6221889055472265,
+          "model": "weighted",
+          "n": 3335,
+          "red_count": 20,
+          "uniform_full_red_rate": 0.03499559394998772
+        },
+        {
+          "full_red_periods": 224,
+          "full_red_rate": 0.06716641679160419,
+          "mean_minimum_full_red_prefix": 29.082458770614693,
+          "mean_missed_reds": 2.021889055472264,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 3.978110944527736,
+          "model": "weighted",
+          "n": 3335,
+          "red_count": 22,
+          "uniform_full_red_rate": 0.06736651835372637
+        },
+        {
+          "full_red_periods": 407,
+          "full_red_rate": 0.12203898050974513,
+          "mean_minimum_full_red_prefix": 29.082458770614693,
+          "mean_missed_reds": 1.6560719640179906,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 4.343928035982009,
+          "model": "weighted",
+          "n": 3335,
+          "red_count": 24,
+          "uniform_full_red_rate": 0.12152391546162403
+        },
+        {
+          "full_red_periods": 11,
+          "full_red_rate": 0.003298350824587706,
+          "mean_minimum_full_red_prefix": 29.063868065967018,
+          "mean_missed_reds": 3.4476761619190404,
+          "mean_previous_selected": 2.9004497751124436,
+          "mean_red_hits": 2.5523238380809596,
+          "model": "repeat_calibrated",
+          "n": 3335,
+          "red_count": 14,
+          "uniform_full_red_rate": 0.0027113459399332593
+        },
+        {
+          "full_red_periods": 34,
+          "full_red_rate": 0.010194902548725637,
+          "mean_minimum_full_red_prefix": 29.063868065967018,
+          "mean_missed_reds": 3.0788605697151423,
+          "mean_previous_selected": 3.5565217391304347,
+          "mean_red_hits": 2.9211394302848577,
+          "model": "repeat_calibrated",
+          "n": 3335,
+          "red_count": 16,
+          "uniform_full_red_rate": 0.007230255839822024
+        },
+        {
+          "full_red_periods": 67,
+          "full_red_rate": 0.020089955022488757,
+          "mean_minimum_full_red_prefix": 29.063868065967018,
+          "mean_missed_reds": 2.7139430284857573,
+          "mean_previous_selected": 4.159220389805098,
+          "mean_red_hits": 3.2860569715142427,
+          "model": "repeat_calibrated",
+          "n": 3335,
+          "red_count": 18,
+          "uniform_full_red_rate": 0.01676104762867833
+        },
+        {
+          "full_red_periods": 121,
+          "full_red_rate": 0.036281859070464766,
+          "mean_minimum_full_red_prefix": 29.063868065967018,
+          "mean_missed_reds": 2.3655172413793104,
+          "mean_previous_selected": 4.6734632683658175,
+          "mean_red_hits": 3.6344827586206896,
+          "model": "repeat_calibrated",
+          "n": 3335,
+          "red_count": 20,
+          "uniform_full_red_rate": 0.03499559394998772
+        },
+        {
+          "full_red_periods": 220,
+          "full_red_rate": 0.06596701649175413,
+          "mean_minimum_full_red_prefix": 29.063868065967018,
+          "mean_missed_reds": 2.021289355322339,
+          "mean_previous_selected": 5.103748125937032,
+          "mean_red_hits": 3.978710644677661,
+          "model": "repeat_calibrated",
+          "n": 3335,
+          "red_count": 22,
+          "uniform_full_red_rate": 0.06736651835372637
+        },
+        {
+          "full_red_periods": 414,
+          "full_red_rate": 0.12413793103448276,
+          "mean_minimum_full_red_prefix": 29.063868065967018,
+          "mean_missed_reds": 1.6419790104947527,
+          "mean_previous_selected": 5.439880059970015,
+          "mean_red_hits": 4.358020989505247,
+          "model": "repeat_calibrated",
+          "n": 3335,
+          "red_count": 24,
+          "uniform_full_red_rate": 0.12152391546162403
+        }
+      ]
+    },
+    "confirmation_exploratory": {
+      "n": 156,
+      "from": "25111",
+      "to": "26115",
+      "cells": [
+        {
+          "full_red_periods": 3,
+          "full_red_rate": 0.019230769230769232,
+          "mean_minimum_full_red_prefix": 28.993589743589745,
+          "mean_missed_reds": 3.4551282051282053,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 2.5448717948717947,
+          "model": "weighted",
+          "n": 156,
+          "red_count": 14,
+          "uniform_full_red_rate": 0.0027113459399332593
+        },
+        {
+          "full_red_periods": 5,
+          "full_red_rate": 0.03205128205128205,
+          "mean_minimum_full_red_prefix": 28.993589743589745,
+          "mean_missed_reds": 3.0833333333333335,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 2.9166666666666665,
+          "model": "weighted",
+          "n": 156,
+          "red_count": 16,
+          "uniform_full_red_rate": 0.007230255839822024
+        },
+        {
+          "full_red_periods": 7,
+          "full_red_rate": 0.04487179487179487,
+          "mean_minimum_full_red_prefix": 28.993589743589745,
+          "mean_missed_reds": 2.6794871794871793,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 3.3205128205128207,
+          "model": "weighted",
+          "n": 156,
+          "red_count": 18,
+          "uniform_full_red_rate": 0.01676104762867833
+        },
+        {
+          "full_red_periods": 9,
+          "full_red_rate": 0.057692307692307696,
+          "mean_minimum_full_red_prefix": 28.993589743589745,
+          "mean_missed_reds": 2.301282051282051,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 3.698717948717949,
+          "model": "weighted",
+          "n": 156,
+          "red_count": 20,
+          "uniform_full_red_rate": 0.03499559394998772
+        },
+        {
+          "full_red_periods": 11,
+          "full_red_rate": 0.07051282051282051,
+          "mean_minimum_full_red_prefix": 28.993589743589745,
+          "mean_missed_reds": 1.9423076923076925,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 4.0576923076923075,
+          "model": "weighted",
+          "n": 156,
+          "red_count": 22,
+          "uniform_full_red_rate": 0.06736651835372637
+        },
+        {
+          "full_red_periods": 16,
+          "full_red_rate": 0.10256410256410256,
+          "mean_minimum_full_red_prefix": 28.993589743589745,
+          "mean_missed_reds": 1.5961538461538458,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 4.403846153846154,
+          "model": "weighted",
+          "n": 156,
+          "red_count": 24,
+          "uniform_full_red_rate": 0.12152391546162403
+        },
+        {
+          "full_red_periods": 2,
+          "full_red_rate": 0.01282051282051282,
+          "mean_minimum_full_red_prefix": 29.05128205128205,
+          "mean_missed_reds": 3.4743589743589745,
+          "mean_previous_selected": 3.051282051282051,
+          "mean_red_hits": 2.5256410256410255,
+          "model": "repeat_calibrated",
+          "n": 156,
+          "red_count": 14,
+          "uniform_full_red_rate": 0.0027113459399332593
+        },
+        {
+          "full_red_periods": 4,
+          "full_red_rate": 0.02564102564102564,
+          "mean_minimum_full_red_prefix": 29.05128205128205,
+          "mean_missed_reds": 3.019230769230769,
+          "mean_previous_selected": 3.698717948717949,
+          "mean_red_hits": 2.980769230769231,
+          "model": "repeat_calibrated",
+          "n": 156,
+          "red_count": 16,
+          "uniform_full_red_rate": 0.007230255839822024
+        },
+        {
+          "full_red_periods": 4,
+          "full_red_rate": 0.02564102564102564,
+          "mean_minimum_full_red_prefix": 29.05128205128205,
+          "mean_missed_reds": 2.698717948717949,
+          "mean_previous_selected": 4.384615384615385,
+          "mean_red_hits": 3.301282051282051,
+          "model": "repeat_calibrated",
+          "n": 156,
+          "red_count": 18,
+          "uniform_full_red_rate": 0.01676104762867833
+        },
+        {
+          "full_red_periods": 8,
+          "full_red_rate": 0.05128205128205128,
+          "mean_minimum_full_red_prefix": 29.05128205128205,
+          "mean_missed_reds": 2.3141025641025643,
+          "mean_previous_selected": 4.9423076923076925,
+          "mean_red_hits": 3.6858974358974357,
+          "model": "repeat_calibrated",
+          "n": 156,
+          "red_count": 20,
+          "uniform_full_red_rate": 0.03499559394998772
+        },
+        {
+          "full_red_periods": 12,
+          "full_red_rate": 0.07692307692307693,
+          "mean_minimum_full_red_prefix": 29.05128205128205,
+          "mean_missed_reds": 1.9871794871794872,
+          "mean_previous_selected": 5.358974358974359,
+          "mean_red_hits": 4.012820512820513,
+          "model": "repeat_calibrated",
+          "n": 156,
+          "red_count": 22,
+          "uniform_full_red_rate": 0.06736651835372637
+        },
+        {
+          "full_red_periods": 15,
+          "full_red_rate": 0.09615384615384616,
+          "mean_minimum_full_red_prefix": 29.05128205128205,
+          "mean_missed_reds": 1.6217948717948714,
+          "mean_previous_selected": 5.711538461538462,
+          "mean_red_hits": 4.378205128205129,
+          "model": "repeat_calibrated",
+          "n": 156,
+          "red_count": 24,
+          "uniform_full_red_rate": 0.12152391546162403
+        }
+      ]
+    },
+    "development": {
+      "n": 3176,
+      "from": "04092",
+      "to": "25110",
+      "cells": [
+        {
+          "full_red_periods": 4,
+          "full_red_rate": 0.0012594458438287153,
+          "mean_minimum_full_red_prefix": 29.087216624685137,
+          "mean_missed_reds": 3.4581234256926954,
+          "mean_previous_selected": 5.932619647355164,
+          "mean_red_hits": 2.5418765743073046,
+          "model": "weighted",
+          "n": 3176,
+          "red_count": 14,
+          "uniform_full_red_rate": 0.0027113459399332593
+        },
+        {
+          "full_red_periods": 26,
+          "full_red_rate": 0.00818639798488665,
+          "mean_minimum_full_red_prefix": 29.087216624685137,
+          "mean_missed_reds": 3.086272040302267,
+          "mean_previous_selected": 5.967569269521411,
+          "mean_red_hits": 2.913727959697733,
+          "model": "weighted",
+          "n": 3176,
+          "red_count": 16,
+          "uniform_full_red_rate": 0.007230255839822024
+        },
+        {
+          "full_red_periods": 58,
+          "full_red_rate": 0.018261964735516372,
+          "mean_minimum_full_red_prefix": 29.087216624685137,
+          "mean_missed_reds": 2.7367758186397984,
+          "mean_previous_selected": 5.988350125944584,
+          "mean_red_hits": 3.2632241813602016,
+          "model": "weighted",
+          "n": 3176,
+          "red_count": 18,
+          "uniform_full_red_rate": 0.01676104762867833
+        },
+        {
+          "full_red_periods": 111,
+          "full_red_rate": 0.03494962216624685,
+          "mean_minimum_full_red_prefix": 29.087216624685137,
+          "mean_missed_reds": 2.381612090680101,
+          "mean_previous_selected": 5.9990554156171285,
+          "mean_red_hits": 3.618387909319899,
+          "model": "weighted",
+          "n": 3176,
+          "red_count": 20,
+          "uniform_full_red_rate": 0.03499559394998772
+        },
+        {
+          "full_red_periods": 212,
+          "full_red_rate": 0.06675062972292191,
+          "mean_minimum_full_red_prefix": 29.087216624685137,
+          "mean_missed_reds": 2.0258186397984885,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 3.9741813602015115,
+          "model": "weighted",
+          "n": 3176,
+          "red_count": 22,
+          "uniform_full_red_rate": 0.06736651835372637
+        },
+        {
+          "full_red_periods": 390,
+          "full_red_rate": 0.12279596977329975,
+          "mean_minimum_full_red_prefix": 29.087216624685137,
+          "mean_missed_reds": 1.658690176322418,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 4.341309823677582,
+          "model": "weighted",
+          "n": 3176,
+          "red_count": 24,
+          "uniform_full_red_rate": 0.12152391546162403
+        },
+        {
+          "full_red_periods": 9,
+          "full_red_rate": 0.0028337531486146094,
+          "mean_minimum_full_red_prefix": 29.06486146095718,
+          "mean_missed_reds": 3.447103274559194,
+          "mean_previous_selected": 2.8923173803526447,
+          "mean_red_hits": 2.552896725440806,
+          "model": "repeat_calibrated",
+          "n": 3176,
+          "red_count": 14,
+          "uniform_full_red_rate": 0.0027113459399332593
+        },
+        {
+          "full_red_periods": 30,
+          "full_red_rate": 0.009445843828715366,
+          "mean_minimum_full_red_prefix": 29.06486146095718,
+          "mean_missed_reds": 3.082493702770781,
+          "mean_previous_selected": 3.5488035264483626,
+          "mean_red_hits": 2.917506297229219,
+          "model": "repeat_calibrated",
+          "n": 3176,
+          "red_count": 16,
+          "uniform_full_red_rate": 0.007230255839822024
+        },
+        {
+          "full_red_periods": 63,
+          "full_red_rate": 0.019836272040302267,
+          "mean_minimum_full_red_prefix": 29.06486146095718,
+          "mean_missed_reds": 2.7150503778337534,
+          "mean_previous_selected": 4.147355163727959,
+          "mean_red_hits": 3.2849496221662466,
+          "model": "repeat_calibrated",
+          "n": 3176,
+          "red_count": 18,
+          "uniform_full_red_rate": 0.01676104762867833
+        },
+        {
+          "full_red_periods": 113,
+          "full_red_rate": 0.035579345088161206,
+          "mean_minimum_full_red_prefix": 29.06486146095718,
+          "mean_missed_reds": 2.368073047858942,
+          "mean_previous_selected": 4.6596347607052895,
+          "mean_red_hits": 3.631926952141058,
+          "model": "repeat_calibrated",
+          "n": 3176,
+          "red_count": 20,
+          "uniform_full_red_rate": 0.03499559394998772
+        },
+        {
+          "full_red_periods": 207,
+          "full_red_rate": 0.06517632241813602,
+          "mean_minimum_full_red_prefix": 29.06486146095718,
+          "mean_missed_reds": 2.022984886649874,
+          "mean_previous_selected": 5.0903652392947105,
+          "mean_red_hits": 3.977015113350126,
+          "model": "repeat_calibrated",
+          "n": 3176,
+          "red_count": 22,
+          "uniform_full_red_rate": 0.06736651835372637
+        },
+        {
+          "full_red_periods": 398,
+          "full_red_rate": 0.1253148614609572,
+          "mean_minimum_full_red_prefix": 29.06486146095718,
+          "mean_missed_reds": 1.642632241813602,
+          "mean_previous_selected": 5.426007556675063,
+          "mean_red_hits": 4.357367758186398,
+          "model": "repeat_calibrated",
+          "n": 3176,
+          "red_count": 24,
+          "uniform_full_red_rate": 0.12152391546162403
+        }
+      ]
+    },
+    "recent30": {
+      "n": 30,
+      "from": "26089",
+      "to": "26118",
+      "cells": [
+        {
+          "full_red_periods": 0,
+          "full_red_rate": 0.0,
+          "mean_minimum_full_red_prefix": 29.266666666666666,
+          "mean_missed_reds": 3.3,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 2.7,
+          "model": "weighted",
+          "n": 30,
+          "red_count": 14,
+          "uniform_full_red_rate": 0.0027113459399332593
+        },
+        {
+          "full_red_periods": 1,
+          "full_red_rate": 0.03333333333333333,
+          "mean_minimum_full_red_prefix": 29.266666666666666,
+          "mean_missed_reds": 3.0,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 3.0,
+          "model": "weighted",
+          "n": 30,
+          "red_count": 16,
+          "uniform_full_red_rate": 0.007230255839822024
+        },
+        {
+          "full_red_periods": 1,
+          "full_red_rate": 0.03333333333333333,
+          "mean_minimum_full_red_prefix": 29.266666666666666,
+          "mean_missed_reds": 2.6333333333333333,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 3.3666666666666667,
+          "model": "weighted",
+          "n": 30,
+          "red_count": 18,
+          "uniform_full_red_rate": 0.01676104762867833
+        },
+        {
+          "full_red_periods": 2,
+          "full_red_rate": 0.06666666666666667,
+          "mean_minimum_full_red_prefix": 29.266666666666666,
+          "mean_missed_reds": 2.3666666666666667,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 3.6333333333333333,
+          "model": "weighted",
+          "n": 30,
+          "red_count": 20,
+          "uniform_full_red_rate": 0.03499559394998772
+        },
+        {
+          "full_red_periods": 3,
+          "full_red_rate": 0.1,
+          "mean_minimum_full_red_prefix": 29.266666666666666,
+          "mean_missed_reds": 1.9333333333333336,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 4.066666666666666,
+          "model": "weighted",
+          "n": 30,
+          "red_count": 22,
+          "uniform_full_red_rate": 0.06736651835372637
+        },
+        {
+          "full_red_periods": 4,
+          "full_red_rate": 0.13333333333333333,
+          "mean_minimum_full_red_prefix": 29.266666666666666,
+          "mean_missed_reds": 1.6333333333333337,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 4.366666666666666,
+          "model": "weighted",
+          "n": 30,
+          "red_count": 24,
+          "uniform_full_red_rate": 0.12152391546162403
+        },
+        {
+          "full_red_periods": 1,
+          "full_red_rate": 0.03333333333333333,
+          "mean_minimum_full_red_prefix": 29.066666666666666,
+          "mean_missed_reds": 3.466666666666667,
+          "mean_previous_selected": 2.9,
+          "mean_red_hits": 2.533333333333333,
+          "model": "repeat_calibrated",
+          "n": 30,
+          "red_count": 14,
+          "uniform_full_red_rate": 0.0027113459399332593
+        },
+        {
+          "full_red_periods": 1,
+          "full_red_rate": 0.03333333333333333,
+          "mean_minimum_full_red_prefix": 29.066666666666666,
+          "mean_missed_reds": 3.0,
+          "mean_previous_selected": 3.7,
+          "mean_red_hits": 3.0,
+          "model": "repeat_calibrated",
+          "n": 30,
+          "red_count": 16,
+          "uniform_full_red_rate": 0.007230255839822024
+        },
+        {
+          "full_red_periods": 1,
+          "full_red_rate": 0.03333333333333333,
+          "mean_minimum_full_red_prefix": 29.066666666666666,
+          "mean_missed_reds": 2.8,
+          "mean_previous_selected": 4.466666666666667,
+          "mean_red_hits": 3.2,
+          "model": "repeat_calibrated",
+          "n": 30,
+          "red_count": 18,
+          "uniform_full_red_rate": 0.01676104762867833
+        },
+        {
+          "full_red_periods": 2,
+          "full_red_rate": 0.06666666666666667,
+          "mean_minimum_full_red_prefix": 29.066666666666666,
+          "mean_missed_reds": 2.3333333333333335,
+          "mean_previous_selected": 5.1,
+          "mean_red_hits": 3.6666666666666665,
+          "model": "repeat_calibrated",
+          "n": 30,
+          "red_count": 20,
+          "uniform_full_red_rate": 0.03499559394998772
+        },
+        {
+          "full_red_periods": 4,
+          "full_red_rate": 0.13333333333333333,
+          "mean_minimum_full_red_prefix": 29.066666666666666,
+          "mean_missed_reds": 2.0,
+          "mean_previous_selected": 5.433333333333334,
+          "mean_red_hits": 4.0,
+          "model": "repeat_calibrated",
+          "n": 30,
+          "red_count": 22,
+          "uniform_full_red_rate": 0.06736651835372637
+        },
+        {
+          "full_red_periods": 4,
+          "full_red_rate": 0.13333333333333333,
+          "mean_minimum_full_red_prefix": 29.066666666666666,
+          "mean_missed_reds": 1.6333333333333337,
+          "mean_previous_selected": 5.833333333333333,
+          "mean_red_hits": 4.366666666666666,
+          "model": "repeat_calibrated",
+          "n": 30,
+          "red_count": 24,
+          "uniform_full_red_rate": 0.12152391546162403
+        }
+      ]
+    },
+    "recent60": {
+      "n": 60,
+      "from": "26059",
+      "to": "26118",
+      "cells": [
+        {
+          "full_red_periods": 1,
+          "full_red_rate": 0.016666666666666666,
+          "mean_minimum_full_red_prefix": 28.5,
+          "mean_missed_reds": 3.316666666666667,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 2.683333333333333,
+          "model": "weighted",
+          "n": 60,
+          "red_count": 14,
+          "uniform_full_red_rate": 0.0027113459399332593
+        },
+        {
+          "full_red_periods": 3,
+          "full_red_rate": 0.05,
+          "mean_minimum_full_red_prefix": 28.5,
+          "mean_missed_reds": 2.95,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 3.05,
+          "model": "weighted",
+          "n": 60,
+          "red_count": 16,
+          "uniform_full_red_rate": 0.007230255839822024
+        },
+        {
+          "full_red_periods": 4,
+          "full_red_rate": 0.06666666666666667,
+          "mean_minimum_full_red_prefix": 28.5,
+          "mean_missed_reds": 2.566666666666667,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 3.433333333333333,
+          "model": "weighted",
+          "n": 60,
+          "red_count": 18,
+          "uniform_full_red_rate": 0.01676104762867833
+        },
+        {
+          "full_red_periods": 5,
+          "full_red_rate": 0.08333333333333333,
+          "mean_minimum_full_red_prefix": 28.5,
+          "mean_missed_reds": 2.2666666666666666,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 3.7333333333333334,
+          "model": "weighted",
+          "n": 60,
+          "red_count": 20,
+          "uniform_full_red_rate": 0.03499559394998772
+        },
+        {
+          "full_red_periods": 7,
+          "full_red_rate": 0.11666666666666667,
+          "mean_minimum_full_red_prefix": 28.5,
+          "mean_missed_reds": 1.833333333333333,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 4.166666666666667,
+          "model": "weighted",
+          "n": 60,
+          "red_count": 22,
+          "uniform_full_red_rate": 0.06736651835372637
+        },
+        {
+          "full_red_periods": 9,
+          "full_red_rate": 0.15,
+          "mean_minimum_full_red_prefix": 28.5,
+          "mean_missed_reds": 1.583333333333333,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 4.416666666666667,
+          "model": "weighted",
+          "n": 60,
+          "red_count": 24,
+          "uniform_full_red_rate": 0.12152391546162403
+        },
+        {
+          "full_red_periods": 1,
+          "full_red_rate": 0.016666666666666666,
+          "mean_minimum_full_red_prefix": 28.633333333333333,
+          "mean_missed_reds": 3.35,
+          "mean_previous_selected": 3.0,
+          "mean_red_hits": 2.65,
+          "model": "repeat_calibrated",
+          "n": 60,
+          "red_count": 14,
+          "uniform_full_red_rate": 0.0027113459399332593
+        },
+        {
+          "full_red_periods": 2,
+          "full_red_rate": 0.03333333333333333,
+          "mean_minimum_full_red_prefix": 28.633333333333333,
+          "mean_missed_reds": 2.9166666666666665,
+          "mean_previous_selected": 3.6,
+          "mean_red_hits": 3.0833333333333335,
+          "model": "repeat_calibrated",
+          "n": 60,
+          "red_count": 16,
+          "uniform_full_red_rate": 0.007230255839822024
+        },
+        {
+          "full_red_periods": 2,
+          "full_red_rate": 0.03333333333333333,
+          "mean_minimum_full_red_prefix": 28.633333333333333,
+          "mean_missed_reds": 2.7,
+          "mean_previous_selected": 4.366666666666666,
+          "mean_red_hits": 3.3,
+          "model": "repeat_calibrated",
+          "n": 60,
+          "red_count": 18,
+          "uniform_full_red_rate": 0.01676104762867833
+        },
+        {
+          "full_red_periods": 3,
+          "full_red_rate": 0.05,
+          "mean_minimum_full_red_prefix": 28.633333333333333,
+          "mean_missed_reds": 2.216666666666667,
+          "mean_previous_selected": 4.966666666666667,
+          "mean_red_hits": 3.783333333333333,
+          "model": "repeat_calibrated",
+          "n": 60,
+          "red_count": 20,
+          "uniform_full_red_rate": 0.03499559394998772
+        },
+        {
+          "full_red_periods": 7,
+          "full_red_rate": 0.11666666666666667,
+          "mean_minimum_full_red_prefix": 28.633333333333333,
+          "mean_missed_reds": 1.9000000000000004,
+          "mean_previous_selected": 5.35,
+          "mean_red_hits": 4.1,
+          "model": "repeat_calibrated",
+          "n": 60,
+          "red_count": 22,
+          "uniform_full_red_rate": 0.06736651835372637
+        },
+        {
+          "full_red_periods": 9,
+          "full_red_rate": 0.15,
+          "mean_minimum_full_red_prefix": 28.633333333333333,
+          "mean_missed_reds": 1.5999999999999996,
+          "mean_previous_selected": 5.733333333333333,
+          "mean_red_hits": 4.4,
+          "model": "repeat_calibrated",
+          "n": 60,
+          "red_count": 24,
+          "uniform_full_red_rate": 0.12152391546162403
+        }
+      ]
+    },
+    "tracking": {
+      "n": 3,
+      "from": "26116",
+      "to": "26118",
+      "cells": [
+        {
+          "full_red_periods": 0,
+          "full_red_rate": 0.0,
+          "mean_minimum_full_red_prefix": 28.666666666666668,
+          "mean_missed_reds": 2.6666666666666665,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 3.3333333333333335,
+          "model": "weighted",
+          "n": 3,
+          "red_count": 14,
+          "uniform_full_red_rate": 0.0027113459399332593
+        },
+        {
+          "full_red_periods": 0,
+          "full_red_rate": 0.0,
+          "mean_minimum_full_red_prefix": 28.666666666666668,
+          "mean_missed_reds": 2.6666666666666665,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 3.3333333333333335,
+          "model": "weighted",
+          "n": 3,
+          "red_count": 16,
+          "uniform_full_red_rate": 0.007230255839822024
+        },
+        {
+          "full_red_periods": 0,
+          "full_red_rate": 0.0,
+          "mean_minimum_full_red_prefix": 28.666666666666668,
+          "mean_missed_reds": 2.3333333333333335,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 3.6666666666666665,
+          "model": "weighted",
+          "n": 3,
+          "red_count": 18,
+          "uniform_full_red_rate": 0.01676104762867833
+        },
+        {
+          "full_red_periods": 0,
+          "full_red_rate": 0.0,
+          "mean_minimum_full_red_prefix": 28.666666666666668,
+          "mean_missed_reds": 2.3333333333333335,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 3.6666666666666665,
+          "model": "weighted",
+          "n": 3,
+          "red_count": 20,
+          "uniform_full_red_rate": 0.03499559394998772
+        },
+        {
+          "full_red_periods": 1,
+          "full_red_rate": 0.3333333333333333,
+          "mean_minimum_full_red_prefix": 28.666666666666668,
+          "mean_missed_reds": 2.0,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 4.0,
+          "model": "weighted",
+          "n": 3,
+          "red_count": 22,
+          "uniform_full_red_rate": 0.06736651835372637
+        },
+        {
+          "full_red_periods": 1,
+          "full_red_rate": 0.3333333333333333,
+          "mean_minimum_full_red_prefix": 28.666666666666668,
+          "mean_missed_reds": 2.0,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 4.0,
+          "model": "weighted",
+          "n": 3,
+          "red_count": 24,
+          "uniform_full_red_rate": 0.12152391546162403
+        },
+        {
+          "full_red_periods": 0,
+          "full_red_rate": 0.0,
+          "mean_minimum_full_red_prefix": 28.666666666666668,
+          "mean_missed_reds": 2.6666666666666665,
+          "mean_previous_selected": 3.6666666666666665,
+          "mean_red_hits": 3.3333333333333335,
+          "model": "repeat_calibrated",
+          "n": 3,
+          "red_count": 14,
+          "uniform_full_red_rate": 0.0027113459399332593
+        },
+        {
+          "full_red_periods": 0,
+          "full_red_rate": 0.0,
+          "mean_minimum_full_red_prefix": 28.666666666666668,
+          "mean_missed_reds": 2.3333333333333335,
+          "mean_previous_selected": 4.333333333333333,
+          "mean_red_hits": 3.6666666666666665,
+          "model": "repeat_calibrated",
+          "n": 3,
+          "red_count": 16,
+          "uniform_full_red_rate": 0.007230255839822024
+        },
+        {
+          "full_red_periods": 0,
+          "full_red_rate": 0.0,
+          "mean_minimum_full_red_prefix": 28.666666666666668,
+          "mean_missed_reds": 2.3333333333333335,
+          "mean_previous_selected": 5.0,
+          "mean_red_hits": 3.6666666666666665,
+          "model": "repeat_calibrated",
+          "n": 3,
+          "red_count": 18,
+          "uniform_full_red_rate": 0.01676104762867833
+        },
+        {
+          "full_red_periods": 0,
+          "full_red_rate": 0.0,
+          "mean_minimum_full_red_prefix": 28.666666666666668,
+          "mean_missed_reds": 2.3333333333333335,
+          "mean_previous_selected": 5.333333333333333,
+          "mean_red_hits": 3.6666666666666665,
+          "model": "repeat_calibrated",
+          "n": 3,
+          "red_count": 20,
+          "uniform_full_red_rate": 0.03499559394998772
+        },
+        {
+          "full_red_periods": 1,
+          "full_red_rate": 0.3333333333333333,
+          "mean_minimum_full_red_prefix": 28.666666666666668,
+          "mean_missed_reds": 2.0,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 4.0,
+          "model": "repeat_calibrated",
+          "n": 3,
+          "red_count": 22,
+          "uniform_full_red_rate": 0.06736651835372637
+        },
+        {
+          "full_red_periods": 1,
+          "full_red_rate": 0.3333333333333333,
+          "mean_minimum_full_red_prefix": 28.666666666666668,
+          "mean_missed_reds": 2.0,
+          "mean_previous_selected": 6.0,
+          "mean_red_hits": 4.0,
+          "model": "repeat_calibrated",
+          "n": 3,
+          "red_count": 24,
+          "uniform_full_red_rate": 0.12152391546162403
+        }
+      ]
+    }
+  },
+  "latest_replay": {
+    "issue": "26118",
+    "models": [
+      {
+        "hits": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "minimum_full_red_prefix": 33,
+        "model": "weighted",
+        "previous_selected": [
+          6,
+          6,
+          6,
+          6,
+          6,
+          6
+        ],
+        "winning_red_ranks": [
+          3,
+          7,
+          14,
+          29,
+          31,
+          33
+        ]
+      },
+      {
+        "hits": [
+          2,
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "minimum_full_red_prefix": 33,
+        "model": "equal",
+        "previous_selected": [
+          6,
+          6,
+          6,
+          6,
+          6,
+          6
+        ],
+        "winning_red_ranks": [
+          3,
+          7,
+          15,
+          25,
+          27,
+          33
+        ]
+      },
+      {
+        "hits": [
+          1,
+          1,
+          2,
+          2,
+          3,
+          3
+        ],
+        "minimum_full_red_prefix": 33,
+        "model": "balanced_rank",
+        "previous_selected": [
+          3,
+          3,
+          4,
+          4,
+          4,
+          5
+        ],
+        "winning_red_ranks": [
+          14,
+          17,
+          22,
+          29,
+          30,
+          33
+        ]
+      },
+      {
+        "hits": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "minimum_full_red_prefix": 33,
+        "model": "repeat_calibrated",
+        "previous_selected": [
+          3,
+          4,
+          5,
+          5,
+          6,
+          6
+        ],
+        "winning_red_ranks": [
+          1,
+          10,
+          11,
+          29,
+          31,
+          33
+        ]
+      }
+    ]
+  },
+  "rejected_learning_candidates": {
+    "actual_recommendation": false,
+    "data_sha256": "a88c8efb73b537bfd85450f3df2e42b613e920e939ce80b5271afef05703818e",
+    "kind": "rejected_ranking_candidates_exploratory_replay",
+    "method": "seven_tie_aware_centered_midranks_joint_ridge_inclusion_regression",
+    "note": "每期评分先于该期开奖加入拟合；三种窗口均完整报告。窗口之间和与校准模型的事后比较属于探索，不能算独立验证。",
+    "promoted": false,
+    "reason": "三种学习型排名在近期全6红率未优于原排名，不进入自动推荐。",
+    "ridge_penalty": 1100,
+    "source_sha256": "4ac3dffeaccd3979d8a37149b1d8c22221a60afc8caabe3747d725de5dd9734d",
+    "windows": {
+      "all_oos": {
+        "cells": [
+          {
+            "full_red_periods": 7,
+            "mean_red_hits": 2.542728635682159,
+            "model": "weighted",
+            "n": 3335,
+            "red_count": 14
+          },
+          {
+            "full_red_periods": 31,
+            "mean_red_hits": 2.9142428785607195,
+            "model": "weighted",
+            "n": 3335,
+            "red_count": 16
+          },
+          {
+            "full_red_periods": 65,
+            "mean_red_hits": 3.2662668665667165,
+            "model": "weighted",
+            "n": 3335,
+            "red_count": 18
+          },
+          {
+            "full_red_periods": 120,
+            "mean_red_hits": 3.6221889055472265,
+            "model": "weighted",
+            "n": 3335,
+            "red_count": 20
+          },
+          {
+            "full_red_periods": 224,
+            "mean_red_hits": 3.978110944527736,
+            "model": "weighted",
+            "n": 3335,
+            "red_count": 22
+          },
+          {
+            "full_red_periods": 407,
+            "mean_red_hits": 4.343928035982009,
+            "model": "weighted",
+            "n": 3335,
+            "red_count": 24
+          },
+          {
+            "full_red_periods": 10,
+            "mean_red_hits": 2.557721139430285,
+            "model": "ridge_expanding",
+            "n": 3335,
+            "red_count": 14
+          },
+          {
+            "full_red_periods": 26,
+            "mean_red_hits": 2.9268365817091455,
+            "model": "ridge_expanding",
+            "n": 3335,
+            "red_count": 16
+          },
+          {
+            "full_red_periods": 64,
+            "mean_red_hits": 3.290254872563718,
+            "model": "ridge_expanding",
+            "n": 3335,
+            "red_count": 18
+          },
+          {
+            "full_red_periods": 125,
+            "mean_red_hits": 3.665367316341829,
+            "model": "ridge_expanding",
+            "n": 3335,
+            "red_count": 20
+          },
+          {
+            "full_red_periods": 225,
+            "mean_red_hits": 4.008395802098951,
+            "model": "ridge_expanding",
+            "n": 3335,
+            "red_count": 22
+          },
+          {
+            "full_red_periods": 383,
+            "mean_red_hits": 4.366716641679161,
+            "model": "ridge_expanding",
+            "n": 3335,
+            "red_count": 24
+          },
+          {
+            "full_red_periods": 9,
+            "mean_red_hits": 2.546626686656672,
+            "model": "ridge156",
+            "n": 3335,
+            "red_count": 14
+          },
+          {
+            "full_red_periods": 23,
+            "mean_red_hits": 2.9160419790104948,
+            "model": "ridge156",
+            "n": 3335,
+            "red_count": 16
+          },
+          {
+            "full_red_periods": 65,
+            "mean_red_hits": 3.2863568215892056,
+            "model": "ridge156",
+            "n": 3335,
+            "red_count": 18
+          },
+          {
+            "full_red_periods": 134,
+            "mean_red_hits": 3.6500749625187408,
+            "model": "ridge156",
+            "n": 3335,
+            "red_count": 20
+          },
+          {
+            "full_red_periods": 231,
+            "mean_red_hits": 4.002998500749626,
+            "model": "ridge156",
+            "n": 3335,
+            "red_count": 22
+          },
+          {
+            "full_red_periods": 415,
+            "mean_red_hits": 4.3736131934032985,
+            "model": "ridge156",
+            "n": 3335,
+            "red_count": 24
+          },
+          {
+            "full_red_periods": 14,
+            "mean_red_hits": 2.545727136431784,
+            "model": "ridge600",
+            "n": 3335,
+            "red_count": 14
+          },
+          {
+            "full_red_periods": 25,
+            "mean_red_hits": 2.9031484257871063,
+            "model": "ridge600",
+            "n": 3335,
+            "red_count": 16
+          },
+          {
+            "full_red_periods": 61,
+            "mean_red_hits": 3.2725637181409297,
+            "model": "ridge600",
+            "n": 3335,
+            "red_count": 18
+          },
+          {
+            "full_red_periods": 126,
+            "mean_red_hits": 3.643478260869565,
+            "model": "ridge600",
+            "n": 3335,
+            "red_count": 20
+          },
+          {
+            "full_red_periods": 246,
+            "mean_red_hits": 4.023088455772114,
+            "model": "ridge600",
+            "n": 3335,
+            "red_count": 22
+          },
+          {
+            "full_red_periods": 415,
+            "mean_red_hits": 4.3820089955022485,
+            "model": "ridge600",
+            "n": 3335,
+            "red_count": 24
+          }
+        ],
+        "n": 3335
+      },
+      "confirmation_exploratory": {
+        "cells": [
+          {
+            "full_red_periods": 3,
+            "mean_red_hits": 2.5448717948717947,
+            "model": "weighted",
+            "n": 156,
+            "red_count": 14
+          },
+          {
+            "full_red_periods": 5,
+            "mean_red_hits": 2.9166666666666665,
+            "model": "weighted",
+            "n": 156,
+            "red_count": 16
+          },
+          {
+            "full_red_periods": 7,
+            "mean_red_hits": 3.3205128205128207,
+            "model": "weighted",
+            "n": 156,
+            "red_count": 18
+          },
+          {
+            "full_red_periods": 9,
+            "mean_red_hits": 3.698717948717949,
+            "model": "weighted",
+            "n": 156,
+            "red_count": 20
+          },
+          {
+            "full_red_periods": 11,
+            "mean_red_hits": 4.0576923076923075,
+            "model": "weighted",
+            "n": 156,
+            "red_count": 22
+          },
+          {
+            "full_red_periods": 16,
+            "mean_red_hits": 4.403846153846154,
+            "model": "weighted",
+            "n": 156,
+            "red_count": 24
+          },
+          {
+            "full_red_periods": 0,
+            "mean_red_hits": 2.4615384615384617,
+            "model": "ridge_expanding",
+            "n": 156,
+            "red_count": 14
+          },
+          {
+            "full_red_periods": 1,
+            "mean_red_hits": 2.9038461538461537,
+            "model": "ridge_expanding",
+            "n": 156,
+            "red_count": 16
+          },
+          {
+            "full_red_periods": 1,
+            "mean_red_hits": 3.282051282051282,
+            "model": "ridge_expanding",
+            "n": 156,
+            "red_count": 18
+          },
+          {
+            "full_red_periods": 4,
+            "mean_red_hits": 3.5833333333333335,
+            "model": "ridge_expanding",
+            "n": 156,
+            "red_count": 20
+          },
+          {
+            "full_red_periods": 7,
+            "mean_red_hits": 3.8974358974358974,
+            "model": "ridge_expanding",
+            "n": 156,
+            "red_count": 22
+          },
+          {
+            "full_red_periods": 13,
+            "mean_red_hits": 4.262820512820513,
+            "model": "ridge_expanding",
+            "n": 156,
+            "red_count": 24
+          },
+          {
+            "full_red_periods": 0,
+            "mean_red_hits": 2.5833333333333335,
+            "model": "ridge156",
+            "n": 156,
+            "red_count": 14
+          },
+          {
+            "full_red_periods": 0,
+            "mean_red_hits": 2.980769230769231,
+            "model": "ridge156",
+            "n": 156,
+            "red_count": 16
+          },
+          {
+            "full_red_periods": 1,
+            "mean_red_hits": 3.4294871794871793,
+            "model": "ridge156",
+            "n": 156,
+            "red_count": 18
+          },
+          {
+            "full_red_periods": 4,
+            "mean_red_hits": 3.717948717948718,
+            "model": "ridge156",
+            "n": 156,
+            "red_count": 20
+          },
+          {
+            "full_red_periods": 12,
+            "mean_red_hits": 4.083333333333333,
+            "model": "ridge156",
+            "n": 156,
+            "red_count": 22
+          },
+          {
+            "full_red_periods": 25,
+            "mean_red_hits": 4.435897435897436,
+            "model": "ridge156",
+            "n": 156,
+            "red_count": 24
+          },
+          {
+            "full_red_periods": 0,
+            "mean_red_hits": 2.551282051282051,
+            "model": "ridge600",
+            "n": 156,
+            "red_count": 14
+          },
+          {
+            "full_red_periods": 0,
+            "mean_red_hits": 2.9551282051282053,
+            "model": "ridge600",
+            "n": 156,
+            "red_count": 16
+          },
+          {
+            "full_red_periods": 1,
+            "mean_red_hits": 3.3076923076923075,
+            "model": "ridge600",
+            "n": 156,
+            "red_count": 18
+          },
+          {
+            "full_red_periods": 1,
+            "mean_red_hits": 3.621794871794872,
+            "model": "ridge600",
+            "n": 156,
+            "red_count": 20
+          },
+          {
+            "full_red_periods": 10,
+            "mean_red_hits": 4.038461538461538,
+            "model": "ridge600",
+            "n": 156,
+            "red_count": 22
+          },
+          {
+            "full_red_periods": 16,
+            "mean_red_hits": 4.403846153846154,
+            "model": "ridge600",
+            "n": 156,
+            "red_count": 24
+          }
+        ],
+        "n": 156
+      },
+      "development": {
+        "cells": [
+          {
+            "full_red_periods": 4,
+            "mean_red_hits": 2.5418765743073046,
+            "model": "weighted",
+            "n": 3176,
+            "red_count": 14
+          },
+          {
+            "full_red_periods": 26,
+            "mean_red_hits": 2.913727959697733,
+            "model": "weighted",
+            "n": 3176,
+            "red_count": 16
+          },
+          {
+            "full_red_periods": 58,
+            "mean_red_hits": 3.2632241813602016,
+            "model": "weighted",
+            "n": 3176,
+            "red_count": 18
+          },
+          {
+            "full_red_periods": 111,
+            "mean_red_hits": 3.618387909319899,
+            "model": "weighted",
+            "n": 3176,
+            "red_count": 20
+          },
+          {
+            "full_red_periods": 212,
+            "mean_red_hits": 3.9741813602015115,
+            "model": "weighted",
+            "n": 3176,
+            "red_count": 22
+          },
+          {
+            "full_red_periods": 390,
+            "mean_red_hits": 4.341309823677582,
+            "model": "weighted",
+            "n": 3176,
+            "red_count": 24
+          },
+          {
+            "full_red_periods": 10,
+            "mean_red_hits": 2.5629722921914357,
+            "model": "ridge_expanding",
+            "n": 3176,
+            "red_count": 14
+          },
+          {
+            "full_red_periods": 25,
+            "mean_red_hits": 2.9285264483627205,
+            "model": "ridge_expanding",
+            "n": 3176,
+            "red_count": 16
+          },
+          {
+            "full_red_periods": 63,
+            "mean_red_hits": 3.290931989924433,
+            "model": "ridge_expanding",
+            "n": 3176,
+            "red_count": 18
+          },
+          {
+            "full_red_periods": 121,
+            "mean_red_hits": 3.6700251889168767,
+            "model": "ridge_expanding",
+            "n": 3176,
+            "red_count": 20
+          },
+          {
+            "full_red_periods": 218,
+            "mean_red_hits": 4.01448362720403,
+            "model": "ridge_expanding",
+            "n": 3176,
+            "red_count": 22
+          },
+          {
+            "full_red_periods": 370,
+            "mean_red_hits": 4.372481108312343,
+            "model": "ridge_expanding",
+            "n": 3176,
+            "red_count": 24
+          },
+          {
+            "full_red_periods": 9,
+            "mean_red_hits": 2.5447103274559195,
+            "model": "ridge156",
+            "n": 3176,
+            "red_count": 14
+          },
+          {
+            "full_red_periods": 23,
+            "mean_red_hits": 2.9127833753148615,
+            "model": "ridge156",
+            "n": 3176,
+            "red_count": 16
+          },
+          {
+            "full_red_periods": 64,
+            "mean_red_hits": 3.2792821158690177,
+            "model": "ridge156",
+            "n": 3176,
+            "red_count": 18
+          },
+          {
+            "full_red_periods": 130,
+            "mean_red_hits": 3.6467254408060454,
+            "model": "ridge156",
+            "n": 3176,
+            "red_count": 20
+          },
+          {
+            "full_red_periods": 219,
+            "mean_red_hits": 3.9993702770780857,
+            "model": "ridge156",
+            "n": 3176,
+            "red_count": 22
+          },
+          {
+            "full_red_periods": 390,
+            "mean_red_hits": 4.371221662468514,
+            "model": "ridge156",
+            "n": 3176,
+            "red_count": 24
+          },
+          {
+            "full_red_periods": 14,
+            "mean_red_hits": 2.5462846347607053,
+            "model": "ridge600",
+            "n": 3176,
+            "red_count": 14
+          },
+          {
+            "full_red_periods": 25,
+            "mean_red_hits": 2.901448362720403,
+            "model": "ridge600",
+            "n": 3176,
+            "red_count": 16
+          },
+          {
+            "full_red_periods": 60,
+            "mean_red_hits": 3.2720403022670026,
+            "model": "ridge600",
+            "n": 3176,
+            "red_count": 18
+          },
+          {
+            "full_red_periods": 125,
+            "mean_red_hits": 3.646095717884131,
+            "model": "ridge600",
+            "n": 3176,
+            "red_count": 20
+          },
+          {
+            "full_red_periods": 236,
+            "mean_red_hits": 4.023299748110831,
+            "model": "ridge600",
+            "n": 3176,
+            "red_count": 22
+          },
+          {
+            "full_red_periods": 399,
+            "mean_red_hits": 4.382241813602015,
+            "model": "ridge600",
+            "n": 3176,
+            "red_count": 24
+          }
+        ],
+        "n": 3176
+      },
+      "recent60": {
+        "cells": [
+          {
+            "full_red_periods": 1,
+            "mean_red_hits": 2.683333333333333,
+            "model": "weighted",
+            "n": 60,
+            "red_count": 14
+          },
+          {
+            "full_red_periods": 3,
+            "mean_red_hits": 3.05,
+            "model": "weighted",
+            "n": 60,
+            "red_count": 16
+          },
+          {
+            "full_red_periods": 4,
+            "mean_red_hits": 3.433333333333333,
+            "model": "weighted",
+            "n": 60,
+            "red_count": 18
+          },
+          {
+            "full_red_periods": 5,
+            "mean_red_hits": 3.7333333333333334,
+            "model": "weighted",
+            "n": 60,
+            "red_count": 20
+          },
+          {
+            "full_red_periods": 7,
+            "mean_red_hits": 4.166666666666667,
+            "model": "weighted",
+            "n": 60,
+            "red_count": 22
+          },
+          {
+            "full_red_periods": 9,
+            "mean_red_hits": 4.416666666666667,
+            "model": "weighted",
+            "n": 60,
+            "red_count": 24
+          },
+          {
+            "full_red_periods": 0,
+            "mean_red_hits": 2.4166666666666665,
+            "model": "ridge_expanding",
+            "n": 60,
+            "red_count": 14
+          },
+          {
+            "full_red_periods": 1,
+            "mean_red_hits": 2.8333333333333335,
+            "model": "ridge_expanding",
+            "n": 60,
+            "red_count": 16
+          },
+          {
+            "full_red_periods": 1,
+            "mean_red_hits": 3.2,
+            "model": "ridge_expanding",
+            "n": 60,
+            "red_count": 18
+          },
+          {
+            "full_red_periods": 1,
+            "mean_red_hits": 3.4,
+            "model": "ridge_expanding",
+            "n": 60,
+            "red_count": 20
+          },
+          {
+            "full_red_periods": 1,
+            "mean_red_hits": 3.7666666666666666,
+            "model": "ridge_expanding",
+            "n": 60,
+            "red_count": 22
+          },
+          {
+            "full_red_periods": 1,
+            "mean_red_hits": 4.133333333333334,
+            "model": "ridge_expanding",
+            "n": 60,
+            "red_count": 24
+          },
+          {
+            "full_red_periods": 0,
+            "mean_red_hits": 2.566666666666667,
+            "model": "ridge156",
+            "n": 60,
+            "red_count": 14
+          },
+          {
+            "full_red_periods": 0,
+            "mean_red_hits": 2.95,
+            "model": "ridge156",
+            "n": 60,
+            "red_count": 16
+          },
+          {
+            "full_red_periods": 0,
+            "mean_red_hits": 3.4166666666666665,
+            "model": "ridge156",
+            "n": 60,
+            "red_count": 18
+          },
+          {
+            "full_red_periods": 1,
+            "mean_red_hits": 3.683333333333333,
+            "model": "ridge156",
+            "n": 60,
+            "red_count": 20
+          },
+          {
+            "full_red_periods": 4,
+            "mean_red_hits": 4.033333333333333,
+            "model": "ridge156",
+            "n": 60,
+            "red_count": 22
+          },
+          {
+            "full_red_periods": 11,
+            "mean_red_hits": 4.433333333333334,
+            "model": "ridge156",
+            "n": 60,
+            "red_count": 24
+          },
+          {
+            "full_red_periods": 0,
+            "mean_red_hits": 2.466666666666667,
+            "model": "ridge600",
+            "n": 60,
+            "red_count": 14
+          },
+          {
+            "full_red_periods": 0,
+            "mean_red_hits": 2.85,
+            "model": "ridge600",
+            "n": 60,
+            "red_count": 16
+          },
+          {
+            "full_red_periods": 1,
+            "mean_red_hits": 3.2,
+            "model": "ridge600",
+            "n": 60,
+            "red_count": 18
+          },
+          {
+            "full_red_periods": 1,
+            "mean_red_hits": 3.45,
+            "model": "ridge600",
+            "n": 60,
+            "red_count": 20
+          },
+          {
+            "full_red_periods": 4,
+            "mean_red_hits": 3.9166666666666665,
+            "model": "ridge600",
+            "n": 60,
+            "red_count": 22
+          },
+          {
+            "full_red_periods": 6,
+            "mean_red_hits": 4.316666666666666,
+            "model": "ridge600",
+            "n": 60,
+            "red_count": 24
+          }
+        ],
+        "n": 60
+      }
+    },
+    "windows_considered": [
+      0,
+      156,
+      600
+    ]
+  },
+  "adoption": {
+    "observation_model": "repeat_calibrated",
+    "primary_protocol_replaced": false,
+    "reason": "校准模型仅作为新期同时冻结的试验方案；历史全6红率并非各窗口一致改善。"
+  },
+  "notes": [
+    "号码池大小相同，蓝球排名相同。历史回放不补造实际推荐。",
+    "新增排名属于探索试验；所有已查看的历史窗口均不能当作新的独立确认样本。",
+    "26118和26119每日原档不修改；校准模型从后续首次冻结期次进入自动留档，26119只可另行生成独立试验方案。"
+  ]
+}

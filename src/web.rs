@@ -231,6 +231,7 @@ fn forecast_value(app: &App) -> Result<Value, String> {
 
 #[derive(Deserialize)]
 struct GenReq {
+    ranking_model: Option<String>,
     preset: Option<String>,
     mode: Option<String>,
     tickets: Option<usize>,
@@ -274,6 +275,7 @@ fn save_plan_value(app: &App, body: &str) -> Result<Value, String> {
         "cutoff_issue": fmt_issue(prepared.cutoff_issue),
         "cutoff_date": fmt_date(prepared.cutoff_date),
         "mode": plan.mode,
+        "ranking": prepared.ranking,
         "title": plan.title,
         "detail": plan.detail,
         "cost": plan.cost,
@@ -330,7 +332,11 @@ fn build_requested(body: &str, draws: &[Draw]) -> Result<(Plan, crate::eval::Pre
         req.bankers,
         req.drags,
     )?;
-    let prepared = prepare_forecast(draws)?;
+    let model = req.ranking_model.as_deref().unwrap_or(if req.preset.as_deref()==Some("calibrated14") {crate::ranking::MODEL} else {"weighted"});
+    if !["weighted",crate::ranking::MODEL].contains(&model) {return Err("未知红球排名模型".into());}
+    if req.preset.as_deref()==Some("calibrated14") && model!="repeat_calibrated" {return Err("校准排名预设须使用校准模型".into());}
+    if spec.mode=="frozen" && model!="weighted" {return Err("协议冻结票组使用原加权排名，请用其他方案观察校准排名".into());}
+    let prepared = if model==crate::ranking::MODEL {crate::ranking::prepare(draws)?} else {prepare_forecast(draws)?};
     let built = plan::build(&prepared.forecast, &spec)?;
     Ok((built, prepared))
 }
@@ -338,6 +344,7 @@ fn build_requested(body: &str, draws: &[Draw]) -> Result<(Plan, crate::eval::Pre
 fn parse_gen(body: &str) -> Result<GenReq, String> {
     if body.trim().is_empty() {
         return Ok(GenReq {
+            ranking_model: None,
             preset: Some("frozen".into()),
             mode: None,
             tickets: None,
@@ -390,6 +397,7 @@ fn plan_json(plan: &Plan, prepared: &crate::eval::Prepared, draws: &[Draw]) -> V
     let last = draws.last();
     json!({
         "mode": plan.mode,
+        "ranking": prepared.ranking,
         "title": plan.title,
         "detail": plan.detail,
         "bet_count": plan.bet_count,
@@ -1311,7 +1319,7 @@ mod tests {
         assert_eq!(status, 200);
         let report: Value = serde_json::from_slice(&bytes).unwrap();
         assert_eq!(report["version"], 3);
-        assert_eq!(report["archive_version"], 3);
+        assert_eq!(report["archive_version"], 4);
         assert_eq!(report["red_sizes"], json!((6..=33).collect::<Vec<_>>()));
         assert_eq!(report["archived_red_sizes"], json!([8, 10, 12, 14, 16, 18, 20, 22, 24]));
         assert_eq!(report["observation_tiers"].as_array().unwrap().len(), 6);

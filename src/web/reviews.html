@@ -116,7 +116,7 @@
 </section>
           <section class="card">
 <h2>{{ detail.title }}</h2>
-<p class="muted">{{ detail.rationale }}</p>
+<p class="muted">{{ detail.rationale }}<span v-if="detail.ranking"> · 红球模型：{{ detail.ranking.policy.label }}</span></p>
 <div class="metrics">
 <div class="metric">
 <span class="muted">投注 / 成本</span>
@@ -210,7 +210,7 @@
 <td>
 <span class="ball" :class="[n.color,{selected:n.ticket_exposure > 0,hit:n.draw_hit}]">{{ pad(n.number) }}</span>
 </td>
-<td>{{ n.fusion_rank == null ? detail.structural ? '无模型评分' : '未留存' : '#' + n.fusion_rank }}<small>{{ n.fusion_score == null && detail.structural ? '固定种子结构对照' : score(n.fusion_score) }}</small>
+<td>{{ n.fusion_rank == null ? detail.structural ? '无模型评分' : '未留存' : '#' + n.fusion_rank }}<small>{{ n.fusion_score == null && detail.structural ? '固定种子结构对照' : score(n.fusion_score) }}</small><small v-if="detail.ranking&&n.color==='red'">原名次 #{{ detail.ranking.base_red_ranking.indexOf(n.number)+1 }} → 校准 #{{ n.fusion_rank }}</small>
 </td>
 <td>{{ n.reason_text }}<small v-if="n.rescued">救援进入最终集合</small>
 <small v-if="n.displaced">被救援名额替换</small>
@@ -255,7 +255,7 @@
 </div>
 </div>
 <div>
-<h2>当时的融合权重</h2>
+<h2>{{ detail.ranking?'校准前的基础融合权重':'当时的融合权重' }}</h2><p v-if="detail.ranking" class="notice">{{ detail.ranking.policy.note }} 上期红球原评分占比 {{ (detail.ranking.original_previous_mass*100).toFixed(2) }}%，校准后为 {{ (6/33*100).toFixed(2) }}%。</p>
 <p v-if="detail.structural" class="muted">该方案按固定种子分散号码，不使用专家评分或融合权重。</p>
 <div v-else class="scroll">
 <table>
@@ -335,7 +335,7 @@ createApp({setup(){
   const archivedModels=computed(()=>view.value?.number_pools?[{model:'weighted',pools:view.value.number_pools.pools,diagnostics:view.value.number_pools.diagnostics,smallest_full_red_tier:view.value.number_pools.smallest_full_red_tier},...(view.value.number_pools.comparison_models||[])]:[]);
   const activePoolModel=computed(()=>archivedModels.value.find(m=>m.model===poolModel.value)||archivedModels.value[0]);
   const effectivePoolModel=computed({get:()=>activePoolModel.value?.model||'weighted',set:v=>poolModel.value=v});
-  const poolDiagnostics=computed(()=>activePoolModel.value?.diagnostics),poolModelName=m=>({weighted:'协议加权融合',equal:'等权融合',uniform:'均匀红球对照'}[m]||m);
+  const poolDiagnostics=computed(()=>activePoolModel.value?.diagnostics),poolModelName=m=>({weighted:'协议加权融合',equal:'等权融合',uniform:'均匀红球对照',repeat_calibrated:'重号偏置校准 · 试验'}[m]||m);
   const balancedArchived=computed(()=>view.value?.strategies?.find(s=>s.name==='balanced14'||s.mode==='balanced'));
   const compactArchived=computed(()=>view.value?.strategies?.find(s=>s.name==='efficiency:compact')),originalArchived=computed(()=>view.value?.strategies?.find(s=>s.name==='frozen'));
   const hasObservationTiers=computed(()=>(activePoolModel.value?.pools || []).some(p=>p.group==='observation'));
@@ -356,7 +356,7 @@ createApp({setup(){
   const resultName=s=>({pending:'待开奖',covered_winner:'✓ 覆盖开奖号码',uncovered_winner:'漏中开奖号码',recommended_nonwinner:'入票未中',not_selected_nonwinner:'未选入'}[s]||s);
   const numberTitle=n=>`${n.color==='red'?'红球':'蓝球'} ${pad(n.number)} · 排名 ${nullable(n.fusion_rank)} · 曝光 ${n.ticket_exposure} 注 · ${n.reason_text}`;
   const prizeName=t=>t.result==='pending'?'待开奖':t.prize_level?['','一等奖','二等奖','三等奖','四等奖','五等奖','六等奖'][t.prize_level]:t.special_prize_candidate?'福运奖待核实':'常规奖未中';
-  function weight(c,name){const names=c==='red'?redExperts:blueExperts,idx=names.indexOf(name),weights=detail.value?.[c+'_weights'];return idx<0?'—':weights?.[idx]==null?'未留存':(weights[idx]*100).toFixed(2)+'%';}
+  function weight(c,name){const names=c==='red'?redExperts:blueExperts,idx=names.indexOf(name),weights=detail.value?.[c+'_weights']||(c==='red'?detail.value?.ranking?.base_red_weights:null);return idx<0?'—':weights?.[idx]==null?'未留存':(weights[idx]*100).toFixed(2)+'%';}
   async function api(path,options){const r=await fetch(new URL(path,base),options),data=await r.json();if(!r.ok)throw Error(data.error||'读取失败');return data;}
   function notice(text,type=''){message.value=text;messageType.value=type;}
   async function refresh(preferred,archive,strategy){try{const data=await api('api/recommendations/issues?limit='+limit.value);issues.value=data.issues;next.value=data.next;await loadIssue(typeof preferred==='string'&&preferred?preferred:issue.value || data.issues[0]?.issue,archive,strategy);}catch(e){notice(e.message,'error');}}

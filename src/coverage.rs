@@ -205,12 +205,14 @@ pub fn analyze(draws: &[Draw]) -> Result<Value, String> {
         if nfit >= 30 {
             let weights = softmax_shrink(&red_sum, nfit as f64);
             let bw = softmax_shrink(&blue_sum, nfit as f64);
-            let weighted = rank_desc(&fuse7(&row.expert_p, &weights));
+            let weighted_score = fuse7(&row.expert_p, &weights);
+            let weighted = rank_desc(&weighted_score);
+            let calibrated = rank_desc(&crate::ranking::scores(&weighted_score, previous[&row.issue]));
             let equal = rank_desc(&fuse7(&row.expert_p, &equal7()));
             let balanced = order(&row.expert_p, previous[&row.issue]);
             let blue = rank_desc(&fuse6(&row.blue_p, &bw));
             let equal_blue = rank_desc(&fuse6(&row.blue_p, &[1.0 / 6.0; 6]));
-            let models:Vec<_>=[("weighted",&weighted),("equal",&equal),(MODEL,&balanced)].into_iter().map(|(name,order)| {
+            let models:Vec<_>=[("weighted",&weighted),("equal",&equal),(MODEL,&balanced),(crate::ranking::MODEL,&calibrated)].into_iter().map(|(name,order)| {
                 let ranks:Vec<_>=order.iter().enumerate().filter(|(_,n)|row.red_mask&(1<<**n)!=0).map(|(i,_)|i+1).collect();
                 json!({"model":name,"minimum_full_red_prefix":ranks.last(),"winning_red_ranks":ranks,
                     "hits":pool::TIER_RED_SIZES.map(|r|order[..r].iter().filter(|&&n|row.red_mask&(1<<n)!=0).count()),
@@ -248,7 +250,7 @@ pub fn analyze(draws: &[Draw]) -> Result<Value, String> {
         }
         let n = rows.len();
         let mut cells = Vec::new();
-        for (m, model) in ["weighted", "equal", MODEL].into_iter().enumerate() {
+        for (m, model) in ["weighted", "equal", MODEL, crate::ranking::MODEL].into_iter().enumerate() {
             for (i, r) in pool::TIER_RED_SIZES.into_iter().enumerate() {
                 let total: u64 = rows
                     .iter()
@@ -260,6 +262,7 @@ pub fn analyze(draws: &[Draw]) -> Result<Value, String> {
                     .count();
                 cells.push(json!({"model":model,"red_count":r,"n":n,"full_red_periods":full,"full_red_rate":full as f64/n as f64,
                     "mean_red_hits":total as f64/n as f64,"mean_missed_reds":6.0-total as f64/n as f64,
+                    "mean_minimum_full_red_prefix":rows.iter().map(|x|x["models"][m]["minimum_full_red_prefix"].as_f64().unwrap()).sum::<f64>()/n as f64,
                     "mean_previous_selected":rows.iter().map(|x|x["models"][m]["previous_selected"][i].as_f64().unwrap()).sum::<f64>()/n as f64,
                     "uniform_full_red_rate":pool::uniform_full_red(r)}));
             }
@@ -315,14 +318,17 @@ pub fn analyze(draws: &[Draw]) -> Result<Value, String> {
     Ok(
         json!({"kind":"exploratory_coverage_optimization_replay","actual_recommendation":false,"policy":policy(),
         "data_sha256":crate::draw::data_sha256(draws),"cutoff_issue":fmt_issue(prepared.cutoff_issue),
-        "source_sha256":crate::hash::sha256_hex(concat!(include_str!("coverage.rs"),include_str!("model.rs"),include_str!("select.rs"),include_str!("eval.rs"),include_str!("pool.rs"),include_str!("protocol.rs"),include_str!("stats.rs")).as_bytes()),
+        "source_sha256":crate::hash::sha256_hex(concat!(include_str!("coverage.rs"),include_str!("model.rs"),include_str!("select.rs"),include_str!("eval.rs"),include_str!("pool.rs"),include_str!("protocol.rs"),include_str!("stats.rs"),include_str!("ranking.rs")).as_bytes()),
         "windows":{"development":summarize(&references[..boundary]),"confirmation_exploratory":summarize(&references[boundary..end]),
             "tracking":summarize(&references[end..]),"recent30":summarize(&references[references.len().saturating_sub(30)..]),
             "recent60":summarize(&references[references.len().saturating_sub(60)..]),"all_oos":summarize(&references)},
         "latest_replay":rows.last(),"next_preview":saved(&prepared,draws.last().ok_or("没有开奖数据")?.red_mask),
+        "ranking_policy":crate::ranking::policy(),"next_ranking_preview":crate::ranking::saved(&prepared,draws.last().unwrap().red_mask),
         "adoption":{"rank_candidate_promoted":false,"live_ticket_ranking":"weighted","decision_cutoff":"26118",
             "reason":"截至26118的近60期，均衡排名在14/18红的全6红和平均覆盖均未优于原排名，保留为只读研究；只上线可核对的均衡组票。"},
-        "notes":["历史逐期只用此前数据；权重在25111前停止更新。所有候选固定公式，不按26118结果搜索参数。",
+        "ranking_adoption":{"primary_protocol_replaced":false,"observation_model":crate::ranking::MODEL,"reason":"校准模型仅作为新期同时冻结的试验方案；历史全6红率并非各窗口一致改善。"},
+        "notes":["校准排名按上期6红/其余27红分组消除原评分集中偏置，保留组内原排名，无开奖号输入、名额硬限制或参数搜索。",
+        "历史逐期只用此前数据；权重在25111前停止更新。所有候选固定公式，不按26118结果搜索参数。",
         "此报告是事后探索性回放，不补造历史推荐；跟踪期已查看，只有未来新期才能提供新的验证证据。",
         "组票同为8注16元；同12码池和同14码池分别比较，扩大池的收益不算筛选能力提升。",
         "均衡票组完整使用所选号码，降低单号曝光，但不保证单注中奖或提高收益。"]}),

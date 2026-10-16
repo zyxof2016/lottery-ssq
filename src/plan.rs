@@ -131,6 +131,11 @@ pub fn build(fc: &Forecast, spec: &Spec) -> Result<Plan, String> {
 fn preset_spec(name: &str) -> Result<Spec, String> {
     Ok(match name {
         "frozen" => frozen_spec(),
+        "calibrated14" => Spec {
+            mode: "balanced", title: "校准排名14红均衡覆盖 · 试验8注".into(),
+            detail: "重号偏置校准排名前14红、2蓝、8注16元；完整使用14红，每红出现3–4次。排名试验尚未证明稳定提高全6红率。".into(),
+            tickets: 8, pool: 14, overlap: 5, red_count: 6, blue_count: 2, bankers: 0, drags: 0,
+        },
         "balanced14" => Spec {
             mode: "balanced", title: "融合14红均衡覆盖 · 8注".into(),
             detail: "原融合排名前14红、2蓝、8注16元；完整使用14红，每红出现3–4次，无隐含全胆。单注组合不保证包含全部开奖号。".into(),

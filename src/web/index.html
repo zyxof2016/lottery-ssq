@@ -18,9 +18,9 @@
 <div class="card"><h2>⚡ 按目标生成方案</h2><div class="grid3"><button v-for="p in presets" :key="p.id" :id="'preset-'+p.id" :class="['preset',{selected:activePreset===p.id}]" :disabled="generating||saving||syncing" @click="applyPreset(p.id)"><strong>{{ p.name }}</strong><small>{{ p.desc }}</small></button></div></div>
 <form class="card" @submit.prevent="generateCustom"><h2>🛠️ 自定义参数生成</h2><div class="grid4">
 <label class="field">选择玩法<input value="双色球 · 6 红 + 1 蓝" readonly></label>
-<label class="field" for="plan-mode">投注形态<select id="plan-mode" v-model="form.mode" @change="activePreset=''">
+<label class="field" for="plan-mode">投注形态<select id="plan-mode" v-model="form.mode" @change="activePreset='';form.ranking_model=form.mode==='frozen'?'weighted':form.ranking_model">
 <option value="pool_observation">分档号码池观察</option><option value="balanced">均衡覆盖单式</option><option value="single">单式多注</option><option value="compound_red">红球复式</option><option value="compound_blue">蓝球复式</option><option value="dantuo">胆拖投注</option><option value="frozen">协议冻结票组</option></select></label>
-<label class="field">选号机制<input value="按期更新 · 冻结融合排序" readonly></label>
+<label class="field" for="ranking-model">红球排名<select id="ranking-model" v-model="form.ranking_model" :disabled="form.mode==='frozen'"><option value="repeat_calibrated">重号偏置校准 · 试验</option><option value="weighted">协议加权融合</option></select></label>
 <label class="field" for="target-issue">目标期号<input id="target-issue" v-model="target" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" required placeholder="如 26118"></label>
 </div><div class="grid4 divider">
 <label v-if="form.mode==='pool_observation'" class="field" for="observation-size">观察档位<select id="observation-size" v-model.number="form.observation_size"><option v-for="(n,i) in [14,16,18,20,22,24]" :value="n">{{ String.fromCharCode(65+i) }}档 · {{ n }} 红</option></select></label>
@@ -42,12 +42,12 @@
 <div class="row between"><p class="muted">依据截止 {{ currentResult.cutoff_issue }}（{{ currentResult.cutoff_date }}）的数据。修改上方参数后，点击生成才会替换本次结果。</p><a v-if="resultArchive" :href="resultArchive.url" @click.prevent="openReviewUrl(resultArchive.url)">查看本次推荐留档 →</a></div>
 <template v-if="poolPreview"><p v-if="!poolCanFreeze" class="notice">{{ cycle?.reason }}。当前仅查看号码预览。</p>
 <div class="grid3"><div class="metric">所选红球<strong>{{ poolPreview.red_count }} 个</strong>较大档逐层包含较小档</div><div class="metric">共用蓝球<strong>{{ poolPreview.blue_count }} 个</strong>同一冻结排名</div><div class="metric">同大小均匀全 6 红基准<strong>{{ percent(poolPreview.uniform_full_red_rate) }}</strong>作为参照，不是模型置信度</div></div>
-<h3 style="margin-top:20px">本次观察号码池</h3><div class="balls"><span v-for="n in poolPreview.reds" :key="'r'+n" class="ball red">{{ pad(n) }}</span><span v-for="n in poolPreview.blues" :key="'b'+n" class="ball blue">{{ pad(n) }}</span></div>
+<h3 style="margin-top:20px">本次观察号码池 · {{ poolPreview.model_label }}</h3><div class="balls"><span v-for="n in poolPreview.reds" :key="'r'+n" class="ball red">{{ pad(n) }}</span><span v-for="n in poolPreview.blues" :key="'b'+n" class="ball blue">{{ pad(n) }}</span></div>
 <p class="muted" style="margin-top:16px">封存时同时保存 14／16／18／20／22／24 红六档 × 1–3 蓝，开奖后比较命中、漏号与最小全包档；已有每期档案保持首次版本。</p><a :href="researchUrl" @click.prevent="openTab('research',{view:'observations'})">查看六档号码与历史覆盖曲线 →</a>
 </template>
 <template v-else>
 <div class="grid4"><div class="metric">每期注数<strong>{{ plan.bet_count }} 注</strong>完整展开</div><div class="metric">每期成本<strong>{{ plan.cost }} 元</strong>每注 2 元</div><div class="metric">不同红球<strong>{{ planRedUnion.length }} 个</strong>票组红球并集</div><div class="metric">不同蓝球<strong>{{ planBlueUnion.length }} 个</strong>票组蓝球并集</div></div>
-<p class="muted" style="margin-top:16px">{{ plan.detail }}</p><p v-if="plan.requires_seal" class="muted">冻结票组保存时以生成时选定的北京时间截止封存。</p>
+<p class="muted" style="margin-top:16px">{{ plan.detail }}</p><p v-if="plan.ranking" class="notice">红球采用{{ plan.ranking.policy.label }}，与原协议排名分别留档；历史结果尚未证明稳定提高全6红率。</p><p v-if="plan.requires_seal" class="muted">冻结票组保存时以生成时选定的北京时间截止封存。</p>
 <div v-if="plan.bankers.length" style="margin-bottom:16px"><h3>胆码 / 拖码</h3><div class="balls"><span v-for="n in plan.bankers" :key="'bank'+n" class="ball red ring">{{ pad(n) }}</span><span class="muted">／</span><span v-for="n in plan.drags" :key="'drag'+n" class="ball red">{{ pad(n) }}</span></div></div>
 <div class="ticket-list"><div v-for="(t,i) in plan.tickets" :key="i" class="ticket-row"><span class="muted">第 {{ pad(i+1) }} 注</span><div class="balls"><span v-for="n in t.red" :key="n" :class="['ball','red','sm',{ring:plan.rescued.includes(n)}]">{{ pad(n) }}</span><span class="ball blue sm">{{ pad(t.blue) }}</span></div></div></div>
 </template>

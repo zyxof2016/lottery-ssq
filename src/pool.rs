@@ -9,6 +9,8 @@ use crate::select::{equal7, fuse6, fuse7, rank_desc, rank_log_score, softmax_shr
 use crate::stats::{binom, wilson, Rng};
 
 pub const VERSION: u32 = 3;
+pub const RANKED_VERSION: u32 = 4;
+pub const OBSERVATION_MODELS: [&str; 4] = ["weighted", "equal", "uniform", crate::ranking::MODEL];
 pub const COMPARISON_MODELS: [&str; 3] = ["weighted", "equal", "uniform"];
 pub const COMPARISON_LABELS: [&str; 3] = ["协议加权融合", "等权融合", "均匀红球对照"];
 pub const REPORT_VERSION: u32 = 3;
@@ -278,6 +280,24 @@ pub fn comparison_policy() -> Value {
         "note": "规则从首次保存三模型的期次起前瞻观察；只比较相同期次、相同红蓝数量。旧期不补造对照，不按近期胜率自动换模型。"})
 }
 
+pub fn ranked_comparison_policy() -> Value {
+    let mut value = comparison_policy();
+    value["version"] = json!(2);
+    value["models"] = json!(OBSERVATION_MODELS);
+    value["labels"] = json!([COMPARISON_LABELS[0],COMPARISON_LABELS[1],COMPARISON_LABELS[2],crate::ranking::LABEL]);
+    value["ranking_policy"] = crate::ranking::policy();
+    value["note"] = json!("新期同时冻结原三模型和重号偏置校准试验；旧档案不追加。新旧排名只比较共同保存的期次及相同红蓝数量，未验证稳定优势，不自动替换协议模型。");
+    value
+}
+
+pub fn saved_ranked(prepared: &Prepared, previous: u64) -> Value {
+    let mut value = saved(prepared);
+    value["version"] = json!(RANKED_VERSION);
+    value["comparison_policy"] = ranked_comparison_policy();
+    value["comparison_models"].as_array_mut().unwrap().push(crate::ranking::saved(prepared,previous));
+    value
+}
+
 fn uniform_ranking(issue: &str) -> Vec<u8> {
     let hash = crate::hash::sha256_hex(format!("ssq-pool-comparison-v1:{}:{issue}:red", Protocol::SEED).as_bytes());
     let mut rng = Rng::new(u64::from_str_radix(&hash[..16], 16).expect("sha256 prefix"));
@@ -312,7 +332,7 @@ pub fn reviewed_models(reviewed: &Value) -> Vec<Value> {
     if reviewed.is_null() { return Vec::new(); }
     let mut models = vec![json!({"model": "weighted", "pools": reviewed["pools"],
         "diagnostics": reviewed["diagnostics"], "smallest_full_red_tier": reviewed["smallest_full_red_tier"]})];
-    if reviewed["version"] == 3 {
+    if reviewed["version"] == 3 || reviewed["version"] == RANKED_VERSION {
         models.extend(reviewed["comparison_models"].as_array().into_iter().flatten().cloned());
     }
     models
@@ -326,27 +346,44 @@ pub fn review(saved: &Value, draw: Option<&Draw>) -> Result<Value, String> {
     let version = saved["version"].as_u64().ok_or("缺少选号池版本")?;
     let allowed_red_sizes = match version {
         1 => RED_SIZES.as_slice(),
-        2 | 3 => ARCHIVED_RED_SIZES.as_slice(),
+        2 | 3 | 4 => ARCHIVED_RED_SIZES.as_slice(),
         _ => return Err("不支持的选号池档案版本".into()),
     };
     let red_order = ranking(saved, "red_ranking", 33)?;
     let blue_order = ranking(saved, "blue_ranking", 16)?;
-    if version == 3 && (red_order.is_none() || blue_order.is_none()
-        || saved["comparison_policy"] != comparison_policy()) {
-        return Err("三模型档案缺少完整排名或固定对照规则".into());
+    let strict = version >= 3;
+    let expected_policy = if version == 4 {ranked_comparison_policy()} else {comparison_policy()};
+    if strict && (red_order.is_none() || blue_order.is_none()
+        || saved["comparison_policy"] != expected_policy) {
+        return Err("模型档案缺少完整排名或固定对照规则".into());
     }
-    let mut result = review_set(saved, draw, allowed_red_sizes, red_order.as_deref(), blue_order.as_deref(), "weighted", version == 3)?;
-    if version == 3 {
+    let mut result = review_set(saved, draw, allowed_red_sizes, red_order.as_deref(), blue_order.as_deref(), "weighted", strict)?;
+    if strict {
         let comparisons = saved["comparison_models"].as_array().ok_or("缺少对照模型")?;
-        if comparisons.len() != 2 { return Err("三模型档案必须保存等权和均匀两个对照".into()); }
+        let allowed = if version == 4 {&OBSERVATION_MODELS[1..]} else {&COMPARISON_MODELS[1..]};
+        if comparisons.len() != allowed.len() { return Err("档案缺少完整对照模型".into()); }
         let mut reviewed = Vec::new();
         let mut names = std::collections::BTreeSet::new();
         for model in comparisons {
             let name = model["model"].as_str().ok_or("缺少对照名称")?;
-            if !["equal", "uniform"].contains(&name) || !names.insert(name) {
+            if !allowed.contains(&name) || !names.insert(name) {
                 return Err("对照模型重复或无效".into());
             }
             let order = ranking(model, "red_ranking", 33)?.ok_or("对照缺少完整红球排名")?;
+            if name == crate::ranking::MODEL {
+                let previous:Vec<u8>=serde_json::from_value(model["previous_reds"].clone()).map_err(|_|"校准排名缺少上期号码")?;
+                if previous.len()!=6 || previous.iter().any(|&n|!(1..=33).contains(&n))
+                    || previous.iter().collect::<std::collections::BTreeSet<_>>().len()!=6
+                    || model["version"]!=crate::ranking::VERSION || model["policy"]!=crate::ranking::policy()
+                    || model["target_issue"]!=saved["target_issue"] {return Err("校准排名规则或上期号码无效".into());}
+                let mask=previous.iter().fold(0,|m,n|m|(1u64<<(n-1)));
+                let original:[f64;33]=serde_json::from_value::<Vec<f64>>(saved["red_scores"].clone()).map_err(|_|"缺少原融合分数")?.try_into().map_err(|_|"原分数须有33项")?;
+                if original.iter().any(|v|!v.is_finite()||*v<0.0) {return Err("原融合分数无效".into());}
+                let actual:[f64;33]=serde_json::from_value::<Vec<f64>>(model["red_scores"].clone()).map_err(|_|"缺少校准分数")?.try_into().map_err(|_|"校准分数须有33项")?;
+                let expected=crate::ranking::scores(&original,mask);
+                if actual.iter().zip(expected).any(|(a,b)|!a.is_finite() || (*a-b).abs()>1e-12)
+                    || order!=rank_desc(&expected).iter().map(|n|*n as u8+1).collect::<Vec<_>>() {return Err("校准分数与保存的排名不一致".into());}
+            }
             reviewed.push(review_set(model, draw, &TIER_RED_SIZES, Some(&order), blue_order.as_deref(), name, true)?);
         }
         result["comparison_models"] = json!(reviewed);
@@ -455,10 +492,10 @@ pub fn analyze(draws: &[Draw]) -> Result<Value, String> {
         "model": MODELS[i], "label": LABELS[i], "red_ranking": order.iter().map(|n| *n + 1).collect::<Vec<_>>()
     })).collect();
     Ok(json!({
-        "version": REPORT_VERSION, "archive_version": VERSION,
+        "version": REPORT_VERSION, "archive_version": RANKED_VERSION,
         "kind": "exploratory_small_pool_replay", "objective": "all_six_reds_with_fewer_selected_reds",
         "data_sha256": data_sha256(draws), "protocol_sha256": Protocol::sha256(),
-        "source_sha256": crate::hash::sha256_hex(concat!(include_str!("pool.rs"), include_str!("model.rs"), include_str!("select.rs"), include_str!("protocol.rs"), include_str!("eval.rs"), include_str!("stats.rs")).as_bytes()),
+        "source_sha256": crate::hash::sha256_hex(concat!(include_str!("pool.rs"), include_str!("model.rs"), include_str!("select.rs"), include_str!("protocol.rs"), include_str!("eval.rs"), include_str!("stats.rs"), include_str!("ranking.rs")).as_bytes()),
         "cutoff_issue": fmt_issue(prepared.cutoff_issue), "cutoff_date": fmt_date(prepared.cutoff_date), "suggested_target": fmt_issue(prepared.cutoff_issue + 1),
         "red_sizes": (6..=33).collect::<Vec<_>>(), "archived_red_sizes": ARCHIVED_RED_SIZES, "blue_sizes": BLUE_SIZES,
         "observation_tiers": tier_definitions(), "default_observation_blue_count": 2,
@@ -468,7 +505,7 @@ pub fn analyze(draws: &[Draw]) -> Result<Value, String> {
             "tracking": confirm_end.map(|e| summarize(&rows[e..].iter().collect::<Vec<_>>())),
             "all_oos": summarize(&rows.iter().collect::<Vec<_>>())},
         "next": {"actual_recommendation": false, "known_outcome_at_generation": false,
-            "candidate_models": next_models, "weighted_pools": review(&saved(&prepared), None)?},
+            "candidate_models": next_models, "weighted_pools": review(&saved_ranked(&prepared, draws.last().unwrap().red_mask), None)?},
         "notes": [
             "主要目标是用更少红球包含全部6个开奖红球；先比较14–24红，全6红率为主指标，蓝球1–3个及6红1蓝全包作辅助。",
             "全部历史为事后因果回放，不冒充实际发布。权重先用更早样本外记录展开拟合，25111起冻结；每期专家状态只用该期之前的数据。",
@@ -478,7 +515,8 @@ pub fn analyze(draws: &[Draw]) -> Result<Value, String> {
             "模型分数不是覆盖概率。缩小池会提高漏号风险，当前没有验证可用小池稳定包住全部开奖号。",
             "6–33红曲线报告全部大小；14–24红前沿只描述当前窗口中全包期数上升所需的最小数量，不能当作未来最优数量。",
             "扩大池本身会提高均匀全6红基准；全包率上升只有在相同大小下持续超过基准，才可能支持筛选能力提升。",
-            "新期留档使用14/16/18/20/22/24红六个观察档，各配1–3蓝，并保留原8/10/12红对照；全部共用冻结融合排序，较大池逐层包含较小池。",
+            "新期留档使用14/16/18/20/22/24红六档，各配1–3蓝，原加权另保留8/10/12红；加权、等权、均匀及校准试验各用自身红球排名，共用原蓝球排序，大档包含小档。",
+            "校准排名的历史同档位比较见覆盖复盘；它不加入原九模型检验，不替换协议模型，已有档案不追加。",
             "实际留档统计仅核对当期原池；没有保存观察档的旧期不补造。研究回放与实际留档分开计数，样本为0时实际覆盖率为空。"
         ]
     }))
@@ -528,6 +566,33 @@ pub fn render(report: &Value) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn calibrated_archives_validate_scores_and_keep_v3_models_unchanged() {
+        let draws=crate::draw::synth_draws(220,9);
+        let prepared=prepare_forecast(&draws).unwrap();
+        let original=saved(&prepared);
+        let saved=saved_ranked(&prepared,draws.last().unwrap().red_mask);
+        assert_eq!(reviewed_models(&review(&original,None).unwrap()).len(),3);
+        assert_eq!(reviewed_models(&review(&saved,None).unwrap()).len(),4);
+        assert_eq!(original["pools"],saved["pools"]);
+        assert_eq!(original["comparison_models"],json!(saved["comparison_models"].as_array().unwrap()[..2]));
+        let mut bad=saved.clone();
+        bad["comparison_models"][2]["red_scores"][0]=json!(0.9);
+        assert!(review(&bad,None).is_err());
+        let mut bad=saved.clone();
+        bad["comparison_models"][2]["red_ranking"].as_array_mut().unwrap().swap(0,32);
+        assert!(review(&bad,None).is_err());
+        let mut bad=saved.clone();
+        bad["comparison_models"][2]["previous_reds"]=json!([1,1,2,3,4,5]);
+        assert!(review(&bad,None).is_err());
+        let mut bad=saved.clone();
+        bad["comparison_models"][2]["pools"][0]["blues"]=json!([saved["blue_ranking"][15]]);
+        assert!(review(&bad,None).is_err());
+        let mut bad=saved;
+        bad["comparison_models"].as_array_mut().unwrap().pop();
+        assert!(review(&bad,None).is_err());
+    }
 
     #[test]
     fn theoretical_baselines_and_pool_scoring_use_draw_recall() {
