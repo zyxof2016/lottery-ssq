@@ -54,6 +54,11 @@ pub fn resolve(
     let mode = mode.unwrap_or("frozen");
     match mode {
         "frozen" => Ok(frozen_spec()),
+        "balanced" => Ok(Spec {
+            mode: "balanced", title: "均衡覆盖单式 · 试验".into(), detail: String::new(),
+            tickets: tickets.unwrap_or(8), pool: pool.unwrap_or(14), overlap: 5,
+            red_count: 6, blue_count: blue_count.unwrap_or(2), bankers: 0, drags: 0,
+        }),
         "single" => Ok(Spec {
             mode: "single",
             title: "单式多注".into(),
@@ -111,6 +116,7 @@ pub fn build(fc: &Forecast, spec: &Spec) -> Result<Plan, String> {
     let plan = match spec.mode {
         "frozen" => frozen_plan(fc, spec, rescued),
         "single" => single_plan(fc, spec, rescued)?,
+        "balanced" => balanced_plan(fc, spec)?,
         "compound_red" => compound_red(fc, spec, rescued)?,
         "compound_blue" => compound_blue(fc, spec, rescued)?,
         "dantuo" => dantuo(fc, spec, rescued)?,
@@ -125,6 +131,11 @@ pub fn build(fc: &Forecast, spec: &Spec) -> Result<Plan, String> {
 fn preset_spec(name: &str) -> Result<Spec, String> {
     Ok(match name {
         "frozen" => frozen_spec(),
+        "balanced14" => Spec {
+            mode: "balanced", title: "融合14红均衡覆盖 · 8注".into(),
+            detail: "原融合排名前14红、2蓝、8注16元；完整使用14红，每红出现3–4次，无隐含全胆。单注组合不保证包含全部开奖号。".into(),
+            tickets: 8, pool: 14, overlap: 5, red_count: 6, blue_count: 2, bankers: 0, drags: 0,
+        },
         "disjoint5" => Spec {
             mode: "single",
             title: "5 注红球不重叠".into(),
@@ -270,6 +281,18 @@ fn single_plan(fc: &Forecast, spec: &Spec, rescued: Vec<u8>) -> Result<Plan, Str
         );
     }
     Ok(finish(&spec, tickets, nums(&pool), vec![], vec![], blues, rescued))
+}
+
+fn balanced_plan(fc: &Forecast, spec: &Spec) -> Result<Plan,String> {
+    if !(1..=3).contains(&spec.blue_count) || spec.blue_count>spec.tickets {return Err("均衡覆盖蓝球须为1–3个且不多于注数".into());}
+    if !(12..=24).contains(&spec.pool) {return Err("均衡覆盖号码池须为12–24红".into());}
+    let pool=&fc.red_order[..spec.pool];
+    let masks=crate::coverage::balanced_tickets(pool,spec.tickets)?;
+    let blues=blues_of(fc,spec.blue_count);
+    let tickets=masks.into_iter().enumerate().map(|(i,m)|PlanTicket{red:mask_nums(m),blue:blues[i%blues.len()]}).collect();
+    let mut spec=spec.clone();
+    if spec.detail.is_empty(){spec.detail=format!("原融合排名前{}红、{}蓝、{}注，完整覆盖所选红球池并均衡单号曝光；固定试验规则，尚未证实预测优势。",spec.pool,spec.blue_count,spec.tickets);}
+    Ok(finish(&spec,tickets,nums(pool),vec![],vec![],blues,vec![]))
 }
 
 fn compound_red(fc: &Forecast, spec: &Spec, rescued: Vec<u8>) -> Result<Plan, String> {

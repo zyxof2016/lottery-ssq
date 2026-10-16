@@ -19,18 +19,18 @@
 <form class="card" @submit.prevent="generateCustom"><h2>🛠️ 自定义参数生成</h2><div class="grid4">
 <label class="field">选择玩法<input value="双色球 · 6 红 + 1 蓝" readonly></label>
 <label class="field" for="plan-mode">投注形态<select id="plan-mode" v-model="form.mode" @change="activePreset=''">
-<option value="pool_observation">分档号码池观察</option><option value="single">单式多注</option><option value="compound_red">红球复式</option><option value="compound_blue">蓝球复式</option><option value="dantuo">胆拖投注</option><option value="frozen">协议冻结票组</option></select></label>
+<option value="pool_observation">分档号码池观察</option><option value="balanced">均衡覆盖单式</option><option value="single">单式多注</option><option value="compound_red">红球复式</option><option value="compound_blue">蓝球复式</option><option value="dantuo">胆拖投注</option><option value="frozen">协议冻结票组</option></select></label>
 <label class="field">选号机制<input value="按期更新 · 冻结融合排序" readonly></label>
 <label class="field" for="target-issue">目标期号<input id="target-issue" v-model="target" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" required placeholder="如 26118"></label>
 </div><div class="grid4 divider">
 <label v-if="form.mode==='pool_observation'" class="field" for="observation-size">观察档位<select id="observation-size" v-model.number="form.observation_size"><option v-for="(n,i) in [14,16,18,20,22,24]" :value="n">{{ String.fromCharCode(65+i) }}档 · {{ n }} 红</option></select></label>
-<label v-if="form.mode==='single'" class="field">单式注数<input v-model.number="form.tickets" type="number" min="1" max="20" required></label>
-<label v-if="form.mode==='single'" class="field">候选红球数<input v-model.number="form.pool" type="number" min="6" max="33" required></label>
+<label v-if="['single','balanced'].includes(form.mode)" class="field">单式注数<input v-model.number="form.tickets" type="number" :min="form.mode==='balanced'?2:1" max="20" required></label>
+<label v-if="['single','balanced'].includes(form.mode)" class="field">候选红球数<input v-model.number="form.pool" type="number" :min="form.mode==='balanced'?12:6" :max="form.mode==='balanced'?24:33" required></label>
 <label v-if="form.mode==='single'" class="field">注间红球重合上限<input v-model.number="form.overlap" type="number" min="0" max="5" required></label>
 <label v-if="form.mode==='compound_red'" class="field">复式红球数<input v-model.number="form.red_count" type="number" min="7" max="10" required></label>
 <label v-if="form.mode==='dantuo'" class="field">胆码个数<input v-model.number="form.bankers" type="number" min="1" max="5" required></label>
 <label v-if="form.mode==='dantuo'" class="field">拖码个数<input v-model.number="form.drags" type="number" min="2" max="15" required></label>
-<label v-if="form.mode!=='frozen'" class="field">蓝球个数<select v-model.number="form.blue_count"><option v-for="n in (form.mode==='pool_observation'?[1,2,3]:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])" :value="n">{{ n }} 个</option></select></label>
+<label v-if="form.mode!=='frozen'" class="field">蓝球个数<select v-model.number="form.blue_count"><option v-for="n in (['pool_observation','balanced'].includes(form.mode)?[1,2,3]:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])" :value="n">{{ n }} 个</option></select></label>
 <label v-if="form.mode==='frozen'" class="field" for="seal-deadline">封存截止（北京时间）<input id="seal-deadline" v-model="deadline" type="datetime-local" required></label>
 <div class="field"><span class="muted">{{ form.mode==='pool_observation'?'只生成号码池，不展开复式':'按完整展开票组计算，最多 300 注' }}</span><button class="primary" type="submit" :disabled="generating||saving||syncing">{{ generating?'生成计算中…':'立即生成方案' }}</button></div>
 </div></form>

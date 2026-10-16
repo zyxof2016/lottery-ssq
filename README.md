@@ -22,7 +22,7 @@ cargo run --release -- cycle --data data/ssq.csv --audit audit/log.jsonl --out p
 
 本地网页默认监听 http://127.0.0.1:6791/ 。`serve` 只提供网页和接口；自动同步、封存和复盘需要外部定时任务周期性调用 `cycle`，建议每 30 分钟一次。
 
-每期推荐与复盘入口是 `/reviews`（反向代理部署时为 `/ssq/reviews`），首页导航也可进入。新建的每期留档包含原 7 个预设和少注覆盖 v1 的 9 个方案，共 16 个完整单注票组，并保留所用的评分、名次、专家权重和筛选轨迹；均匀分散对照不填写模型评分。页面支持同预算对照、同覆盖减注结构试算、漏斗、号码筛选、逐注对奖及 JSON/CSV 导出，已有档案保持原方案数量。
+每期推荐与复盘入口是 `/reviews`（反向代理部署时为 `/ssq/reviews`），首页导航也可进入。新版首次每日留档包含原 7 个预设、少注覆盖 v1 的 9 个方案，以及新增的融合前14红均衡8注，共 17 个完整单注票组，并保留评分、名次、专家权重和筛选轨迹；均匀分散对照不填写模型评分。已有档案保持原方案数量。均衡组票完整使用所选红球池，14红8注时每红出现3–4次，避免隐含全胆；原冻结8注、融合排名和六档号码池规则不变。
 
 `cycle` 在常规开奖截止前自动留档下一期，开奖数据同步后按原票组保存复盘；网页也提供手动留档、同步和核对入口。生成或保存个人方案时会留下实际推荐档案，重复操作保留首次版本。旧版保存记录可按原票面复盘，但不补造当时的模型证据。历史没有实际推荐的期号明确标为缺档，待开奖的命中和奖金显示为空。档案放在 `--out` 发布目录同级的 `recommendations/`，详情见 [每期推荐与复盘说明](docs/recommendation-reviews.md)。
 
@@ -43,6 +43,8 @@ cargo run --release -- cycle --data data/ssq.csv --audit audit/log.jsonl --out p
 `cargo run --release -- pool-review --data data/ssq.csv --out small-pool.txt --json small-pool.json` 可复现因果回放。[红球数量比较](docs/red-pool-size-review-2026-10-14.txt) 与 [完整曲线数据](docs/red-pool-size-review-2026-10-14.json) 为探索性回放，不作为预测优势证明；[原小池复盘](docs/small-pool-review-2026-10-14.txt) 保留原快照。
 
 ## 选号依据复盘
+
+最新 [26118期覆盖复盘与组票优化](docs/coverage-review-2026-10-16.txt) 单列实际档案与历史试算。网页研究区域新增覆盖复盘，接口为 `GET /api/coverage`；`cargo run --release --example coverage_review -- data/ssq.csv` 可复现研究。限制重号的均衡排名在近60期小池表现较差，仅保留为未采用研究；上线的是保持原融合排序的均衡组票。26119期已经冻结，不补入新方案，后续首次冻结的新期开始保存。
 
 `cargo run --release --example selection_review -- data/ssq.csv > selection-review.json` 提供最近 30/60 期、固定确认窗和后续跟踪窗的同预算回放，比较原冻结票组、同池均衡组票、15 码候选池和四蓝。每组均为 8 注、16 元，同时报告单注命中、并集覆盖及其均匀基准、单号曝光和蓝球命中注数。研究程序只读数据，实验票面用于前瞻观察。
 

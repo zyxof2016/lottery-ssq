@@ -1,5 +1,6 @@
 pub mod audit;
 pub mod cycle;
+pub mod coverage;
 pub mod draw;
 pub mod efficiency;
 pub mod eval;

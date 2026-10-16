@@ -1,0 +1,3808 @@
+{
+  "kind": "saved_archive_review_and_separate_exploratory_replay",
+  "reviewed_at": "2026-10-16T12:05:26.057068+08:00",
+  "official_draw_source": "https://www.szlottery.org/fcw/kjxx/szzjxx/ssq/content/post_1981456.html",
+  "actual_archive": {
+    "actual_recommendation": true,
+    "issue": "26118",
+    "draw": {
+      "blue": 14,
+      "date": "2026-10-15",
+      "issue": "26118",
+      "red": [
+        5,
+        21,
+        22,
+        23,
+        28,
+        31
+      ]
+    },
+    "provenance": {
+      "data_cutoff": "26117",
+      "evidence_available": true,
+      "independent_timestamp_verified": false,
+      "kind": "daily",
+      "known_outcome_at_generation": false,
+      "operational_cutoff_unix": 1792069800,
+      "published_at_unix": 1791958509,
+      "raw_file": "daily/26118.json",
+      "review_file": "reviews/26118/daily.json",
+      "review_persisted": true,
+      "saved_after_scheduled_draw": false,
+      "schedule_verified": false,
+      "sha256": "2623c692d3b2c5ab70a343a8df76a9fe0154842c5c266cb7df456bed90640db3"
+    },
+    "number_pools": {
+      "version": 2,
+      "diagnostics": {
+        "is_recommended_pool": false,
+        "kind": "post_draw_saved_ranking_diagnostic",
+        "minimum_full_red_prefix": 33,
+        "note": "按开奖前保存的完整排名计算，仅用于漏号诊断；这个最小前缀不是当时推荐的号码池。",
+        "winning_blue_rank": 9,
+        "winning_red_ranks": [
+          {
+            "number": 5,
+            "rank": 14
+          },
+          {
+            "number": 21,
+            "rank": 7
+          },
+          {
+            "number": 22,
+            "rank": 3
+          },
+          {
+            "number": 23,
+            "rank": 33
+          },
+          {
+            "number": 28,
+            "rank": 31
+          },
+          {
+            "number": 31,
+            "rank": 29
+          }
+        ]
+      },
+      "smallest_full_red_tier": null
+    },
+    "strategies": [
+      {
+        "name": "blue2",
+        "title": "蓝球复式 2 码",
+        "summary": {
+          "all_ticket_reds": [
+            4,
+            11,
+            14,
+            22,
+            26,
+            27
+          ],
+          "bets": 2,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.5,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 4,
+          "covered_red_count": 1,
+          "covered_reds": [
+            22
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 1,
+          "max_red_exposure": 2,
+          "max_ticket_red_hits": 1,
+          "mean_ticket_red_hits": 1.0,
+          "minimum_union_bets": 2,
+          "missed_reds": [
+            5,
+            21,
+            23,
+            28,
+            31
+          ],
+          "missed_reds_by_reason": {
+            "below_candidate_cutoff": 5
+          },
+          "prize_tickets": 0,
+          "red_coverage": 6,
+          "red_coverage_excess": -0.09090909090909083,
+          "red_coverage_per_yuan": 1.5,
+          "red_hit_histogram": {
+            "1": 2
+          },
+          "repeated_blue_positions": 0,
+          "repeated_red_positions": 6,
+          "special_prize_candidates": 0,
+          "total_red_positions": 12,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.125,
+          "uniform_expected_red_hits": 1.0909090909090908,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            4,
+            12
+          ],
+          "unique_reds": [
+            4,
+            11,
+            14,
+            22,
+            26,
+            27
+          ]
+        }
+      },
+      {
+        "name": "compound7",
+        "title": "红球复式 7 码",
+        "summary": {
+          "all_ticket_reds": [],
+          "bets": 7,
+          "blue_coverage": 1,
+          "blue_coverage_excess": -0.0625,
+          "blue_coverage_per_yuan": 0.07142857142857142,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 14,
+          "covered_red_count": 2,
+          "covered_reds": [
+            21,
+            22
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 7,
+          "max_red_exposure": 6,
+          "max_ticket_red_hits": 2,
+          "mean_ticket_red_hits": 1.7142857142857142,
+          "minimum_union_bets": 2,
+          "missed_reds": [
+            5,
+            23,
+            28,
+            31
+          ],
+          "missed_reds_by_reason": {
+            "below_candidate_cutoff": 4
+          },
+          "prize_tickets": 0,
+          "red_coverage": 7,
+          "red_coverage_excess": 0.7272727272727273,
+          "red_coverage_per_yuan": 0.5,
+          "red_hit_histogram": {
+            "1": 2,
+            "2": 5
+          },
+          "repeated_blue_positions": 6,
+          "repeated_red_positions": 35,
+          "special_prize_candidates": 0,
+          "total_red_positions": 42,
+          "uniform_expected_blue_coverage": 0.0625,
+          "uniform_expected_blue_hit_bets": 0.4375,
+          "uniform_expected_red_hits": 1.2727272727272727,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            4
+          ],
+          "unique_reds": [
+            4,
+            11,
+            14,
+            21,
+            22,
+            26,
+            27
+          ]
+        }
+      },
+      {
+        "name": "compound8",
+        "title": "红球复式 8 码",
+        "summary": {
+          "all_ticket_reds": [],
+          "bets": 28,
+          "blue_coverage": 1,
+          "blue_coverage_excess": -0.0625,
+          "blue_coverage_per_yuan": 0.017857142857142856,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 56,
+          "covered_red_count": 2,
+          "covered_reds": [
+            21,
+            22
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 28,
+          "max_red_exposure": 21,
+          "max_ticket_red_hits": 2,
+          "mean_ticket_red_hits": 1.5,
+          "minimum_union_bets": 2,
+          "missed_reds": [
+            5,
+            23,
+            28,
+            31
+          ],
+          "missed_reds_by_reason": {
+            "below_candidate_cutoff": 4
+          },
+          "prize_tickets": 0,
+          "red_coverage": 8,
+          "red_coverage_excess": 0.5454545454545454,
+          "red_coverage_per_yuan": 0.14285714285714285,
+          "red_hit_histogram": {
+            "0": 1,
+            "1": 12,
+            "2": 15
+          },
+          "repeated_blue_positions": 27,
+          "repeated_red_positions": 160,
+          "special_prize_candidates": 0,
+          "total_red_positions": 168,
+          "uniform_expected_blue_coverage": 0.0625,
+          "uniform_expected_blue_hit_bets": 1.75,
+          "uniform_expected_red_hits": 1.4545454545454546,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            4
+          ],
+          "unique_reds": [
+            4,
+            8,
+            11,
+            14,
+            21,
+            22,
+            26,
+            27
+          ]
+        }
+      },
+      {
+        "name": "dantuo",
+        "title": "2 胆 6 拖",
+        "summary": {
+          "all_ticket_reds": [
+            4,
+            14
+          ],
+          "bets": 15,
+          "blue_coverage": 1,
+          "blue_coverage_excess": -0.0625,
+          "blue_coverage_per_yuan": 0.03333333333333333,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 30,
+          "covered_red_count": 2,
+          "covered_reds": [
+            21,
+            22
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 15,
+          "max_red_exposure": 15,
+          "max_ticket_red_hits": 2,
+          "mean_ticket_red_hits": 1.3333333333333333,
+          "minimum_union_bets": 2,
+          "missed_reds": [
+            5,
+            23,
+            28,
+            31
+          ],
+          "missed_reds_by_reason": {
+            "below_candidate_cutoff": 4
+          },
+          "prize_tickets": 0,
+          "red_coverage": 8,
+          "red_coverage_excess": 0.5454545454545454,
+          "red_coverage_per_yuan": 0.26666666666666666,
+          "red_hit_histogram": {
+            "0": 1,
+            "1": 8,
+            "2": 6
+          },
+          "repeated_blue_positions": 14,
+          "repeated_red_positions": 82,
+          "special_prize_candidates": 0,
+          "total_red_positions": 90,
+          "uniform_expected_blue_coverage": 0.0625,
+          "uniform_expected_blue_hit_bets": 0.9375,
+          "uniform_expected_red_hits": 1.4545454545454546,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            4
+          ],
+          "unique_reds": [
+            4,
+            8,
+            11,
+            14,
+            21,
+            22,
+            26,
+            27
+          ]
+        }
+      },
+      {
+        "name": "disjoint5",
+        "title": "5 注红球不重叠",
+        "summary": {
+          "all_ticket_reds": [],
+          "bets": 5,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.2,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 10,
+          "covered_red_count": 4,
+          "covered_reds": [
+            5,
+            21,
+            22,
+            31
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 3,
+          "max_red_exposure": 1,
+          "max_ticket_red_hits": 1,
+          "mean_ticket_red_hits": 0.8,
+          "minimum_union_bets": 5,
+          "missed_reds": [
+            23,
+            28
+          ],
+          "missed_reds_by_reason": {
+            "below_candidate_cutoff": 2
+          },
+          "prize_tickets": 0,
+          "red_coverage": 30,
+          "red_coverage_excess": -1.4545454545454541,
+          "red_coverage_per_yuan": 3.0,
+          "red_hit_histogram": {
+            "0": 1,
+            "1": 4
+          },
+          "repeated_blue_positions": 3,
+          "repeated_red_positions": 0,
+          "special_prize_candidates": 0,
+          "total_red_positions": 30,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.3125,
+          "uniform_expected_red_hits": 5.454545454545454,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            4,
+            12
+          ],
+          "unique_reds": [
+            1,
+            2,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            24,
+            25,
+            26,
+            27,
+            29,
+            30,
+            31,
+            32,
+            33
+          ]
+        }
+      },
+      {
+        "name": "efficiency:compact",
+        "title": "同覆盖最少注重组",
+        "summary": {
+          "all_ticket_reds": [
+            4,
+            14
+          ],
+          "bets": 2,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.5,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 4,
+          "covered_red_count": 2,
+          "covered_reds": [
+            21,
+            22
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 1,
+          "max_red_exposure": 2,
+          "max_ticket_red_hits": 2,
+          "mean_ticket_red_hits": 1.0,
+          "minimum_union_bets": 2,
+          "missed_reds": [
+            5,
+            23,
+            28,
+            31
+          ],
+          "missed_reds_by_reason": {
+            "below_candidate_cutoff": 4
+          },
+          "prize_tickets": 0,
+          "red_coverage": 10,
+          "red_coverage_excess": 0.18181818181818188,
+          "red_coverage_per_yuan": 2.5,
+          "red_hit_histogram": {
+            "0": 1,
+            "2": 1
+          },
+          "repeated_blue_positions": 0,
+          "repeated_red_positions": 2,
+          "special_prize_candidates": 0,
+          "total_red_positions": 12,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.125,
+          "uniform_expected_red_hits": 1.8181818181818181,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            4,
+            12
+          ],
+          "unique_reds": [
+            4,
+            8,
+            11,
+            14,
+            21,
+            22,
+            24,
+            25,
+            26,
+            27
+          ]
+        }
+      },
+      {
+        "name": "efficiency:model:2",
+        "title": "2注融合排名分散",
+        "summary": {
+          "all_ticket_reds": [],
+          "bets": 2,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.5,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 4,
+          "covered_red_count": 2,
+          "covered_reds": [
+            21,
+            22
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 1,
+          "max_red_exposure": 1,
+          "max_ticket_red_hits": 2,
+          "mean_ticket_red_hits": 1.0,
+          "minimum_union_bets": 2,
+          "missed_reds": [
+            5,
+            23,
+            28,
+            31
+          ],
+          "missed_reds_by_reason": {
+            "below_candidate_cutoff": 4
+          },
+          "prize_tickets": 0,
+          "red_coverage": 12,
+          "red_coverage_excess": -0.18181818181818166,
+          "red_coverage_per_yuan": 3.0,
+          "red_hit_histogram": {
+            "0": 1,
+            "2": 1
+          },
+          "repeated_blue_positions": 0,
+          "repeated_red_positions": 0,
+          "special_prize_candidates": 0,
+          "total_red_positions": 12,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.125,
+          "uniform_expected_red_hits": 2.1818181818181817,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            4,
+            12
+          ],
+          "unique_reds": [
+            4,
+            6,
+            8,
+            9,
+            11,
+            14,
+            21,
+            22,
+            24,
+            25,
+            26,
+            27
+          ]
+        }
+      },
+      {
+        "name": "efficiency:model:3",
+        "title": "3注融合排名分散",
+        "summary": {
+          "all_ticket_reds": [],
+          "bets": 3,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.3333333333333333,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 6,
+          "covered_red_count": 3,
+          "covered_reds": [
+            5,
+            21,
+            22
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 2,
+          "max_red_exposure": 1,
+          "max_ticket_red_hits": 1,
+          "mean_ticket_red_hits": 1.0,
+          "minimum_union_bets": 3,
+          "missed_reds": [
+            23,
+            28,
+            31
+          ],
+          "missed_reds_by_reason": {
+            "below_candidate_cutoff": 3
+          },
+          "prize_tickets": 0,
+          "red_coverage": 18,
+          "red_coverage_excess": -0.27272727272727293,
+          "red_coverage_per_yuan": 3.0,
+          "red_hit_histogram": {
+            "1": 3
+          },
+          "repeated_blue_positions": 1,
+          "repeated_red_positions": 0,
+          "special_prize_candidates": 0,
+          "total_red_positions": 18,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.1875,
+          "uniform_expected_red_hits": 3.272727272727273,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            4,
+            12
+          ],
+          "unique_reds": [
+            1,
+            2,
+            4,
+            5,
+            6,
+            8,
+            9,
+            11,
+            13,
+            14,
+            15,
+            21,
+            22,
+            24,
+            25,
+            26,
+            27,
+            30
+          ]
+        }
+      },
+      {
+        "name": "efficiency:model:4",
+        "title": "4注融合排名分散",
+        "summary": {
+          "all_ticket_reds": [],
+          "bets": 4,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.25,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 8,
+          "covered_red_count": 3,
+          "covered_reds": [
+            5,
+            21,
+            22
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 2,
+          "max_red_exposure": 1,
+          "max_ticket_red_hits": 2,
+          "mean_ticket_red_hits": 0.75,
+          "minimum_union_bets": 4,
+          "missed_reds": [
+            23,
+            28,
+            31
+          ],
+          "missed_reds_by_reason": {
+            "below_candidate_cutoff": 3
+          },
+          "prize_tickets": 0,
+          "red_coverage": 24,
+          "red_coverage_excess": -1.3636363636363633,
+          "red_coverage_per_yuan": 3.0,
+          "red_hit_histogram": {
+            "0": 2,
+            "1": 1,
+            "2": 1
+          },
+          "repeated_blue_positions": 2,
+          "repeated_red_positions": 0,
+          "special_prize_candidates": 0,
+          "total_red_positions": 24,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.25,
+          "uniform_expected_red_hits": 4.363636363636363,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            4,
+            12
+          ],
+          "unique_reds": [
+            1,
+            2,
+            4,
+            5,
+            6,
+            8,
+            9,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            18,
+            20,
+            21,
+            22,
+            24,
+            25,
+            26,
+            27,
+            30,
+            32,
+            33
+          ]
+        }
+      },
+      {
+        "name": "efficiency:model:5",
+        "title": "5注融合排名分散",
+        "summary": {
+          "all_ticket_reds": [],
+          "bets": 5,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.2,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 10,
+          "covered_red_count": 4,
+          "covered_reds": [
+            5,
+            21,
+            22,
+            31
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 3,
+          "max_red_exposure": 1,
+          "max_ticket_red_hits": 2,
+          "mean_ticket_red_hits": 0.8,
+          "minimum_union_bets": 5,
+          "missed_reds": [
+            23,
+            28
+          ],
+          "missed_reds_by_reason": {
+            "below_candidate_cutoff": 2
+          },
+          "prize_tickets": 0,
+          "red_coverage": 30,
+          "red_coverage_excess": -1.4545454545454541,
+          "red_coverage_per_yuan": 3.0,
+          "red_hit_histogram": {
+            "0": 2,
+            "1": 2,
+            "2": 1
+          },
+          "repeated_blue_positions": 3,
+          "repeated_red_positions": 0,
+          "special_prize_candidates": 0,
+          "total_red_positions": 30,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.3125,
+          "uniform_expected_red_hits": 5.454545454545454,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            4,
+            12
+          ],
+          "unique_reds": [
+            1,
+            2,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            24,
+            25,
+            26,
+            27,
+            29,
+            30,
+            31,
+            32,
+            33
+          ]
+        }
+      },
+      {
+        "name": "efficiency:uniform:2",
+        "title": "2注均匀对照分散",
+        "summary": {
+          "all_ticket_reds": [],
+          "bets": 2,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.5,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 4,
+          "covered_red_count": 2,
+          "covered_reds": [
+            21,
+            23
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 1,
+          "max_red_exposure": 1,
+          "max_ticket_red_hits": 1,
+          "mean_ticket_red_hits": 1.0,
+          "minimum_union_bets": 2,
+          "missed_reds": [
+            5,
+            22,
+            28,
+            31
+          ],
+          "missed_reds_by_reason": {
+            "structural_unselected": 4
+          },
+          "prize_tickets": 0,
+          "red_coverage": 12,
+          "red_coverage_excess": -0.18181818181818166,
+          "red_coverage_per_yuan": 3.0,
+          "red_hit_histogram": {
+            "1": 2
+          },
+          "repeated_blue_positions": 0,
+          "repeated_red_positions": 0,
+          "special_prize_candidates": 0,
+          "total_red_positions": 12,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.125,
+          "uniform_expected_red_hits": 2.1818181818181817,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            2,
+            11
+          ],
+          "unique_reds": [
+            1,
+            2,
+            8,
+            18,
+            19,
+            20,
+            21,
+            23,
+            24,
+            27,
+            29,
+            32
+          ]
+        }
+      },
+      {
+        "name": "efficiency:uniform:3",
+        "title": "3注均匀对照分散",
+        "summary": {
+          "all_ticket_reds": [],
+          "bets": 3,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.3333333333333333,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 6,
+          "covered_red_count": 3,
+          "covered_reds": [
+            5,
+            21,
+            23
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 2,
+          "max_red_exposure": 1,
+          "max_ticket_red_hits": 2,
+          "mean_ticket_red_hits": 1.0,
+          "minimum_union_bets": 3,
+          "missed_reds": [
+            22,
+            28,
+            31
+          ],
+          "missed_reds_by_reason": {
+            "structural_unselected": 3
+          },
+          "prize_tickets": 0,
+          "red_coverage": 18,
+          "red_coverage_excess": -0.27272727272727293,
+          "red_coverage_per_yuan": 3.0,
+          "red_hit_histogram": {
+            "0": 1,
+            "1": 1,
+            "2": 1
+          },
+          "repeated_blue_positions": 1,
+          "repeated_red_positions": 0,
+          "special_prize_candidates": 0,
+          "total_red_positions": 18,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.1875,
+          "uniform_expected_red_hits": 3.272727272727273,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            2,
+            11
+          ],
+          "unique_reds": [
+            1,
+            2,
+            5,
+            8,
+            14,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            23,
+            24,
+            27,
+            29,
+            30,
+            32,
+            33
+          ]
+        }
+      },
+      {
+        "name": "efficiency:uniform:4",
+        "title": "4注均匀对照分散",
+        "summary": {
+          "all_ticket_reds": [],
+          "bets": 4,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.25,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 8,
+          "covered_red_count": 4,
+          "covered_reds": [
+            5,
+            21,
+            23,
+            28
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 2,
+          "max_red_exposure": 1,
+          "max_ticket_red_hits": 2,
+          "mean_ticket_red_hits": 1.0,
+          "minimum_union_bets": 4,
+          "missed_reds": [
+            22,
+            31
+          ],
+          "missed_reds_by_reason": {
+            "structural_unselected": 2
+          },
+          "prize_tickets": 0,
+          "red_coverage": 24,
+          "red_coverage_excess": -0.3636363636363633,
+          "red_coverage_per_yuan": 3.0,
+          "red_hit_histogram": {
+            "0": 2,
+            "2": 2
+          },
+          "repeated_blue_positions": 2,
+          "repeated_red_positions": 0,
+          "special_prize_candidates": 0,
+          "total_red_positions": 24,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.25,
+          "uniform_expected_red_hits": 4.363636363636363,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            2,
+            11
+          ],
+          "unique_reds": [
+            1,
+            2,
+            5,
+            8,
+            9,
+            10,
+            11,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            23,
+            24,
+            25,
+            27,
+            28,
+            29,
+            30,
+            32,
+            33
+          ]
+        }
+      },
+      {
+        "name": "efficiency:uniform:5",
+        "title": "5注均匀对照分散",
+        "summary": {
+          "all_ticket_reds": [],
+          "bets": 5,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.2,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 10,
+          "covered_red_count": 6,
+          "covered_reds": [
+            5,
+            21,
+            22,
+            23,
+            28,
+            31
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 3,
+          "max_red_exposure": 1,
+          "max_ticket_red_hits": 2,
+          "mean_ticket_red_hits": 1.2,
+          "minimum_union_bets": 5,
+          "missed_reds": [],
+          "missed_reds_by_reason": {},
+          "prize_tickets": 0,
+          "red_coverage": 30,
+          "red_coverage_excess": 0.5454545454545459,
+          "red_coverage_per_yuan": 3.0,
+          "red_hit_histogram": {
+            "0": 1,
+            "1": 2,
+            "2": 2
+          },
+          "repeated_blue_positions": 3,
+          "repeated_red_positions": 0,
+          "special_prize_candidates": 0,
+          "total_red_positions": 30,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.3125,
+          "uniform_expected_red_hits": 5.454545454545454,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            2,
+            11
+          ],
+          "unique_reds": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33
+          ]
+        }
+      },
+      {
+        "name": "frozen",
+        "title": "冻结发布 8 注",
+        "summary": {
+          "all_ticket_reds": [
+            4,
+            14
+          ],
+          "bets": 8,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.125,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_count": 2,
+          "covered_reds": [
+            21,
+            22
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 4,
+          "max_red_exposure": 8,
+          "max_ticket_red_hits": 2,
+          "mean_ticket_red_hits": 1.375,
+          "minimum_union_bets": 2,
+          "missed_reds": [
+            5,
+            23,
+            28,
+            31
+          ],
+          "missed_reds_by_reason": {
+            "below_candidate_cutoff": 3,
+            "replaced_by_rescue": 1
+          },
+          "prize_tickets": 0,
+          "red_coverage": 10,
+          "red_coverage_excess": 0.18181818181818188,
+          "red_coverage_per_yuan": 0.625,
+          "red_hit_histogram": {
+            "1": 5,
+            "2": 3
+          },
+          "repeated_blue_positions": 6,
+          "repeated_red_positions": 38,
+          "special_prize_candidates": 0,
+          "total_red_positions": 48,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.5,
+          "uniform_expected_red_hits": 1.8181818181818181,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            4,
+            12
+          ],
+          "unique_reds": [
+            4,
+            8,
+            11,
+            14,
+            21,
+            22,
+            24,
+            25,
+            26,
+            27
+          ]
+        }
+      },
+      {
+        "name": "single8",
+        "title": "8 注低重合单式",
+        "summary": {
+          "all_ticket_reds": [
+            4,
+            14
+          ],
+          "bets": 8,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.125,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_count": 2,
+          "covered_reds": [
+            21,
+            22
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 4,
+          "max_red_exposure": 8,
+          "max_ticket_red_hits": 2,
+          "mean_ticket_red_hits": 1.375,
+          "minimum_union_bets": 2,
+          "missed_reds": [
+            5,
+            23,
+            28,
+            31
+          ],
+          "missed_reds_by_reason": {
+            "below_candidate_cutoff": 3,
+            "not_selected_by_ticket_objective": 1
+          },
+          "prize_tickets": 0,
+          "red_coverage": 10,
+          "red_coverage_excess": 0.18181818181818188,
+          "red_coverage_per_yuan": 0.625,
+          "red_hit_histogram": {
+            "1": 5,
+            "2": 3
+          },
+          "repeated_blue_positions": 6,
+          "repeated_red_positions": 38,
+          "special_prize_candidates": 0,
+          "total_red_positions": 48,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.5,
+          "uniform_expected_red_hits": 1.8181818181818181,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            4,
+            12
+          ],
+          "unique_reds": [
+            4,
+            8,
+            11,
+            14,
+            21,
+            22,
+            24,
+            25,
+            26,
+            27
+          ]
+        }
+      }
+    ]
+  },
+  "research": {
+    "actual_recommendation": false,
+    "adoption": {
+      "decision_cutoff": "26118",
+      "live_ticket_ranking": "weighted",
+      "rank_candidate_promoted": false,
+      "reason": "截至26118的近60期，均衡排名在14/18红的全6红和平均覆盖均未优于原排名，保留为只读研究；只上线可核对的均衡组票。"
+    },
+    "cutoff_issue": "26118",
+    "data_sha256": "a88c8efb73b537bfd85450f3df2e42b613e920e939ce80b5271afef05703818e",
+    "kind": "exploratory_coverage_optimization_replay",
+    "latest_replay": {
+      "equal_blue_rank": 7,
+      "issue": "26118",
+      "models": [
+        {
+          "hits": [
+            3,
+            3,
+            3,
+            3,
+            3,
+            3
+          ],
+          "minimum_full_red_prefix": 33,
+          "model": "weighted",
+          "previous_selected": [
+            6,
+            6,
+            6,
+            6,
+            6,
+            6
+          ],
+          "winning_red_ranks": [
+            3,
+            7,
+            14,
+            29,
+            31,
+            33
+          ]
+        },
+        {
+          "hits": [
+            2,
+            3,
+            3,
+            3,
+            3,
+            3
+          ],
+          "minimum_full_red_prefix": 33,
+          "model": "equal",
+          "previous_selected": [
+            6,
+            6,
+            6,
+            6,
+            6,
+            6
+          ],
+          "winning_red_ranks": [
+            3,
+            7,
+            15,
+            25,
+            27,
+            33
+          ]
+        },
+        {
+          "hits": [
+            1,
+            1,
+            2,
+            2,
+            3,
+            3
+          ],
+          "minimum_full_red_prefix": 33,
+          "model": "balanced_rank",
+          "previous_selected": [
+            3,
+            3,
+            4,
+            4,
+            4,
+            5
+          ],
+          "winning_red_ranks": [
+            14,
+            17,
+            22,
+            29,
+            30,
+            33
+          ]
+        }
+      ],
+      "tickets": {
+        "balanced14_rank": {
+          "best_red": 1,
+          "bets": 8,
+          "cost": 16,
+          "max_exposure": 4,
+          "mean_ticket_red_hits": 0.375,
+          "red_hits": 1,
+          "red_union": 14
+        },
+        "balanced_same12": {
+          "best_red": 2,
+          "bets": 8,
+          "cost": 16,
+          "max_exposure": 4,
+          "mean_ticket_red_hits": 1.0,
+          "red_hits": 2,
+          "red_union": 12
+        },
+        "frozen": {
+          "best_red": 2,
+          "bets": 8,
+          "cost": 16,
+          "max_exposure": 8,
+          "mean_ticket_red_hits": 1.375,
+          "red_hits": 2,
+          "red_union": 10
+        },
+        "weighted14_balanced": {
+          "best_red": 2,
+          "bets": 8,
+          "cost": 16,
+          "max_exposure": 4,
+          "mean_ticket_red_hits": 1.25,
+          "red_hits": 3,
+          "red_union": 14
+        },
+        "weighted14_greedy": {
+          "best_red": 2,
+          "bets": 8,
+          "cost": 16,
+          "max_exposure": 8,
+          "mean_ticket_red_hits": 1.375,
+          "red_hits": 2,
+          "red_union": 10
+        }
+      },
+      "weighted_blue_rank": 9
+    },
+    "next_preview": {
+      "blue_ranking": [
+        14,
+        4,
+        11,
+        13,
+        3,
+        12,
+        1,
+        15,
+        7,
+        16,
+        5,
+        6,
+        9,
+        2,
+        10,
+        8
+      ],
+      "model": "balanced_rank",
+      "policy": {
+        "automatic_promotion": false,
+        "blue_scope": "shared_weighted_blue_ranking",
+        "label": "均衡排名试验",
+        "model": "balanced_rank",
+        "note": "七专家先转并列中位名次，每号去掉最高和最低名次后平均；每个前缀限制上期号码集中度。固定规则试验，未证实优于原模型。",
+        "rank_method": "seven_expert_midranks_trim_one_each_end",
+        "repeat_cap": "ceil(6 * prefix_size / 33)",
+        "ticket_objective": "full_pool_union_balanced_exposure_unique_red_combinations",
+        "version": 1
+      },
+      "pools": [
+        {
+          "blue_count": 1,
+          "blues": [
+            14
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red14_blue1",
+          "model": "balanced_rank",
+          "red_count": 14,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20
+          ],
+          "tier_id": "A"
+        },
+        {
+          "blue_count": 2,
+          "blues": [
+            14,
+            4
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red14_blue2",
+          "model": "balanced_rank",
+          "red_count": 14,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20
+          ],
+          "tier_id": "A"
+        },
+        {
+          "blue_count": 3,
+          "blues": [
+            14,
+            4,
+            11
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red14_blue3",
+          "model": "balanced_rank",
+          "red_count": 14,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20
+          ],
+          "tier_id": "A"
+        },
+        {
+          "blue_count": 1,
+          "blues": [
+            14
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red16_blue1",
+          "model": "balanced_rank",
+          "red_count": 16,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20,
+            13,
+            32
+          ],
+          "tier_id": "B"
+        },
+        {
+          "blue_count": 2,
+          "blues": [
+            14,
+            4
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red16_blue2",
+          "model": "balanced_rank",
+          "red_count": 16,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20,
+            13,
+            32
+          ],
+          "tier_id": "B"
+        },
+        {
+          "blue_count": 3,
+          "blues": [
+            14,
+            4,
+            11
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red16_blue3",
+          "model": "balanced_rank",
+          "red_count": 16,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20,
+            13,
+            32
+          ],
+          "tier_id": "B"
+        },
+        {
+          "blue_count": 1,
+          "blues": [
+            14
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red18_blue1",
+          "model": "balanced_rank",
+          "red_count": 18,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20,
+            13,
+            32,
+            11,
+            18
+          ],
+          "tier_id": "C"
+        },
+        {
+          "blue_count": 2,
+          "blues": [
+            14,
+            4
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red18_blue2",
+          "model": "balanced_rank",
+          "red_count": 18,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20,
+            13,
+            32,
+            11,
+            18
+          ],
+          "tier_id": "C"
+        },
+        {
+          "blue_count": 3,
+          "blues": [
+            14,
+            4,
+            11
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red18_blue3",
+          "model": "balanced_rank",
+          "red_count": 18,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20,
+            13,
+            32,
+            11,
+            18
+          ],
+          "tier_id": "C"
+        },
+        {
+          "blue_count": 1,
+          "blues": [
+            14
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red20_blue1",
+          "model": "balanced_rank",
+          "red_count": 20,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20,
+            13,
+            32,
+            11,
+            18,
+            8,
+            17
+          ],
+          "tier_id": "D"
+        },
+        {
+          "blue_count": 2,
+          "blues": [
+            14,
+            4
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red20_blue2",
+          "model": "balanced_rank",
+          "red_count": 20,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20,
+            13,
+            32,
+            11,
+            18,
+            8,
+            17
+          ],
+          "tier_id": "D"
+        },
+        {
+          "blue_count": 3,
+          "blues": [
+            14,
+            4,
+            11
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red20_blue3",
+          "model": "balanced_rank",
+          "red_count": 20,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20,
+            13,
+            32,
+            11,
+            18,
+            8,
+            17
+          ],
+          "tier_id": "D"
+        },
+        {
+          "blue_count": 1,
+          "blues": [
+            14
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red22_blue1",
+          "model": "balanced_rank",
+          "red_count": 22,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20,
+            13,
+            32,
+            11,
+            18,
+            8,
+            17,
+            31,
+            30
+          ],
+          "tier_id": "E"
+        },
+        {
+          "blue_count": 2,
+          "blues": [
+            14,
+            4
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red22_blue2",
+          "model": "balanced_rank",
+          "red_count": 22,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20,
+            13,
+            32,
+            11,
+            18,
+            8,
+            17,
+            31,
+            30
+          ],
+          "tier_id": "E"
+        },
+        {
+          "blue_count": 3,
+          "blues": [
+            14,
+            4,
+            11
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red22_blue3",
+          "model": "balanced_rank",
+          "red_count": 22,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20,
+            13,
+            32,
+            11,
+            18,
+            8,
+            17,
+            31,
+            30
+          ],
+          "tier_id": "E"
+        },
+        {
+          "blue_count": 1,
+          "blues": [
+            14
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red24_blue1",
+          "model": "balanced_rank",
+          "red_count": 24,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20,
+            13,
+            32,
+            11,
+            18,
+            8,
+            17,
+            31,
+            30,
+            19,
+            24
+          ],
+          "tier_id": "F"
+        },
+        {
+          "blue_count": 2,
+          "blues": [
+            14,
+            4
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red24_blue2",
+          "model": "balanced_rank",
+          "red_count": 24,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20,
+            13,
+            32,
+            11,
+            18,
+            8,
+            17,
+            31,
+            30,
+            19,
+            24
+          ],
+          "tier_id": "F"
+        },
+        {
+          "blue_count": 3,
+          "blues": [
+            14,
+            4,
+            11
+          ],
+          "group": "observation",
+          "id": "balanced_rank_red24_blue3",
+          "model": "balanced_rank",
+          "red_count": 24,
+          "reds": [
+            6,
+            14,
+            1,
+            22,
+            26,
+            5,
+            9,
+            7,
+            2,
+            3,
+            27,
+            4,
+            10,
+            20,
+            13,
+            32,
+            11,
+            18,
+            8,
+            17,
+            31,
+            30,
+            19,
+            24
+          ],
+          "tier_id": "F"
+        }
+      ],
+      "previous_reds": [
+        5,
+        21,
+        22,
+        23,
+        28,
+        31
+      ],
+      "rank_scores": [
+        0.6575757575757576,
+        0.5666666666666667,
+        0.5666666666666667,
+        0.5606060606060606,
+        0.6242424242424243,
+        0.696969696969697,
+        0.5878787878787879,
+        0.503030303030303,
+        0.6121212121212121,
+        0.5515151515151515,
+        0.5090909090909091,
+        0.39696969696969703,
+        0.5121212121212121,
+        0.6818181818181818,
+        0.3060606060606061,
+        0.3909090909090909,
+        0.49696969696969695,
+        0.5090909090909091,
+        0.4666666666666666,
+        0.5242424242424243,
+        0.3484848484848485,
+        0.6515151515151515,
+        0.4181818181818182,
+        0.44545454545454544,
+        0.3060606060606061,
+        0.6303030303030304,
+        0.5666666666666667,
+        0.44545454545454544,
+        0.40303030303030307,
+        0.4727272727272728,
+        0.4878787878787879,
+        0.5121212121212121,
+        0.41212121212121217
+      ],
+      "red_ranking": [
+        6,
+        14,
+        1,
+        22,
+        26,
+        5,
+        9,
+        7,
+        2,
+        3,
+        27,
+        4,
+        10,
+        20,
+        13,
+        32,
+        11,
+        18,
+        8,
+        17,
+        31,
+        30,
+        19,
+        24,
+        28,
+        23,
+        33,
+        29,
+        12,
+        16,
+        21,
+        15,
+        25
+      ],
+      "score_kind": "trimmed_midrank_evidence_not_probability",
+      "target_issue": "26119",
+      "version": 1
+    },
+    "notes": [
+      "历史逐期只用此前数据；权重在25111前停止更新。所有候选固定公式，不按26118结果搜索参数。",
+      "此报告是事后探索性回放，不补造历史推荐；跟踪期已查看，只有未来新期才能提供新的验证证据。",
+      "组票同为8注16元；同12码池和同14码池分别比较，扩大池的收益不算筛选能力提升。",
+      "均衡票组完整使用所选号码，降低单号曝光，但不保证单注中奖或提高收益。"
+    ],
+    "policy": {
+      "automatic_promotion": false,
+      "blue_scope": "shared_weighted_blue_ranking",
+      "label": "均衡排名试验",
+      "model": "balanced_rank",
+      "note": "七专家先转并列中位名次，每号去掉最高和最低名次后平均；每个前缀限制上期号码集中度。固定规则试验，未证实优于原模型。",
+      "rank_method": "seven_expert_midranks_trim_one_each_end",
+      "repeat_cap": "ceil(6 * prefix_size / 33)",
+      "ticket_objective": "full_pool_union_balanced_exposure_unique_red_combinations",
+      "version": 1
+    },
+    "source_sha256": "e87f4714d1c6057579f7567e4b8730ba071f2288d8a1bb9a96cdc532d860f0f0",
+    "windows": {
+      "all_oos": {
+        "blue": [
+          {
+            "covered_periods": [
+              229,
+              455,
+              656
+            ],
+            "model": "weighted_blue_rank"
+          },
+          {
+            "covered_periods": [
+              230,
+              465,
+              673
+            ],
+            "model": "equal_blue_rank"
+          }
+        ],
+        "cells": [
+          {
+            "full_red_periods": 7,
+            "full_red_rate": 0.002098950524737631,
+            "mean_missed_reds": 3.457271364317841,
+            "mean_previous_selected": 5.935832083958021,
+            "mean_red_hits": 2.542728635682159,
+            "model": "weighted",
+            "n": 3335,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 31,
+            "full_red_rate": 0.009295352323838081,
+            "mean_missed_reds": 3.0857571214392805,
+            "mean_previous_selected": 5.96911544227886,
+            "mean_red_hits": 2.9142428785607195,
+            "model": "weighted",
+            "n": 3335,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 65,
+            "full_red_rate": 0.019490254872563718,
+            "mean_missed_reds": 2.7337331334332835,
+            "mean_previous_selected": 5.988905547226387,
+            "mean_red_hits": 3.2662668665667165,
+            "model": "weighted",
+            "n": 3335,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 120,
+            "full_red_rate": 0.035982008995502246,
+            "mean_missed_reds": 2.3778110944527735,
+            "mean_previous_selected": 5.999100449775113,
+            "mean_red_hits": 3.6221889055472265,
+            "model": "weighted",
+            "n": 3335,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 224,
+            "full_red_rate": 0.06716641679160419,
+            "mean_missed_reds": 2.021889055472264,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.978110944527736,
+            "model": "weighted",
+            "n": 3335,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 407,
+            "full_red_rate": 0.12203898050974513,
+            "mean_missed_reds": 1.6560719640179906,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.343928035982009,
+            "model": "weighted",
+            "n": 3335,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          },
+          {
+            "full_red_periods": 6,
+            "full_red_rate": 0.0017991004497751124,
+            "mean_missed_reds": 3.4209895052473764,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 2.5790104947526236,
+            "model": "equal",
+            "n": 3335,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 27,
+            "full_red_rate": 0.008095952023988006,
+            "mean_missed_reds": 3.0644677661169415,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 2.9355322338830585,
+            "model": "equal",
+            "n": 3335,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 59,
+            "full_red_rate": 0.017691154422788607,
+            "mean_missed_reds": 2.719640179910045,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.280359820089955,
+            "model": "equal",
+            "n": 3335,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 125,
+            "full_red_rate": 0.037481259370314844,
+            "mean_missed_reds": 2.3610194902548725,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.6389805097451275,
+            "model": "equal",
+            "n": 3335,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 238,
+            "full_red_rate": 0.07136431784107947,
+            "mean_missed_reds": 1.9943028485757122,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.005697151424288,
+            "model": "equal",
+            "n": 3335,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 430,
+            "full_red_rate": 0.12893553223388307,
+            "mean_missed_reds": 1.6329835082458768,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.367016491754123,
+            "model": "equal",
+            "n": 3335,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          },
+          {
+            "full_red_periods": 7,
+            "full_red_rate": 0.002098950524737631,
+            "mean_missed_reds": 3.43448275862069,
+            "mean_previous_selected": 2.895352323838081,
+            "mean_red_hits": 2.56551724137931,
+            "model": "balanced_rank",
+            "n": 3335,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 18,
+            "full_red_rate": 0.005397301349325337,
+            "mean_missed_reds": 3.069265367316342,
+            "mean_previous_selected": 2.9565217391304346,
+            "mean_red_hits": 2.930734632683658,
+            "model": "balanced_rank",
+            "n": 3335,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 55,
+            "full_red_rate": 0.01649175412293853,
+            "mean_missed_reds": 2.7142428785607198,
+            "mean_previous_selected": 3.859370314842579,
+            "mean_red_hits": 3.2857571214392802,
+            "model": "balanced_rank",
+            "n": 3335,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 118,
+            "full_red_rate": 0.035382308845577214,
+            "mean_missed_reds": 2.3481259370314844,
+            "mean_previous_selected": 3.9325337331334334,
+            "mean_red_hits": 3.6518740629685156,
+            "model": "balanced_rank",
+            "n": 3335,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 233,
+            "full_red_rate": 0.06986506746626686,
+            "mean_missed_reds": 1.9778110944527736,
+            "mean_previous_selected": 3.9736131934032985,
+            "mean_red_hits": 4.022188905547226,
+            "model": "balanced_rank",
+            "n": 3335,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 449,
+            "full_red_rate": 0.1346326836581709,
+            "mean_missed_reds": 1.5997001499250372,
+            "mean_previous_selected": 4.895352323838081,
+            "mean_red_hits": 4.400299850074963,
+            "model": "balanced_rank",
+            "n": 3335,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          }
+        ],
+        "from": "04092",
+        "n": 3335,
+        "tickets": {
+          "balanced14_rank": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 2.2264150943396226,
+              "max_exposure": 4.0,
+              "mean_ticket_red_hits": 1.1446540880503144,
+              "red_hits": 2.6855345911949686,
+              "red_union": 14.0
+            },
+            "n": 159
+          },
+          "balanced_same12": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 2.0251572327044025,
+              "max_exposure": 4.0,
+              "mean_ticket_red_hits": 1.0943396226415094,
+              "red_hits": 2.188679245283019,
+              "red_union": 12.0
+            },
+            "n": 159
+          },
+          "frozen": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 1.7672955974842768,
+              "max_exposure": 7.654088050314465,
+              "mean_ticket_red_hits": 1.104559748427673,
+              "red_hits": 1.8679245283018868,
+              "red_union": 10.270440251572326
+            },
+            "n": 159
+          },
+          "weighted14_balanced": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 2.106918238993711,
+              "max_exposure": 4.0,
+              "mean_ticket_red_hits": 1.0904088050314464,
+              "red_hits": 2.559748427672956,
+              "red_union": 14.0
+            },
+            "n": 159
+          },
+          "weighted14_greedy": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 1.779874213836478,
+              "max_exposure": 7.672955974842767,
+              "mean_ticket_red_hits": 1.1061320754716981,
+              "red_hits": 1.89937106918239,
+              "red_union": 10.377358490566039
+            },
+            "n": 159
+          }
+        },
+        "to": "26118"
+      },
+      "confirmation_exploratory": {
+        "blue": [
+          {
+            "covered_periods": [
+              9,
+              18,
+              29
+            ],
+            "model": "weighted_blue_rank"
+          },
+          {
+            "covered_periods": [
+              8,
+              17,
+              32
+            ],
+            "model": "equal_blue_rank"
+          }
+        ],
+        "cells": [
+          {
+            "full_red_periods": 3,
+            "full_red_rate": 0.019230769230769232,
+            "mean_missed_reds": 3.4551282051282053,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 2.5448717948717947,
+            "model": "weighted",
+            "n": 156,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 5,
+            "full_red_rate": 0.03205128205128205,
+            "mean_missed_reds": 3.0833333333333335,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 2.9166666666666665,
+            "model": "weighted",
+            "n": 156,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 7,
+            "full_red_rate": 0.04487179487179487,
+            "mean_missed_reds": 2.6794871794871793,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.3205128205128207,
+            "model": "weighted",
+            "n": 156,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 9,
+            "full_red_rate": 0.057692307692307696,
+            "mean_missed_reds": 2.301282051282051,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.698717948717949,
+            "model": "weighted",
+            "n": 156,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 11,
+            "full_red_rate": 0.07051282051282051,
+            "mean_missed_reds": 1.9423076923076925,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.0576923076923075,
+            "model": "weighted",
+            "n": 156,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 16,
+            "full_red_rate": 0.10256410256410256,
+            "mean_missed_reds": 1.5961538461538458,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.403846153846154,
+            "model": "weighted",
+            "n": 156,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.33974358974359,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 2.66025641025641,
+            "model": "equal",
+            "n": 156,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.032051282051282,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 2.967948717948718,
+            "model": "equal",
+            "n": 156,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 3,
+            "full_red_rate": 0.019230769230769232,
+            "mean_missed_reds": 2.66025641025641,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.33974358974359,
+            "model": "equal",
+            "n": 156,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 11,
+            "full_red_rate": 0.07051282051282051,
+            "mean_missed_reds": 2.3653846153846154,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.6346153846153846,
+            "model": "equal",
+            "n": 156,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 16,
+            "full_red_rate": 0.10256410256410256,
+            "mean_missed_reds": 1.9807692307692308,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.019230769230769,
+            "model": "equal",
+            "n": 156,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 18,
+            "full_red_rate": 0.11538461538461539,
+            "mean_missed_reds": 1.5897435897435894,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.410256410256411,
+            "model": "equal",
+            "n": 156,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.2948717948717947,
+            "mean_previous_selected": 2.83974358974359,
+            "mean_red_hits": 2.7051282051282053,
+            "model": "balanced_rank",
+            "n": 156,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 1,
+            "full_red_rate": 0.00641025641025641,
+            "mean_missed_reds": 2.9615384615384617,
+            "mean_previous_selected": 2.923076923076923,
+            "mean_red_hits": 3.0384615384615383,
+            "model": "balanced_rank",
+            "n": 156,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 2,
+            "full_red_rate": 0.01282051282051282,
+            "mean_missed_reds": 2.6538461538461537,
+            "mean_previous_selected": 3.8076923076923075,
+            "mean_red_hits": 3.3461538461538463,
+            "model": "balanced_rank",
+            "n": 156,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 6,
+            "full_red_rate": 0.038461538461538464,
+            "mean_missed_reds": 2.326923076923077,
+            "mean_previous_selected": 3.8974358974358974,
+            "mean_red_hits": 3.673076923076923,
+            "model": "balanced_rank",
+            "n": 156,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 13,
+            "full_red_rate": 0.08333333333333333,
+            "mean_missed_reds": 1.967948717948718,
+            "mean_previous_selected": 3.9551282051282053,
+            "mean_red_hits": 4.032051282051282,
+            "model": "balanced_rank",
+            "n": 156,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 23,
+            "full_red_rate": 0.14743589743589744,
+            "mean_missed_reds": 1.5705128205128203,
+            "mean_previous_selected": 4.814102564102564,
+            "mean_red_hits": 4.42948717948718,
+            "model": "balanced_rank",
+            "n": 156,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          }
+        ],
+        "from": "25111",
+        "n": 156,
+        "tickets": {
+          "balanced14_rank": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 2.2435897435897436,
+              "max_exposure": 4.0,
+              "mean_ticket_red_hits": 1.1530448717948718,
+              "red_hits": 2.7051282051282053,
+              "red_union": 14.0
+            },
+            "n": 156
+          },
+          "balanced_same12": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 2.019230769230769,
+              "max_exposure": 4.0,
+              "mean_ticket_red_hits": 1.0929487179487178,
+              "red_hits": 2.1858974358974357,
+              "red_union": 12.0
+            },
+            "n": 156
+          },
+          "frozen": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 1.7628205128205128,
+              "max_exposure": 7.647435897435898,
+              "mean_ticket_red_hits": 1.1057692307692308,
+              "red_hits": 1.858974358974359,
+              "red_union": 10.26923076923077
+            },
+            "n": 156
+          },
+          "weighted14_balanced": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 2.1025641025641026,
+              "max_exposure": 4.0,
+              "mean_ticket_red_hits": 1.0857371794871795,
+              "red_hits": 2.5448717948717947,
+              "red_union": 14.0
+            },
+            "n": 156
+          },
+          "weighted14_greedy": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 1.7756410256410255,
+              "max_exposure": 7.666666666666667,
+              "mean_ticket_red_hits": 1.1057692307692308,
+              "red_hits": 1.8846153846153846,
+              "red_union": 10.371794871794872
+            },
+            "n": 156
+          }
+        },
+        "to": "26115"
+      },
+      "development": {
+        "blue": [
+          {
+            "covered_periods": [
+              220,
+              437,
+              627
+            ],
+            "model": "weighted_blue_rank"
+          },
+          {
+            "covered_periods": [
+              222,
+              448,
+              641
+            ],
+            "model": "equal_blue_rank"
+          }
+        ],
+        "cells": [
+          {
+            "full_red_periods": 4,
+            "full_red_rate": 0.0012594458438287153,
+            "mean_missed_reds": 3.4581234256926954,
+            "mean_previous_selected": 5.932619647355164,
+            "mean_red_hits": 2.5418765743073046,
+            "model": "weighted",
+            "n": 3176,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 26,
+            "full_red_rate": 0.00818639798488665,
+            "mean_missed_reds": 3.086272040302267,
+            "mean_previous_selected": 5.967569269521411,
+            "mean_red_hits": 2.913727959697733,
+            "model": "weighted",
+            "n": 3176,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 58,
+            "full_red_rate": 0.018261964735516372,
+            "mean_missed_reds": 2.7367758186397984,
+            "mean_previous_selected": 5.988350125944584,
+            "mean_red_hits": 3.2632241813602016,
+            "model": "weighted",
+            "n": 3176,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 111,
+            "full_red_rate": 0.03494962216624685,
+            "mean_missed_reds": 2.381612090680101,
+            "mean_previous_selected": 5.9990554156171285,
+            "mean_red_hits": 3.618387909319899,
+            "model": "weighted",
+            "n": 3176,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 212,
+            "full_red_rate": 0.06675062972292191,
+            "mean_missed_reds": 2.0258186397984885,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.9741813602015115,
+            "model": "weighted",
+            "n": 3176,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 390,
+            "full_red_rate": 0.12279596977329975,
+            "mean_missed_reds": 1.658690176322418,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.341309823677582,
+            "model": "weighted",
+            "n": 3176,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          },
+          {
+            "full_red_periods": 6,
+            "full_red_rate": 0.001889168765743073,
+            "mean_missed_reds": 3.4253778337531484,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 2.5746221662468516,
+            "model": "equal",
+            "n": 3176,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 27,
+            "full_red_rate": 0.00850125944584383,
+            "mean_missed_reds": 3.066435768261965,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 2.933564231738035,
+            "model": "equal",
+            "n": 3176,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 56,
+            "full_red_rate": 0.017632241813602016,
+            "mean_missed_reds": 2.722607052896725,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.277392947103275,
+            "model": "equal",
+            "n": 3176,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 113,
+            "full_red_rate": 0.035579345088161206,
+            "mean_missed_reds": 2.361146095717884,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.638853904282116,
+            "model": "equal",
+            "n": 3176,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 221,
+            "full_red_rate": 0.06958438287153652,
+            "mean_missed_reds": 1.9949622166246854,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.005037783375315,
+            "model": "equal",
+            "n": 3176,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 411,
+            "full_red_rate": 0.1294080604534005,
+            "mean_missed_reds": 1.6347607052896729,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.365239294710327,
+            "model": "equal",
+            "n": 3176,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          },
+          {
+            "full_red_periods": 7,
+            "full_red_rate": 0.002204030226700252,
+            "mean_missed_reds": 3.440491183879093,
+            "mean_previous_selected": 2.8982997481108312,
+            "mean_red_hits": 2.559508816120907,
+            "model": "balanced_rank",
+            "n": 3176,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 17,
+            "full_red_rate": 0.0053526448362720405,
+            "mean_missed_reds": 3.0733627204030225,
+            "mean_previous_selected": 2.9584382871536525,
+            "mean_red_hits": 2.9266372795969775,
+            "model": "balanced_rank",
+            "n": 3176,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 53,
+            "full_red_rate": 0.016687657430730477,
+            "mean_missed_reds": 2.716624685138539,
+            "mean_previous_selected": 3.8624055415617127,
+            "mean_red_hits": 3.283375314861461,
+            "model": "balanced_rank",
+            "n": 3176,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 111,
+            "full_red_rate": 0.03494962216624685,
+            "mean_missed_reds": 2.348551637279597,
+            "mean_previous_selected": 3.934508816120907,
+            "mean_red_hits": 3.651448362720403,
+            "model": "balanced_rank",
+            "n": 3176,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 219,
+            "full_red_rate": 0.06895465994962216,
+            "mean_missed_reds": 1.9779596977329978,
+            "mean_previous_selected": 3.974811083123426,
+            "mean_red_hits": 4.022040302267002,
+            "model": "balanced_rank",
+            "n": 3176,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 425,
+            "full_red_rate": 0.133816120906801,
+            "mean_missed_reds": 1.6007556675062968,
+            "mean_previous_selected": 4.8998740554156175,
+            "mean_red_hits": 4.399244332493703,
+            "model": "balanced_rank",
+            "n": 3176,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          }
+        ],
+        "from": "04092",
+        "n": 3176,
+        "tickets": {},
+        "to": "25110"
+      },
+      "recent30": {
+        "blue": [
+          {
+            "covered_periods": [
+              2,
+              4,
+              4
+            ],
+            "model": "weighted_blue_rank"
+          },
+          {
+            "covered_periods": [
+              2,
+              4,
+              6
+            ],
+            "model": "equal_blue_rank"
+          }
+        ],
+        "cells": [
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.3,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 2.7,
+            "model": "weighted",
+            "n": 30,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 1,
+            "full_red_rate": 0.03333333333333333,
+            "mean_missed_reds": 3.0,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.0,
+            "model": "weighted",
+            "n": 30,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 1,
+            "full_red_rate": 0.03333333333333333,
+            "mean_missed_reds": 2.6333333333333333,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.3666666666666667,
+            "model": "weighted",
+            "n": 30,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 2,
+            "full_red_rate": 0.06666666666666667,
+            "mean_missed_reds": 2.3666666666666667,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.6333333333333333,
+            "model": "weighted",
+            "n": 30,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 3,
+            "full_red_rate": 0.1,
+            "mean_missed_reds": 1.9333333333333336,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.066666666666666,
+            "model": "weighted",
+            "n": 30,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 4,
+            "full_red_rate": 0.13333333333333333,
+            "mean_missed_reds": 1.6333333333333337,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.366666666666666,
+            "model": "weighted",
+            "n": 30,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.3,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 2.7,
+            "model": "equal",
+            "n": 30,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 2.8,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.2,
+            "model": "equal",
+            "n": 30,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 2.6,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.4,
+            "model": "equal",
+            "n": 30,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 4,
+            "full_red_rate": 0.13333333333333333,
+            "mean_missed_reds": 2.2666666666666666,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.7333333333333334,
+            "model": "equal",
+            "n": 30,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 4,
+            "full_red_rate": 0.13333333333333333,
+            "mean_missed_reds": 2.0,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.0,
+            "model": "equal",
+            "n": 30,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 4,
+            "full_red_rate": 0.13333333333333333,
+            "mean_missed_reds": 1.7000000000000002,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.3,
+            "model": "equal",
+            "n": 30,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.5,
+            "mean_previous_selected": 2.9,
+            "mean_red_hits": 2.5,
+            "model": "balanced_rank",
+            "n": 30,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.1666666666666665,
+            "mean_previous_selected": 2.933333333333333,
+            "mean_red_hits": 2.8333333333333335,
+            "model": "balanced_rank",
+            "n": 30,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 2.7333333333333334,
+            "mean_previous_selected": 3.8333333333333335,
+            "mean_red_hits": 3.2666666666666666,
+            "model": "balanced_rank",
+            "n": 30,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 2,
+            "full_red_rate": 0.06666666666666667,
+            "mean_missed_reds": 2.2333333333333334,
+            "mean_previous_selected": 3.9,
+            "mean_red_hits": 3.7666666666666666,
+            "model": "balanced_rank",
+            "n": 30,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 3,
+            "full_red_rate": 0.1,
+            "mean_missed_reds": 1.7666666666666666,
+            "mean_previous_selected": 3.933333333333333,
+            "mean_red_hits": 4.233333333333333,
+            "model": "balanced_rank",
+            "n": 30,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 5,
+            "full_red_rate": 0.16666666666666666,
+            "mean_missed_reds": 1.5,
+            "mean_previous_selected": 4.7,
+            "mean_red_hits": 4.5,
+            "model": "balanced_rank",
+            "n": 30,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          }
+        ],
+        "from": "26089",
+        "n": 30,
+        "tickets": {
+          "balanced14_rank": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 2.066666666666667,
+              "max_exposure": 4.0,
+              "mean_ticket_red_hits": 1.0583333333333333,
+              "red_hits": 2.5,
+              "red_union": 14.0
+            },
+            "n": 30
+          },
+          "balanced_same12": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 1.9,
+              "max_exposure": 4.0,
+              "mean_ticket_red_hits": 1.0333333333333334,
+              "red_hits": 2.066666666666667,
+              "red_union": 12.0
+            },
+            "n": 30
+          },
+          "frozen": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 1.8,
+              "max_exposure": 7.8,
+              "mean_ticket_red_hits": 1.1166666666666667,
+              "red_hits": 1.8666666666666667,
+              "red_union": 10.233333333333333
+            },
+            "n": 30
+          },
+          "weighted14_balanced": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 2.2333333333333334,
+              "max_exposure": 4.0,
+              "mean_ticket_red_hits": 1.15,
+              "red_hits": 2.7,
+              "red_union": 14.0
+            },
+            "n": 30
+          },
+          "weighted14_greedy": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 1.8,
+              "max_exposure": 7.8,
+              "mean_ticket_red_hits": 1.125,
+              "red_hits": 1.9,
+              "red_union": 10.4
+            },
+            "n": 30
+          }
+        },
+        "to": "26118"
+      },
+      "recent60": {
+        "blue": [
+          {
+            "covered_periods": [
+              3,
+              9,
+              12
+            ],
+            "model": "weighted_blue_rank"
+          },
+          {
+            "covered_periods": [
+              3,
+              8,
+              16
+            ],
+            "model": "equal_blue_rank"
+          }
+        ],
+        "cells": [
+          {
+            "full_red_periods": 1,
+            "full_red_rate": 0.016666666666666666,
+            "mean_missed_reds": 3.316666666666667,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 2.683333333333333,
+            "model": "weighted",
+            "n": 60,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 3,
+            "full_red_rate": 0.05,
+            "mean_missed_reds": 2.95,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.05,
+            "model": "weighted",
+            "n": 60,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 4,
+            "full_red_rate": 0.06666666666666667,
+            "mean_missed_reds": 2.566666666666667,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.433333333333333,
+            "model": "weighted",
+            "n": 60,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 5,
+            "full_red_rate": 0.08333333333333333,
+            "mean_missed_reds": 2.2666666666666666,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.7333333333333334,
+            "model": "weighted",
+            "n": 60,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 7,
+            "full_red_rate": 0.11666666666666667,
+            "mean_missed_reds": 1.833333333333333,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.166666666666667,
+            "model": "weighted",
+            "n": 60,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 9,
+            "full_red_rate": 0.15,
+            "mean_missed_reds": 1.583333333333333,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.416666666666667,
+            "model": "weighted",
+            "n": 60,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.283333333333333,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 2.716666666666667,
+            "model": "equal",
+            "n": 60,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 2.9,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.1,
+            "model": "equal",
+            "n": 60,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 2,
+            "full_red_rate": 0.03333333333333333,
+            "mean_missed_reds": 2.5833333333333335,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.4166666666666665,
+            "model": "equal",
+            "n": 60,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 7,
+            "full_red_rate": 0.11666666666666667,
+            "mean_missed_reds": 2.3,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.7,
+            "model": "equal",
+            "n": 60,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 8,
+            "full_red_rate": 0.13333333333333333,
+            "mean_missed_reds": 1.8833333333333337,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.116666666666666,
+            "model": "equal",
+            "n": 60,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 9,
+            "full_red_rate": 0.15,
+            "mean_missed_reds": 1.6166666666666663,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.383333333333334,
+            "model": "equal",
+            "n": 60,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.5,
+            "mean_previous_selected": 2.8333333333333335,
+            "mean_red_hits": 2.5,
+            "model": "balanced_rank",
+            "n": 60,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.2333333333333334,
+            "mean_previous_selected": 2.9,
+            "mean_red_hits": 2.7666666666666666,
+            "model": "balanced_rank",
+            "n": 60,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 2.9,
+            "mean_previous_selected": 3.716666666666667,
+            "mean_red_hits": 3.1,
+            "model": "balanced_rank",
+            "n": 60,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 3,
+            "full_red_rate": 0.05,
+            "mean_missed_reds": 2.5,
+            "mean_previous_selected": 3.816666666666667,
+            "mean_red_hits": 3.5,
+            "model": "balanced_rank",
+            "n": 60,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 5,
+            "full_red_rate": 0.08333333333333333,
+            "mean_missed_reds": 2.0833333333333335,
+            "mean_previous_selected": 3.8833333333333333,
+            "mean_red_hits": 3.9166666666666665,
+            "model": "balanced_rank",
+            "n": 60,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 9,
+            "full_red_rate": 0.15,
+            "mean_missed_reds": 1.7333333333333334,
+            "mean_previous_selected": 4.633333333333334,
+            "mean_red_hits": 4.266666666666667,
+            "model": "balanced_rank",
+            "n": 60,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          }
+        ],
+        "from": "26059",
+        "n": 60,
+        "tickets": {
+          "balanced14_rank": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 2.0833333333333335,
+              "max_exposure": 4.0,
+              "mean_ticket_red_hits": 1.0583333333333333,
+              "red_hits": 2.5,
+              "red_union": 14.0
+            },
+            "n": 60
+          },
+          "balanced_same12": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 2.0,
+              "max_exposure": 4.0,
+              "mean_ticket_red_hits": 1.0916666666666666,
+              "red_hits": 2.183333333333333,
+              "red_union": 12.0
+            },
+            "n": 60
+          },
+          "frozen": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 1.8333333333333333,
+              "max_exposure": 7.733333333333333,
+              "mean_ticket_red_hits": 1.1270833333333334,
+              "red_hits": 1.95,
+              "red_union": 10.3
+            },
+            "n": 60
+          },
+          "weighted14_balanced": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 2.2,
+              "max_exposure": 4.0,
+              "mean_ticket_red_hits": 1.1458333333333333,
+              "red_hits": 2.683333333333333,
+              "red_union": 14.0
+            },
+            "n": 60
+          },
+          "weighted14_greedy": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 1.85,
+              "max_exposure": 7.733333333333333,
+              "mean_ticket_red_hits": 1.13125,
+              "red_hits": 2.0,
+              "red_union": 10.483333333333333
+            },
+            "n": 60
+          }
+        },
+        "to": "26118"
+      },
+      "tracking": {
+        "blue": [
+          {
+            "covered_periods": [
+              0,
+              0,
+              0
+            ],
+            "model": "weighted_blue_rank"
+          },
+          {
+            "covered_periods": [
+              0,
+              0,
+              0
+            ],
+            "model": "equal_blue_rank"
+          }
+        ],
+        "cells": [
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 2.6666666666666665,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.3333333333333335,
+            "model": "weighted",
+            "n": 3,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 2.6666666666666665,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.3333333333333335,
+            "model": "weighted",
+            "n": 3,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 2.3333333333333335,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.6666666666666665,
+            "model": "weighted",
+            "n": 3,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 2.3333333333333335,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.6666666666666665,
+            "model": "weighted",
+            "n": 3,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 1,
+            "full_red_rate": 0.3333333333333333,
+            "mean_missed_reds": 2.0,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.0,
+            "model": "weighted",
+            "n": 3,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 1,
+            "full_red_rate": 0.3333333333333333,
+            "mean_missed_reds": 2.0,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.0,
+            "model": "weighted",
+            "n": 3,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.0,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.0,
+            "model": "equal",
+            "n": 3,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 2.6666666666666665,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.3333333333333335,
+            "model": "equal",
+            "n": 3,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 2.6666666666666665,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 3.3333333333333335,
+            "model": "equal",
+            "n": 3,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 1,
+            "full_red_rate": 0.3333333333333333,
+            "mean_missed_reds": 2.0,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.0,
+            "model": "equal",
+            "n": 3,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 1,
+            "full_red_rate": 0.3333333333333333,
+            "mean_missed_reds": 2.0,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.0,
+            "model": "equal",
+            "n": 3,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 1,
+            "full_red_rate": 0.3333333333333333,
+            "mean_missed_reds": 2.0,
+            "mean_previous_selected": 6.0,
+            "mean_red_hits": 4.0,
+            "model": "equal",
+            "n": 3,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 4.333333333333333,
+            "mean_previous_selected": 2.6666666666666665,
+            "mean_red_hits": 1.6666666666666667,
+            "model": "balanced_rank",
+            "n": 3,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 4.333333333333333,
+            "mean_previous_selected": 2.6666666666666665,
+            "mean_red_hits": 1.6666666666666667,
+            "model": "balanced_rank",
+            "n": 3,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.3333333333333335,
+            "mean_previous_selected": 3.3333333333333335,
+            "mean_red_hits": 2.6666666666666665,
+            "model": "balanced_rank",
+            "n": 3,
+            "red_count": 18,
+            "uniform_full_red_rate": 0.01676104762867833
+          },
+          {
+            "full_red_periods": 1,
+            "full_red_rate": 0.3333333333333333,
+            "mean_missed_reds": 3.0,
+            "mean_previous_selected": 3.6666666666666665,
+            "mean_red_hits": 3.0,
+            "model": "balanced_rank",
+            "n": 3,
+            "red_count": 20,
+            "uniform_full_red_rate": 0.03499559394998772
+          },
+          {
+            "full_red_periods": 1,
+            "full_red_rate": 0.3333333333333333,
+            "mean_missed_reds": 2.3333333333333335,
+            "mean_previous_selected": 3.6666666666666665,
+            "mean_red_hits": 3.6666666666666665,
+            "model": "balanced_rank",
+            "n": 3,
+            "red_count": 22,
+            "uniform_full_red_rate": 0.06736651835372637
+          },
+          {
+            "full_red_periods": 1,
+            "full_red_rate": 0.3333333333333333,
+            "mean_missed_reds": 2.0,
+            "mean_previous_selected": 4.333333333333333,
+            "mean_red_hits": 4.0,
+            "model": "balanced_rank",
+            "n": 3,
+            "red_count": 24,
+            "uniform_full_red_rate": 0.12152391546162403
+          }
+        ],
+        "from": "26116",
+        "n": 3,
+        "tickets": {
+          "balanced14_rank": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 1.3333333333333333,
+              "max_exposure": 4.0,
+              "mean_ticket_red_hits": 0.7083333333333334,
+              "red_hits": 1.6666666666666667,
+              "red_union": 14.0
+            },
+            "n": 3
+          },
+          "balanced_same12": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 2.3333333333333335,
+              "max_exposure": 4.0,
+              "mean_ticket_red_hits": 1.1666666666666667,
+              "red_hits": 2.3333333333333335,
+              "red_union": 12.0
+            },
+            "n": 3
+          },
+          "frozen": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 2.0,
+              "max_exposure": 8.0,
+              "mean_ticket_red_hits": 1.0416666666666667,
+              "red_hits": 2.3333333333333335,
+              "red_union": 10.333333333333334
+            },
+            "n": 3
+          },
+          "weighted14_balanced": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 2.3333333333333335,
+              "max_exposure": 4.0,
+              "mean_ticket_red_hits": 1.3333333333333333,
+              "red_hits": 3.3333333333333335,
+              "red_union": 14.0
+            },
+            "n": 3
+          },
+          "weighted14_greedy": {
+            "bets": 8,
+            "cost": 16,
+            "means": {
+              "best_red": 2.0,
+              "max_exposure": 8.0,
+              "mean_ticket_red_hits": 1.125,
+              "red_hits": 2.6666666666666665,
+              "red_union": 10.666666666666666
+            },
+            "n": 3
+          }
+        },
+        "to": "26118"
+      }
+    }
+  },
+  "next_daily_archive_note": "26119已于本次修改前冻结，不覆盖、不追加新方案；后续首次冻结的新期新增balanced14。"
+}

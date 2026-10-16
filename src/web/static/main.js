@@ -5,7 +5,7 @@ createApp({setup(){
   const currentTab=ref(tabs.some(t=>t.id===initial.get('tab'))?initial.get('tab'):'generator');
   const overview=ref({latest_draw:null,total_draws:0,total_plans:0,pending:0,scored:0}),cycle=ref(null),toast=ref({show:false}),target=ref(''),deadline=ref('');
   const form=ref({mode:'pool_observation',observation_size:14,tickets:8,pool:15,overlap:4,red_count:7,blue_count:2,bankers:2,drags:6});
-  const presets=[{id:'pool_observation',name:'分档号码池 · 尽量少红覆盖全部开奖号',desc:'14／16／18／20／22／24红六档，蓝球1–3个；保存原池观察覆盖。'},{id:'frozen',name:'协议冻结 · 8注票组',desc:'温和救援，按冻结规则组票；保存时封存开奖前哈希。'},{id:'disjoint5',name:'5注红球不重叠',desc:'前30红球中分散组票，2蓝轮换，共10元。'},{id:'single8',name:'8注低重合',desc:'前15红球，注间重合不超过4个，2蓝轮换。'},{id:'compound7',name:'7红复式',desc:'7个红球配1蓝，完整展开7注。'},{id:'compound8',name:'8红复式',desc:'8个红球配1蓝，完整展开28注。'},{id:'blue2',name:'蓝球复式 · 2蓝',desc:'固定6红配2蓝，共2注。'},{id:'dantuo',name:'2胆6拖',desc:'前2个红球做胆，其后6个做拖。'}];
+  const presets=[{id:'pool_observation',name:'分档号码池 · 尽量少红覆盖全部开奖号',desc:'14／16／18／20／22／24红六档，蓝球1–3个；保存原池观察覆盖。'},{id:'balanced14',name:'14红均衡覆盖 · 8注16元',desc:'原融合前14红全部入票，每红出现3–4次；按原号码留档。'},{id:'frozen',name:'协议冻结 · 8注票组',desc:'温和救援，按冻结规则组票；保存时封存开奖前哈希。'},{id:'disjoint5',name:'5注红球不重叠',desc:'前30红球中分散组票，2蓝轮换，共10元。'},{id:'single8',name:'8注低重合',desc:'前15红球，注间重合不超过4个，2蓝轮换。'},{id:'compound7',name:'7红复式',desc:'7个红球配1蓝，完整展开7注。'},{id:'compound8',name:'8红复式',desc:'8个红球配1蓝，完整展开28注。'},{id:'blue2',name:'蓝球复式 · 2蓝',desc:'固定6红配2蓝，共2注。'},{id:'dantuo',name:'2胆6拖',desc:'前2个红球做胆，其后6个做拖。'}];
   const activePreset=ref(''),plan=ref(null),poolPreview=ref(null),lastRequest=ref(null),planSaved=ref(false),generating=ref(false),saving=ref(false),syncing=ref(false);
   const records=ref([]),recordFilter=ref('all'),recordsLoading=ref(false),settling=ref(false),draws=ref([]),drawBefore=ref(''),moreDraws=ref(true),drawsLoading=ref(false);
   const tests=ref([]),reportCards=ref([]),reportLoading=ref(false),reportLoaded=ref(false),verdict=ref('选择评估后显示原冻结确认窗结果。');
@@ -66,7 +66,7 @@ createApp({setup(){
   function applyPreset(id){
     if(generating.value||saving.value||syncing.value)return;
     activePreset.value=id;
-    const configs={pool_observation:{mode:'pool_observation',observation_size:14,blue_count:2},frozen:{mode:'frozen'},disjoint5:{mode:'single',tickets:5,pool:30,overlap:0,blue_count:2},single8:{mode:'single',tickets:8,pool:15,overlap:4,blue_count:2},compound7:{mode:'compound_red',red_count:7,blue_count:1},compound8:{mode:'compound_red',red_count:8,blue_count:1},blue2:{mode:'compound_blue',blue_count:2},dantuo:{mode:'dantuo',bankers:2,drags:6,blue_count:1}};
+    const configs={pool_observation:{mode:'pool_observation',observation_size:14,blue_count:2},balanced14:{mode:'balanced',tickets:8,pool:14,blue_count:2},frozen:{mode:'frozen'},disjoint5:{mode:'single',tickets:5,pool:30,overlap:0,blue_count:2},single8:{mode:'single',tickets:8,pool:15,overlap:4,blue_count:2},compound7:{mode:'compound_red',red_count:7,blue_count:1},compound8:{mode:'compound_red',red_count:8,blue_count:1},blue2:{mode:'compound_blue',blue_count:2},dantuo:{mode:'dantuo',bankers:2,drags:6,blue_count:1}};
     Object.assign(form.value,configs[id]);return generate(id==='pool_observation'?{}:{preset:id});
   }
   function generateCustom(){activePreset.value='';const f=form.value;return generate({mode:f.mode,tickets:f.tickets,pool:f.pool,overlap:f.overlap,red_count:f.red_count,blue_count:f.blue_count,bankers:f.bankers,drags:f.drags});}

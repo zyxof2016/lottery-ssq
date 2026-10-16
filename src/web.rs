@@ -124,6 +124,7 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
             return (200, "text/html", RESEARCH_PAGE.as_bytes().to_vec());
         }
         ("GET", "/api/pools") => load_csv(&app.data).and_then(|draws| pool::analyze(&draws)),
+        ("GET", "/api/coverage") => load_csv(&app.data).and_then(|draws| crate::coverage::analyze(&draws)),
         ("GET", "/api/pools/observations") => load_csv(&app.data).and_then(|draws| recommendations::pool_observations(&recommendation_dir(app), &draws)),
         ("GET", "/api/recommendations/issues") => recommendation_index(app, query),
         ("GET", "/api/recommendations/files") => {

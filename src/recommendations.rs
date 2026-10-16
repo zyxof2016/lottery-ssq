@@ -19,7 +19,7 @@ use crate::pool;
 use crate::protocol::Protocol;
 use crate::select::rank_desc;
 
-pub const PRESETS: [&str; 7] = [
+pub const PRESETS: [&str; 8] = [
     "frozen",
     "disjoint5",
     "single8",
@@ -27,6 +27,7 @@ pub const PRESETS: [&str; 7] = [
     "compound8",
     "blue2",
     "dantuo",
+    "balanced14",
 ];
 pub const PRIZE_RULES_URL: &str = "https://www.scflcp.com.cn/yxgz/823145252.jhtml";
 
@@ -61,7 +62,8 @@ fn source_sha() -> String {
             include_str!("recommendations.rs"),
             include_str!("efficiency.rs"),
             include_str!("stats.rs"),
-            include_str!("pool.rs")
+            include_str!("pool.rs"),
+            include_str!("coverage.rs")
         )
         .as_bytes(),
     )
@@ -242,6 +244,7 @@ fn strategy(plan: &Plan, prepared: &Prepared) -> Value {
     };
     json!({
         "title": plan.title, "mode": plan.mode, "rationale": plan.detail, "tickets": tickets,
+        "coverage_optimization": if plan.mode == "balanced" { crate::coverage::ticket_policy(plan.spec.pool,plan.spec.tickets,plan.spec.blue_count) } else { Value::Null },
         "parameters": {"mode": plan.spec.mode, "tickets": plan.spec.tickets, "pool": plan.spec.pool,
             "overlap": plan.spec.overlap, "red_count": plan.spec.red_count, "blue_count": plan.spec.blue_count,
             "bankers": plan.spec.bankers, "drags": plan.spec.drags},
@@ -814,6 +817,7 @@ fn review_strategy(saved: &Value, draw: Option<&Draw>) -> Result<Value, String> 
         stage["hit_numbers"] = json!(hits);
     }
     let mut result = json!({"title": saved["title"], "rationale": saved["rationale"],
+        "mode": saved["mode"], "coverage_optimization": saved["coverage_optimization"],
         "efficiency": saved["efficiency"], "structural": saved["structural"],
         "red_weights": saved["red_weights"], "blue_weights": saved["blue_weights"],
         "summary": {"bets": tickets.len(), "cost": tickets.len() * 2, "unique_reds": reds, "unique_blues": blues,
@@ -1149,7 +1153,7 @@ pub fn issue_detail(
     response["archive_id"] = json!(id);
     response["provenance"] = provenance;
     response["strategy"] = json!(selected);
-    response["strategies"] = json!(variants.iter().map(|(name, value)| json!({"name": name, "title": value["title"], "summary": value["summary"]})).collect::<Vec<_>>());
+    response["strategies"] = json!(variants.iter().map(|(name, value)| json!({"name": name, "title": value["title"], "mode": value["mode"], "coverage_optimization": value["coverage_optimization"], "summary": value["summary"]})).collect::<Vec<_>>());
     response["detail"] = detail.clone();
     response["compact_preview"] = compact_preview(detail, draw)?;
     Ok(response)
@@ -1284,6 +1288,7 @@ mod tests {
         let mut payload = base_payload(&prepared, &issue, "daily", 10, Some(100));
         payload["strategies"] = json!(PRESETS
             .into_iter()
+            .filter(|name| *name != "balanced14")
             .map(|name| (name, strategy(&build(name, &prepared), &prepared)))
             .collect::<BTreeMap<_, _>>());
         let path = temp.0.join(format!("daily/{issue}.json"));

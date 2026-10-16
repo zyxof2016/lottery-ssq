@@ -89,6 +89,8 @@
 </section>
 <section v-else-if="!view.missing" class="card"><h2>本档案未留存号码池</h2><p class="muted">后续首次留档的新期会保存六档观察池及原小池对照。历史研究可在 <a :href="home + 'pools'">分档号码池与覆盖观察</a> 查看因果回放。</p></section>
         <template v-if="detail">
+<section v-if="balancedArchived" class="card" aria-label="已留档均衡覆盖票组"><h2>已留档均衡覆盖 · 完整使用{{ balancedArchived.summary.red_coverage }}红</h2><p>{{ balancedArchived.summary.bets }} 注 / {{ balancedArchived.summary.cost }} 元，实际入票 {{ balancedArchived.summary.red_coverage }} 个不同红球，最大单号曝光 {{ balancedArchived.summary.max_red_exposure }} 注。使用原融合排名，避免候选池内号码在组票时闲置。</p><p class="muted">只按这份档案的原票组核对；池内覆盖和单注中奖分别统计。</p><button @click="viewTickets(balancedArchived.name)" :disabled="loading||busy">查看已留档均衡票组</button></section>
+<p v-else class="muted">本份档案未保存新版均衡覆盖票组，保持首次票面；后续新期首次留档会新增该方案。</p>
           <section v-if="compactArchived && originalArchived" class="card" aria-label="已留档同覆盖少注对照">
 <h2>已留档同覆盖少注对照</h2><p>原冻结票组 {{ originalArchived.summary.bets }} 注 / {{ originalArchived.summary.cost }} 元；同覆盖重组 {{ compactArchived.summary.bets }} 注 / {{ compactArchived.summary.cost }} 元。两者分别保留相同红球与蓝球并集。</p><p class="muted">原方案每注都出现的红球：{{ originalArchived.summary.all_ticket_reds.map(pad).join(' ') || '无' }}；最大单号曝光 {{ originalArchived.summary.max_red_exposure }} / {{ originalArchived.summary.bets }} 注。重组会改变单注组合和对奖结果，按各自原票面核对。</p><button @click="viewTickets(compactArchived.name)" :disabled="loading||busy">查看已留档最少注票组</button>
 </section>
@@ -334,6 +336,7 @@ createApp({setup(){
   const activePoolModel=computed(()=>archivedModels.value.find(m=>m.model===poolModel.value)||archivedModels.value[0]);
   const effectivePoolModel=computed({get:()=>activePoolModel.value?.model||'weighted',set:v=>poolModel.value=v});
   const poolDiagnostics=computed(()=>activePoolModel.value?.diagnostics),poolModelName=m=>({weighted:'协议加权融合',equal:'等权融合',uniform:'均匀红球对照'}[m]||m);
+  const balancedArchived=computed(()=>view.value?.strategies?.find(s=>s.name==='balanced14'||s.mode==='balanced'));
   const compactArchived=computed(()=>view.value?.strategies?.find(s=>s.name==='efficiency:compact')),originalArchived=computed(()=>view.value?.strategies?.find(s=>s.name==='frozen'));
   const hasObservationTiers=computed(()=>(activePoolModel.value?.pools || []).some(p=>p.group==='observation'));
   const hasLegacyPools=computed(()=>(activePoolModel.value?.pools || []).some(p=>p.group!=='observation'));
@@ -373,7 +376,7 @@ createApp({setup(){
   function exportCompactJson(){download(JSON.stringify({issue:issue.value,source_archive_sha256:provenance.value.sha256 || null,source_strategy:view.value.strategy,draw:view.value.draw,...compactPreview.value},null,2),'application/json',`ssq-structural-preview-${issue.value}.json`);}
   function exportCsv(){const cols=['color','number','fusion_rank','fusion_score','in_candidate_pool','rescued','displaced','ticket_exposure','draw_hit','recommendation_result','reason_text','expert_scores','nominating_experts'];const cell=v=>'"'+String(v==null?'':typeof v==='object'?JSON.stringify(v):v).replace(/"/g,'""')+'"';const rows=[cols,...detail.value.numbers.map(n=>cols.map(c=>n[c]))];download('\ufeff'+rows.map(r=>r.map(cell).join(',')).join('\r\n'),'text/csv;charset=utf-8',`ssq-numbers-${issue.value}-${view.value.strategy}.csv`);}
   onMounted(()=>refresh(issue.value,params.get('archive'),params.get('strategy')));
-  return {home,issues,next,limit,issue,view,detail,summary,provenance,compactPreview,comparisonCosts,comparedStrategies,missedReasons,strategyGroup,comparisonCost,selectedPool,effectivePoolGroup,poolBlueCount,hasObservationTiers,hasLegacyPools,shownPools,numberPool,archivedModels,activePoolModel,effectivePoolModel,poolDiagnostics,poolModelName,compactArchived,originalArchived,loading,busy,message,messageType,color,filter,ticketPage,redNumbers,blueNumbers,filteredNumbers,shownTickets,ticketPages,expertNames,isDrawNumber,numberLabel,viewTickets,pad,nullable,decimal,signed,flag,score,time,sourceName,stageName,resultName,numberTitle,prizeName,weight,refresh,chooseIssue,chooseArchive,chooseStrategy,freeze,settle,sync,fileUrl,exportJson,exportCompactJson,exportCsv};
+  return {home,issues,next,limit,issue,view,detail,summary,provenance,compactPreview,comparisonCosts,comparedStrategies,missedReasons,strategyGroup,comparisonCost,selectedPool,effectivePoolGroup,poolBlueCount,hasObservationTiers,hasLegacyPools,shownPools,numberPool,archivedModels,activePoolModel,effectivePoolModel,poolDiagnostics,poolModelName,balancedArchived,compactArchived,originalArchived,loading,busy,message,messageType,color,filter,ticketPage,redNumbers,blueNumbers,filteredNumbers,shownTickets,ticketPages,expertNames,isDrawNumber,numberLabel,viewTickets,pad,nullable,decimal,signed,flag,score,time,sourceName,stageName,resultName,numberTitle,prizeName,weight,refresh,chooseIssue,chooseArchive,chooseStrategy,freeze,settle,sync,fileUrl,exportJson,exportCompactJson,exportCsv};
 }}).mount('#app');
 </script>
 </body>
