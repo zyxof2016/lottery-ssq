@@ -124,6 +124,7 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
             return (200, "text/html", RESEARCH_PAGE.as_bytes().to_vec());
         }
         ("GET", "/api/pools") => load_csv(&app.data).and_then(|draws| pool::analyze(&draws)),
+        ("GET", "/api/full6") => load_csv(&app.data).and_then(|draws| crate::conditional::analyze(&draws)),
         ("GET", "/api/coverage") => load_csv(&app.data).and_then(|draws| crate::coverage::analyze(&draws)),
         ("GET", "/api/pools/observations") => load_csv(&app.data).and_then(|draws| recommendations::pool_observations(&recommendation_dir(app), &draws)),
         ("GET", "/api/recommendations/issues") => recommendation_index(app, query),
@@ -332,11 +333,12 @@ fn build_requested(body: &str, draws: &[Draw]) -> Result<(Plan, crate::eval::Pre
         req.bankers,
         req.drags,
     )?;
-    let model = req.ranking_model.as_deref().unwrap_or(if req.preset.as_deref()==Some("calibrated14") {crate::ranking::MODEL} else {"weighted"});
-    if !["weighted",crate::ranking::MODEL].contains(&model) {return Err("未知红球排名模型".into());}
+    let model = req.ranking_model.as_deref().unwrap_or(if req.preset.as_deref()==Some("coverage24") {crate::conditional::MODEL} else if req.preset.as_deref()==Some("calibrated14") {crate::ranking::MODEL} else {"weighted"});
+    if !["weighted",crate::ranking::MODEL,crate::conditional::MODEL].contains(&model) {return Err("未知红球排名模型".into());}
     if req.preset.as_deref()==Some("calibrated14") && model!="repeat_calibrated" {return Err("校准排名预设须使用校准模型".into());}
+    if req.preset.as_deref()==Some("coverage24") && model!=crate::conditional::MODEL {return Err("24红条件频率预设须使用条件频率模型".into());}
     if spec.mode=="frozen" && model!="weighted" {return Err("协议冻结票组使用原加权排名，请用其他方案观察校准排名".into());}
-    let prepared = if model==crate::ranking::MODEL {crate::ranking::prepare(draws)?} else {prepare_forecast(draws)?};
+    let prepared = if model==crate::conditional::MODEL {crate::conditional::prepare(draws)?} else if model==crate::ranking::MODEL {crate::ranking::prepare(draws)?} else {prepare_forecast(draws)?};
     let built = plan::build(&prepared.forecast, &spec)?;
     Ok((built, prepared))
 }

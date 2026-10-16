@@ -67,10 +67,14 @@ pub fn saved(prepared: &Prepared, previous: u64) -> Value {
 
 /// Used only by explicitly selected new presets; the protocol forecast stays intact.
 pub fn prepare(draws: &[Draw]) -> Result<Prepared, String> {
-    let mut prepared = crate::eval::prepare_forecast(draws)?;
+    let prepared = crate::eval::prepare_forecast(draws)?;
     let previous = draws.last().ok_or("没有开奖数据")?.red_mask;
     let metadata = saved(&prepared, previous);
     let score = scores(&prepared.forecast.fusion, previous);
+    Ok(apply(prepared, score, metadata))
+}
+
+pub(crate) fn apply(mut prepared: Prepared, score: [f64; 33], metadata: Value) -> Prepared {
     let order = rank_desc(&score);
     let members = order[..crate::protocol::Protocol::PRIMARY_K].to_vec();
     let mask = members.iter().fold(0, |a, n| a | (1 << n));
@@ -101,7 +105,7 @@ pub fn prepare(draws: &[Draw]) -> Result<Prepared, String> {
         ticket_blues,
     };
     prepared.ranking = Some(metadata);
-    Ok(prepared)
+    prepared
 }
 
 #[cfg(test)]

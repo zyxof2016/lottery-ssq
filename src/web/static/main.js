@@ -4,8 +4,8 @@ createApp({setup(){
   const tabs=[{id:'generator',name:'方案生成',icon:'🎯'},{id:'records',name:'我的方案与对奖',icon:'📊'},{id:'reviews',name:'每期推荐与复盘',icon:'📋'},{id:'draws',name:'开奖历史',icon:'🎱'},{id:'backtest',name:'科学回测与优化',icon:'🧪'},{id:'research',name:'研究评估',icon:'🔬'},{id:'settings',name:'系统设置',icon:'⚙️'}];
   const currentTab=ref(tabs.some(t=>t.id===initial.get('tab'))?initial.get('tab'):'generator');
   const overview=ref({latest_draw:null,total_draws:0,total_plans:0,pending:0,scored:0}),cycle=ref(null),toast=ref({show:false}),target=ref(''),deadline=ref('');
-  const form=ref({ranking_model:'repeat_calibrated',mode:'pool_observation',observation_size:14,tickets:8,pool:15,overlap:4,red_count:7,blue_count:2,bankers:2,drags:6});
-  const presets=[{id:'pool_observation',name:'分档号码池 · 尽量少红覆盖全部开奖号',desc:'14／16／18／20／22／24红六档，蓝球1–3个；保存原池观察覆盖。'},{id:'calibrated14',name:'校准排名14红 · 均衡8注',desc:'校正上期重号集中偏置，按新排名选择14红；试验方案单独留档。'},{id:'balanced14',name:'14红均衡覆盖 · 8注16元',desc:'原融合前14红全部入票，每红出现3–4次；按原号码留档。'},{id:'frozen',name:'协议冻结 · 8注票组',desc:'温和救援，按冻结规则组票；保存时封存开奖前哈希。'},{id:'disjoint5',name:'5注红球不重叠',desc:'前30红球中分散组票，2蓝轮换，共10元。'},{id:'single8',name:'8注低重合',desc:'前15红球，注间重合不超过4个，2蓝轮换。'},{id:'compound7',name:'7红复式',desc:'7个红球配1蓝，完整展开7注。'},{id:'compound8',name:'8红复式',desc:'8个红球配1蓝，完整展开28注。'},{id:'blue2',name:'蓝球复式 · 2蓝',desc:'固定6红配2蓝，共2注。'},{id:'dantuo',name:'2胆6拖',desc:'前2个红球做胆，其后6个做拖。'}];
+  const form=ref({ranking_model:'conditional_gap',mode:'pool_observation',observation_size:24,tickets:8,pool:15,overlap:4,red_count:7,blue_count:2,bankers:2,drags:6});
+  const presets=[{id:'pool_observation',name:'分档号码池 · 尽量少红覆盖全部开奖号',desc:'14／16／18／20／22／24红六档，蓝球1–3个；保存原池观察覆盖。'},{id:'coverage24',name:'24红全6覆盖观察 · 均衡8注',desc:'按历史条件频率排序，24红全部入票、每红2次；试验方案。'},{id:'calibrated14',name:'校准排名14红 · 均衡8注',desc:'校正上期重号集中偏置，按新排名选择14红；试验方案单独留档。'},{id:'balanced14',name:'14红均衡覆盖 · 8注16元',desc:'原融合前14红全部入票，每红出现3–4次；按原号码留档。'},{id:'frozen',name:'协议冻结 · 8注票组',desc:'温和救援，按冻结规则组票；保存时封存开奖前哈希。'},{id:'disjoint5',name:'5注红球不重叠',desc:'前30红球中分散组票，2蓝轮换，共10元。'},{id:'single8',name:'8注低重合',desc:'前15红球，注间重合不超过4个，2蓝轮换。'},{id:'compound7',name:'7红复式',desc:'7个红球配1蓝，完整展开7注。'},{id:'compound8',name:'8红复式',desc:'8个红球配1蓝，完整展开28注。'},{id:'blue2',name:'蓝球复式 · 2蓝',desc:'固定6红配2蓝，共2注。'},{id:'dantuo',name:'2胆6拖',desc:'前2个红球做胆，其后6个做拖。'}];
   const activePreset=ref(''),plan=ref(null),poolPreview=ref(null),lastRequest=ref(null),planSaved=ref(false),generating=ref(false),saving=ref(false),syncing=ref(false);
   const records=ref([]),recordFilter=ref('all'),recordsLoading=ref(false),settling=ref(false),draws=ref([]),drawBefore=ref(''),moreDraws=ref(true),drawsLoading=ref(false);
   const tests=ref([]),reportCards=ref([]),reportLoading=ref(false),reportLoaded=ref(false),verdict=ref('选择评估后显示原冻结确认窗结果。');
@@ -47,14 +47,14 @@ createApp({setup(){
     if(generating.value||saving.value||syncing.value)return;
     generating.value=true;
     try{
-      const issue=validateTarget(),request={...body,issue,ranking_model:body.preset==='calibrated14'?'repeat_calibrated':form.value.mode==='frozen'?'weighted':form.value.ranking_model},config={...form.value};
+      const issue=validateTarget(),request={...body,issue,ranking_model:body.preset==='coverage24'?'conditional_gap':body.preset==='calibrated14'?'repeat_calibrated':form.value.mode==='frozen'?'weighted':form.value.ranking_model},config={...form.value};
       if(config.mode==='pool_observation'){
         const data=await read('api/pools');
         if(issue!==data.suggested_target)throw Error('观察池仅生成当前数据紧邻下一期；历史覆盖请到研究评估查看。');
-        const redCount=config.observation_size,blueCount=config.blue_count,saved=config.ranking_model==='weighted'?data.next.weighted_pools:data.next.weighted_pools.comparison_models.find(m=>m.model===config.ranking_model),pool=saved?.pools.find(p=>p.red_count===redCount&&p.blue_count===blueCount);
+        const redCount=config.observation_size,blueCount=config.blue_count,saved=config.ranking_model==='weighted'?data.next.weighted_pools:config.ranking_model==='conditional_gap'?data.next.weighted_pools.coverage_model:data.next.weighted_pools.comparison_models.find(m=>m.model===config.ranking_model),pool=saved?.pools.find(p=>p.red_count===redCount&&p.blue_count===blueCount);
         if(!pool||pool.group!=='observation')throw Error('请选择六档红球与1–3蓝的有效规格。');
         const baseline=data.windows.all_oos.red_curves.find(c=>c.model==='weighted'&&c.red_count===redCount).uniform_full_red_rate;
-        poolPreview.value={issue,model:config.ranking_model,model_label:config.ranking_model==='weighted'?'协议加权融合':'重号偏置校准 · 试验',cutoff_issue:data.cutoff_issue,cutoff_date:data.cutoff_date,input_history_sha256:data.data_sha256,red_count:redCount,blue_count:blueCount,reds:[...pool.reds].sort((a,b)=>a-b),blues:[...pool.blues].sort((a,b)=>a-b),uniform_full_red_rate:baseline};plan.value=null;lastRequest.value=null;
+        poolPreview.value={issue,model:config.ranking_model,model_label:config.ranking_model==='weighted'?'协议加权融合':config.ranking_model==='conditional_gap'?'条件频率 · 24红试验':'重号偏置校准 · 试验',cutoff_issue:data.cutoff_issue,cutoff_date:data.cutoff_date,input_history_sha256:data.data_sha256,red_count:redCount,blue_count:blueCount,reds:[...pool.reds].sort((a,b)=>a-b),blues:[...pool.blues].sort((a,b)=>a-b),uniform_full_red_rate:baseline};plan.value=null;lastRequest.value=null;
       }else{
         if(config.mode==='frozen')request.not_after=deadlineUnix();
         const result=await post('api/generate',request);
@@ -66,8 +66,8 @@ createApp({setup(){
   function applyPreset(id){
     if(generating.value||saving.value||syncing.value)return;
     activePreset.value=id;
-    const configs={pool_observation:{mode:'pool_observation',observation_size:14,blue_count:2},calibrated14:{mode:'balanced',ranking_model:'repeat_calibrated',tickets:8,pool:14,blue_count:2},balanced14:{mode:'balanced',tickets:8,pool:14,blue_count:2},frozen:{mode:'frozen'},disjoint5:{mode:'single',tickets:5,pool:30,overlap:0,blue_count:2},single8:{mode:'single',tickets:8,pool:15,overlap:4,blue_count:2},compound7:{mode:'compound_red',red_count:7,blue_count:1},compound8:{mode:'compound_red',red_count:8,blue_count:1},blue2:{mode:'compound_blue',blue_count:2},dantuo:{mode:'dantuo',bankers:2,drags:6,blue_count:1}};
-    Object.assign(form.value,configs[id]);if(!['pool_observation','calibrated14'].includes(id))form.value.ranking_model='weighted';return generate(id==='pool_observation'?{}:{preset:id});
+    const configs={pool_observation:{mode:'pool_observation',observation_size:24,blue_count:2},coverage24:{mode:'balanced',ranking_model:'conditional_gap',tickets:8,pool:24,blue_count:2},calibrated14:{mode:'balanced',ranking_model:'repeat_calibrated',tickets:8,pool:14,blue_count:2},balanced14:{mode:'balanced',tickets:8,pool:14,blue_count:2},frozen:{mode:'frozen'},disjoint5:{mode:'single',tickets:5,pool:30,overlap:0,blue_count:2},single8:{mode:'single',tickets:8,pool:15,overlap:4,blue_count:2},compound7:{mode:'compound_red',red_count:7,blue_count:1},compound8:{mode:'compound_red',red_count:8,blue_count:1},blue2:{mode:'compound_blue',blue_count:2},dantuo:{mode:'dantuo',bankers:2,drags:6,blue_count:1}};
+    Object.assign(form.value,configs[id]);if(!['pool_observation','calibrated14','coverage24'].includes(id))form.value.ranking_model='weighted';return generate(id==='pool_observation'?{}:{preset:id});
   }
   function generateCustom(){activePreset.value='';const f=form.value;return generate({mode:f.mode,tickets:f.tickets,pool:f.pool,overlap:f.overlap,red_count:f.red_count,blue_count:f.blue_count,bankers:f.bankers,drags:f.drags});}
   async function savePlan(){
@@ -79,8 +79,9 @@ createApp({setup(){
         const result=await post('api/recommendations/freeze',{data_sha256:poolPreview.value.input_history_sha256,target:poolPreview.value.issue});
         if(result.observation_tiers!==6)throw Error('本期首次档案未保存六档，已保留旧档案；新期再开始观察。');
         poolPreview.value.recommendation_archive={url:url('reviews',{issue:result.issue,archive:'daily'}),sha256:result.sha256};
+        if(poolPreview.value.model==='conditional_gap'&&result.comparison_models<5){poolPreview.value.recommendation_archive=null;showToast('本期首次档案未保存条件频率排名，当前预览未封存；从后续新期开始自动冻结。');refreshFrame('reviews');refreshFrame('research');return;}
         if(poolPreview.value.model==='repeat_calibrated'&&result.comparison_models<4){poolPreview.value.recommendation_archive=null;showToast('本期首次档案未保存校准排名，当前预览未封存；校准排名从后续新期开始自动冻结。');refreshFrame('reviews');refreshFrame('research');return;}
-        planSaved.value=true;showToast(result.comparison_models===4?'四模型共72个六档观察池和9个原小池已封存。':result.comparison_models===3?'三模型共54个六档观察池和9个原小池已封存。':'已保留本期原加权模型六档；三模型对照从后续新期开始冻结。');
+        planSaved.value=true;showToast(result.comparison_models===5?'五模型共90个六档观察池和9个原小池已封存。':result.comparison_models===4?'四模型共72个六档观察池和9个原小池已封存。':result.comparison_models===3?'三模型共54个六档观察池和9个原小池已封存。':'已保留本期原加权模型六档；三模型对照从后续新期开始冻结。');
       }else{
         const body={...lastRequest.value,expected_archive_sha256:plan.value.recommendation_archive.sha256};
         const result=await post('api/plans',body);plan.value=result.plan;planSaved.value=true;

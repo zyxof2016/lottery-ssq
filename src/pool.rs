@@ -298,6 +298,13 @@ pub fn saved_ranked(prepared: &Prepared, previous: u64) -> Value {
     value
 }
 
+/// Optional independently versioned extension; v3/v4 archives stay unchanged.
+pub fn saved_current(prepared:&Prepared,draws:&[Draw])->Value {
+    let mut value=saved_ranked(prepared,draws.last().unwrap().red_mask);
+    value["coverage_model"]=crate::conditional::saved(prepared,draws);
+    value
+}
+
 fn uniform_ranking(issue: &str) -> Vec<u8> {
     let hash = crate::hash::sha256_hex(format!("ssq-pool-comparison-v1:{}:{issue}:red", Protocol::SEED).as_bytes());
     let mut rng = Rng::new(u64::from_str_radix(&hash[..16], 16).expect("sha256 prefix"));
@@ -335,6 +342,7 @@ pub fn reviewed_models(reviewed: &Value) -> Vec<Value> {
     if reviewed["version"] == 3 || reviewed["version"] == RANKED_VERSION {
         models.extend(reviewed["comparison_models"].as_array().into_iter().flatten().cloned());
     }
+    if reviewed["version"]==RANKED_VERSION && !reviewed["coverage_model"].is_null() {models.push(reviewed["coverage_model"].clone());}
     models
 }
 
@@ -387,10 +395,17 @@ pub fn review(saved: &Value, draw: Option<&Draw>) -> Result<Value, String> {
             reviewed.push(review_set(model, draw, &TIER_RED_SIZES, Some(&order), blue_order.as_deref(), name, true)?);
         }
         result["comparison_models"] = json!(reviewed);
+        if version==4 && !saved["coverage_model"].is_null() {
+            let model=&saved["coverage_model"];
+            crate::conditional::validate(model,red_order.as_ref().unwrap(),&saved["target_issue"])?;
+            let order=ranking(model,"red_ranking",33)?.ok_or("条件频率缺少完整排名")?;
+            result["coverage_model"]=review_set(model,draw,&TIER_RED_SIZES,Some(&order),blue_order.as_deref(),crate::conditional::MODEL,true)?;
+        } else {result.as_object_mut().unwrap().remove("coverage_model");}
     } else {
         // A v1/v2 archive never gains a model it did not save.
         result.as_object_mut().unwrap().remove("comparison_models");
         result.as_object_mut().unwrap().remove("comparison_policy");
+        result.as_object_mut().unwrap().remove("coverage_model");
     }
     Ok(result)
 }
@@ -495,7 +510,7 @@ pub fn analyze(draws: &[Draw]) -> Result<Value, String> {
         "version": REPORT_VERSION, "archive_version": RANKED_VERSION,
         "kind": "exploratory_small_pool_replay", "objective": "all_six_reds_with_fewer_selected_reds",
         "data_sha256": data_sha256(draws), "protocol_sha256": Protocol::sha256(),
-        "source_sha256": crate::hash::sha256_hex(concat!(include_str!("pool.rs"), include_str!("model.rs"), include_str!("select.rs"), include_str!("protocol.rs"), include_str!("eval.rs"), include_str!("stats.rs"), include_str!("ranking.rs")).as_bytes()),
+        "source_sha256": crate::hash::sha256_hex(concat!(include_str!("pool.rs"), include_str!("model.rs"), include_str!("select.rs"), include_str!("protocol.rs"), include_str!("eval.rs"), include_str!("stats.rs"), include_str!("ranking.rs"), include_str!("conditional.rs")).as_bytes()),
         "cutoff_issue": fmt_issue(prepared.cutoff_issue), "cutoff_date": fmt_date(prepared.cutoff_date), "suggested_target": fmt_issue(prepared.cutoff_issue + 1),
         "red_sizes": (6..=33).collect::<Vec<_>>(), "archived_red_sizes": ARCHIVED_RED_SIZES, "blue_sizes": BLUE_SIZES,
         "observation_tiers": tier_definitions(), "default_observation_blue_count": 2,
@@ -505,7 +520,7 @@ pub fn analyze(draws: &[Draw]) -> Result<Value, String> {
             "tracking": confirm_end.map(|e| summarize(&rows[e..].iter().collect::<Vec<_>>())),
             "all_oos": summarize(&rows.iter().collect::<Vec<_>>())},
         "next": {"actual_recommendation": false, "known_outcome_at_generation": false,
-            "candidate_models": next_models, "weighted_pools": review(&saved_ranked(&prepared, draws.last().unwrap().red_mask), None)?},
+            "candidate_models": next_models, "weighted_pools": review(&saved_current(&prepared, draws), None)?},
         "notes": [
             "主要目标是用更少红球包含全部6个开奖红球；先比较14–24红，全6红率为主指标，蓝球1–3个及6红1蓝全包作辅助。",
             "全部历史为事后因果回放，不冒充实际发布。权重先用更早样本外记录展开拟合，25111起冻结；每期专家状态只用该期之前的数据。",
@@ -566,6 +581,20 @@ pub fn render(report: &Value) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn optional_conditional_pool_is_bound_to_its_saved_ranking_and_does_not_augment_v4() {
+        let draws=crate::draw::synth_draws(600,9);let p=prepare_forecast(&draws).unwrap();
+        let old=saved_ranked(&p,draws.last().unwrap().red_mask);
+        assert_eq!(reviewed_models(&review(&old,None).unwrap()).len(),4);
+        let saved=saved_current(&p,&draws);
+        assert_eq!(reviewed_models(&review(&saved,None).unwrap()).len(),5);
+        assert_eq!(old["comparison_models"],saved["comparison_models"]);
+        let mut bad=saved.clone();bad["coverage_model"]["pools"][0]["blues"]=json!([saved["blue_ranking"][15]]);
+        assert!(review(&bad,None).is_err());
+        let mut bad=saved;bad["coverage_model"]["pools"][0]["reds"][0]=bad["coverage_model"]["red_ranking"][32].clone();
+        assert!(review(&bad,None).is_err());
+    }
 
     #[test]
     fn calibrated_archives_validate_scores_and_keep_v3_models_unchanged() {

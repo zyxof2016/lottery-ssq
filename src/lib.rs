@@ -1,6 +1,7 @@
 pub mod audit;
 pub mod cycle;
 pub mod coverage;
+pub mod conditional;
 pub mod draw;
 pub mod efficiency;
 pub mod eval;
@@ -16,4 +17,5 @@ pub mod report;
 pub mod review;
 pub mod select;
 pub mod stats;
+pub mod tail;
 pub mod web;
