@@ -25,10 +25,11 @@ const PAGE: &str = include_str!("web/index.html");
 const REVIEWS_PAGE: &str = include_str!("web/reviews.html");
 const POOLS_PAGE: &str = include_str!("web/pools.html");
 const RESEARCH_PAGE: &str = include_str!("web/research.html");
-const STATIC_ASSETS: [(&str, &str, &[u8]); 4] = [
+const STATIC_ASSETS: [(&str, &str, &[u8]); 5] = [
     ("app.css", "text/css", include_bytes!("web/static/app.css")),
     ("shell.js", "application/javascript", include_bytes!("web/static/shell.js")),
     ("main.js", "application/javascript", include_bytes!("web/static/main.js")),
+    ("pool-intersection.js", "application/javascript", include_bytes!("web/static/pool-intersection.js")),
     ("vendor/vue-3.5.24.js", "application/javascript", include_bytes!("web/static/vendor/vue-3.5.24.js")),
 ];
 
