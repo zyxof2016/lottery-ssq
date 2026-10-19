@@ -19,7 +19,7 @@ use crate::pool;
 use crate::protocol::Protocol;
 use crate::select::rank_desc;
 
-pub const PRESETS: [&str; 10] = [
+pub const PRESETS: [&str; 11] = [
     "frozen",
     "disjoint5",
     "single8",
@@ -30,6 +30,7 @@ pub const PRESETS: [&str; 10] = [
     "balanced14",
     "calibrated14",
     "coverage24",
+    "equal24",
 ];
 pub const PRIZE_RULES_URL: &str = "https://www.scflcp.com.cn/yxgz/823145252.jhtml";
 
@@ -257,7 +258,7 @@ fn strategy(plan: &Plan, prepared: &Prepared) -> Value {
         "parameters": {"mode": plan.spec.mode, "tickets": plan.spec.tickets, "pool": plan.spec.pool,
             "overlap": plan.spec.overlap, "red_count": plan.spec.red_count, "blue_count": plan.spec.blue_count,
             "bankers": plan.spec.bankers, "drags": plan.spec.drags},
-        "evidence": evidence, "funnel": stages, "red_weights": if prepared.ranking.is_some() { Value::Null } else {json!(prepared.weights)},
+        "evidence": evidence, "funnel": stages, "red_weights": prepared.ranking.as_ref().map(|r|r["red_weights"].clone()).unwrap_or_else(||json!(prepared.weights)),
         "ranking": prepared.ranking,
         "blue_weights": prepared.blue_weights, "bankers": plan.bankers, "drags": plan.drags,
     })
@@ -357,9 +358,10 @@ fn freeze_daily_with_clock(
     let prepared = prepare_forecast(draws)?;
     let ranked = crate::ranking::prepare(draws)?;
     let conditional = crate::conditional::prepare(draws)?;
+    let equal = crate::ranking::prepare_equal(draws)?;
     let mut variants = BTreeMap::new();
     for name in PRESETS {
-        let prepared = if name == "calibrated14" {&ranked} else if name == "coverage24" {&conditional} else {&prepared};
+        let prepared = if name == "calibrated14" {&ranked} else if name == "coverage24" {&conditional} else if name == "equal24" {&equal} else {&prepared};
         let spec = plan::resolve(Some(name), None, None, None, None, None, None, None, None)?;
         variants.insert(
             name.to_string(),
@@ -1289,7 +1291,7 @@ mod tests {
         append_outcome(&mut draws);
         let new_issue=next(&draws);
         let result=freeze_daily_with_clock(&temp.0,&draws,&new_issue,100,||10).unwrap();
-        assert_eq!(result["strategies"],19);
+        assert_eq!(result["strategies"],20);
         assert_eq!(result["comparison_models"],5);
         assert_eq!(result["comparison_number_pools"],72);
         let raw=read_checked(&temp.0.join(format!("daily/{new_issue}.json"))).unwrap();
@@ -1299,6 +1301,15 @@ mod tests {
         assert!(p["red_weights"].is_null());
         let reds:BTreeSet<_>=p["tickets"].as_array().unwrap().iter().flat_map(|t|t["red"].as_array().unwrap().iter().map(|n|n.as_u64().unwrap())).collect();
         assert_eq!(reds,saved["red_ranking"].as_array().unwrap()[..14].iter().map(|n|n.as_u64().unwrap()).collect());
+        let equal = &raw["payload"]["strategies"]["equal24"];
+        let equal_pool = &raw["payload"]["number_pools"]["comparison_models"][0];
+        assert_eq!(equal["ranking"]["red_ranking"], equal_pool["red_ranking"]);
+        assert_eq!(equal["ranking"]["red_scores"], equal_pool["red_scores"]);
+        assert_eq!(equal["red_weights"], equal_pool["red_weights"]);
+        assert_eq!(equal["coverage_optimization"]["ranking"], "equal");
+        for n in equal_pool["red_ranking"].as_array().unwrap()[..24].iter() {
+            assert_eq!(equal["tickets"].as_array().unwrap().iter().filter(|t|t["red"].as_array().unwrap().contains(n)).count(), 2);
+        }
         let observations=pool_observations(&temp.0,&draws).unwrap();
         for cell in observations["ranking_paired_cells"].as_array().unwrap() {
             assert_eq!(cell["n"],0);assert_eq!(cell["pending"],1);
@@ -1371,7 +1382,7 @@ mod tests {
         let mut payload = base_payload(&prepared, &issue, "daily", 10, Some(100));
         payload["strategies"] = json!(PRESETS
             .into_iter()
-            .filter(|name| !["balanced14","calibrated14","coverage24"].contains(name))
+            .filter(|name| !["balanced14","calibrated14","coverage24","equal24"].contains(name))
             .map(|name| (name, strategy(&build(name, &prepared), &prepared)))
             .collect::<BTreeMap<_, _>>());
         let path = temp.0.join(format!("daily/{issue}.json"));

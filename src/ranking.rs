@@ -74,6 +74,21 @@ pub fn prepare(draws: &[Draw]) -> Result<Prepared, String> {
     Ok(apply(prepared, score, metadata))
 }
 
+/// Reuse the equal-weight ranking already frozen in comparison pools.
+pub fn prepare_equal(draws: &[Draw]) -> Result<Prepared, String> {
+    let prepared = crate::eval::prepare_forecast(draws)?;
+    let score = crate::select::fuse7(&prepared.expert_red, &crate::select::equal7());
+    let mut metadata = pool::saved(&prepared)["comparison_models"][0].clone();
+    metadata["version"] = json!(1);
+    metadata["target_issue"] = json!(fmt_issue(prepared.cutoff_issue + 1));
+    metadata["base_red_ranking"] = json!(prepared.forecast.red_order.iter().map(|n| n + 1).collect::<Vec<_>>());
+    metadata["policy"] = json!({"model":"equal","version":1,"label":"等权融合 · 对照",
+        "method":"equal_weight_seven_red_experts","blue_scope":"shared_weighted_blue_ranking",
+        "automatic_promotion":false,
+        "note":"七个红球专家各占1/7，直接使用原等权对照排名；蓝球沿用协议排名。同数量持续观察，不按单期命中自动替换模型。"});
+    Ok(apply(prepared, score, metadata))
+}
+
 pub(crate) fn apply(mut prepared: Prepared, score: [f64; 33], metadata: Value) -> Prepared {
     let order = rank_desc(&score);
     let members = order[..crate::protocol::Protocol::PRIMARY_K].to_vec();

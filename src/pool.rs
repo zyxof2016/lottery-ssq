@@ -466,6 +466,16 @@ fn review_set(saved: &Value, draw: Option<&Draw>, allowed_red_sizes: &[usize], r
         pool["missed_red_ranks"] = json!(draw.zip(red_order).map(|(d, order)| d.red.iter()
             .filter(|n| !reds.contains(n)).map(|n| json!({"number": n,
                 "rank": order.iter().position(|r| r == n).unwrap() + 1})).collect::<Vec<_>>()));
+        pool["boundary_diagnostics"] = json!(draw.zip(red_order).map(|(d, order)| {
+            let near: Vec<_> = d.red.iter().filter(|n| !reds.contains(n)).filter_map(|n| {
+                let rank = order.iter().position(|r| r == n)? + 1;
+                (rank > reds.len() && rank <= reds.len() + 2).then(||
+                    json!({"number":n,"rank":rank,"positions_after_cutoff":rank-reds.len()}))
+            }).collect();
+            json!({"kind":"post_draw_saved_ranking_boundary_diagnostic","cutoff":reds.len(),
+                "near_missed_reds":near,"is_recommended_pool":false,
+                "note":"只定位原排名截线后两位的漏号，不改原池，也不表示事前能识别漏号。"})
+        }));
         pool["full_red"] = json!(hits.as_ref().map(|r| r.len() == 6));
         pool["blue_hit"] = json!(draw.map(|d| blues.contains(&d.blue)));
         pool["full_draw"] =
@@ -788,6 +798,33 @@ mod tests {
         assert!(reviewed["comparison_models"].is_null());
         assert_eq!(reviewed["diagnostics"]["minimum_full_red_prefix"], 17);
         assert_eq!(serde_json::to_vec(&old).unwrap(), old_bytes);
+    }
+
+    #[test]
+    fn boundary_misses_use_only_saved_ranks_and_pending_remains_null() {
+        let original = saved(&prepare_forecast(&crate::draw::synth_draws(220, 9)).unwrap());
+        let bytes = serde_json::to_vec(&original).unwrap();
+        let order: Vec<u8> = serde_json::from_value(original["red_ranking"].clone()).unwrap();
+        let draw = Draw::from_parts(26001, 20260101,
+            [order[0], order[1], order[2], order[3], order[24], order[26]], 1).unwrap();
+        let scored = review(&original, Some(&draw)).unwrap();
+        let p = scored["pools"].as_array().unwrap().iter()
+            .find(|p| p["red_count"] == 24 && p["blue_count"] == 2).unwrap();
+        assert_eq!(p["boundary_diagnostics"]["near_missed_reds"],
+            json!([{"number":order[24],"rank":25,"positions_after_cutoff":1}]));
+        assert_eq!(p["boundary_diagnostics"]["is_recommended_pool"], false);
+        assert_eq!(p["missed_reds"].as_array().unwrap().len(), 2);
+        let pending = review(&original, None).unwrap();
+        assert!(pending["pools"].as_array().unwrap().iter().all(|p|p["boundary_diagnostics"].is_null()));
+        let mut legacy = original.clone();
+        legacy["version"] = json!(1);
+        for key in ["red_ranking","blue_ranking","comparison_models","comparison_policy"] {
+            legacy.as_object_mut().unwrap().remove(key);
+        }
+        legacy["pools"].as_array_mut().unwrap().retain(|p|p["group"]=="legacy");
+        let old = review(&legacy, Some(&draw)).unwrap();
+        assert!(old["pools"].as_array().unwrap().iter().all(|p|p["boundary_diagnostics"].is_null()));
+        assert_eq!(serde_json::to_vec(&original).unwrap(), bytes);
     }
 
     #[test]

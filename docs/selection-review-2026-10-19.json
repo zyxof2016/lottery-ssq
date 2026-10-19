@@ -1,0 +1,467 @@
+{
+  "kind": "actual_archive_review_and_observation_access_improvement",
+  "date": "2026-10-19",
+  "objective": "all_six_reds_with_at_most_24_reds",
+  "official_draw_source": "https://www.swlc.net.cn/index.html",
+  "cutoff_issue": "26119",
+  "draw": {
+    "blue": 4,
+    "date": "2026-10-18",
+    "issue": "26119",
+    "red": [
+      12,
+      22,
+      23,
+      25,
+      27,
+      30
+    ]
+  },
+  "data_sha256": "6d0bd08c5c06b815f479636b6ce513e62e395663d223641799afc61beed7dcd1",
+  "protocol_sha256": "5cd478353038ca0093103559987de9ea6c3c230ef147eaa729fdb85b7e8dca02",
+  "pool_source_sha256": "02f6d0287011833506bc0cae93092db35a0595a72a8c622f5479aed9388fff63",
+  "conditional_source_sha256": "b5d2aa859f727d26e2ac7b90ab3f3a524f9ebe3fa4c513c8ca3d0a29dc086978",
+  "actual_archive_review": {
+    "issue": "26119",
+    "models": [
+      {
+        "model": "weighted",
+        "tier_red_counts": [
+          14,
+          16,
+          18,
+          20,
+          22,
+          24
+        ],
+        "red_hits": [
+          3,
+          3,
+          3,
+          4,
+          5,
+          5
+        ],
+        "blue_count": 2,
+        "smallest_saved_full_red_tier": null,
+        "post_draw_diagnostics": {
+          "is_recommended_pool": false,
+          "kind": "post_draw_saved_ranking_diagnostic",
+          "minimum_full_red_prefix": 25,
+          "note": "按开奖前保存的完整排名计算，仅用于漏号诊断；这个最小前缀不是当时推荐的号码池。",
+          "winning_blue_rank": 2,
+          "winning_red_ranks": [
+            {
+              "number": 12,
+              "rank": 25
+            },
+            {
+              "number": 22,
+              "rank": 1
+            },
+            {
+              "number": 23,
+              "rank": 5
+            },
+            {
+              "number": 25,
+              "rank": 8
+            },
+            {
+              "number": 27,
+              "rank": 21
+            },
+            {
+              "number": 30,
+              "rank": 20
+            }
+          ]
+        }
+      },
+      {
+        "model": "equal",
+        "tier_red_counts": [
+          14,
+          16,
+          18,
+          20,
+          22,
+          24
+        ],
+        "red_hits": [
+          3,
+          4,
+          5,
+          5,
+          5,
+          6
+        ],
+        "blue_count": 2,
+        "smallest_saved_full_red_tier": 24,
+        "post_draw_diagnostics": {
+          "is_recommended_pool": false,
+          "kind": "post_draw_saved_ranking_diagnostic",
+          "minimum_full_red_prefix": 23,
+          "note": "按开奖前保存的完整排名计算，仅用于漏号诊断；这个最小前缀不是当时推荐的号码池。",
+          "winning_blue_rank": 2,
+          "winning_red_ranks": [
+            {
+              "number": 12,
+              "rank": 23
+            },
+            {
+              "number": 22,
+              "rank": 1
+            },
+            {
+              "number": 23,
+              "rank": 5
+            },
+            {
+              "number": 25,
+              "rank": 9
+            },
+            {
+              "number": 27,
+              "rank": 16
+            },
+            {
+              "number": 30,
+              "rank": 17
+            }
+          ]
+        }
+      },
+      {
+        "model": "uniform",
+        "tier_red_counts": [
+          14,
+          16,
+          18,
+          20,
+          22,
+          24
+        ],
+        "red_hits": [
+          3,
+          4,
+          4,
+          5,
+          5,
+          6
+        ],
+        "blue_count": 2,
+        "smallest_saved_full_red_tier": 24,
+        "post_draw_diagnostics": {
+          "is_recommended_pool": false,
+          "kind": "post_draw_saved_ranking_diagnostic",
+          "minimum_full_red_prefix": 24,
+          "note": "按开奖前保存的完整排名计算，仅用于漏号诊断；这个最小前缀不是当时推荐的号码池。",
+          "winning_blue_rank": 2,
+          "winning_red_ranks": [
+            {
+              "number": 12,
+              "rank": 5
+            },
+            {
+              "number": 22,
+              "rank": 8
+            },
+            {
+              "number": 23,
+              "rank": 16
+            },
+            {
+              "number": 25,
+              "rank": 24
+            },
+            {
+              "number": 27,
+              "rank": 20
+            },
+            {
+              "number": 30,
+              "rank": 1
+            }
+          ]
+        }
+      }
+    ],
+    "protocol_ticket_summary": {
+      "bets": 8,
+      "cost": 16,
+      "red_coverage": 10,
+      "covered_reds": [
+        22,
+        23,
+        25
+      ],
+      "missed_reds": [
+        12,
+        27,
+        30
+      ],
+      "all_ticket_reds": [
+        5,
+        22
+      ],
+      "blue_covered": true
+    },
+    "conditional_gap_actual_recommendation_for_issue": false,
+    "calibrated_actual_recommendation_for_issue": false
+  },
+  "actual_shared_24red_sample": {
+    "blue_count": 2,
+    "excluded_missing_comparison": 1,
+    "models": [
+      {
+        "at_least_5_red_periods": 1,
+        "blue_count": 2,
+        "blue_covered_periods": 1,
+        "diagnostic_periods": 1,
+        "excluded_missing_comparison": 1,
+        "full_draw_periods": 0,
+        "full_draw_rate": 0.0,
+        "full_red_periods": 0,
+        "full_red_rate": 0.0,
+        "full_red_rate_excess": -0.12152391546162403,
+        "full_red_wilson95": [
+          0.0,
+          0.7934506856227626
+        ],
+        "label": "协议加权融合",
+        "mean_minimum_full_red_prefix": 25.0,
+        "mean_missed_reds": 1.0,
+        "mean_red_hits": 5.0,
+        "missing": 0,
+        "model": "weighted",
+        "n": 1,
+        "paired_periods_only": true,
+        "pending": 1,
+        "red_count": 24,
+        "scored_issues": [
+          "26119"
+        ],
+        "uniform_full_red_rate": 0.12152391546162403
+      },
+      {
+        "at_least_5_red_periods": 1,
+        "blue_count": 2,
+        "blue_covered_periods": 1,
+        "diagnostic_periods": 1,
+        "excluded_missing_comparison": 1,
+        "full_draw_periods": 1,
+        "full_draw_rate": 1.0,
+        "full_red_periods": 1,
+        "full_red_rate": 1.0,
+        "full_red_rate_excess": 0.878476084538376,
+        "full_red_wilson95": [
+          0.20654931437723745,
+          1.0
+        ],
+        "label": "等权融合",
+        "mean_minimum_full_red_prefix": 23.0,
+        "mean_missed_reds": 0.0,
+        "mean_red_hits": 6.0,
+        "missing": 0,
+        "model": "equal",
+        "n": 1,
+        "paired_periods_only": true,
+        "pending": 1,
+        "red_count": 24,
+        "scored_issues": [
+          "26119"
+        ],
+        "uniform_full_red_rate": 0.12152391546162403
+      },
+      {
+        "at_least_5_red_periods": 1,
+        "blue_count": 2,
+        "blue_covered_periods": 1,
+        "diagnostic_periods": 1,
+        "excluded_missing_comparison": 1,
+        "full_draw_periods": 1,
+        "full_draw_rate": 1.0,
+        "full_red_periods": 1,
+        "full_red_rate": 1.0,
+        "full_red_rate_excess": 0.878476084538376,
+        "full_red_wilson95": [
+          0.20654931437723745,
+          1.0
+        ],
+        "label": "均匀红球对照",
+        "mean_minimum_full_red_prefix": 24.0,
+        "mean_missed_reds": 0.0,
+        "mean_red_hits": 6.0,
+        "missing": 0,
+        "model": "uniform",
+        "n": 1,
+        "paired_periods_only": true,
+        "pending": 1,
+        "red_count": 24,
+        "scored_issues": [
+          "26119"
+        ],
+        "uniform_full_red_rate": 0.12152391546162403
+      }
+    ],
+    "n": 1,
+    "pending": 1,
+    "red_count": 24
+  },
+  "historical_causal_replay_24red": {
+    "all_oos": {
+      "n": 3336,
+      "from": "04092",
+      "to": "26119",
+      "red_count": 24,
+      "models": [
+        {
+          "model": "weighted",
+          "full_red_periods": 407,
+          "full_red_rate": 0.12200239808153478
+        },
+        {
+          "model": "equal",
+          "full_red_periods": 431,
+          "full_red_rate": 0.12919664268585132
+        },
+        {
+          "model": "conditional_gap",
+          "full_red_periods": 395,
+          "full_red_rate": 0.1184052757793765
+        }
+      ]
+    },
+    "confirmation": {
+      "n": 156,
+      "from": "25111",
+      "to": "26115",
+      "red_count": 24,
+      "models": [
+        {
+          "model": "weighted",
+          "full_red_periods": 16,
+          "full_red_rate": 0.10256410256410256
+        },
+        {
+          "model": "equal",
+          "full_red_periods": 18,
+          "full_red_rate": 0.11538461538461539
+        },
+        {
+          "model": "conditional_gap",
+          "full_red_periods": 22,
+          "full_red_rate": 0.14102564102564102
+        }
+      ]
+    },
+    "recent30": {
+      "n": 30,
+      "from": "26090",
+      "to": "26119",
+      "red_count": 24,
+      "models": [
+        {
+          "model": "weighted",
+          "full_red_periods": 4,
+          "full_red_rate": 0.13333333333333333
+        },
+        {
+          "model": "equal",
+          "full_red_periods": 5,
+          "full_red_rate": 0.16666666666666666
+        },
+        {
+          "model": "conditional_gap",
+          "full_red_periods": 6,
+          "full_red_rate": 0.2
+        }
+      ]
+    },
+    "recent60": {
+      "n": 60,
+      "from": "26060",
+      "to": "26119",
+      "red_count": 24,
+      "models": [
+        {
+          "model": "weighted",
+          "full_red_periods": 9,
+          "full_red_rate": 0.15
+        },
+        {
+          "model": "equal",
+          "full_red_periods": 10,
+          "full_red_rate": 0.16666666666666666
+        },
+        {
+          "model": "conditional_gap",
+          "full_red_periods": 12,
+          "full_red_rate": 0.2
+        }
+      ]
+    },
+    "tracking": {
+      "n": 4,
+      "from": "26116",
+      "to": "26119",
+      "red_count": 24,
+      "models": [
+        {
+          "model": "weighted",
+          "full_red_periods": 1,
+          "full_red_rate": 0.25
+        },
+        {
+          "model": "equal",
+          "full_red_periods": 2,
+          "full_red_rate": 0.5
+        },
+        {
+          "model": "conditional_gap",
+          "full_red_periods": 0,
+          "full_red_rate": 0
+        }
+      ]
+    }
+  },
+  "archives_preserved": {
+    "26118": {
+      "file_sha256": "7f81e7f32c824585ef279361ee2bde8eea3f67c6e599329033bbc60dedca5e51",
+      "payload_sha256": "2623c692d3b2c5ab70a343a8df76a9fe0154842c5c266cb7df456bed90640db3",
+      "strategies": 16
+    },
+    "26119": {
+      "file_sha256": "658dc89c647cc999aa47a2b2d4ab0ede67db7afb72f80f3af49ff1f6b7abb5cc",
+      "payload_sha256": "18ad62afffab08fcf9307245e7ff8d31bccb231cdfdd6a418496c165ffb13b49",
+      "strategies": 16
+    },
+    "26120": {
+      "file_sha256": "932f89aab2bbd8ecc9876e026254fd922f1858c1c839eaf7a9f7483dc76364f6",
+      "payload_sha256": "a1d6ed3b5b81f3c45691c2a977f04d0dd926c3dc4dec440c3a5198889f5d0e6d",
+      "strategies": 19
+    }
+  },
+  "changes": {
+    "new_selectable_ranking": "equal",
+    "new_preset": "equal24",
+    "red_count": 24,
+    "bets": 8,
+    "cost_yuan": 16,
+    "each_red_exposure": 2,
+    "future_first_daily_strategies": 20,
+    "future_number_pools": 99,
+    "existing_26120_daily_strategies": 19,
+    "boundary_diagnostic_max_positions": 2,
+    "automatic_promotion": false
+  },
+  "interpretation": [
+    "三模型共同已开奖样本只有26119一期，不推断稳定预测优势。",
+    "等权最小全包前缀23仅为开奖后诊断；当时实际保存全包档是24红，没有补造23红池。",
+    "条件频率从26120开始实际留档；目前待开奖，26119回放不得计入它的实际覆盖率。",
+    "近60期条件频率12/60高于原加权9/60，但全部样本395/3336低于407/3336，不能只报局部窗口。",
+    "等权24红全包只说明6红入池，8注均衡票不保证单注包含6红。",
+    "既有每日档案、已存复盘、协议与原蓝球排名保持原样；新策略只进入后续首次冻结。"
+  ]
+}

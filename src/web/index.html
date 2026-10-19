@@ -20,7 +20,7 @@
 <label class="field">选择玩法<input value="双色球 · 6 红 + 1 蓝" readonly></label>
 <label class="field" for="plan-mode">投注形态<select id="plan-mode" v-model="form.mode" @change="activePreset='';form.ranking_model=form.mode==='frozen'?'weighted':form.ranking_model">
 <option value="pool_observation">分档号码池观察</option><option value="balanced">均衡覆盖单式</option><option value="single">单式多注</option><option value="compound_red">红球复式</option><option value="compound_blue">蓝球复式</option><option value="dantuo">胆拖投注</option><option value="frozen">协议冻结票组</option></select></label>
-<label class="field" for="ranking-model">红球排名<select id="ranking-model" v-model="form.ranking_model" :disabled="form.mode==='frozen'"><option value="conditional_gap">条件频率 · 24红试验</option><option value="repeat_calibrated">重号偏置校准 · 试验</option><option value="weighted">协议加权融合</option></select></label>
+<label class="field" for="ranking-model">红球排名<select id="ranking-model" v-model="form.ranking_model" :disabled="form.mode==='frozen'"><option value="conditional_gap">条件频率 · 24红试验</option><option value="repeat_calibrated">重号偏置校准 · 试验</option><option value="equal">等权融合 · 对照</option><option value="weighted">协议加权融合</option></select></label>
 <label class="field" for="target-issue">目标期号<input id="target-issue" v-model="target" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" required placeholder="如 26118"></label>
 </div><div class="grid4 divider">
 <label v-if="form.mode==='pool_observation'" class="field" for="observation-size">观察档位<select id="observation-size" v-model.number="form.observation_size"><option v-for="(n,i) in [14,16,18,20,22,24]" :value="n">{{ String.fromCharCode(65+i) }}档 · {{ n }} 红</option></select></label>

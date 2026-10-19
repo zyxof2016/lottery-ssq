@@ -333,12 +333,13 @@ fn build_requested(body: &str, draws: &[Draw]) -> Result<(Plan, crate::eval::Pre
         req.bankers,
         req.drags,
     )?;
-    let model = req.ranking_model.as_deref().unwrap_or(if req.preset.as_deref()==Some("coverage24") {crate::conditional::MODEL} else if req.preset.as_deref()==Some("calibrated14") {crate::ranking::MODEL} else {"weighted"});
-    if !["weighted",crate::ranking::MODEL,crate::conditional::MODEL].contains(&model) {return Err("未知红球排名模型".into());}
+    let model = req.ranking_model.as_deref().unwrap_or(if req.preset.as_deref()==Some("coverage24") {crate::conditional::MODEL} else if req.preset.as_deref()==Some("calibrated14") {crate::ranking::MODEL} else if req.preset.as_deref()==Some("equal24") {"equal"} else {"weighted"});
+    if !["weighted","equal",crate::ranking::MODEL,crate::conditional::MODEL].contains(&model) {return Err("未知红球排名模型".into());}
     if req.preset.as_deref()==Some("calibrated14") && model!="repeat_calibrated" {return Err("校准排名预设须使用校准模型".into());}
     if req.preset.as_deref()==Some("coverage24") && model!=crate::conditional::MODEL {return Err("24红条件频率预设须使用条件频率模型".into());}
+    if req.preset.as_deref()==Some("equal24") && model!="equal" {return Err("等权24红预设须使用等权模型".into());}
     if spec.mode=="frozen" && model!="weighted" {return Err("协议冻结票组使用原加权排名，请用其他方案观察校准排名".into());}
-    let prepared = if model==crate::conditional::MODEL {crate::conditional::prepare(draws)?} else if model==crate::ranking::MODEL {crate::ranking::prepare(draws)?} else {prepare_forecast(draws)?};
+    let prepared = if model==crate::conditional::MODEL {crate::conditional::prepare(draws)?} else if model==crate::ranking::MODEL {crate::ranking::prepare(draws)?} else if model=="equal" {crate::ranking::prepare_equal(draws)?} else {prepare_forecast(draws)?};
     let built = plan::build(&prepared.forecast, &spec)?;
     Ok((built, prepared))
 }
@@ -1467,6 +1468,27 @@ mod tests {
         assert!(!Arc::ptr_eq(&first, &refreshed));
         assert_eq!(refreshed.len(), first.len() + 1);
         let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn equal_preset_uses_saved_equal_pool_and_rejects_model_substitution() {
+        let draws = synth_draws(220, 9);
+        let original = prepare_forecast(&draws).unwrap();
+        let saved = crate::pool::saved(&original);
+        let (plan, prepared) = build_requested(r#"{"preset":"equal24"}"#, &draws).unwrap();
+        assert_eq!(prepared.ranking.as_ref().unwrap()["red_ranking"], saved["comparison_models"][0]["red_ranking"]);
+        assert_eq!(prepared.forecast.blue_order, original.forecast.blue_order);
+        assert_eq!(plan.tickets.len(), 8);
+        assert_eq!(plan.reds.len(), 24);
+        for n in &plan.reds {
+            assert_eq!(plan.tickets.iter().filter(|t|t.red.contains(n)).count(), 2);
+        }
+        for body in [r#"{"preset":"equal24","ranking_model":"weighted"}"#,
+            r#"{"preset":"frozen","ranking_model":"equal"}"#] {
+            assert!(build_requested(body, &draws).is_err());
+        }
+        let (small, _) = build_requested(r#"{"mode":"balanced","ranking_model":"equal","pool":14,"tickets":8,"blue_count":2}"#, &draws).unwrap();
+        assert_eq!(small.reds.len(), 14);
     }
 
     #[test]
