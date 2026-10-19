@@ -15,6 +15,8 @@
 <div v-if="toast.show" :class="['notice',toast.type==='error'?'error':'success']" role="status"><div class="row between"><span>{{ toast.message }}</span><button @click="toast.show=false" aria-label="关闭提示">×</button></div></div>
 <section v-show="currentTab==='generator'" id="panel-generator" role="tabpanel" aria-labelledby="tab-generator">
 <div class="notice">以更少红球覆盖全部 6 个开奖号为观察目标；模型排序尚未证明稳定优于均匀选号。号码池覆盖与单注中奖分别核对。<a href="?tab=reviews" @click.prevent="openTab('reviews')">查看每期实际推荐与复盘</a></div>
+<div class="card" id="compact-picker"><h2>精简选号 · 先看16红＋2蓝</h2><p class="muted">第 {{ overview.next_issue || '待载入' }} 期，每次只看一组。三个档位沿用同一原加权排名，14红包含在16红内，16红包含在18红内。</p><div class="grid3"><button v-for="c in compactChoices" :key="c.size" :id="'compact-'+c.size" :class="['preset',{selected:form.mode==='pool_observation'&&form.ranking_model==='weighted'&&form.observation_size===c.size}]" :disabled="generating||saving||syncing||!overview.next_issue" @click="generateCompact(c.size)"><strong>{{ c.name }}</strong><small>{{ c.desc }}</small></button></div><p class="muted" style="margin-top:14px;margin-bottom:0">压缩会减少候选，也会降低全6红覆盖；生成后可查看同一模型的历史比较。</p></div>
+<details id="advanced-options"><summary class="card">更多模型与自定义玩法</summary>
 <div class="card"><h2>⚡ 按目标生成方案</h2><div class="grid3"><button v-for="p in presets" :key="p.id" :id="'preset-'+p.id" :class="['preset',{selected:activePreset===p.id}]" :disabled="generating||saving||syncing" @click="applyPreset(p.id)"><strong>{{ p.name }}</strong><small>{{ p.desc }}</small></button></div></div>
 <form class="card" @submit.prevent="generateCustom"><h2>🛠️ 自定义参数生成</h2><div class="grid4">
 <label class="field">选择玩法<input value="双色球 · 6 红 + 1 蓝" readonly></label>
@@ -33,16 +35,17 @@
 <label v-if="form.mode!=='frozen'" class="field">蓝球个数<select v-model.number="form.blue_count"><option v-for="n in (['pool_observation','balanced'].includes(form.mode)?[1,2,3]:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])" :value="n">{{ n }} 个</option></select></label>
 <label v-if="form.mode==='frozen'" class="field" for="seal-deadline">封存截止（北京时间）<input id="seal-deadline" v-model="deadline" type="datetime-local" required></label>
 <div class="field"><span class="muted">{{ form.mode==='pool_observation'?'只生成号码池，不展开复式':'按完整展开票组计算，最多 300 注' }}</span><button class="primary" type="submit" :disabled="generating||saving||syncing">{{ generating?'生成计算中…':'立即生成方案' }}</button></div>
-</div></form>
-<div v-if="!plan&&!poolPreview" class="card empty">选择上方目标预设，或填写参数后点击“立即生成方案”。</div>
+</div></form></details>
+<div v-if="!plan&&!poolPreview" class="card empty">点击“16红 · 默认”查看一组号码；想更少可选14红，想多留候选可选18红。</div>
 <article v-if="plan||poolPreview" id="generated-plan" class="card result">
 <div class="result-header"><div class="row between"><div><div class="muted">第 {{ generatedIssue }} 期 · {{ poolPreview?'号码池观察':plan.known_outcome_at_generation?'历史试算':'按期选号' }}</div><h2 style="margin:6px 0">{{ poolPreview?poolPreview.red_count+'红号码池 · 模型观察':plan.title }}</h2></div><div class="row"><button :class="['save',{success:planSaved}]" @click="savePlan" :disabled="saving||generating||planSaved||stalePreview||(poolPreview&&!poolCanFreeze)">{{ saving?'保存中…':planSaved?'✓ 已保存':poolPreview?'封存六档观察池':'保存到我的方案库' }}</button><button class="copy" @click="copyPlan">{{ poolPreview?'复制号码池':'复制打单文本' }}</button></div></div></div>
 <div class="result-body">
 <p v-if="stalePreview" class="notice">开奖输入已变化，这份预览仍显示生成时的号码；请重新生成后保存。</p>
 <div class="row between"><p class="muted">依据截止 {{ currentResult.cutoff_issue }}（{{ currentResult.cutoff_date }}）的数据。修改上方参数后，点击生成才会替换本次结果。</p><a v-if="resultArchive" :href="resultArchive.url" @click.prevent="openReviewUrl(resultArchive.url)">查看本次推荐留档 →</a></div>
 <template v-if="poolPreview"><p v-if="!poolCanFreeze" class="notice">{{ cycle?.reason }}。当前仅查看号码预览。</p>
-<div class="grid3"><div class="metric">所选红球<strong>{{ poolPreview.red_count }} 个</strong>较大档逐层包含较小档</div><div class="metric">共用蓝球<strong>{{ poolPreview.blue_count }} 个</strong>同一冻结排名</div><div class="metric">同大小均匀全 6 红基准<strong>{{ percent(poolPreview.uniform_full_red_rate) }}</strong>作为参照，不是模型置信度</div></div>
+<div class="grid3"><div class="metric">所选红球<strong>{{ poolPreview.red_count }} 个</strong><template v-if="poolPreview.red_count<24">比24红少 {{ 24-poolPreview.red_count }} 个</template><template v-else>较大档逐层包含较小档</template></div><div class="metric">共用蓝球<strong>{{ poolPreview.blue_count }} 个</strong>同一冻结排名</div><div class="metric">同大小均匀全 6 红基准<strong>{{ percent(poolPreview.uniform_full_red_rate) }}</strong>作为参照，不是模型置信度</div></div>
 <h3 style="margin-top:20px">本次观察号码池 · {{ poolPreview.model_label }}</h3><div class="balls"><span v-for="n in poolPreview.reds" :key="'r'+n" class="ball red">{{ pad(n) }}</span><span v-for="n in poolPreview.blues" :key="'b'+n" class="ball blue">{{ pad(n) }}</span></div>
+<p v-if="poolPreview.compression_evidence" class="notice" id="compression-evidence" style="margin-top:16px">同一模型近 {{ poolPreview.compression_evidence.n }} 期回放（{{ poolPreview.compression_evidence.from }}—{{ poolPreview.compression_evidence.to }}）：{{ poolPreview.red_count }} 红全6红 {{ poolPreview.compression_evidence.full_red_periods }}/{{ poolPreview.compression_evidence.n }}，24红为 {{ poolPreview.compression_evidence.reference_full_red_periods }}/{{ poolPreview.compression_evidence.n }}。这是历史回放，不能保证下一期全包。</p>
 <p class="muted" style="margin-top:16px">封存时同时保存 14／16／18／20／22／24 红六档 × 1–3 蓝，开奖后比较命中、漏号与最小全包档；已有每期档案保持首次版本。</p><a :href="researchUrl" @click.prevent="openTab('research',{view:'observations'})">查看六档号码与历史覆盖曲线 →</a>
 </template>
 <template v-else>
