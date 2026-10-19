@@ -302,6 +302,7 @@ pub fn saved_ranked(prepared: &Prepared, previous: u64) -> Value {
 pub fn saved_current(prepared:&Prepared,draws:&[Draw])->Value {
     let mut value=saved_ranked(prepared,draws.last().unwrap().red_mask);
     value["coverage_model"]=crate::conditional::saved(prepared,draws);
+    value["algorithm_models"]=json!(crate::pool_algorithms::saved_all(prepared,draws));
     value
 }
 
@@ -343,6 +344,7 @@ pub fn reviewed_models(reviewed: &Value) -> Vec<Value> {
         models.extend(reviewed["comparison_models"].as_array().into_iter().flatten().cloned());
     }
     if reviewed["version"]==RANKED_VERSION && !reviewed["coverage_model"].is_null() {models.push(reviewed["coverage_model"].clone());}
+    if reviewed["version"]==RANKED_VERSION { models.extend(reviewed["algorithm_models"].as_array().into_iter().flatten().cloned()); }
     models
 }
 
@@ -401,11 +403,25 @@ pub fn review(saved: &Value, draw: Option<&Draw>) -> Result<Value, String> {
             let order=ranking(model,"red_ranking",33)?.ok_or("条件频率缺少完整排名")?;
             result["coverage_model"]=review_set(model,draw,&TIER_RED_SIZES,Some(&order),blue_order.as_deref(),crate::conditional::MODEL,true)?;
         } else {result.as_object_mut().unwrap().remove("coverage_model");}
+        if version==4 && saved.get("algorithm_models").is_some() {
+            let algorithms=saved["algorithm_models"].as_array().ok_or("算法扩展必须为数组")?;
+            if algorithms.len()!=crate::pool_algorithms::MODELS.len() {return Err("算法扩展缺少模型".into());}
+            let mut names=std::collections::BTreeSet::new();let mut reviewed=Vec::new();
+            for model in algorithms {
+                let name=model["model"].as_str().ok_or("算法扩展缺少名称")?;
+                if !crate::pool_algorithms::is_model(name) || !names.insert(name) || model["target_issue"]!=saved["target_issue"] {return Err("算法名称或目标期号无效".into());}
+                crate::pool_algorithms::validate_snapshot(model)?;
+                let order=ranking(model,"red_ranking",33)?.ok_or("算法缺少完整排名")?;
+                reviewed.push(review_set(model,draw,&TIER_RED_SIZES,Some(&order),blue_order.as_deref(),name,true)?);
+            }
+            result["algorithm_models"]=json!(reviewed);
+        } else {result.as_object_mut().unwrap().remove("algorithm_models");}
     } else {
         // A v1/v2 archive never gains a model it did not save.
         result.as_object_mut().unwrap().remove("comparison_models");
         result.as_object_mut().unwrap().remove("comparison_policy");
         result.as_object_mut().unwrap().remove("coverage_model");
+        result.as_object_mut().unwrap().remove("algorithm_models");
     }
     Ok(result)
 }
@@ -520,7 +536,7 @@ pub fn analyze(draws: &[Draw]) -> Result<Value, String> {
         "version": REPORT_VERSION, "archive_version": RANKED_VERSION,
         "kind": "exploratory_small_pool_replay", "objective": "all_six_reds_with_fewer_selected_reds",
         "data_sha256": data_sha256(draws), "protocol_sha256": Protocol::sha256(),
-        "source_sha256": crate::hash::sha256_hex(concat!(include_str!("pool.rs"), include_str!("model.rs"), include_str!("select.rs"), include_str!("protocol.rs"), include_str!("eval.rs"), include_str!("stats.rs"), include_str!("ranking.rs"), include_str!("conditional.rs")).as_bytes()),
+        "source_sha256": crate::hash::sha256_hex(concat!(include_str!("pool.rs"), include_str!("model.rs"), include_str!("select.rs"), include_str!("protocol.rs"), include_str!("eval.rs"), include_str!("stats.rs"), include_str!("ranking.rs"), include_str!("conditional.rs"), include_str!("pool_algorithms.rs")).as_bytes()),
         "cutoff_issue": fmt_issue(prepared.cutoff_issue), "cutoff_date": fmt_date(prepared.cutoff_date), "suggested_target": fmt_issue(prepared.cutoff_issue + 1),
         "red_sizes": (6..=33).collect::<Vec<_>>(), "archived_red_sizes": ARCHIVED_RED_SIZES, "blue_sizes": BLUE_SIZES,
         "observation_tiers": tier_definitions(), "default_observation_blue_count": 2,
@@ -593,12 +609,29 @@ mod tests {
     use super::*;
 
     #[test]
+    fn optional_algorithms_validate_pools_without_augmenting_old_five_model_archives() {
+        let draws=crate::draw::synth_draws(220,9);let p=prepare_forecast(&draws).unwrap();
+        let current=saved_current(&p,&draws);
+        let mut old=current.clone();old.as_object_mut().unwrap().remove("algorithm_models");
+        let bytes=serde_json::to_vec(&old).unwrap();
+        assert_eq!(reviewed_models(&review(&old,None).unwrap()).len(),5);
+        assert_eq!(reviewed_models(&review(&current,None).unwrap()).len(),8);
+        assert_eq!(serde_json::to_vec(&old).unwrap(),bytes);
+        let mut bad=current.clone();bad["algorithm_models"][0]["pools"][0]["reds"][0]=bad["algorithm_models"][0]["red_ranking"][32].clone();
+        assert!(review(&bad,None).is_err());
+        let mut bad=current.clone();bad["algorithm_models"][1]=bad["algorithm_models"][0].clone();
+        assert!(review(&bad,None).is_err());
+        let mut bad=current;bad["algorithm_models"].as_array_mut().unwrap().pop();
+        assert!(review(&bad,None).is_err());
+    }
+
+    #[test]
     fn optional_conditional_pool_is_bound_to_its_saved_ranking_and_does_not_augment_v4() {
         let draws=crate::draw::synth_draws(600,9);let p=prepare_forecast(&draws).unwrap();
         let old=saved_ranked(&p,draws.last().unwrap().red_mask);
         assert_eq!(reviewed_models(&review(&old,None).unwrap()).len(),4);
         let saved=saved_current(&p,&draws);
-        assert_eq!(reviewed_models(&review(&saved,None).unwrap()).len(),5);
+        assert_eq!(reviewed_models(&review(&saved,None).unwrap()).len(),8);
         assert_eq!(old["comparison_models"],saved["comparison_models"]);
         let mut bad=saved.clone();bad["coverage_model"]["pools"][0]["blues"]=json!([saved["blue_ranking"][15]]);
         assert!(review(&bad,None).is_err());

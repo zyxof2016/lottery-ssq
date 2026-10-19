@@ -124,6 +124,7 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
             return (200, "text/html", RESEARCH_PAGE.as_bytes().to_vec());
         }
         ("GET", "/api/pools") => load_csv(&app.data).and_then(|draws| pool::analyze(&draws)),
+        ("GET", "/api/pool-algorithms") => load_csv(&app.data).and_then(|draws| crate::pool_algorithms::cached_analyze(&draws)),
         ("GET", "/api/full6") => load_csv(&app.data).and_then(|draws| crate::conditional::analyze(&draws)),
         ("GET", "/api/coverage") => load_csv(&app.data).and_then(|draws| crate::coverage::analyze(&draws)),
         ("GET", "/api/pools/observations") => load_csv(&app.data).and_then(|draws| recommendations::pool_observations(&recommendation_dir(app), &draws)),
@@ -334,12 +335,12 @@ fn build_requested(body: &str, draws: &[Draw]) -> Result<(Plan, crate::eval::Pre
         req.drags,
     )?;
     let model = req.ranking_model.as_deref().unwrap_or(if req.preset.as_deref()==Some("coverage24") {crate::conditional::MODEL} else if req.preset.as_deref()==Some("calibrated14") {crate::ranking::MODEL} else if req.preset.as_deref()==Some("equal24") {"equal"} else {"weighted"});
-    if !["weighted","equal",crate::ranking::MODEL,crate::conditional::MODEL].contains(&model) {return Err("未知红球排名模型".into());}
+    if !["weighted","equal",crate::ranking::MODEL,crate::conditional::MODEL].contains(&model) && !crate::pool_algorithms::is_model(model) {return Err("未知红球排名模型".into());}
     if req.preset.as_deref()==Some("calibrated14") && model!="repeat_calibrated" {return Err("校准排名预设须使用校准模型".into());}
     if req.preset.as_deref()==Some("coverage24") && model!=crate::conditional::MODEL {return Err("24红条件频率预设须使用条件频率模型".into());}
     if req.preset.as_deref()==Some("equal24") && model!="equal" {return Err("等权24红预设须使用等权模型".into());}
     if spec.mode=="frozen" && model!="weighted" {return Err("协议冻结票组使用原加权排名，请用其他方案观察校准排名".into());}
-    let prepared = if model==crate::conditional::MODEL {crate::conditional::prepare(draws)?} else if model==crate::ranking::MODEL {crate::ranking::prepare(draws)?} else if model=="equal" {crate::ranking::prepare_equal(draws)?} else {prepare_forecast(draws)?};
+    let prepared = if model==crate::conditional::MODEL {crate::conditional::prepare(draws)?} else if model==crate::ranking::MODEL {crate::ranking::prepare(draws)?} else if model=="equal" {crate::ranking::prepare_equal(draws)?} else if crate::pool_algorithms::is_model(model) {crate::pool_algorithms::prepare(draws,model)?} else {prepare_forecast(draws)?};
     let built = plan::build(&prepared.forecast, &spec)?;
     Ok((built, prepared))
 }
@@ -1468,6 +1469,22 @@ mod tests {
         assert!(!Arc::ptr_eq(&first, &refreshed));
         assert_eq!(refreshed.len(), first.len() + 1);
         let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn all_new_pool_algorithms_build_their_own_balanced_pool_and_keep_protocol_separate() {
+        let draws=synth_draws(220,9);let base=prepare_forecast(&draws).unwrap();
+        let saved=crate::pool_algorithms::saved_all(&base,&draws);
+        for (i,model) in crate::pool_algorithms::MODELS.into_iter().enumerate() {
+            let body=json!({"mode":"balanced","ranking_model":model,"pool":16,"tickets":8,"blue_count":2}).to_string();
+            let (plan,prepared)=build_requested(&body,&draws).unwrap();
+            assert_eq!(prepared.ranking.as_ref().unwrap(),&saved[i]);
+            assert_eq!(prepared.forecast.blue_order,base.forecast.blue_order);
+            assert_eq!(plan.reds.iter().copied().collect::<std::collections::BTreeSet<_>>(),saved[i]["red_ranking"].as_array().unwrap()[..16].iter().map(|n|n.as_u64().unwrap()as u8).collect());
+            for n in &plan.reds {assert_eq!(plan.tickets.iter().filter(|t|t.red.contains(n)).count(),3);}
+            let invalid=json!({"preset":"frozen","ranking_model":model}).to_string();
+            assert!(build_requested(&invalid,&draws).is_err());
+        }
     }
 
     #[test]

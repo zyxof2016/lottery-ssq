@@ -10,6 +10,7 @@ pub mod history;
 pub mod model;
 pub mod plan;
 pub mod pool;
+pub mod pool_algorithms;
 pub mod protocol;
 pub mod ranking;
 pub mod recommendations;
