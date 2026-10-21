@@ -1,0 +1,705 @@
+{
+  "kind": "actual_pool_and_intersection_loss_review",
+  "date": "2026-10-21",
+  "official_draw_source": "https://www.swlc.net.cn/index.html",
+  "draw": {
+    "blue": 3,
+    "date": "2026-10-20",
+    "issue": "26120",
+    "red": [
+      13,
+      14,
+      16,
+      18,
+      20,
+      31
+    ]
+  },
+  "current_data_sha256": "242b1c1224e5bb18486bcd27cb0957a931a0d256c11040ce173943a43b947b63",
+  "actual_archive_review": {
+    "actual_recommendation": true,
+    "issue": "26120",
+    "models": [
+      {
+        "model": "weighted",
+        "red_sizes": [
+          14,
+          16,
+          18,
+          20,
+          22,
+          24
+        ],
+        "red_hits": [
+          1,
+          2,
+          2,
+          3,
+          5,
+          6
+        ],
+        "blue_count": 2,
+        "winning_blue_rank": 7,
+        "smallest_saved_full_red_tier": 24,
+        "winning_red_ranks": [
+          {
+            "number": 13,
+            "rank": 19
+          },
+          {
+            "number": 14,
+            "rank": 11
+          },
+          {
+            "number": 16,
+            "rank": 16
+          },
+          {
+            "number": 18,
+            "rank": 24
+          },
+          {
+            "number": 20,
+            "rank": 22
+          },
+          {
+            "number": 31,
+            "rank": 21
+          }
+        ]
+      },
+      {
+        "model": "equal",
+        "red_sizes": [
+          14,
+          16,
+          18,
+          20,
+          22,
+          24
+        ],
+        "red_hits": [
+          2,
+          2,
+          3,
+          4,
+          4,
+          5
+        ],
+        "blue_count": 2,
+        "winning_blue_rank": 7,
+        "smallest_saved_full_red_tier": null,
+        "winning_red_ranks": [
+          {
+            "number": 13,
+            "rank": 20
+          },
+          {
+            "number": 14,
+            "rank": 9
+          },
+          {
+            "number": 16,
+            "rank": 18
+          },
+          {
+            "number": 18,
+            "rank": 26
+          },
+          {
+            "number": 20,
+            "rank": 24
+          },
+          {
+            "number": 31,
+            "rank": 14
+          }
+        ]
+      },
+      {
+        "model": "uniform",
+        "red_sizes": [
+          14,
+          16,
+          18,
+          20,
+          22,
+          24
+        ],
+        "red_hits": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "blue_count": 2,
+        "winning_blue_rank": 7,
+        "smallest_saved_full_red_tier": null,
+        "winning_red_ranks": [
+          {
+            "number": 13,
+            "rank": 5
+          },
+          {
+            "number": 14,
+            "rank": 31
+          },
+          {
+            "number": 16,
+            "rank": 32
+          },
+          {
+            "number": 18,
+            "rank": 26
+          },
+          {
+            "number": 20,
+            "rank": 9
+          },
+          {
+            "number": 31,
+            "rank": 11
+          }
+        ]
+      },
+      {
+        "model": "repeat_calibrated",
+        "red_sizes": [
+          14,
+          16,
+          18,
+          20,
+          22,
+          24
+        ],
+        "red_hits": [
+          2,
+          3,
+          4,
+          5,
+          5,
+          6
+        ],
+        "blue_count": 2,
+        "winning_blue_rank": 7,
+        "smallest_saved_full_red_tier": 24,
+        "winning_red_ranks": [
+          {
+            "number": 13,
+            "rank": 16
+          },
+          {
+            "number": 14,
+            "rank": 5
+          },
+          {
+            "number": 16,
+            "rank": 11
+          },
+          {
+            "number": 18,
+            "rank": 23
+          },
+          {
+            "number": 20,
+            "rank": 20
+          },
+          {
+            "number": 31,
+            "rank": 18
+          }
+        ]
+      },
+      {
+        "model": "conditional_gap",
+        "red_sizes": [
+          14,
+          16,
+          18,
+          20,
+          22,
+          24
+        ],
+        "red_hits": [
+          2,
+          2,
+          3,
+          3,
+          3,
+          3
+        ],
+        "blue_count": 2,
+        "winning_blue_rank": 7,
+        "smallest_saved_full_red_tier": null,
+        "winning_red_ranks": [
+          {
+            "number": 13,
+            "rank": 26
+          },
+          {
+            "number": 14,
+            "rank": 12
+          },
+          {
+            "number": 16,
+            "rank": 32
+          },
+          {
+            "number": 18,
+            "rank": 27
+          },
+          {
+            "number": 20,
+            "rank": 17
+          },
+          {
+            "number": 31,
+            "rank": 8
+          }
+        ]
+      }
+    ],
+    "original_protocol_tickets": {
+      "bets": 8,
+      "cost": 16,
+      "red_coverage": 11,
+      "covered_red_count": 1,
+      "covered_reds": [
+        14
+      ],
+      "missed_reds": [
+        13,
+        16,
+        18,
+        20,
+        31
+      ],
+      "blue_covered": false
+    }
+  },
+  "derived_intersection_diagnostic": {
+    "kind": "archived_pool_intersection_diagnostic",
+    "version": 1,
+    "actual_recommendation": false,
+    "archive_sha256": "a1d6ed3b5b81f3c45691c2a977f04d0dd926c3dc4dec440c3a5198889f5d0e6d",
+    "issue": "26120",
+    "cutoff_issue": "26119",
+    "cutoff_date": "2026-10-18",
+    "input_history_sha256": "6d0bd08c5c06b815f479636b6ce513e62e395663d223641799afc61beed7dcd1",
+    "source_sha256": "6d1c5df788e57ece822dd875b030d0d3bad5b2cc36de8820a3aa977b5c735b7d",
+    "sources": [
+      {
+        "model": "weighted",
+        "label": "协议加权融合",
+        "red_count": 24,
+        "blue_count": 2,
+        "reds": [
+          1,
+          2,
+          4,
+          5,
+          6,
+          8,
+          9,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          20,
+          22,
+          23,
+          24,
+          25,
+          27,
+          30,
+          31,
+          32
+        ],
+        "blues": [
+          4,
+          14
+        ]
+      },
+      {
+        "model": "conditional_gap",
+        "label": "条件频率 · 24红试验",
+        "red_count": 24,
+        "blue_count": 2,
+        "reds": [
+          1,
+          3,
+          4,
+          5,
+          7,
+          8,
+          10,
+          11,
+          12,
+          14,
+          17,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31
+        ],
+        "blues": [
+          4,
+          14
+        ]
+      }
+    ],
+    "reds": [
+      1,
+      4,
+      5,
+      8,
+      11,
+      12,
+      14,
+      17,
+      20,
+      22,
+      23,
+      24,
+      25,
+      27,
+      30,
+      31
+    ],
+    "blues": [
+      4,
+      14
+    ],
+    "red_count": 16,
+    "blue_count": 2,
+    "can_form_single": true,
+    "note": "只保留所有所选原池共同的号码；不自动补号。交集是原池的子集，不代表全覆盖能力提高。",
+    "review": {
+      "kind": "post_draw_derived_intersection_diagnostic",
+      "is_original_recommendation": false,
+      "hit_reds": [
+        14,
+        20,
+        31
+      ],
+      "missed_reds": [
+        13,
+        16,
+        18
+      ],
+      "red_hits": 3,
+      "full_red": false,
+      "blue_hit": false,
+      "full_draw": false,
+      "removed_winning_reds": [
+        13,
+        16,
+        18
+      ],
+      "missing_in_all_sources": [],
+      "sources": [
+        {
+          "model": "weighted",
+          "label": "协议加权融合",
+          "red_count": 24,
+          "blue_count": 2,
+          "red_hits": 6,
+          "blue_hit": false,
+          "removed_winning_reds": [
+            13,
+            16,
+            18
+          ]
+        },
+        {
+          "model": "conditional_gap",
+          "label": "条件频率 · 24红试验",
+          "red_count": 24,
+          "blue_count": 2,
+          "red_hits": 3,
+          "blue_hit": false,
+          "removed_winning_reds": []
+        }
+      ]
+    }
+  },
+  "causal_replay": {
+    "recent60": {
+      "n": 60,
+      "actual_recommendation": false,
+      "cells": [
+        {
+          "model": "weighted",
+          "red_count": 16,
+          "full_red_periods": 3,
+          "full_red_rate": 0.05,
+          "mean_red_hits": 3.05
+        },
+        {
+          "model": "weighted",
+          "red_count": 24,
+          "full_red_periods": 9,
+          "full_red_rate": 0.15,
+          "mean_red_hits": 4.466666666666667
+        },
+        {
+          "model": "equal",
+          "red_count": 16,
+          "full_red_periods": 0,
+          "full_red_rate": 0.0,
+          "mean_red_hits": 3.1333333333333333
+        },
+        {
+          "model": "equal",
+          "red_count": 24,
+          "full_red_periods": 10,
+          "full_red_rate": 0.16666666666666666,
+          "mean_red_hits": 4.433333333333334
+        },
+        {
+          "model": "repeat_calibrated",
+          "red_count": 16,
+          "full_red_periods": 2,
+          "full_red_rate": 0.03333333333333333,
+          "mean_red_hits": 3.1166666666666667
+        },
+        {
+          "model": "repeat_calibrated",
+          "red_count": 24,
+          "full_red_periods": 10,
+          "full_red_rate": 0.16666666666666666,
+          "mean_red_hits": 4.466666666666667
+        },
+        {
+          "model": "conditional_gap",
+          "red_count": 16,
+          "full_red_periods": 0,
+          "full_red_rate": 0.0,
+          "mean_red_hits": 2.9166666666666665
+        },
+        {
+          "model": "conditional_gap",
+          "red_count": 24,
+          "full_red_periods": 12,
+          "full_red_rate": 0.2,
+          "mean_red_hits": 4.433333333333334
+        },
+        {
+          "model": "rank_consensus",
+          "red_count": 16,
+          "full_red_periods": 1,
+          "full_red_rate": 0.016666666666666666,
+          "mean_red_hits": 2.783333333333333
+        },
+        {
+          "model": "rank_consensus",
+          "red_count": 24,
+          "full_red_periods": 12,
+          "full_red_rate": 0.2,
+          "mean_red_hits": 4.35
+        },
+        {
+          "model": "scenario_cover",
+          "red_count": 16,
+          "full_red_periods": 1,
+          "full_red_rate": 0.016666666666666666,
+          "mean_red_hits": 2.966666666666667
+        },
+        {
+          "model": "scenario_cover",
+          "red_count": 24,
+          "full_red_periods": 10,
+          "full_red_rate": 0.16666666666666666,
+          "mean_red_hits": 4.35
+        },
+        {
+          "model": "robust_cover",
+          "red_count": 16,
+          "full_red_periods": 1,
+          "full_red_rate": 0.016666666666666666,
+          "mean_red_hits": 2.85
+        },
+        {
+          "model": "robust_cover",
+          "red_count": 24,
+          "full_red_periods": 8,
+          "full_red_rate": 0.13333333333333333,
+          "mean_red_hits": 4.416666666666667
+        }
+      ]
+    },
+    "all_oos": {
+      "n": 3337,
+      "actual_recommendation": false,
+      "cells": [
+        {
+          "model": "weighted",
+          "red_count": 16,
+          "full_red_periods": 31,
+          "full_red_rate": 0.0092897812406353,
+          "mean_red_hits": 2.9139946059334734
+        },
+        {
+          "model": "weighted",
+          "red_count": 24,
+          "full_red_periods": 408,
+          "full_red_rate": 0.1222655079412646,
+          "mean_red_hits": 4.3446209169913095
+        },
+        {
+          "model": "equal",
+          "red_count": 16,
+          "full_red_periods": 27,
+          "full_red_rate": 0.008091099790230746,
+          "mean_red_hits": 2.935570872040755
+        },
+        {
+          "model": "equal",
+          "red_count": 24,
+          "full_red_periods": 431,
+          "full_red_rate": 0.1291579262810908,
+          "mean_red_hits": 4.367695534911597
+        },
+        {
+          "model": "repeat_calibrated",
+          "red_count": 16,
+          "full_red_periods": 34,
+          "full_red_rate": 0.010188792328438718,
+          "mean_red_hits": 2.9208870242732994
+        },
+        {
+          "model": "repeat_calibrated",
+          "red_count": 24,
+          "full_red_periods": 416,
+          "full_red_rate": 0.12466287084207373,
+          "mean_red_hits": 4.3590050943961645
+        },
+        {
+          "model": "conditional_gap",
+          "red_count": 16,
+          "full_red_periods": 22,
+          "full_red_rate": 0.006592747977225052,
+          "mean_red_hits": 2.9205873539106983
+        },
+        {
+          "model": "conditional_gap",
+          "red_count": 24,
+          "full_red_periods": 395,
+          "full_red_rate": 0.11836979322744981,
+          "mean_red_hits": 4.380281690140845
+        },
+        {
+          "model": "rank_consensus",
+          "red_count": 16,
+          "full_red_periods": 26,
+          "full_red_rate": 0.007791429427629608,
+          "mean_red_hits": 2.922685046448906
+        },
+        {
+          "model": "rank_consensus",
+          "red_count": 24,
+          "full_red_periods": 432,
+          "full_red_rate": 0.12945759664369194,
+          "mean_red_hits": 4.3871741084806715
+        },
+        {
+          "model": "scenario_cover",
+          "red_count": 16,
+          "full_red_periods": 20,
+          "full_red_rate": 0.005993407252022775,
+          "mean_red_hits": 2.9271801018879233
+        },
+        {
+          "model": "scenario_cover",
+          "red_count": 24,
+          "full_red_periods": 404,
+          "full_red_rate": 0.12106682649086005,
+          "mean_red_hits": 4.356607731495355
+        },
+        {
+          "model": "robust_cover",
+          "red_count": 16,
+          "full_red_periods": 26,
+          "full_red_rate": 0.007791429427629608,
+          "mean_red_hits": 2.8864249325741684
+        },
+        {
+          "model": "robust_cover",
+          "red_count": 24,
+          "full_red_periods": 407,
+          "full_red_rate": 0.12196583757866347,
+          "mean_red_hits": 4.343721905903506
+        }
+      ]
+    }
+  },
+  "new_algorithm_actual_samples": {
+    "first_daily_issue": {
+      "rank_consensus": "26121",
+      "robust_cover": "26121",
+      "scenario_cover": "26121"
+    },
+    "scored_periods": 0,
+    "pending_periods": 1,
+    "note": "26120未保存三种新算法，不把其回放计入实际覆盖。"
+  },
+  "archives_preserved": {
+    "26118": {
+      "file_sha256": "7f81e7f32c824585ef279361ee2bde8eea3f67c6e599329033bbc60dedca5e51",
+      "payload_sha256": "2623c692d3b2c5ab70a343a8df76a9fe0154842c5c266cb7df456bed90640db3",
+      "strategies": 16,
+      "published_at_unix": 1791958509,
+      "input_history_sha256": "7ef295217037cc6505a25df2ade2aa5bdcb35598fc18878143c86eae2e90e493"
+    },
+    "26119": {
+      "file_sha256": "658dc89c647cc999aa47a2b2d4ab0ede67db7afb72f80f3af49ff1f6b7abb5cc",
+      "payload_sha256": "18ad62afffab08fcf9307245e7ff8d31bccb231cdfdd6a418496c165ffb13b49",
+      "strategies": 16,
+      "published_at_unix": 1792071002,
+      "input_history_sha256": "a88c8efb73b537bfd85450f3df2e42b613e920e939ce80b5271afef05703818e"
+    },
+    "26120": {
+      "file_sha256": "932f89aab2bbd8ecc9876e026254fd922f1858c1c839eaf7a9f7483dc76364f6",
+      "payload_sha256": "a1d6ed3b5b81f3c45691c2a977f04d0dd926c3dc4dec440c3a5198889f5d0e6d",
+      "strategies": 19,
+      "published_at_unix": 1792330204,
+      "input_history_sha256": "6d0bd08c5c06b815f479636b6ce513e62e395663d223641799afc61beed7dcd1"
+    },
+    "26121": {
+      "file_sha256": "acfecef6380cfaa81397051715ef7d6972936265f09e15c6b58c4d35d68dd76a",
+      "payload_sha256": "1454a2671a94d965b5e78d51669e1420c3e4930aeb3bde74e518b73394942dd0",
+      "strategies": 20,
+      "published_at_unix": 1792503002,
+      "input_history_sha256": "242b1c1224e5bb18486bcd27cb0957a931a0d256c11040ce173943a43b947b63"
+    }
+  },
+  "changes": {
+    "new_preset": "weighted24",
+    "red_count": 24,
+    "blue_count": 2,
+    "bets": 8,
+    "each_red_exposure": 2,
+    "default_red_count": 16,
+    "future_first_daily_strategies": 21,
+    "future_pool_models": 8,
+    "future_number_pools": 153,
+    "existing_26121_strategies": 20,
+    "ranking_parameters_changed": false,
+    "post_draw_intersection_added_to_original_archive": false
+  }
+}

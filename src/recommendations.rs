@@ -19,7 +19,7 @@ use crate::pool;
 use crate::protocol::Protocol;
 use crate::select::rank_desc;
 
-pub const PRESETS: [&str; 11] = [
+pub const PRESETS: [&str; 12] = [
     "frozen",
     "disjoint5",
     "single8",
@@ -31,6 +31,7 @@ pub const PRESETS: [&str; 11] = [
     "calibrated14",
     "coverage24",
     "equal24",
+    "weighted24",
 ];
 pub const PRIZE_RULES_URL: &str = "https://www.scflcp.com.cn/yxgz/823145252.jhtml";
 
@@ -1187,7 +1188,8 @@ pub fn issue_detail(
         (
             review,
             json!({"kind": p["kind"], "sha256": envelope["sha256"], "published_at_unix": p["published_at_unix"],
-            "data_cutoff": p["data_cutoff"], "operational_cutoff_unix": p["operational_cutoff_unix"],
+            "data_cutoff": p["data_cutoff"], "data_cutoff_date":p["data_cutoff_date"],
+            "input_history_sha256":p["input_history_sha256"],"source_sha256":p["source_sha256"],"operational_cutoff_unix": p["operational_cutoff_unix"],
             "known_outcome_at_generation": p["known_outcome_at_generation"], "independent_timestamp_verified": false,
             "saved_after_scheduled_draw": saved_after_draw(p["published_at_unix"].as_u64(), draw),
             "schedule_verified": false, "evidence_available": true, "review_persisted": persisted,
@@ -1351,7 +1353,7 @@ mod tests {
         append_outcome(&mut draws);
         let new_issue=next(&draws);
         let result=freeze_daily_with_clock(&temp.0,&draws,&new_issue,100,||10).unwrap();
-        assert_eq!(result["strategies"],20);
+        assert_eq!(result["strategies"],21);
         assert_eq!(result["comparison_models"],8);
         assert_eq!(result["comparison_number_pools"],126);
         let raw=read_checked(&temp.0.join(format!("daily/{new_issue}.json"))).unwrap();
@@ -1442,7 +1444,7 @@ mod tests {
         let mut payload = base_payload(&prepared, &issue, "daily", 10, Some(100));
         payload["strategies"] = json!(PRESETS
             .into_iter()
-            .filter(|name| !["balanced14","calibrated14","coverage24","equal24"].contains(name))
+            .filter(|name| !["balanced14","calibrated14","coverage24","equal24","weighted24"].contains(name))
             .map(|name| (name, strategy(&build(name, &prepared), &prepared)))
             .collect::<BTreeMap<_, _>>());
         let path = temp.0.join(format!("daily/{issue}.json"));

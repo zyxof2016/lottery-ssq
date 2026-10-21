@@ -339,6 +339,7 @@ fn build_requested(body: &str, draws: &[Draw]) -> Result<(Plan, crate::eval::Pre
     if !["weighted","equal",crate::ranking::MODEL,crate::conditional::MODEL].contains(&model) && !crate::pool_algorithms::is_model(model) {return Err("未知红球排名模型".into());}
     if req.preset.as_deref()==Some("calibrated14") && model!="repeat_calibrated" {return Err("校准排名预设须使用校准模型".into());}
     if req.preset.as_deref()==Some("coverage24") && model!=crate::conditional::MODEL {return Err("24红条件频率预设须使用条件频率模型".into());}
+    if req.preset.as_deref()==Some("weighted24") && model!="weighted" {return Err("原排名24红预设须使用原加权模型".into());}
     if req.preset.as_deref()==Some("equal24") && model!="equal" {return Err("等权24红预设须使用等权模型".into());}
     if spec.mode=="frozen" && model!="weighted" {return Err("协议冻结票组使用原加权排名，请用其他方案观察校准排名".into());}
     let prepared = if model==crate::conditional::MODEL {crate::conditional::prepare(draws)?} else if model==crate::ranking::MODEL {crate::ranking::prepare(draws)?} else if model=="equal" {crate::ranking::prepare_equal(draws)?} else if crate::pool_algorithms::is_model(model) {crate::pool_algorithms::prepare(draws,model)?} else {prepare_forecast(draws)?};
@@ -1486,6 +1487,16 @@ mod tests {
             let invalid=json!({"preset":"frozen","ranking_model":model}).to_string();
             assert!(build_requested(&invalid,&draws).is_err());
         }
+    }
+
+    #[test]
+    fn weighted24_uses_original_pool_and_rejects_trial_rank_substitution() {
+        let draws=synth_draws(220,9);let base=prepare_forecast(&draws).unwrap();
+        let (plan,prepared)=build_requested(r#"{"preset":"weighted24"}"#,&draws).unwrap();
+        assert!(prepared.ranking.is_none());assert_eq!(prepared.forecast.red_order,base.forecast.red_order);
+        assert_eq!(plan.reds.len(),24);assert_eq!(plan.tickets.len(),8);
+        for n in &plan.reds {assert_eq!(plan.tickets.iter().filter(|t|t.red.contains(n)).count(),2);}
+        assert!(build_requested(r#"{"preset":"weighted24","ranking_model":"conditional_gap"}"#,&draws).is_err());
     }
 
     #[test]

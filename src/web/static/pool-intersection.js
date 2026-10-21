@@ -7,6 +7,11 @@
     return [{...root,model:'weighted'},...(root.comparison_models||[]),...(root.coverage_model?[root.coverage_model]:[]),...(root.algorithm_models||[])];
   }
   function name(model){return model.policy?.label||labels[model.model]||model.model;}
+  function fromArchive(view){
+    const p=view?.provenance,root=view?.number_pools;
+    if(!root?.observation_tiers?.length||!p?.input_history_sha256||!p.sha256)return null;
+    return {suggested_target:view.issue,cutoff_issue:p.data_cutoff,cutoff_date:p.data_cutoff_date,data_sha256:p.input_history_sha256,source_sha256:p.source_sha256,archive_sha256:p.sha256,archived:true,observation_tiers:root.observation_tiers,next:{weighted_pools:root}};
+  }
   function numbers(values,count,maximum){
     if(!Array.isArray(values)||values.length!==count||values.some(n=>!Number.isInteger(n)||n<1||n>maximum)||new Set(values).size!==values.length)throw Error('原号码池的号码或数量无效，请刷新后重试。');
     return values.slice().sort((a,b)=>a-b);
@@ -27,20 +32,34 @@
     });
     const common=color=>sources[0][color].filter(n=>sources.every(source=>source[color].includes(n)));
     const reds=common('reds'),blues=common('blues');
-    return {kind:'pool_intersection_preview',version:1,actual_recommendation:false,issue:snapshot.suggested_target,cutoff_issue:snapshot.cutoff_issue,cutoff_date:snapshot.cutoff_date,input_history_sha256:snapshot.data_sha256,source_sha256:snapshot.source_sha256,sources,reds,blues,red_count:reds.length,blue_count:blues.length,can_form_single:reds.length>=6&&blues.length>=1,note:'只保留所有所选原池共同的号码；不自动补号。交集是原池的子集，不代表全覆盖能力提高。'};
+    return {kind:snapshot.archived?'archived_pool_intersection_diagnostic':'pool_intersection_preview',version:1,actual_recommendation:false,archive_sha256:snapshot.archive_sha256,issue:snapshot.suggested_target,cutoff_issue:snapshot.cutoff_issue,cutoff_date:snapshot.cutoff_date,input_history_sha256:snapshot.data_sha256,source_sha256:snapshot.source_sha256,sources,reds,blues,red_count:reds.length,blue_count:blues.length,can_form_single:reds.length>=6&&blues.length>=1,note:'只保留所有所选原池共同的号码；不自动补号。交集是原池的子集，不代表全覆盖能力提高。'};
+  }
+  function reviewIntersection(result,draw){
+    if(!draw)return null;
+    if(draw.issue!==result.issue)throw Error('开奖期号与原档池不一致，禁止混期复盘。');
+    const wins=numbers(draw.red,6,33);numbers([draw.blue],1,16);
+    const union=new Set(result.sources.flatMap(s=>s.reds));
+    return {kind:'post_draw_derived_intersection_diagnostic',is_original_recommendation:false,
+      hit_reds:wins.filter(n=>result.reds.includes(n)),missed_reds:wins.filter(n=>!result.reds.includes(n)),
+      red_hits:wins.filter(n=>result.reds.includes(n)).length,full_red:wins.every(n=>result.reds.includes(n)),blue_hit:result.blues.includes(draw.blue),
+      full_draw:wins.every(n=>result.reds.includes(n))&&result.blues.includes(draw.blue),
+      removed_winning_reds:wins.filter(n=>union.has(n)&&!result.reds.includes(n)),missing_in_all_sources:wins.filter(n=>!union.has(n)),
+      sources:result.sources.map(s=>({model:s.model,label:s.label,red_count:s.red_count,blue_count:s.blue_count,
+        red_hits:wins.filter(n=>s.reds.includes(n)).length,blue_hit:s.blues.includes(draw.blue),
+        removed_winning_reds:wins.filter(n=>s.reds.includes(n)&&!result.reds.includes(n))}))};
   }
   const pad=n=>String(n).padStart(2,'0');
   function asText(result){
-    return [`【双色球 ${result.issue} 期 · 号码池交集】`,`依据截止 ${result.cutoff_issue}（${result.cutoff_date||'日期未留存'}）`,...result.sources.map((s,i)=>`来源${i+1}：${s.label} · ${s.red_count}红＋${s.blue_count}蓝`),`${result.red_count}红交集：${result.reds.map(pad).join(' ')||'无'}`,`${result.blue_count}蓝交集：${result.blues.map(pad).join(' ')||'无'}`,result.note,'交集观察结果，非单注投注票面。'].join('\n');
+    return [`【双色球 ${result.issue} 期 · ${result.archive_sha256?'原档池交集诊断':'号码池交集'}】`,`依据截止 ${result.cutoff_issue}（${result.cutoff_date||'日期未留存'}）`,...result.sources.map((s,i)=>`来源${i+1}：${s.label} · ${s.red_count}红＋${s.blue_count}蓝`),`${result.red_count}红交集：${result.reds.map(pad).join(' ')||'无'}`,`${result.blue_count}蓝交集：${result.blues.map(pad).join(' ')||'无'}`,...(result.review?[`开奖后诊断：中${result.review.red_hits}/6红，蓝球${result.review.blue_hit?'入池':'未入池'}`,`被交集剔除的开奖红球：${result.review.removed_winning_reds.map(pad).join(' ')||'无'}`]:[]),result.note,result.archive_sha256?'根据原档池推导，不是当时已冻结的交集推荐。':'交集观察结果，非单注投注票面。'].join('\n');
   }
   let instance=0;
   const component={
-    props:{apiUrl:{type:String,required:true},snapshot:{type:Object,default:null}},
+    props:{apiUrl:{type:String,required:true},snapshot:{type:Object,default:null},archived:{type:Boolean,default:false},draw:{type:Object,default:null}},
     setup(props){
       const {ref,computed,watch}=Vue,prefix='pool-intersection-'+(++instance),data=ref(null),rows=ref([]),busy=ref(false),loadError=ref(''),message=ref('');let nextRow=0;
       const models=computed(()=>modelsFrom(data.value)),sizes=computed(()=>(data.value?.observation_tiers||[]).map(t=>t.red_count));
-      const calculation=computed(()=>{if(!data.value)return {result:null,error:''};try{return {result:intersect(data.value,rows.value),error:''};}catch(e){return {result:null,error:e.message};}});
-      const result=computed(()=>calculation.value.result),selectionError=computed(()=>calculation.value.error);
+      const calculation=computed(()=>{if(!data.value)return {result:null,error:''};try{const r=intersect(data.value,rows.value);return {result:props.archived?{...r,review:reviewIntersection(r,props.draw)}:r,error:''};}catch(e){return {result:null,error:e.message};}});
+      const result=computed(()=>calculation.value.result),analysis=computed(()=>result.value?.review),selectionError=computed(()=>calculation.value.error);
       function reset(){
         if(!models.value.length)return;
         const first=models.value.find(m=>m.model==='weighted')||models.value[0],second=models.value.find(m=>m.model==='rank_consensus')||models.value.find(m=>m.model!==first.model)||first;
@@ -49,7 +68,7 @@
       function accept(snapshot){if(!modelsFrom(snapshot).length)throw Error('没有可供取交集的号码池。');data.value=snapshot;message.value='';loadError.value='';if(!rows.value.length)reset();}
       async function load(){
         if(busy.value)return;busy.value=true;loadError.value='';message.value='';
-        try{const response=await fetch(props.apiUrl),snapshot=await response.json();if(!response.ok)throw Error(snapshot.error||'读取号码池失败');accept(snapshot);}catch(e){loadError.value=e.message;}finally{busy.value=false;}
+        try{if(props.archived){if(!props.snapshot)throw Error('本档案缺少可核对的原号码池。');accept(props.snapshot);}else{const response=await fetch(props.apiUrl),snapshot=await response.json();if(!response.ok)throw Error(snapshot.error||'读取号码池失败');accept(snapshot);}}catch(e){loadError.value=e.message;}finally{busy.value=false;}
       }
       function opened(event){if(event.target.open&&!data.value&&!busy.value){if(props.snapshot){try{accept(props.snapshot);}catch(e){loadError.value=e.message;}}else load();}}
       watch(()=>props.snapshot,snapshot=>{if(snapshot&&data.value){try{accept(snapshot);}catch(e){loadError.value=e.message;}}});
@@ -75,12 +94,13 @@
         if(!result.value||busy.value||loadError.value)return;
         const selected=result.value,url=URL.createObjectURL(new Blob([JSON.stringify(selected,null,2)],{type:'application/json'})),link=document.createElement('a');link.href=url;link.download=`ssq-pool-intersection-${selected.issue}.json`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
       }
-      return {prefix,data,rows,busy,loadError,message,models,sizes,result,selectionError,name,pad,opened,load,reset,add,remove,copy,exportJson};
+      return {prefix,data,rows,busy,loadError,message,models,sizes,result,analysis,selectionError,name,pad,opened,load,reset,add,remove,copy,exportJson};
     },
     template:`<details class="card pool-intersection" data-pool-intersection @toggle="opened">
-      <summary><strong>号码池取交集</strong><span class="muted"> · 选择多套号码池，只保留共同号码</span></summary>
+      <summary><strong>{{ archived?'原档池取交集 · 覆盖损失诊断':'号码池取交集' }}</strong><span class="muted"> · 选择多套号码池，只保留共同号码</span></summary>
       <div class="pool-intersection-body">
-        <div class="row between"><p class="muted" v-if="data">第 {{ data.suggested_target }} 期 · 依据截止 {{ data.cutoff_issue }}（{{ data.cutoff_date }}）的同一份数据</p><button type="button" @click="load" :disabled="busy">{{ busy?'读取中…':'刷新号码池' }}</button></div>
+        <div class="row between"><p class="muted" v-if="data">第 {{ data.suggested_target }} 期 · 依据截止 {{ data.cutoff_issue }}（{{ data.cutoff_date }}）的同一份数据</p><button type="button" @click="load" :disabled="busy">{{ busy?'读取中…':archived?'重新核对原池':'刷新号码池' }}</button></div>
+        <p v-if="archived" class="notice">只使用本期原档实际保存的号码池；交集是当前推导的诊断，不补记为当时推荐。{{ draw?'命中与剔除损失按本期开奖计算。':'待开奖，命中与剔除损失暂不计算。' }}</p>
         <p v-if="busy" class="muted" role="status">正在读取原号码池…</p><p v-if="loadError" class="notice error" role="alert">{{ loadError }}</p>
         <template v-if="data">
           <p class="muted">可组合2至8个不同的号码池，分别计算红球与蓝球的交集。</p>
@@ -97,7 +117,13 @@
             <p class="muted">红球交集：{{ result.red_count }}个</p><div class="balls" data-intersection-reds><span v-for="n in result.reds" :key="n" class="ball red">{{ pad(n) }}</span><span v-if="!result.reds.length" class="muted">红球无交集</span></div>
             <p class="muted">蓝球交集：{{ result.blue_count }}个</p><div class="balls" data-intersection-blues><span v-for="n in result.blues" :key="n" class="ball blue">{{ pad(n) }}</span><span v-if="!result.blues.length" class="muted">蓝球无交集</span></div>
             <p v-if="!result.can_form_single" class="notice" data-intersection-insufficient>{{ result.red_count<6?'红球交集少于6个。':'' }}{{ !result.blue_count?'蓝球无交集。':'' }}当前结果不能组成完整的6红1蓝单注，未自动补号。</p>
-            <p class="muted">{{ result.note }} 交集为当前预览，不写入原冻结档案。</p>
+            <p class="muted">{{ result.note }} {{ archived?'原档池交集仅用于诊断。':'交集为当前预览，不写入原冻结档案。' }}</p>
+            <section v-if="analysis" data-intersection-review>
+              <h3>开奖后诊断 · 中{{ analysis.red_hits }}/6红 · 蓝球{{ analysis.blue_hit?'入池':'未入池' }}</h3>
+              <p>原池至少出现过、被交集剔除的开奖红球：<b>{{ analysis.removed_winning_reds.map(pad).join(' ')||'无' }}</b></p>
+              <p class="muted">所有所选原池都缺少的开奖红球：{{ analysis.missing_in_all_sources.map(pad).join(' ')||'无' }}。</p>
+              <div v-for="(s,i) in analysis.sources" :key="i" class="muted">来源{{ i+1 }} {{ s.label }}（{{ s.red_count }}红＋{{ s.blue_count }}蓝）：原池中{{ s.red_hits }}/6红，蓝球{{ s.blue_hit?'入池':'未入池' }}；其开奖红球被交集剔除 {{ s.removed_winning_reds.map(pad).join(' ')||'无' }}。</div>
+            </section>
             <div class="row"><button type="button" @click="copy" :disabled="busy||!!loadError">复制交集</button><button type="button" @click="exportJson" :disabled="busy||!!loadError">导出交集 JSON</button></div>
             <details class="pool-intersection-sources"><summary>查看参与取交集的原号码</summary><div v-for="(source,i) in result.sources" :key="i"><p><b>{{ i+1 }}. {{ source.label }} · {{ source.red_count }}红＋{{ source.blue_count }}蓝</b></p><p class="hash">红 {{ source.reds.map(pad).join(' ') }}<br>蓝 {{ source.blues.map(pad).join(' ') }}</p></div></details>
           </section>
@@ -106,5 +132,5 @@
       </div>
     </details>`
   };
-  global.SSQPoolIntersection={modelsFrom,intersect,asText,component};
+  global.SSQPoolIntersection={modelsFrom,fromArchive,intersect,reviewIntersection,asText,component};
 })(window);
