@@ -60,6 +60,7 @@
       const models=computed(()=>modelsFrom(data.value)),sizes=computed(()=>(data.value?.observation_tiers||[]).map(t=>t.red_count));
       const calculation=computed(()=>{if(!data.value)return {result:null,error:''};try{const r=intersect(data.value,rows.value);return {result:props.archived?{...r,review:reviewIntersection(r,props.draw)}:r,error:''};}catch(e){return {result:null,error:e.message};}});
       const result=computed(()=>calculation.value.result),analysis=computed(()=>result.value?.review),selectionError=computed(()=>calculation.value.error);
+      function showResult(){const el=document.getElementById(prefix+'-result');el?.focus({preventScroll:true});el?.scrollIntoView({block:'start',behavior:'instant'});}
       function reset(){
         if(!models.value.length)return;
         const first=models.value.find(m=>m.model==='weighted')||models.value[0],second=models.value.find(m=>m.model==='rank_consensus')||models.value.find(m=>m.model!==first.model)||first;
@@ -94,7 +95,7 @@
         if(!result.value||busy.value||loadError.value)return;
         const selected=result.value,url=URL.createObjectURL(new Blob([JSON.stringify(selected,null,2)],{type:'application/json'})),link=document.createElement('a');link.href=url;link.download=`ssq-pool-intersection-${selected.issue}.json`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
       }
-      return {prefix,data,rows,busy,loadError,message,models,sizes,result,analysis,selectionError,name,pad,opened,load,reset,add,remove,copy,exportJson};
+      return {prefix,data,rows,busy,loadError,message,models,sizes,result,analysis,selectionError,name,pad,opened,load,reset,add,remove,copy,exportJson,showResult};
     },
     template:`<details class="card pool-intersection" data-pool-intersection @toggle="opened">
       <summary><strong>{{ archived?'原档池取交集 · 覆盖损失诊断':'号码池取交集' }}</strong><span class="muted"> · 选择多套号码池，只保留共同号码</span></summary>
@@ -104,6 +105,7 @@
         <p v-if="busy" class="muted" role="status">正在读取原号码池…</p><p v-if="loadError" class="notice error" role="alert">{{ loadError }}</p>
         <template v-if="data">
           <p class="muted">可组合2至8个不同的号码池，分别计算红球与蓝球的交集。</p>
+          <div v-if="result" class="intersection-overview row between" data-intersection-overview><span role="status">{{ rows.length }}个来源 · 交集 <b>{{ result.red_count }}红＋{{ result.blue_count }}蓝</b> · 比最小来源池少{{ Math.min(...result.sources.map(s=>s.red_count))-result.red_count }}红</span><button type="button" @click="showResult" :aria-controls="prefix+'-result'">查看交集号码</button></div>
           <div v-for="(row,i) in rows" :key="row.id" class="pool-intersection-row" data-intersection-row @change="message=''">
             <label class="field" :for="prefix+'-model-'+row.id">号码池 {{ i+1 }} · 模型<select :id="prefix+'-model-'+row.id" v-model="row.model" data-intersection-model :disabled="busy"><option v-for="m in models" :key="m.model" :value="m.model">{{ name(m) }}</option></select></label>
             <label class="field" :for="prefix+'-red-'+row.id">红球数量<select :id="prefix+'-red-'+row.id" v-model.number="row.red_count" data-intersection-red :disabled="busy"><option v-for="n in sizes" :key="n" :value="n">{{ n }} 红</option></select></label>
@@ -112,8 +114,8 @@
           </div>
           <div class="row"><button type="button" @click="add" :disabled="busy||rows.length>=8">添加号码池</button><button type="button" @click="reset" :disabled="busy">重置选择</button></div>
           <p v-if="selectionError" class="notice error" role="alert">{{ selectionError }}</p>
-          <section v-if="result" class="pool-intersection-result" data-intersection-result aria-live="polite">
-            <h3>交集结果 · {{ result.red_count }}红＋{{ result.blue_count }}蓝</h3>
+          <section v-if="result" class="pool-intersection-result" :id="prefix+'-result'" tabindex="-1" data-intersection-result :aria-labelledby="prefix+'-result-title'">
+            <h3 :id="prefix+'-result-title'">交集结果 · {{ result.red_count }}红＋{{ result.blue_count }}蓝</h3>
             <p class="muted">红球交集：{{ result.red_count }}个</p><div class="balls" data-intersection-reds><span v-for="n in result.reds" :key="n" class="ball red">{{ pad(n) }}</span><span v-if="!result.reds.length" class="muted">红球无交集</span></div>
             <p class="muted">蓝球交集：{{ result.blue_count }}个</p><div class="balls" data-intersection-blues><span v-for="n in result.blues" :key="n" class="ball blue">{{ pad(n) }}</span><span v-if="!result.blues.length" class="muted">蓝球无交集</span></div>
             <p v-if="!result.can_form_single" class="notice" data-intersection-insufficient>{{ result.red_count<6?'红球交集少于6个。':'' }}{{ !result.blue_count?'蓝球无交集。':'' }}当前结果不能组成完整的6红1蓝单注，未自动补号。</p>

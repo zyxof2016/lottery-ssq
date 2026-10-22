@@ -1,4 +1,4 @@
-const {createApp,ref,computed,onMounted,onUnmounted}=Vue;
+const {createApp,ref,computed,onMounted,onUnmounted,nextTick}=Vue;
 createApp({components:{PoolIntersection:SSQPoolIntersection.component},setup(){
   const {url}=SSQApp,initial=new URLSearchParams(location.search);
   const tabs=[{id:'generator',name:'方案生成',icon:'🎯'},{id:'records',name:'我的方案与对奖',icon:'📊'},{id:'reviews',name:'每期推荐与复盘',icon:'📋'},{id:'draws',name:'开奖历史',icon:'🎱'},{id:'backtest',name:'科学回测与优化',icon:'🧪'},{id:'research',name:'研究评估',icon:'🔬'},{id:'settings',name:'系统设置',icon:'⚙️'}];
@@ -33,7 +33,7 @@ createApp({components:{PoolIntersection:SSQPoolIntersection.component},setup(){
   function setRoute(tab,params={}){const u=new URL(location.href);u.search='';if(tab!=='generator')u.searchParams.set('tab',tab);for(const [key,value]of Object.entries(params))if(['issue','archive','strategy','view'].includes(key)&&value)u.searchParams.set(key,value);history.replaceState(null,'',u);}
   async function openTab(id,params={}){
     if(!tabs.some(t=>t.id===id))return;
-    currentTab.value=id;
+    const changed=currentTab.value!==id;currentTab.value=id;if(changed)window.scrollTo({top:0,behavior:'instant'});
     if(id==='reviews'||id==='research'){
       if(Object.keys(params).length){const old=new URL(id==='reviews'?reviewsSrc.value:researchSrc.value);if(id==='reviews'){for(const key of ['issue','archive','strategy'])old.searchParams.delete(key);}for(const [k,v]of Object.entries(params))if(['issue','archive','strategy','view'].includes(k)&&v)old.searchParams.set(k,v);if(id==='reviews')reviewsSrc.value=old.href;else researchSrc.value=old.href;}
       openedFrames.value[id]=true;
@@ -43,16 +43,21 @@ createApp({components:{PoolIntersection:SSQPoolIntersection.component},setup(){
     if(id==='backtest'&&!reportLoaded.value)await loadReport(false);
     if(id==='settings'){try{await loadCycle();}catch(e){showToast(e.message,'error');}}
   }
+  async function navigateTabs(event){
+    if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)||event.target.getAttribute('role')!=='tab')return;
+    event.preventDefault();const i=tabs.findIndex(t=>t.id===currentTab.value),n=event.key==='Home'?0:event.key==='End'?tabs.length-1:(i+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+    openTab(tabs[n].id);await nextTick();document.getElementById('tab-'+tabs[n].id)?.focus();
+  }
   function openReviewUrl(href){const u=new URL(href,SSQApp.base);return openTab('reviews',Object.fromEntries(u.searchParams));}
   function deadlineUnix(){const value=Date.parse(deadline.value+'+08:00');if(!Number.isFinite(value))throw Error('请填写有效的北京时间封存截止。');return Math.floor(value/1000);}
   function validateTarget(){const issue=target.value.trim();if(!/^\d{5}$/.test(issue))throw Error('目标期号需要5位数字。');return issue;}
   async function generate(body){
     if(generating.value||saving.value||syncing.value)return;
-    generating.value=true;
+    generating.value=true;let completed=false;
     try{
       const issue=validateTarget(),request={...body,issue,ranking_model:body.preset==='weighted24'?'weighted':body.preset==='coverage24'?'conditional_gap':body.preset==='calibrated14'?'repeat_calibrated':body.preset==='equal24'?'equal':form.value.mode==='frozen'?'weighted':form.value.ranking_model},config={...form.value};
       if(config.mode==='pool_observation'){
-        const data=await read('api/pools');
+        const [data,archive]=await Promise.all([read('api/pools'),read('api/recommendations/issues/'+issue+'?archive=daily').catch(()=>null)]);
         if(issue!==data.suggested_target)throw Error('观察池仅生成当前数据紧邻下一期；历史覆盖请到研究评估查看。');
         const root=data.next.weighted_pools,models=[{model:'weighted',...root},...root.comparison_models,...(root.coverage_model?[root.coverage_model]:[]),...(root.algorithm_models||[])];
         const redCount=config.observation_size,blueCount=config.blue_count,saved=models.find(m=>m.model===config.ranking_model),pool=saved?.pools.find(p=>p.red_count===redCount&&p.blue_count===blueCount);
@@ -62,14 +67,24 @@ createApp({components:{PoolIntersection:SSQPoolIntersection.component},setup(){
         if((root.algorithm_models||[]).some(m=>m.model===config.ranking_model)){const study=await read('api/pool-algorithms');if(study.data_sha256!==data.data_sha256)throw Error('开奖数据已变化，请重新生成。');recent={...study.windows.recent60,red_curves:study.windows.recent60?.cells||[]};}
         const curve=recent?.red_curves.find(c=>c.model===config.ranking_model&&c.red_count===redCount),reference=recent?.red_curves.find(c=>c.model===config.ranking_model&&c.red_count===24);
         const compressionEvidence=curve&&reference?{from:recent.from,to:recent.to,n:recent.n,full_red_periods:curve.full_red_periods,reference_full_red_periods:reference.full_red_periods}:null;
-        poolPreview.value={issue,model:config.ranking_model,policy:saved.policy,model_label:saved.policy?.label||(config.ranking_model==='weighted'?'协议加权融合':config.ranking_model==='conditional_gap'?'条件频率 · 24红试验':config.ranking_model==='equal'?'等权融合 · 对照':'重号偏置校准 · 试验'),cutoff_issue:data.cutoff_issue,cutoff_date:data.cutoff_date,input_history_sha256:data.data_sha256,red_count:redCount,blue_count:blueCount,reds:[...pool.reds].sort((a,b)=>a-b),blues:[...pool.blues].sort((a,b)=>a-b),uniform_full_red_rate:baseline,compression_evidence:compressionEvidence};plan.value=null;lastRequest.value=null;
+        const archiveState=poolArchiveState(archive,issue,config.ranking_model,pool,data.data_sha256);
+        poolPreview.value={archive_state:archiveState,issue,model:config.ranking_model,policy:saved.policy,model_label:saved.policy?.label||(config.ranking_model==='weighted'?'协议加权融合':config.ranking_model==='conditional_gap'?'条件频率 · 24红试验':config.ranking_model==='equal'?'等权融合 · 对照':'重号偏置校准 · 试验'),cutoff_issue:data.cutoff_issue,cutoff_date:data.cutoff_date,input_history_sha256:data.data_sha256,red_count:redCount,blue_count:blueCount,reds:[...pool.reds].sort((a,b)=>a-b),blues:[...pool.blues].sort((a,b)=>a-b),uniform_full_red_rate:baseline,compression_evidence:compressionEvidence};plan.value=null;lastRequest.value=null;
       }else{
         if(config.mode==='frozen')request.not_after=deadlineUnix();
         const result=await post('api/generate',request);
         plan.value=result;poolPreview.value=null;lastRequest.value=request;
       }
-      planSaved.value=false;showToast(poolPreview.value?'观察号码池已生成。':`${plan.value.title}：${plan.value.bet_count}注，${plan.value.cost}元。`);
-    }catch(e){showToast(e.message,'error');}finally{generating.value=false;}
+      planSaved.value=false;completed=true;showToast(poolPreview.value?'观察号码池已生成。':`${plan.value.title}：${plan.value.bet_count}注，${plan.value.cost}元。`);
+    }catch(e){showToast(e.message,'error');}finally{generating.value=false;if(completed){await nextTick();const result=document.getElementById('generated-plan');result?.focus({preventScroll:true});result?.scrollIntoView({block:'start',behavior:'instant'});}}
+  }
+  function poolArchiveState(archive,issue,model,pool,inputHash){
+    const href=url('reviews',{issue,archive:'daily'});if(!archive)return {unavailable:true,url:href};
+    if(archive.missing)return {exists:false,url:href};
+    if(archive.issue!==issue||archive.archive_id!=='daily'||!archive.provenance?.sha256)return {unavailable:true,url:href};
+    const root=archive.number_pools,models=root?[{...root,model:'weighted'},...(root.comparison_models||[]),...(root.coverage_model?[root.coverage_model]:[]),...(root.algorithm_models||[])]:[];
+    const original=models.find(m=>m.model===model)?.pools?.find(p=>p.red_count===pool.red_count&&p.blue_count===pool.blue_count&&p.group==='observation');
+    const same=(a,b)=>{if(!Array.isArray(a)||!Array.isArray(b)||a.length!==b.length)return false;const expected=[...b].sort((x,y)=>x-y);return [...a].sort((x,y)=>x-y).every((n,i)=>n===expected[i]);};
+    return {exists:true,url:href,matches:archive.provenance.input_history_sha256===inputHash&&!!original&&same(original.reds,pool.reds)&&same(original.blues,pool.blues)};
   }
   function generateCompact(size){
     if(generating.value||saving.value||syncing.value||!overview.value.next_issue||![14,16,18].includes(size))return;
@@ -133,5 +148,5 @@ createApp({components:{PoolIntersection:SSQPoolIntersection.component},setup(){
     await openTab(currentTab.value);
   });
   onUnmounted(()=>{window.removeEventListener('message',frameMessage);clearTimeout(toastTimer);});
-  return {intersectionApiUrl,tabs,currentTab,overview,cycle,toast,target,deadline,form,compactModel,compactAlgorithms,compactChoices,presets,activePreset,plan,poolPreview,planSaved,generating,saving,syncing,currentResult,generatedIssue,resultArchive,stalePreview,poolCanFreeze,planRedUnion,planBlueUnion,records,recordFilter,recordsLoading,shownRecords,scoredCover,settling,draws,drawBefore,drawsLoading,moreDraws,tests,reportCards,reportLoading,verdict,reviewsSrc,researchSrc,reviewsStandalone,researchStandalone,openedFrames,researchUrl,pad,f4,percent,freezeTime,openTab,openReviewUrl,generateCompact,applyPreset,generateCustom,savePlan,copyPlan,loadRecords,loadDraws,settle,syncDraws,loadReport,hitRed,hitBlue,frameLoaded};
+  return {intersectionApiUrl,tabs,currentTab,overview,cycle,toast,target,deadline,form,compactModel,compactAlgorithms,compactChoices,presets,activePreset,plan,poolPreview,planSaved,generating,saving,syncing,currentResult,generatedIssue,resultArchive,stalePreview,poolCanFreeze,planRedUnion,planBlueUnion,records,recordFilter,recordsLoading,shownRecords,scoredCover,settling,draws,drawBefore,drawsLoading,moreDraws,tests,reportCards,reportLoading,verdict,reviewsSrc,researchSrc,reviewsStandalone,researchStandalone,openedFrames,researchUrl,pad,f4,percent,freezeTime,openTab,navigateTabs,openReviewUrl,generateCompact,applyPreset,generateCustom,savePlan,copyPlan,loadRecords,loadDraws,settle,syncDraws,loadReport,hitRed,hitBlue,frameLoaded};
 }}).mount('#app');
