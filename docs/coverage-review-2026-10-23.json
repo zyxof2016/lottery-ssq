@@ -1,0 +1,398 @@
+{
+  "kind": "actual_archive_review_and_exploratory_optimization",
+  "date": "2026-10-23",
+  "official_draw_source": "https://www.swlc.net.cn/lottery/ssq.html?view=previous",
+  "draw": {
+    "blue": 2,
+    "date": "2026-10-22",
+    "issue": "26121",
+    "red": [
+      2,
+      7,
+      20,
+      24,
+      26,
+      30
+    ]
+  },
+  "current_data_sha256": "8b41e6e6a840a1921109d0b7fd13ee9407a3cb1ad70f9a2f5d6edf5800054eb8",
+  "actual_archive": {
+    "issue": "26121",
+    "archive_sha256": "1454a2671a94d965b5e78d51669e1420c3e4930aeb3bde74e518b73394942dd0",
+    "input_cutoff": "26120",
+    "input_history_sha256": "242b1c1224e5bb18486bcd27cb0957a931a0d256c11040ce173943a43b947b63",
+    "models": [
+      {
+        "model": "weighted",
+        "red_hits_at_14_16_18_20_22_24": [
+          2,
+          3,
+          4,
+          5,
+          5,
+          6
+        ],
+        "smallest_saved_full_red_tier": 24,
+        "minimum_full_red_prefix_post_draw_only": 23,
+        "blue_hit_in_1_to_3": false,
+        "is_uniform_control": false
+      },
+      {
+        "model": "equal",
+        "red_hits_at_14_16_18_20_22_24": [
+          3,
+          4,
+          4,
+          4,
+          4,
+          5
+        ],
+        "smallest_saved_full_red_tier": null,
+        "minimum_full_red_prefix_post_draw_only": 26,
+        "blue_hit_in_1_to_3": false,
+        "is_uniform_control": false
+      },
+      {
+        "model": "uniform",
+        "red_hits_at_14_16_18_20_22_24": [
+          5,
+          6,
+          6,
+          6,
+          6,
+          6
+        ],
+        "smallest_saved_full_red_tier": 16,
+        "minimum_full_red_prefix_post_draw_only": 16,
+        "blue_hit_in_1_to_3": false,
+        "is_uniform_control": true
+      },
+      {
+        "model": "repeat_calibrated",
+        "red_hits_at_14_16_18_20_22_24": [
+          3,
+          3,
+          4,
+          5,
+          6,
+          6
+        ],
+        "smallest_saved_full_red_tier": 22,
+        "minimum_full_red_prefix_post_draw_only": 22,
+        "blue_hit_in_1_to_3": false,
+        "is_uniform_control": false
+      },
+      {
+        "model": "conditional_gap",
+        "red_hits_at_14_16_18_20_22_24": [
+          2,
+          3,
+          3,
+          3,
+          4,
+          5
+        ],
+        "smallest_saved_full_red_tier": null,
+        "minimum_full_red_prefix_post_draw_only": 29,
+        "blue_hit_in_1_to_3": false,
+        "is_uniform_control": false
+      },
+      {
+        "model": "rank_consensus",
+        "red_hits_at_14_16_18_20_22_24": [
+          4,
+          5,
+          5,
+          5,
+          6,
+          6
+        ],
+        "smallest_saved_full_red_tier": 22,
+        "minimum_full_red_prefix_post_draw_only": 22,
+        "blue_hit_in_1_to_3": false,
+        "is_uniform_control": false
+      },
+      {
+        "model": "scenario_cover",
+        "red_hits_at_14_16_18_20_22_24": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          5
+        ],
+        "smallest_saved_full_red_tier": null,
+        "minimum_full_red_prefix_post_draw_only": 28,
+        "blue_hit_in_1_to_3": false,
+        "is_uniform_control": false
+      },
+      {
+        "model": "robust_cover",
+        "red_hits_at_14_16_18_20_22_24": [
+          2,
+          2,
+          3,
+          4,
+          4,
+          5
+        ],
+        "smallest_saved_full_red_tier": null,
+        "minimum_full_red_prefix_post_draw_only": 31,
+        "blue_hit_in_1_to_3": false,
+        "is_uniform_control": false
+      }
+    ],
+    "blue_rank": 14,
+    "original_frozen_ticket_summary": {
+      "all_ticket_reds": [
+        14
+      ],
+      "bets": 8,
+      "blue_coverage": 2,
+      "blue_coverage_excess": -0.125,
+      "blue_coverage_per_yuan": 0.125,
+      "blue_covered": false,
+      "blue_hit_bets": 0,
+      "cost": 16,
+      "covered_red_count": 2,
+      "covered_reds": [
+        2,
+        20
+      ],
+      "duplicate_tickets": 0,
+      "fixed_prize": 0,
+      "floating_prize_tickets": 0,
+      "max_blue_exposure": 4,
+      "max_red_exposure": 8,
+      "max_ticket_red_hits": 2,
+      "mean_ticket_red_hits": 0.75,
+      "minimum_union_bets": 2,
+      "missed_reds": [
+        7,
+        24,
+        26,
+        30
+      ],
+      "missed_reds_by_reason": {
+        "below_candidate_cutoff": 4
+      },
+      "prize_tickets": 0,
+      "red_coverage": 11,
+      "red_coverage_excess": 0.0,
+      "red_coverage_per_yuan": 0.6875,
+      "red_hit_histogram": {
+        "0": 3,
+        "1": 4,
+        "2": 1
+      },
+      "repeated_blue_positions": 6,
+      "repeated_red_positions": 37,
+      "special_prize_candidates": 0,
+      "total_red_positions": 48,
+      "uniform_expected_blue_coverage": 0.125,
+      "uniform_expected_blue_hit_bets": 0.5,
+      "uniform_expected_red_hits": 2.0,
+      "uniform_expected_ticket_red_hits": 1.0909090909090908,
+      "unique_blues": [
+        3,
+        4
+      ],
+      "unique_reds": [
+        2,
+        6,
+        8,
+        9,
+        13,
+        14,
+        16,
+        18,
+        20,
+        22,
+        31
+      ]
+    },
+    "new_algorithm_actual_scored_periods": 1,
+    "new_algorithm_actual_pending_periods": 1
+  },
+  "derived_intersection": {
+    "kind": "post_draw_derived_not_original_recommendation",
+    "actual_recommendation": false,
+    "source_models": [
+      "rank_consensus",
+      "repeat_calibrated"
+    ],
+    "source_red_count": 22,
+    "red_count": 20,
+    "red_hits": 6,
+    "full_draw": false,
+    "note": "仅由26121原池推导；当时未单独冻结该交集推荐，不能作为新模型实绩。"
+  },
+  "exploratory_joint_coverage_replay": {
+    "artifact": "joint-coverage-replay-2026-10-23.json",
+    "actual_recommendation": false,
+    "n": 3338,
+    "recent60_intersection": {
+      "full_draw_periods_by_blue": [
+        0,
+        0,
+        0
+      ],
+      "full_red_periods": 2,
+      "full_red_rate": 0.03333333333333333,
+      "matched_weighted_full_red_periods": 4,
+      "maximum_red_count": 20,
+      "mean_red_count": 16.866666666666667,
+      "minimum_red_count": 14,
+      "source_full_red_periods": {
+        "rank_consensus": 6,
+        "repeat_calibrated": 8
+      },
+      "source_models": [
+        "rank_consensus",
+        "repeat_calibrated"
+      ],
+      "source_red_count": 22
+    },
+    "blue_two_recent60": [
+      {
+        "blue_count": 2,
+        "hit_periods": 10,
+        "hit_rate": 0.16666666666666666,
+        "joint_full6": [
+          1,
+          0,
+          1
+        ],
+        "model": "weighted",
+        "n": 60,
+        "paired_gains": 0,
+        "paired_losses": 0
+      },
+      {
+        "blue_count": 2,
+        "hit_periods": 9,
+        "hit_rate": 0.15,
+        "joint_full6": [
+          1,
+          0,
+          1
+        ],
+        "model": "equal",
+        "n": 60,
+        "paired_gains": 0,
+        "paired_losses": 1
+      },
+      {
+        "blue_count": 2,
+        "hit_periods": 7,
+        "hit_rate": 0.11666666666666667,
+        "joint_full6": [
+          0,
+          0,
+          0
+        ],
+        "model": "rank_consensus",
+        "n": 60,
+        "paired_gains": 6,
+        "paired_losses": 9
+      }
+    ],
+    "blue_two_all_oos": [
+      {
+        "blue_count": 2,
+        "hit_periods": 456,
+        "hit_rate": 0.1366087477531456,
+        "joint_full6": [
+          33,
+          31,
+          33
+        ],
+        "model": "weighted",
+        "n": 3338,
+        "paired_gains": 0,
+        "paired_losses": 0
+      },
+      {
+        "blue_count": 2,
+        "hit_periods": 466,
+        "hit_rate": 0.1396045536249251,
+        "joint_full6": [
+          37,
+          32,
+          31
+        ],
+        "model": "equal",
+        "n": 3338,
+        "paired_gains": 81,
+        "paired_losses": 71
+      },
+      {
+        "blue_count": 2,
+        "hit_periods": 402,
+        "hit_rate": 0.12043139604553625,
+        "joint_full6": [
+          26,
+          23,
+          24
+        ],
+        "model": "rank_consensus",
+        "n": 3338,
+        "paired_gains": 258,
+        "paired_losses": 312
+      }
+    ]
+  },
+  "adoption": {
+    "default_compact_reds": 16,
+    "new_explicit_observation_choices": [
+      {
+        "model": "rank_consensus",
+        "reds": 22
+      },
+      {
+        "model": "repeat_calibrated",
+        "reds": 22
+      },
+      {
+        "model": "weighted",
+        "reds": 24
+      }
+    ],
+    "changes_red_ranking_weights": false,
+    "changes_blue_ranking": false,
+    "automatic_intersection_promotion": false,
+    "reason": "22红作为压缩观察入口；蓝球替代和22红交集均未在各窗口持续占优，不因单期更换默认。",
+    "existing26122_archive_unchanged": true,
+    "daily_strategy_count": 21,
+    "pool_models": 8,
+    "number_pools": 153
+  },
+  "archives_preserved": {
+    "26118": {
+      "file_sha256": "7f81e7f32c824585ef279361ee2bde8eea3f67c6e599329033bbc60dedca5e51",
+      "payload_sha256": "2623c692d3b2c5ab70a343a8df76a9fe0154842c5c266cb7df456bed90640db3",
+      "strategies": 16
+    },
+    "26119": {
+      "file_sha256": "658dc89c647cc999aa47a2b2d4ab0ede67db7afb72f80f3af49ff1f6b7abb5cc",
+      "payload_sha256": "18ad62afffab08fcf9307245e7ff8d31bccb231cdfdd6a418496c165ffb13b49",
+      "strategies": 16
+    },
+    "26120": {
+      "file_sha256": "932f89aab2bbd8ecc9876e026254fd922f1858c1c839eaf7a9f7483dc76364f6",
+      "payload_sha256": "a1d6ed3b5b81f3c45691c2a977f04d0dd926c3dc4dec440c3a5198889f5d0e6d",
+      "strategies": 19
+    },
+    "26121": {
+      "file_sha256": "acfecef6380cfaa81397051715ef7d6972936265f09e15c6b58c4d35d68dd76a",
+      "payload_sha256": "1454a2671a94d965b5e78d51669e1420c3e4930aeb3bde74e518b73394942dd0",
+      "strategies": 20
+    },
+    "26122": {
+      "file_sha256": "22b7558879895c308e353003d540b661d47d20a8d73c791a2a88bb3cab6c6310",
+      "payload_sha256": "68c063b0e02bf54a95fab01d1cba5ab03242e79c87d72996fcf1d7ae90eb79ab",
+      "strategies": 21
+    }
+  }
+}

@@ -1139,6 +1139,43 @@ pub fn issue_index(root: &Path, draws: &[Draw], legacy: &[Value], limit: usize) 
     json!({"issues": rows, "presets": PRESETS, "independent_timestamp_verified": false})
 }
 
+// Joint coverage is a read-only diagnostic of saved tiers, never a new pool.
+fn joint_pool_diagnostic(root: &Value, draw: Option<&Draw>) -> Value {
+    if root["observation_tiers"].as_array().map_or(true, |v| v.is_empty()) {
+        return Value::Null;
+    }
+    let mut models = vec![("weighted", root)];
+    for key in ["comparison_models", "algorithm_models"] {
+        if let Some(rows) = root[key].as_array() {
+            models.extend(rows.iter().filter_map(|m| m["model"].as_str().map(|name| (name, m))));
+        }
+    }
+    if let Some(name) = root["coverage_model"]["model"].as_str() {
+        models.push((name, &root["coverage_model"]));
+    }
+    let saved = |p: &&Value| p["group"] == "observation"
+        && p["red_count"].as_u64().is_some_and(|n| pool::TIER_RED_SIZES.contains(&(n as usize)))
+        && p["blue_count"].as_u64().is_some_and(|n| (1..=3).contains(&n));
+    let all: Vec<&Value> = models.iter().flat_map(|(_, m)| m["pools"].as_array().into_iter().flatten()).filter(saved).collect();
+    if all.is_empty() { return Value::Null; }
+    let mut result = json!({"kind":"post_draw_saved_tier_joint_diagnostic","actual_recommendation":false,
+        "pending":draw.is_none(),"winning_blue_rank":if draw.is_some(){root["diagnostics"]["winning_blue_rank"].clone()}else{Value::Null},
+        "maximum_saved_blue_count":all.iter().filter_map(|p|p["blue_count"].as_u64()).max(),
+        "full_red_models":Value::Null,"all_saved_tiers_miss_blue":Value::Null,"any_saved_tier_full_draw":Value::Null,
+        "note":"仅核对当时实际保存的14–24红及1–3蓝池；红球全入池与6红1蓝分别统计，不扩大号码，也不按单期更换模型。"});
+    if draw.is_none() { return result; }
+    let mut full: Vec<Value> = models.iter().filter_map(|(name, model)| {
+        let size = model["pools"].as_array()?.iter().filter(saved)
+            .filter(|p|p["full_red"]==true).filter_map(|p|p["red_count"].as_u64()).min()?;
+        Some(json!({"model":name,"red_count":size,"is_uniform_control":*name=="uniform"}))
+    }).collect();
+    full.sort_by_key(|p| (p["red_count"].as_u64().unwrap(), p["model"].as_str().unwrap().to_string()));
+    result["full_red_models"] = json!(full);
+    result["all_saved_tiers_miss_blue"] = json!(all.iter().all(|p| p["blue_hit"]==false));
+    result["any_saved_tier_full_draw"] = json!(all.iter().any(|p| p["full_draw"]==true));
+    result
+}
+
 pub fn issue_detail(
     root: &Path,
     draws: &[Draw],
@@ -1226,6 +1263,7 @@ pub fn issue_detail(
     let detail = variants.get(selected).ok_or("策略不存在")?;
     response["archive_id"] = json!(id);
     response["provenance"] = provenance;
+    response["joint_pool_diagnostic"] = joint_pool_diagnostic(&response["number_pools"], draw);
     response["strategy"] = json!(selected);
     response["strategies"] = json!(variants.iter().map(|(name, value)| json!({"name": name, "title": value["title"], "mode": value["mode"], "ranking": value["ranking"], "coverage_optimization": value["coverage_optimization"], "summary": value["summary"]})).collect::<Vec<_>>());
     response["detail"] = detail.clone();
@@ -1298,6 +1336,27 @@ mod tests {
     fn append_outcome(draws: &mut Vec<Draw>) {
         let last = draws.last().unwrap();
         draws.push(Draw::from_parts(last.issue + 1, 20030901, [1, 2, 3, 4, 5, 6], 7).unwrap());
+    }
+
+    #[test]
+    fn joint_diagnostic_uses_saved_tiers_and_keeps_pending_and_legacy_unscored() {
+        let draw = Draw::from_parts(26121, 20261022, [2,7,20,24,26,30], 2).unwrap();
+        let cell = |red, full, blue| json!({"group":"observation","red_count":red,"blue_count":blue,"full_red":full,"blue_hit":false,"full_draw":false});
+        let root = json!({"observation_tiers":[{"red_count":22},{"red_count":24}],
+            "diagnostics":{"minimum_full_red_prefix":23,"winning_blue_rank":14},
+            "pools":[cell(22,false,2),cell(24,true,2)],
+            "comparison_models":[{"model":"uniform","pools":[cell(16,true,2)]}],
+            "algorithm_models":[{"model":"rank_consensus","pools":[cell(20,false,2),cell(22,true,2),cell(24,true,3)]}]});
+        let before=root.clone();let d=joint_pool_diagnostic(&root,Some(&draw));
+        assert_eq!(d["winning_blue_rank"],14);assert_eq!(d["all_saved_tiers_miss_blue"],true);
+        assert_eq!(d["any_saved_tier_full_draw"],false);assert_eq!(d["maximum_saved_blue_count"],3);
+        assert_eq!(d["full_red_models"],json!([{"model":"uniform","red_count":16,"is_uniform_control":true},{"model":"rank_consensus","red_count":22,"is_uniform_control":false},{"model":"weighted","red_count":24,"is_uniform_control":false}]));
+        assert_eq!(root,before);
+        let pending=joint_pool_diagnostic(&root,None);assert_eq!(pending["pending"],true);
+        assert!(pending["winning_blue_rank"].is_null());assert!(pending["full_red_models"].is_null());assert!(pending["all_saved_tiers_miss_blue"].is_null());assert!(pending["any_saved_tier_full_draw"].is_null());
+        assert!(joint_pool_diagnostic(&json!({"pools":[cell(16,true,2)]}),Some(&draw)).is_null());
+        let mut with_blue=root;with_blue["pools"][1]["blue_hit"]=json!(true);with_blue["pools"][1]["full_draw"]=json!(true);
+        let covered=joint_pool_diagnostic(&with_blue,Some(&draw));assert_eq!(covered["all_saved_tiers_miss_blue"],false);assert_eq!(covered["any_saved_tier_full_draw"],true);
     }
 
     #[test]
