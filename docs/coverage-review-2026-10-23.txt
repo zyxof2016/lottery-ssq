@@ -48,3 +48,5 @@ robust_cover | 2 / 2 / 3 / 4 / 4 / 5 | 未全包
 
 复现：cargo run --release --locked --example joint_coverage_review -- data/ssq.csv
 详见 coverage-review-2026-10-23.json、joint-coverage-replay-2026-10-23.json。
+
+摘要口径：data_sha256 为 draw::canonical_csv 的LF规范化开奖摘要；仓库CSV保留CRLF，线上CSV为LF，两者逐行开奖完全一致，原文件SHA分别记录。回放另记录 input_file_sha256，源码摘要已独立复算。

@@ -21,5 +21,9 @@
   "rust_tests_passed": 81,
   "embedded_assets_match_source": true,
   "date": "2026-10-23",
-  "current_data_sha256": "8b41e6e6a840a1921109d0b7fd13ee9407a3cb1ad70f9a2f5d6edf5800054eb8"
+  "current_data_sha256": "8b41e6e6a840a1921109d0b7fd13ee9407a3cb1ad70f9a2f5d6edf5800054eb8",
+  "canonical_and_raw_csv_hashes_distinguished": true,
+  "repository_csv_file_sha256": "d1ba97c97d262c719d7cbc5942cd8c3c4d9beefac507ef775b89bfe206abdc52",
+  "production_csv_file_sha256": "8b41e6e6a840a1921109d0b7fd13ee9407a3cb1ad70f9a2f5d6edf5800054eb8",
+  "replay_source_sha256_verified": true
 }

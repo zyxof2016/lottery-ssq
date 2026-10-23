@@ -394,5 +394,13 @@
       "payload_sha256": "68c063b0e02bf54a95fab01d1cba5ab03242e79c87d72996fcf1d7ae90eb79ab",
       "strategies": 21
     }
+  },
+  "data_hashes": {
+    "scope": "data_sha256 is draw::canonical_csv (LF); raw file SHA depends on line endings",
+    "canonical_data_sha256": "8b41e6e6a840a1921109d0b7fd13ee9407a3cb1ad70f9a2f5d6edf5800054eb8",
+    "repository_csv_file_sha256": "d1ba97c97d262c719d7cbc5942cd8c3c4d9beefac507ef775b89bfe206abdc52",
+    "production_csv_file_sha256": "8b41e6e6a840a1921109d0b7fd13ee9407a3cb1ad70f9a2f5d6edf5800054eb8",
+    "same_draw_rows_verified": true,
+    "replay_source_sha256_verified": true
   }
 }

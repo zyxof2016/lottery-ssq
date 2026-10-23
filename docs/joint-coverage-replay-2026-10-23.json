@@ -2,6 +2,8 @@
   "actual_recommendation": false,
   "automatic_promotion": false,
   "data_sha256": "8b41e6e6a840a1921109d0b7fd13ee9407a3cb1ad70f9a2f5d6edf5800054eb8",
+  "data_sha256_kind": "canonical_csv_lf",
+  "input_file_sha256": "8b41e6e6a840a1921109d0b7fd13ee9407a3cb1ad70f9a2f5d6edf5800054eb8",
   "joint_red_models_22": [
     "weighted",
     "repeat_calibrated",
@@ -104,7 +106,7 @@
       8
     ]
   },
-  "source_sha256": "b7e00388a8a58f89282ca16bbae48112b2c8bb4205c7ed150f061a148a293eff",
+  "source_sha256": "dc72b394c5a65b3c46fe936a1bc4b51e8ad8d712fb15cc8f18a945cc986212de",
   "windows": {
     "all_oos": {
       "cells": [
