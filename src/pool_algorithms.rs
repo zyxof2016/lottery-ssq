@@ -7,11 +7,14 @@ use crate::{
 };
 use serde_json::{json, Value};
 
-pub const MODELS: [&str; 3] = ["rank_consensus", "scenario_cover", "robust_cover"];
-pub const LABELS: [&str; 3] = [
+pub const MODELS: [&str; 4] = ["rank_consensus", "scenario_cover", "robust_cover", "dual_support"];
+pub const COLLECTION_VERSION: u64 = 2;
+pub const LEGACY_MODEL_COUNT: usize = 3;
+pub const LABELS: [&str; 4] = [
     "名次共识 · 试验",
     "全6情景覆盖 · 试验",
     "三窗稳健覆盖 · 试验",
+    "双专家支持 · 24红试验",
 ];
 const WINDOW: usize = 312;
 const WINDOWS: [usize; 3] = [60, 156, 312];
@@ -30,12 +33,24 @@ pub fn policy(model: &str) -> Value {
         "tie_aware_equal_borda_seven_experts",
         "greedy_backward_full_six_scenario_survival",
         "greedy_backward_minimum_three_window_survival",
+        "two_best_tie_aware_expert_midranks",
     ];
     let notes = [
         "七个专家按并列平均名次等权投票，减轻不同评分尺度的影响；同分沿原加权排名。",
         "将此前最多312期的六红组合作为情景，逐次剔除使完整六红情景损失最少的号码；同分参考名次共识。",
         "在此前60/156/312期三个窗口中，优先保留平滑后最弱窗口的完整六红情景覆盖；同分参考窗口平均与名次共识。",
+        "每号取七专家中支持最高的两位的并列平均名次，再按两者平均排序；不将这两位视为独立证据。24红作新增前瞻试验；初始研究中16红及长期2蓝联合全包均退步，不替换原默认。",
     ];
+    if model == "dual_support" {
+        return json!({"model":model,"label":LABELS[i],"version":1,"method":methods[i],
+            "experts":7,"supporters":2,"rank_units":"twice_average_rank_for_ties",
+            "ties":"original_weighted_rank","uses_scenario_masks":false,
+            "primary_metric":"all_six_red_rate_at_24","auxiliary_metric":"all_six_red_and_blue_covered",
+            "red_sizes":pool::TIER_RED_SIZES,"blue_sizes":pool::BLUE_SIZES,
+            "blue_scope":"shared_weighted_blue_ranking","automatic_promotion":false,
+            "score_kind":"ordinal_ranking_evidence_not_probability",
+            "note":format!("{} 历史比较含多种已查看候选，不能视为独立确认或未来覆盖概率。",notes[i])});
+    }
     json!({"model":model,"label":LABELS[i],"version":1,"method":methods[i],
         "training_draws_max":WINDOW,"windows":WINDOWS,"uniform_prior_periods":PRIOR,
         "primary_metric":"all_six_red_rate_at_same_pool_size","auxiliary_metric":"all_six_red_and_blue_covered",
@@ -63,6 +78,20 @@ fn consensus_units(expert: &[[f64; 33]; 7]) -> [u32; 33] {
         }
     }
     units
+}
+
+fn dual_support_units(experts: &[[f64; 33]; 7]) -> [u32; 33] {
+    let mut ranks = [[0u32; 33]; 7];
+    for (e, p) in experts.iter().enumerate() {
+        let order = rank_desc(p);let mut start = 0;
+        while start < 33 {
+            let mut end = start + 1;
+            while end < 33 && score_key(p[order[end]]) == score_key(p[order[start]]) { end += 1; }
+            for &n in &order[start..end] { ranks[e][n] = (start + 1 + end) as u32; }
+            start = end;
+        }
+    }
+    std::array::from_fn(|n| { let mut r = ranks.map(|e| e[n]);r.sort_unstable();134-r[0]-r[1] })
 }
 
 fn greedy_order(masks: &[u64], units: &[u32; 33], base: &[usize; 33], robust: bool) -> [usize; 33] {
@@ -125,14 +154,16 @@ fn greedy_order(masks: &[u64], units: &[u32; 33], base: &[usize; 33], robust: bo
     order
 }
 
-fn rankings(expert: &[[f64; 33]; 7], base: &[usize; 33], masks: &[u64]) -> [[usize; 33]; 3] {
+fn rankings(expert: &[[f64; 33]; 7], base: &[usize; 33], masks: &[u64]) -> [[usize; 33]; 4] {
     let units = consensus_units(expert);
     let mut consensus = *base;
     consensus.sort_by_key(|&n| std::cmp::Reverse(units[n]));
+    let support=dual_support_units(expert);let mut dual=*base;dual.sort_by_key(|&n|std::cmp::Reverse(support[n]));
     [
         consensus,
         greedy_order(masks, &units, base, false),
         greedy_order(masks, &units, base, true),
+        dual,
     ]
 }
 
@@ -247,7 +278,7 @@ pub fn validate_snapshot(saved: &Value) -> Result<(), String> {
 /// Recompute against the bound prefix only, never the later evaluation draw.
 pub fn validate_history(models: &[Value], draws: &[Draw]) -> Result<(), String> {
     let expected = saved_all(&prepare_forecast(draws)?, draws);
-    if models != expected.as_slice() {
+    if ![LEGACY_MODEL_COUNT, MODELS.len()].contains(&models.len()) || models != &expected[..models.len()] {
         return Err("号码池算法证据与输入历史不一致".into());
     }
     Ok(())
@@ -255,7 +286,7 @@ pub fn validate_history(models: &[Value], draws: &[Draw]) -> Result<(), String> 
 
 struct Period {
     issue: u32,
-    hits: [[usize; 6]; 4],
+    hits: [[usize; 6]; 5],
     blue_rank: usize,
 }
 fn summarize(rows: &[Period]) -> Value {
@@ -384,6 +415,14 @@ mod tests {
         }
     }
     #[test]
+    fn dual_support_neutral_ties_and_minority_support_are_deterministic() {
+        let mut experts=[[1.0/33.0;33];7];let base=std::array::from_fn(|n|32-n);
+        let ranks=rankings(&experts,&base,&[(1u64<<6)-1]);assert_eq!(ranks[3],base);
+        experts[0][0]=0.9;experts[1][0]=0.8;
+        let units=dual_support_units(&experts);assert!(units[0]>units[1]);
+    }
+
+    #[test]
     fn snapshots_bind_training_and_reject_tampering() {
         let draws = crate::draw::synth_draws(220, 9);
         let p = prepare_forecast(&draws).unwrap();
@@ -392,6 +431,7 @@ mod tests {
             validate_snapshot(m).unwrap();
         }
         validate_history(&models, &draws).unwrap();
+        validate_history(&models[..LEGACY_MODEL_COUNT], &draws).unwrap();
         let mut bad = models[1].clone();
         bad["red_ranking"].as_array_mut().unwrap().swap(0, 32);
         assert!(validate_snapshot(&bad).is_err());

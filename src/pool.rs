@@ -303,6 +303,7 @@ pub fn saved_current(prepared:&Prepared,draws:&[Draw])->Value {
     let mut value=saved_ranked(prepared,draws.last().unwrap().red_mask);
     value["coverage_model"]=crate::conditional::saved(prepared,draws);
     value["algorithm_models"]=json!(crate::pool_algorithms::saved_all(prepared,draws));
+    value["algorithm_models_version"]=json!(crate::pool_algorithms::COLLECTION_VERSION);
     value
 }
 
@@ -403,13 +404,14 @@ pub fn review(saved: &Value, draw: Option<&Draw>) -> Result<Value, String> {
             let order=ranking(model,"red_ranking",33)?.ok_or("条件频率缺少完整排名")?;
             result["coverage_model"]=review_set(model,draw,&TIER_RED_SIZES,Some(&order),blue_order.as_deref(),crate::conditional::MODEL,true)?;
         } else {result.as_object_mut().unwrap().remove("coverage_model");}
-        if version==4 && saved.get("algorithm_models").is_some() {
+        if version==4 && (saved.get("algorithm_models").is_some() || saved.get("algorithm_models_version").is_some()) {
             let algorithms=saved["algorithm_models"].as_array().ok_or("算法扩展必须为数组")?;
-            if algorithms.len()!=crate::pool_algorithms::MODELS.len() {return Err("算法扩展缺少模型".into());}
+            let expected=match saved.get("algorithm_models_version") {None=>crate::pool_algorithms::LEGACY_MODEL_COUNT,Some(v) if v.as_u64()==Some(crate::pool_algorithms::COLLECTION_VERSION)=>crate::pool_algorithms::MODELS.len(),_=>return Err("未知算法集合版本".into())};
+            if algorithms.len()!=expected {return Err("算法扩展缺少模型".into());}
             let mut names=std::collections::BTreeSet::new();let mut reviewed=Vec::new();
-            for model in algorithms {
+            for (index,model) in algorithms.iter().enumerate() {
                 let name=model["model"].as_str().ok_or("算法扩展缺少名称")?;
-                if !crate::pool_algorithms::is_model(name) || !names.insert(name) || model["target_issue"]!=saved["target_issue"] {return Err("算法名称或目标期号无效".into());}
+                if name!=crate::pool_algorithms::MODELS[index] || !names.insert(name) || model["target_issue"]!=saved["target_issue"] {return Err("算法名称或目标期号无效".into());}
                 crate::pool_algorithms::validate_snapshot(model)?;
                 let order=ranking(model,"red_ranking",33)?.ok_or("算法缺少完整排名")?;
                 reviewed.push(review_set(model,draw,&TIER_RED_SIZES,Some(&order),blue_order.as_deref(),name,true)?);
@@ -612,10 +614,10 @@ mod tests {
     fn optional_algorithms_validate_pools_without_augmenting_old_five_model_archives() {
         let draws=crate::draw::synth_draws(220,9);let p=prepare_forecast(&draws).unwrap();
         let current=saved_current(&p,&draws);
-        let mut old=current.clone();old.as_object_mut().unwrap().remove("algorithm_models");
+        let mut old=current.clone();old.as_object_mut().unwrap().remove("algorithm_models");old.as_object_mut().unwrap().remove("algorithm_models_version");
         let bytes=serde_json::to_vec(&old).unwrap();
         assert_eq!(reviewed_models(&review(&old,None).unwrap()).len(),5);
-        assert_eq!(reviewed_models(&review(&current,None).unwrap()).len(),8);
+        assert_eq!(reviewed_models(&review(&current,None).unwrap()).len(),9);
         assert_eq!(serde_json::to_vec(&old).unwrap(),bytes);
         let mut bad=current.clone();bad["algorithm_models"][0]["pools"][0]["reds"][0]=bad["algorithm_models"][0]["red_ranking"][32].clone();
         assert!(review(&bad,None).is_err());
@@ -626,12 +628,24 @@ mod tests {
     }
 
     #[test]
+    fn legacy_three_algorithm_collection_is_preserved_and_new_collection_is_strict() {
+        let draws=crate::draw::synth_draws(220,9);let p=prepare_forecast(&draws).unwrap();let current=saved_current(&p,&draws);
+        let mut old=current.clone();old.as_object_mut().unwrap().remove("algorithm_models_version");old["algorithm_models"].as_array_mut().unwrap().truncate(3);
+        let bytes=serde_json::to_vec(&old).unwrap();assert_eq!(reviewed_models(&review(&old,None).unwrap()).len(),8);
+        crate::pool_algorithms::validate_history(old["algorithm_models"].as_array().unwrap(),&draws).unwrap();
+        assert_eq!(serde_json::to_vec(&old).unwrap(),bytes);
+        let mut bad=current.clone();bad.as_object_mut().unwrap().remove("algorithm_models_version");assert!(review(&bad,None).is_err());
+        let mut bad=old;bad["algorithm_models_version"]=Value::Null;assert!(review(&bad,None).is_err());
+        let mut bad=current;bad["algorithm_models_version"]=json!(3);assert!(review(&bad,None).is_err());
+    }
+
+    #[test]
     fn optional_conditional_pool_is_bound_to_its_saved_ranking_and_does_not_augment_v4() {
         let draws=crate::draw::synth_draws(600,9);let p=prepare_forecast(&draws).unwrap();
         let old=saved_ranked(&p,draws.last().unwrap().red_mask);
         assert_eq!(reviewed_models(&review(&old,None).unwrap()).len(),4);
         let saved=saved_current(&p,&draws);
-        assert_eq!(reviewed_models(&review(&saved,None).unwrap()).len(),8);
+        assert_eq!(reviewed_models(&review(&saved,None).unwrap()).len(),9);
         assert_eq!(old["comparison_models"],saved["comparison_models"]);
         let mut bad=saved.clone();bad["coverage_model"]["pools"][0]["blues"]=json!([saved["blue_ranking"][15]]);
         assert!(review(&bad,None).is_err());

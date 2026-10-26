@@ -1,6 +1,6 @@
 (function(global){
   'use strict';
-  const labels={weighted:'协议加权融合',equal:'等权融合',uniform:'均匀红球对照',repeat_calibrated:'重号偏置校准 · 试验',conditional_gap:'条件频率 · 试验',rank_consensus:'名次共识 · 试验',scenario_cover:'全6情景覆盖 · 试验',robust_cover:'三窗稳健覆盖 · 试验'};
+  const labels={weighted:'协议加权融合',equal:'等权融合',uniform:'均匀红球对照',repeat_calibrated:'重号偏置校准 · 试验',conditional_gap:'条件频率 · 试验',rank_consensus:'名次共识 · 试验',scenario_cover:'全6情景覆盖 · 试验',robust_cover:'三窗稳健覆盖 · 试验',dual_support:'双专家支持 · 24红试验'};
   function modelsFrom(snapshot){
     const root=snapshot?.next?.weighted_pools;
     if(!root)return [];

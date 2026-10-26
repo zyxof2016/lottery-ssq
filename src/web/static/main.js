@@ -6,7 +6,7 @@ createApp({components:{PoolIntersection:SSQPoolIntersection.component},setup(){
   const currentTab=ref(tabs.some(t=>t.id===initial.get('tab'))?initial.get('tab'):'generator');
   const overview=ref({latest_draw:null,total_draws:0,total_plans:0,pending:0,scored:0}),cycle=ref(null),toast=ref({show:false}),target=ref(''),deadline=ref('');
   const form=ref({ranking_model:'weighted',mode:'pool_observation',observation_size:16,tickets:8,pool:16,overlap:4,red_count:7,blue_count:2,bankers:2,drags:6});
-  const compactModel=ref('weighted'),compactAlgorithms=[{model:'weighted',label:'原加权融合',desc:'沿用原协议排名作为对照。'},{model:'repeat_calibrated',label:'重号偏置校准 · 试验',desc:'平衡上期红球与其他红球的评分，保持组内原顺序。'},{model:'rank_consensus',label:'名次共识 · 试验',desc:'汇总七个专家的名次，减少评分尺度差异。'},{model:'scenario_cover',label:'全6情景覆盖 · 试验',desc:'优先保留此前六红情景的完整覆盖。'},{model:'robust_cover',label:'三窗稳健覆盖 · 试验',desc:'同时照顾60／156／312期的完整六红情景。'}];
+  const compactModel=ref('weighted'),compactAlgorithms=[{model:'weighted',label:'原加权融合',desc:'沿用原协议排名作为对照。'},{model:'repeat_calibrated',label:'重号偏置校准 · 试验',desc:'平衡上期红球与其他红球的评分，保持组内原顺序。'},{model:'rank_consensus',label:'名次共识 · 试验',desc:'汇总七个专家的名次，减少评分尺度差异。'},{model:'scenario_cover',label:'全6情景覆盖 · 试验',desc:'优先保留此前六红情景的完整覆盖。'},{model:'robust_cover',label:'三窗稳健覆盖 · 试验',desc:'同时照顾60／156／312期的完整六红情景。'},{model:'dual_support',label:'双专家支持 · 24红试验',desc:'仅观察24红；16红及长期2蓝联合全包回放退步，不替换默认。'}];
   const compactChoices=[{size:14,name:'14红 · 更精简',desc:'比24红少10个；号码更少，也更容易漏号。'},{size:16,name:'16红 · 默认',desc:'比24红少8个；先集中看这一组。'},{size:18,name:'18红 · 扩展',desc:'在16红上增加2个号码，保留更多候选。'}];
   const presets=[{id:'pool_observation',name:'分档号码池 · 尽量少红覆盖全部开奖号',desc:'14／16／18／20／22／24红六档，蓝球1–3个；保存原池观察覆盖。'},{id:'weighted24',name:'原排名24红覆盖 · 均衡8注',desc:'协议原加权前24红全部入票、每红2次；与试验排名分开观察。'},{id:'coverage24',name:'条件频率24红 · 试验8注',desc:'按历史条件频率排序，24红全部入票、每红2次；试验方案。'},{id:'equal24',name:'等权24红覆盖 · 对照8注',desc:'原等权排名24红全部入票、每红2次；同数量持续对照。'},{id:'calibrated14',name:'校准排名14红 · 均衡8注',desc:'校正上期重号集中偏置，按新排名选择14红；试验方案单独留档。'},{id:'balanced14',name:'14红均衡覆盖 · 8注16元',desc:'原融合前14红全部入票，每红出现3–4次；按原号码留档。'},{id:'frozen',name:'协议冻结 · 8注票组',desc:'温和救援，按冻结规则组票；保存时封存开奖前哈希。'},{id:'disjoint5',name:'5注红球不重叠',desc:'前30红球中分散组票，2蓝轮换，共10元。'},{id:'single8',name:'8注低重合',desc:'前15红球，注间重合不超过4个，2蓝轮换。'},{id:'compound7',name:'7红复式',desc:'7个红球配1蓝，完整展开7注。'},{id:'compound8',name:'8红复式',desc:'8个红球配1蓝，完整展开28注。'},{id:'blue2',name:'蓝球复式 · 2蓝',desc:'固定6红配2蓝，共2注。'},{id:'dantuo',name:'2胆6拖',desc:'前2个红球做胆，其后6个做拖。'}];
   const activePreset=ref(''),plan=ref(null),poolPreview=ref(null),lastRequest=ref(null),planSaved=ref(false),generating=ref(false),saving=ref(false),syncing=ref(false);
@@ -85,10 +85,10 @@ createApp({components:{PoolIntersection:SSQPoolIntersection.component},setup(){
     const root=archive.number_pools,models=root?[{...root,model:'weighted'},...(root.comparison_models||[]),...(root.coverage_model?[root.coverage_model]:[]),...(root.algorithm_models||[])]:[];
     const original=models.find(m=>m.model===model)?.pools?.find(p=>p.red_count===pool.red_count&&p.blue_count===pool.blue_count&&p.group==='observation');
     const same=(a,b)=>{if(!Array.isArray(a)||!Array.isArray(b)||a.length!==b.length)return false;const expected=[...b].sort((x,y)=>x-y);return [...a].sort((x,y)=>x-y).every((n,i)=>n===expected[i]);};
-    return {exists:true,url:href,matches:archive.provenance.input_history_sha256===inputHash&&!!original&&same(original.reds,pool.reds)&&same(original.blues,pool.blues)};
+    return {exists:true,model_saved:!!original,url:href,matches:archive.provenance.input_history_sha256===inputHash&&!!original&&same(original.reds,pool.reds)&&same(original.blues,pool.blues)};
   }
   function generateCoverage(model,size){
-    if(generating.value||saving.value||syncing.value||!['repeat_calibrated','rank_consensus','weighted'].includes(model)||![22,24].includes(size))return;
+    if(generating.value||saving.value||syncing.value||!['repeat_calibrated','rank_consensus','weighted','dual_support'].includes(model)||![22,24].includes(size))return;
     compactModel.value=model;return generateCompact(size);
   }
   function generateCompact(size){

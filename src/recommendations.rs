@@ -1162,6 +1162,7 @@ fn joint_pool_diagnostic(root: &Value, draw: Option<&Draw>) -> Value {
         "pending":draw.is_none(),"winning_blue_rank":if draw.is_some(){root["diagnostics"]["winning_blue_rank"].clone()}else{Value::Null},
         "maximum_saved_blue_count":all.iter().filter_map(|p|p["blue_count"].as_u64()).max(),
         "full_red_models":Value::Null,"all_saved_tiers_miss_blue":Value::Null,"any_saved_tier_full_draw":Value::Null,
+        "winning_red_model_coverage":Value::Null,"majority_missed_reds":Value::Null,
         "note":"仅核对当时实际保存的14–24红及1–3蓝池；红球全入池与6红1蓝分别统计，不扩大号码，也不按单期更换模型。"});
     if draw.is_none() { return result; }
     let mut full: Vec<Value> = models.iter().filter_map(|(name, model)| {
@@ -1173,6 +1174,19 @@ fn joint_pool_diagnostic(root: &Value, draw: Option<&Draw>) -> Value {
     result["full_red_models"] = json!(full);
     result["all_saved_tiers_miss_blue"] = json!(all.iter().all(|p| p["blue_hit"]==false));
     result["any_saved_tier_full_draw"] = json!(all.iter().any(|p| p["full_draw"]==true));
+    let model_reds:Vec<_>=models.iter().filter_map(|(name,m)| {
+        let p=m["pools"].as_array()?.iter().find(|p|p["group"]=="observation"&&p["red_count"]==24&&p["blue_count"]==2)?;
+        Some((*name,p["reds"].as_array()?))
+    }).collect();
+    if !model_reds.is_empty() {
+        let coverage:Vec<_>=draw.unwrap().red.iter().map(|n| {
+            let covered:Vec<_>=model_reds.iter().filter(|(_,reds)|reds.contains(&json!(n))).map(|(name,_)|*name).collect();
+            let missed:Vec<_>=model_reds.iter().filter(|(_,reds)|!reds.contains(&json!(n))).map(|(name,_)|*name).collect();
+            json!({"number":n,"red_count":24,"models_total":model_reds.len(),"missed_count":missed.len(),"covered_models":covered,"missed_models":missed,"includes_uniform_control":model_reds.iter().any(|(name,_)|*name=="uniform")})
+        }).collect();
+        result["majority_missed_reds"]=json!(coverage.iter().filter(|p|p["missed_count"].as_u64().unwrap()*2>p["models_total"].as_u64().unwrap()).cloned().collect::<Vec<_>>());
+        result["winning_red_model_coverage"]=json!(coverage);
+    }
     result
 }
 
@@ -1360,12 +1374,25 @@ mod tests {
     }
 
     #[test]
+    fn common_misses_use_original_24_red_membership_and_saved_model_count() {
+        let draw=Draw::from_parts(26122,20261025,[1,2,4,17,19,30],9).unwrap();
+        let mut reds:Vec<_>=(1..=24).filter(|n|*n!=19).collect();reds.push(30);
+        let cell=|r:Vec<i32>|json!({"group":"observation","red_count":24,"blue_count":2,"reds":r,"full_red":false,"full_draw":false,"blue_hit":false});
+        let mut other=reds.clone();other[0]=19;
+        let root=json!({"observation_tiers":[24],"pools":[cell(reds.clone())],"comparison_models":[{"model":"repeat_calibrated","pools":[cell(reds)]}],"coverage_model":{"model":"conditional_gap","pools":[cell(other)]}});
+        let before=root.clone();let r=joint_pool_diagnostic(&root,Some(&draw));let bad=&r["majority_missed_reds"][0];
+        assert_eq!(r["majority_missed_reds"].as_array().unwrap().len(),1);assert_eq!(bad["number"],19);assert_eq!(bad["models_total"],3);assert_eq!(bad["missed_count"],2);assert_eq!(bad["covered_models"],json!(["conditional_gap"]));assert_eq!(root,before);
+        let pending=joint_pool_diagnostic(&root,None);assert!(pending["winning_red_model_coverage"].is_null());assert!(pending["majority_missed_reds"].is_null());
+    }
+
+    #[test]
     fn algorithm_observations_exclude_missing_models_and_score_only_saved_pools() {
         let temp=Temp::new();let mut draws=synth_draws(220,9);
         let p=prepare_forecast(&draws).unwrap();let old_issue=next(&draws);
         let mut payload=base_payload(&p,&old_issue,"daily",10,Some(100));
         payload["number_pools"]=pool::saved_current(&p,&draws);
         payload["number_pools"].as_object_mut().unwrap().remove("algorithm_models");
+        payload["number_pools"].as_object_mut().unwrap().remove("algorithm_models_version");
         payload["strategies"]=json!({"frozen":strategy(&build("frozen",&p),&p)});
         let old_path=temp.0.join(format!("daily/{old_issue}.json"));write_new(&old_path,payload).unwrap();
         let old=fs::read(&old_path).unwrap();
@@ -1373,9 +1400,9 @@ mod tests {
         assert_eq!(existing["comparison_models"],5);assert_eq!(existing["saved_models"].as_array().unwrap().len(),5);
         append_outcome(&mut draws);let issue=next(&draws);
         let frozen=freeze_daily_with_clock(&temp.0,&draws,&issue,100,||10).unwrap();
-        assert_eq!(frozen["comparison_models"],8);assert_eq!(frozen["comparison_number_pools"],126);
+        assert_eq!(frozen["comparison_models"],9);assert_eq!(frozen["comparison_number_pools"],144);
         let pending=pool_observations(&temp.0,&draws).unwrap();
-        assert_eq!(pending["algorithm_paired_cells"].as_array().unwrap().len(),54);
+        assert_eq!(pending["algorithm_paired_cells"].as_array().unwrap().len(),72);
         for c in pending["algorithm_paired_cells"].as_array().unwrap() {
             assert_eq!(c["n"],0);assert_eq!(c["pending"],1);assert_eq!(c["excluded_missing_comparison"],1);
             assert!(c["models"][1]["full_red_rate"].is_null());assert!(c["models"][1]["full_draw_rate"].is_null());
@@ -1413,8 +1440,8 @@ mod tests {
         let new_issue=next(&draws);
         let result=freeze_daily_with_clock(&temp.0,&draws,&new_issue,100,||10).unwrap();
         assert_eq!(result["strategies"],21);
-        assert_eq!(result["comparison_models"],8);
-        assert_eq!(result["comparison_number_pools"],126);
+        assert_eq!(result["comparison_models"],9);
+        assert_eq!(result["comparison_number_pools"],144);
         let raw=read_checked(&temp.0.join(format!("daily/{new_issue}.json"))).unwrap();
         let p=&raw["payload"]["strategies"]["calibrated14"];
         let saved=&raw["payload"]["number_pools"]["comparison_models"][2];
@@ -1676,8 +1703,8 @@ mod tests {
         draws.push(winner);
         let common_issue = next(&draws);
         let frozen = freeze_daily_with_clock(&temp.0, &draws, &common_issue, 100, || 10).unwrap();
-        assert_eq!(frozen["comparison_models"], 8);
-        assert_eq!(frozen["comparison_number_pools"], 126);
+        assert_eq!(frozen["comparison_models"], 9);
+        assert_eq!(frozen["comparison_number_pools"], 144);
         let mut winner = draws.last().unwrap().clone();
         winner.issue = common_issue.parse().unwrap();
         draws.push(winner);
@@ -1685,7 +1712,7 @@ mod tests {
         let result = pool_observations(&temp.0, &draws).unwrap();
         assert_eq!(result["errors"], json!([]));
         assert_eq!(result["first_comparison_issue"], common_issue);
-        assert_eq!(result["comparison_cells"].as_array().unwrap().len(), 144);
+        assert_eq!(result["comparison_cells"].as_array().unwrap().len(), 162);
         for cell in result["comparison_cells"].as_array().unwrap() {
             assert_eq!(cell["n"], if cell["model"] == "weighted" { 2 } else { 1 });
             assert_eq!(cell["pending"], 1);
