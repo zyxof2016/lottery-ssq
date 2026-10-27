@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>双色球科学量化决策系统</title>
 <link rel="stylesheet" href="static/app.css">
-<script src="static/shell.js"></script><script src="static/vendor/vue-3.5.24.js"></script><script src="static/pool-intersection.js"></script>
+<script src="static/shell.js"></script><script src="static/vendor/vue-3.5.24.js"></script><script src="static/pool-intersection.js"></script><script src="static/pool-compression.js"></script>
 </head>
 <body><div id="app" v-cloak>
 <header class="shell-header"><div class="shell-width">
@@ -28,6 +28,7 @@
 <p v-if="poolPreview.archive_state?.exists" class="notice" :class="{success:poolPreview.archive_state.matches}" id="pool-archive-status">本期已保存每日冻结原档。{{ !poolPreview.archive_state.model_saved?'当前所选新模型未在本期保存，预览未封存；从后续新期首次冻结开始观察。':poolPreview.archive_state.matches?'当前所选号码与原档一致，无需重复封存。':'当前预览与原档不一致，以首次冻结原档为准。' }}</p><p v-else-if="poolPreview.archive_state?.unavailable" class="notice">暂未读取到本期原档状态，可前往复盘页核对；当前号码仍为预览。</p><p v-if="!poolCanFreeze&&!poolPreview.archive_state?.exists" class="notice">{{ cycle?.reason }}。当前仅查看号码预览。</p>
 <details class="pool-evidence"><summary>查看压缩代价与历史覆盖</summary><div class="grid3"><div class="metric">所选红球<strong>{{ poolPreview.red_count }} 个</strong><template v-if="poolPreview.red_count<24">比24红少 {{ 24-poolPreview.red_count }} 个</template><template v-else>较大档逐层包含较小档</template></div><div class="metric">共用蓝球<strong>{{ poolPreview.blue_count }} 个</strong>同一冻结排名</div><div class="metric">同大小均匀全 6 红基准<strong>{{ percent(poolPreview.uniform_full_red_rate) }}</strong>作为参照，不是模型置信度</div></div>
 <p v-if="poolPreview.compression_evidence" class="notice" id="compression-evidence" style="margin-top:16px">同一模型近 {{ poolPreview.compression_evidence.n }} 期回放（{{ poolPreview.compression_evidence.from }}—{{ poolPreview.compression_evidence.to }}）：{{ poolPreview.red_count }} 红全6红 {{ poolPreview.compression_evidence.full_red_periods }}/{{ poolPreview.compression_evidence.n }}，24红为 {{ poolPreview.compression_evidence.reference_full_red_periods }}/{{ poolPreview.compression_evidence.n }}。这是历史回放，不能保证下一期全包。</p>
+<template v-if="poolPreview.compression_evidence"><pool-compression :curves="poolPreview.compression_evidence.curves" :window="poolPreview.compression_evidence.window" :actual="poolPreview.compression_evidence.actual_cells" :model="poolPreview.model" :red-count="poolPreview.red_count" :blue-count="poolPreview.blue_count" :busy="generating||saving||syncing" switchable @select="generatePoolTier"></pool-compression><p v-if="poolPreview.compression_evidence.actual_error" class="notice error" role="alert">实际压缩统计未完整读取：{{ poolPreview.compression_evidence.actual_error }}</p></template>
 </details>
 <p v-if="poolPreview.policy" class="muted">{{ poolPreview.policy.note }}</p><p class="muted" style="margin-top:16px">封存时同时保存 14／16／18／20／22／24 红六档 × 1–3 蓝，开奖后比较命中、漏号与最小全包档；已有每期档案保持首次版本。</p><a :href="researchUrl" @click.prevent="openTab('research',{view:'observations'})">查看六档号码与历史覆盖曲线 →</a>
 </template>

@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "online": false,
+  "all_162_saved_compression_cells_present": true,
+  "legacy_api_results_and_all_rankings_unchanged": true,
+  "actual_dual_samples_null_not_backfilled": true,
+  "six_tier_switches_preserve_model_blue_and_original_numbers": true,
+  "compression_16_of24_loss7_retention30percent": true,
+  "current_archive_remains8_models": true,
+  "research_model_and_blue_switches_work": true,
+  "uniform_missing_replay_not_fabricated": true,
+  "copy_and_all_seven_sections_work": true,
+  "responsive_320_390_768_1440": true,
+  "browser_errors": [],
+  "vue_warnings": [],
+  "production_writes": 0
+}

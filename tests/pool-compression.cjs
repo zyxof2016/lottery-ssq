@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict');
+require('../src/web/static/pool-compression.js');
+const {compare}=globalThis.SSQPoolCompression;
+const cells=[14,16,18,20,22,24].map((red_count,i)=>({model:'weighted',red_count,full_red_periods:[1,3,4,5,7,10][i],full_draw_periods_by_blue:[0,1,2]}));
+const rows=compare(cells,'weighted',60);
+assert.equal(rows.length,6);
+assert.deepEqual(rows.map(r=>r.compression_loss_periods),[9,7,6,5,3,0]);
+assert.equal(rows.find(r=>r.red_count===16).retained_full_red_fraction,0.3);
+assert.equal(rows.find(r=>r.red_count===24).retained_full_red_fraction,1);
+assert.deepEqual(compare(cells,'dual_support',60),[]);
+assert.deepEqual(compare(cells,'weighted',0),[]);
+assert.deepEqual(compare(cells.slice(0,-1),'weighted',60),[]);
+assert(compare(cells.map(c=>({...c,full_red_periods:0})),'weighted',60).every(r=>r.retained_full_red_fraction===null));
+assert.deepEqual(compare(cells.map(c=>({...c,n:59})),'weighted',60),[]);
+assert.equal(compare(cells.map(c=>c.red_count===16?{...c,full_red_periods:11}:c),'weighted',60).length,5);
+assert.equal(cells[1].full_red_periods,3);
+console.log('Compression comparison: paired windows, zero support, absent models and invalid counts verified');

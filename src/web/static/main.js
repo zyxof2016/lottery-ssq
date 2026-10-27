@@ -1,5 +1,5 @@
 const {createApp,ref,computed,onMounted,onUnmounted,nextTick}=Vue;
-createApp({components:{PoolIntersection:SSQPoolIntersection.component},setup(){
+createApp({components:{PoolIntersection:SSQPoolIntersection.component,PoolCompression:SSQPoolCompression.component},setup(){
   const {url}=SSQApp,initial=new URLSearchParams(location.search);
   const tabs=[{id:'generator',name:'方案生成',icon:'🎯'},{id:'records',name:'我的方案与对奖',icon:'📊'},{id:'reviews',name:'每期推荐与复盘',icon:'📋'},{id:'draws',name:'开奖历史',icon:'🎱'},{id:'backtest',name:'科学回测与优化',icon:'🧪'},{id:'research',name:'研究评估',icon:'🔬'},{id:'settings',name:'系统设置',icon:'⚙️'}];
   const intersectionApiUrl=url('api/pools');
@@ -57,7 +57,8 @@ createApp({components:{PoolIntersection:SSQPoolIntersection.component},setup(){
     try{
       const issue=validateTarget(),request={...body,issue,ranking_model:body.preset==='weighted24'?'weighted':body.preset==='coverage24'?'conditional_gap':body.preset==='calibrated14'?'repeat_calibrated':body.preset==='equal24'?'equal':form.value.mode==='frozen'?'weighted':form.value.ranking_model},config={...form.value};
       if(config.mode==='pool_observation'){
-        const [data,archive]=await Promise.all([read('api/pools'),read('api/recommendations/issues/'+issue+'?archive=daily').catch(()=>null)]);
+        const [data,archive,actual]=await Promise.all([read('api/pools'),read('api/recommendations/issues/'+issue+'?archive=daily').catch(()=>null),read('api/pools/observations').then(data=>({data})).catch(error=>({error:error.message}))]);
+        if(actual.data&&actual.data.data_sha256!==data.data_sha256)throw Error('开奖数据已变化，请重新生成。');
         if(issue!==data.suggested_target)throw Error('观察池仅生成当前数据紧邻下一期；历史覆盖请到研究评估查看。');
         const root=data.next.weighted_pools,models=[{model:'weighted',...root},...root.comparison_models,...(root.coverage_model?[root.coverage_model]:[]),...(root.algorithm_models||[])];
         const redCount=config.observation_size,blueCount=config.blue_count,saved=models.find(m=>m.model===config.ranking_model),pool=saved?.pools.find(p=>p.red_count===redCount&&p.blue_count===blueCount);
@@ -67,7 +68,7 @@ createApp({components:{PoolIntersection:SSQPoolIntersection.component},setup(){
         if((root.algorithm_models||[]).some(m=>m.model===config.ranking_model)){const study=await read('api/pool-algorithms');if(study.data_sha256!==data.data_sha256)throw Error('开奖数据已变化，请重新生成。');recent={...study.windows.recent60,red_curves:study.windows.recent60?.cells||[]};}
         if(['repeat_calibrated','conditional_gap'].includes(config.ranking_model)){const study=await read(config.ranking_model==='repeat_calibrated'?'api/coverage':'api/full6');if(study.data_sha256!==data.data_sha256)throw Error('开奖数据已变化，请重新生成。');recent={...study.windows.recent60,red_curves:study.windows.recent60?.cells||[]};}
         const curve=recent?.red_curves.find(c=>c.model===config.ranking_model&&c.red_count===redCount),reference=recent?.red_curves.find(c=>c.model===config.ranking_model&&c.red_count===24);
-        const compressionEvidence=curve&&reference?{from:recent.from,to:recent.to,n:recent.n,full_red_periods:curve.full_red_periods,reference_full_red_periods:reference.full_red_periods}:null;
+        const compressionEvidence=curve&&reference?{from:recent.from,to:recent.to,n:recent.n,full_red_periods:curve.full_red_periods,reference_full_red_periods:reference.full_red_periods,curves:recent.red_curves,window:{n:recent.n,from:recent.from,to:recent.to},actual_cells:actual.data?.compression_cells||[],actual_error:actual.error||(actual.data?.errors?.length?actual.data.errors.join('；'):'')}:null;
         const archiveState=poolArchiveState(archive,issue,config.ranking_model,pool,data.data_sha256);
         poolPreview.value={archive_state:archiveState,issue,model:config.ranking_model,policy:saved.policy,model_label:saved.policy?.label||(config.ranking_model==='weighted'?'协议加权融合':config.ranking_model==='conditional_gap'?'条件频率 · 24红试验':config.ranking_model==='equal'?'等权融合 · 对照':'重号偏置校准 · 试验'),cutoff_issue:data.cutoff_issue,cutoff_date:data.cutoff_date,input_history_sha256:data.data_sha256,red_count:redCount,blue_count:blueCount,reds:[...pool.reds].sort((a,b)=>a-b),blues:[...pool.blues].sort((a,b)=>a-b),uniform_full_red_rate:baseline,compression_evidence:compressionEvidence};plan.value=null;lastRequest.value=null;
       }else{
@@ -96,6 +97,12 @@ createApp({components:{PoolIntersection:SSQPoolIntersection.component},setup(){
     target.value=overview.value.next_issue;activePreset.value='compact'+size;
     Object.assign(form.value,{mode:'pool_observation',ranking_model:compactModel.value,observation_size:size,blue_count:2});
     return generate({});
+  }
+  function generatePoolTier(size){
+    if(generating.value||saving.value||syncing.value||!poolPreview.value||![14,16,18,20,22,24].includes(size))return;
+    const preview=poolPreview.value;target.value=preview.issue;
+    Object.assign(form.value,{mode:'pool_observation',ranking_model:preview.model,observation_size:size,blue_count:preview.blue_count});
+    activePreset.value='';return generate({});
   }
   function applyPreset(id){
     if(generating.value||saving.value||syncing.value)return;
@@ -153,5 +160,5 @@ createApp({components:{PoolIntersection:SSQPoolIntersection.component},setup(){
     await openTab(currentTab.value);
   });
   onUnmounted(()=>{window.removeEventListener('message',frameMessage);clearTimeout(toastTimer);});
-  return {intersectionApiUrl,tabs,currentTab,overview,cycle,toast,target,deadline,form,compactModel,compactAlgorithms,compactChoices,presets,activePreset,plan,poolPreview,planSaved,generating,saving,syncing,currentResult,generatedIssue,resultArchive,stalePreview,poolCanFreeze,planRedUnion,planBlueUnion,records,recordFilter,recordsLoading,shownRecords,scoredCover,settling,draws,drawBefore,drawsLoading,moreDraws,tests,reportCards,reportLoading,verdict,reviewsSrc,researchSrc,reviewsStandalone,researchStandalone,openedFrames,researchUrl,pad,f4,percent,freezeTime,openTab,navigateTabs,openReviewUrl,generateCompact,generateCoverage,applyPreset,generateCustom,savePlan,copyPlan,loadRecords,loadDraws,settle,syncDraws,loadReport,hitRed,hitBlue,frameLoaded};
+  return {intersectionApiUrl,tabs,currentTab,overview,cycle,toast,target,deadline,form,compactModel,compactAlgorithms,compactChoices,presets,activePreset,plan,poolPreview,planSaved,generating,saving,syncing,currentResult,generatedIssue,resultArchive,stalePreview,poolCanFreeze,planRedUnion,planBlueUnion,records,recordFilter,recordsLoading,shownRecords,scoredCover,settling,draws,drawBefore,drawsLoading,moreDraws,tests,reportCards,reportLoading,verdict,reviewsSrc,researchSrc,reviewsStandalone,researchStandalone,openedFrames,researchUrl,pad,f4,percent,freezeTime,openTab,navigateTabs,openReviewUrl,generateCompact,generatePoolTier,generateCoverage,applyPreset,generateCustom,savePlan,copyPlan,loadRecords,loadDraws,settle,syncDraws,loadReport,hitRed,hitBlue,frameLoaded};
 }}).mount('#app');
