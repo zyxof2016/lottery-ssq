@@ -14,13 +14,26 @@
         joint_counts:cell.full_draw_periods_by_blue||[],uniform_full_red_rate:cell.uniform_full_red_rate}];
     });
   }
+  const outcomes=[['full_draw','红蓝全入池'],['red_miss_only','只漏红球'],['blue_miss_only','只漏蓝球'],['both_miss','红蓝都漏']];
+  function jointBreakdown(cell){
+    if(!Number.isInteger(cell?.n)||cell.n<=0||!cell.joint_coverage)return [];
+    const rows=outcomes.map(([status,label])=>({status,label,...cell.joint_coverage[status]}));
+    if(rows.some(r=>!Number.isInteger(r.periods)||r.periods<0||!Array.isArray(r.issues)||r.issues.length!==r.periods)
+      ||rows.reduce((n,r)=>n+r.periods,0)!==cell.n)return [];
+    const issues=rows.flatMap(r=>r.issues);
+    if(new Set(issues).size!==cell.n||!Array.isArray(cell.scored_issues)||cell.scored_issues.length!==cell.n
+      ||!cell.scored_issues.every(i=>issues.includes(i)))return [];
+    return rows;
+  }
   const component={
     props:{curves:{type:Array,default:()=>[]},window:{type:Object,default:null},actual:{type:Array,default:()=>[]},model:{type:String,required:true},redCount:{type:Number,default:16},blueCount:{type:Number,default:2},busy:{type:Boolean,default:false},switchable:{type:Boolean,default:false}},
     emits:['select'],
     setup(props){
       const rows=Vue.computed(()=>compare(props.curves,props.model,props.window?.n).map(r=>({...r,actual:props.actual.find(c=>c.model===props.model&&c.red_count===r.red_count&&c.blue_count===props.blueCount)})));
+      const selectedActual=Vue.computed(()=>props.actual.find(c=>c.model===props.model&&c.red_count===props.redCount&&c.blue_count===props.blueCount));
+      const jointRows=Vue.computed(()=>jointBreakdown(selectedActual.value));
       const percent=n=>n==null?'—':(n*100).toFixed(1)+'%';
-      return {rows,percent};
+      return {rows,percent,selectedActual,jointRows};
     },
     template:`<div class="pool-compression" aria-label="号码池压缩对照">
       <p class="muted">同一模型、同一期、同一蓝球数量，以24红为参照。压缩损失只计24红原本全包、缩小后漏号的期数；24红也未全包的期次属于排名漏号。</p>
@@ -38,7 +51,17 @@
         </tr></tbody></table></div>
       <p class="muted">历史回放与实际留档分别统计；新模型缺档及待开奖不算失败。全包次数相同也不能证明压缩不影响未来覆盖。</p>
       </template>
+      <section class="joint-loss" aria-label="实际留档红蓝覆盖归因">
+        <h3>实际留档 · {{ redCount }}红 + {{ blueCount }}蓝的覆盖归因</h3>
+        <template v-if="jointRows.length">
+          <p class="muted">同模型、同规格并已保存24红参照的 {{ selectedActual.n }} 期原档，每期只计入一类；待开奖 {{ selectedActual.pending }} 期、缺少成对原池 {{ selectedActual.excluded_missing_pair }} 期均未计入。</p>
+          <div class="joint-loss-grid"><div v-for="r in jointRows" :key="r.status" class="joint-loss-item" :data-joint-status="r.status"><span>{{ r.label }}</span><strong>{{ r.periods }} / {{ selectedActual.n }} 期</strong><details v-if="r.periods"><summary>查看期号</summary><span class="muted">{{ r.issues.join('、') }}</span></details></div></div>
+          <p class="muted">只漏蓝球：红球已全入池，增加红球或换红球模型不能补回该期蓝球。只漏红球：蓝球已入池；红蓝都漏需要分别检查两端。号码池全入池不等于单注中奖。</p>
+        </template>
+        <p v-else-if="selectedActual && !selectedActual.n" class="muted">暂无已开奖样本；待开奖 {{ selectedActual.pending }} 期，缺少成对原池 {{ selectedActual.excluded_missing_pair }} 期。覆盖归因暂为空。</p>
+        <p v-else class="muted">暂未取得完整的实际原档覆盖归因。</p>
+      </section>
     </div>`
   };
-  global.SSQPoolCompression={compare,component};
+  global.SSQPoolCompression={compare,jointBreakdown,component};
 })(typeof window==='undefined'?globalThis:window);

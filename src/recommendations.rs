@@ -718,19 +718,29 @@ fn compression_cell(records: &[Value], model: &str, red: usize, blue: usize) -> 
     let (mut n,mut pending,mut missing,mut full,mut reference_full,mut joint,mut reference_joint)=(0usize,0usize,0usize,0usize,0usize,0usize,0usize);
     let (mut losses,mut ranking_misses,mut gains)=(Vec::new(),Vec::new(),Vec::new());
     let mut scored=Vec::new();
+    let mut joint_issues: [Vec<Value>; 4] = std::array::from_fn(|_| Vec::new());
     for record in records {
         let pair=observation_pool(record,model,red,blue).zip(observation_pool(record,model,24,blue));
         let Some(((_,small),(_,reference)))=pair else {missing+=1;continue;};
         if record["draw"].is_null() {pending+=1;continue;}
-        let (Some(a),Some(b),Some(aj),Some(bj))=(small["full_red"].as_bool(),reference["full_red"].as_bool(),small["full_draw"].as_bool(),reference["full_draw"].as_bool()) else {missing+=1;continue;};
+        let (Some(a),Some(b),Some(aj),Some(bj),Some(blue_hit))=(small["full_red"].as_bool(),reference["full_red"].as_bool(),small["full_draw"].as_bool(),reference["full_draw"].as_bool(),small["blue_hit"].as_bool()) else {missing+=1;continue;};
         n+=1;full+=usize::from(a);reference_full+=usize::from(b);
         joint+=usize::from(aj);reference_joint+=usize::from(bj);scored.push(record["issue"].clone());
         if b&&!a {losses.push(record["issue"].clone());}
         if !b {ranking_misses.push(record["issue"].clone());}
         if a&&!b {gains.push(record["issue"].clone());}
+        // Four mutually exclusive outcomes on exactly the saved pair denominator.
+        let status = match (a, blue_hit) { (true,true)=>0, (false,true)=>1, (true,false)=>2, (false,false)=>3 };
+        joint_issues[status].push(record["issue"].clone());
     }
+    let joint_coverage: serde_json::Map<String, Value> = ["full_draw", "red_miss_only", "blue_miss_only", "both_miss"].into_iter()
+        .zip(joint_issues).map(|(status, issues)| {
+            let periods=issues.len();
+            (status.into(), json!({"periods":periods,"issues":issues,"rate":(n>0).then(||periods as f64/n as f64)}))
+        }).collect();
     json!({"model":model,"red_count":red,"reference_red_count":24,"blue_count":blue,
         "n":n,"pending":pending,"excluded_missing_pair":missing,"scored_issues":scored,
+        "joint_coverage":joint_coverage,
         "full_red_periods":full,"reference_full_red_periods":reference_full,
         "compression_loss_periods":losses.len(),"compression_loss_issues":losses,
         "ranking_miss_periods":ranking_misses.len(),"ranking_miss_issues":ranking_misses,
@@ -1427,7 +1437,7 @@ mod tests {
 
     #[test]
     fn compression_attributes_losses_on_identical_saved_pairs_and_excludes_pending_and_missing() {
-        let pool=|red,full,joint|json!({"group":"observation","red_count":red,"blue_count":2,"full_red":full,"full_draw":joint});
+        let pool=|red,full,joint|json!({"group":"observation","red_count":red,"blue_count":2,"full_red":full,"full_draw":joint,"blue_hit":joint});
         let record=|issue,draw,pools|json!({"issue":issue,"draw":draw,"models":[{"model":"weighted","pools":pools}]});
         let records=vec![
             record("26118",json!({}),vec![pool(16,false,false),pool(24,true,true)]),
@@ -1449,6 +1459,31 @@ mod tests {
         assert!(absent["full_red_rate"].is_null());assert!(absent["retained_full_red_fraction"].is_null());
         let zero=compression_cell(&records[2..3],"weighted",16,2);
         assert_eq!(zero["n"],1);assert_eq!(zero["full_red_rate"],0.0);assert!(zero["retained_full_red_fraction"].is_null());
+    }
+
+    #[test]
+    fn joint_loss_partition_uses_saved_pairs_and_keeps_empty_rates_null() {
+        let pool = |red, full, blue| json!({"group":"observation","red_count":red,"blue_count":2,
+            "full_red":full,"blue_hit":blue,"full_draw":full&&blue});
+        let record = |issue, draw, full, blue| json!({"issue":issue,"draw":draw,"models":[{"model":"weighted",
+            "pools":[pool(16,full,blue),pool(24,true,blue)]}]});
+        let records=vec![record("26118",json!({}),true,true),record("26119",json!({}),false,true),
+            record("26120",json!({}),true,false),record("26121",json!({}),false,false),
+            record("26122",Value::Null,false,false),json!({"issue":"26123","draw":{},"models":[]})];
+        let before=records.clone();let c=compression_cell(&records,"weighted",16,2);
+        assert_eq!(c["n"],4);assert_eq!(c["pending"],1);assert_eq!(c["excluded_missing_pair"],1);
+        for (status,issue) in [("full_draw","26118"),("red_miss_only","26119"),("blue_miss_only","26120"),("both_miss","26121")] {
+            assert_eq!(c["joint_coverage"][status],json!({"periods":1,"issues":[issue],"rate":0.25}));
+        }
+        assert_eq!(c["full_draw_periods"],c["joint_coverage"]["full_draw"]["periods"]);
+        for (sample,pending,missing) in [(&records[4..5],1,0),(&records[5..],0,1)] {
+            let empty=compression_cell(sample,"weighted",16,2);
+            assert_eq!(empty["n"],0);assert_eq!(empty["pending"],pending);assert_eq!(empty["excluded_missing_pair"],missing);
+            for row in empty["joint_coverage"].as_object().unwrap().values() {
+                assert_eq!(row["periods"],0);assert_eq!(row["issues"],json!([]));assert!(row["rate"].is_null());
+            }
+        }
+        assert_eq!(records,before);
     }
 
     #[test]

@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict');
 require('../src/web/static/pool-compression.js');
-const {compare}=globalThis.SSQPoolCompression;
+const {compare,jointBreakdown}=globalThis.SSQPoolCompression;
 const cells=[14,16,18,20,22,24].map((red_count,i)=>({model:'weighted',red_count,full_red_periods:[1,3,4,5,7,10][i],full_draw_periods_by_blue:[0,1,2]}));
 const rows=compare(cells,'weighted',60);
 assert.equal(rows.length,6);
@@ -15,3 +15,13 @@ assert.deepEqual(compare(cells.map(c=>({...c,n:59})),'weighted',60),[]);
 assert.equal(compare(cells.map(c=>c.red_count===16?{...c,full_red_periods:11}:c),'weighted',60).length,5);
 assert.equal(cells[1].full_red_periods,3);
 console.log('Compression comparison: paired windows, zero support, absent models and invalid counts verified');
+
+const groups=['full_draw','red_miss_only','blue_miss_only','both_miss'];
+const cell={n:4,scored_issues:['26118','26119','26120','26121'],joint_coverage:Object.fromEntries(groups.map((key,i)=>[key,{periods:1,issues:[String(26118+i)],rate:0.25}]))};
+assert.deepEqual(jointBreakdown(cell).map(r=>r.label),['红蓝全入池','只漏红球','只漏蓝球','红蓝都漏']);
+assert.deepEqual(jointBreakdown({n:0}),[]);
+assert.deepEqual(jointBreakdown({...cell,n:5}),[]);
+assert.deepEqual(jointBreakdown({...cell,joint_coverage:{}}),[]);
+const duplicate=structuredClone(cell);duplicate.joint_coverage.both_miss.issues=['26118'];assert.deepEqual(jointBreakdown(duplicate),[]);
+const changed=structuredClone(cell);changed.scored_issues[3]='26122';assert.deepEqual(jointBreakdown(changed),[]);
+console.log('Joint losses: disjoint outcomes, matching denominator, pending, missing and invalid partitions verified');
