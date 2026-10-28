@@ -1,8 +1,8 @@
 const {createApp,ref,computed,onMounted,onUnmounted,nextTick}=Vue;
-createApp({components:{PoolIntersection:SSQPoolIntersection.component,PoolCompression:SSQPoolCompression.component,BlueFocus:SSQBlueFocus.component},setup(){
+createApp({components:{PoolIntersection:SSQPoolIntersection.component,PoolCompression:SSQPoolCompression.component,BlueFocus:SSQBlueFocus.component,SmallRed:SSQSmallRed.component},setup(){
   const {url}=SSQApp,initial=new URLSearchParams(location.search);
   const tabs=[{id:'generator',name:'方案生成',icon:'🎯'},{id:'records',name:'我的方案与对奖',icon:'📊'},{id:'reviews',name:'每期推荐与复盘',icon:'📋'},{id:'draws',name:'开奖历史',icon:'🎱'},{id:'backtest',name:'科学回测与优化',icon:'🧪'},{id:'research',name:'研究评估',icon:'🔬'},{id:'settings',name:'系统设置',icon:'⚙️'}];
-  const intersectionApiUrl=url('api/pools'),blueApiUrl=url('api/blue');
+  const intersectionApiUrl=url('api/pools'),blueApiUrl=url('api/blue'),smallRedApiUrl=url('api/small-red');
   const currentTab=ref(tabs.some(t=>t.id===initial.get('tab'))?initial.get('tab'):'generator');
   const overview=ref({latest_draw:null,total_draws:0,total_plans:0,pending:0,scored:0}),cycle=ref(null),toast=ref({show:false}),target=ref(''),deadline=ref('');
   const form=ref({blue_model:'weighted',ranking_model:'weighted',mode:'pool_observation',observation_size:16,tickets:8,pool:16,overlap:4,red_count:7,blue_count:2,bankers:2,drags:6});
@@ -104,6 +104,13 @@ createApp({components:{PoolIntersection:SSQPoolIntersection.component,PoolCompre
     Object.assign(form.value,{mode:'pool_observation',ranking_model:preview.model,observation_size:size,blue_count:preview.blue_count});
     activePreset.value='';return generate({});
   }
+  function generateSmall(choice){
+    if(generating.value||saving.value||syncing.value)return;
+    if(choice.data_sha256!==overview.value.data_sha256||choice.issue!==overview.value.next_issue){showToast('小池预览与当前开奖不一致，请同步后重新生成。','error');return;}
+    if(!['weighted','small_recent'].includes(choice.model)||![12,14,15,16].includes(choice.red_count))return;
+    target.value=choice.issue;activePreset.value='';Object.assign(form.value,{mode:'balanced',ranking_model:choice.model,blue_model:'weighted',pool:choice.red_count,tickets:8,blue_count:2});
+    return generate({mode:'balanced',pool:choice.red_count,tickets:8,blue_count:2,expected_data_sha256:choice.data_sha256});
+  }
   function generateBlue(choice){
     if(generating.value||saving.value||syncing.value)return;
     if(choice.data_sha256!==overview.value.data_sha256||choice.issue!==overview.value.next_issue){showToast('蓝球预览与当前开奖不一致，请同步后重新生成。','error');return;}
@@ -165,5 +172,5 @@ createApp({components:{PoolIntersection:SSQPoolIntersection.component,PoolCompre
     await openTab(currentTab.value);
   });
   onUnmounted(()=>{window.removeEventListener('message',frameMessage);clearTimeout(toastTimer);});
-  return {blueApiUrl,intersectionApiUrl,tabs,currentTab,overview,cycle,toast,target,deadline,form,compactModel,compactAlgorithms,compactChoices,presets,activePreset,plan,poolPreview,planSaved,generating,saving,syncing,currentResult,generatedIssue,resultArchive,stalePreview,poolCanFreeze,planRedUnion,planBlueUnion,records,recordFilter,recordsLoading,shownRecords,scoredCover,settling,draws,drawBefore,drawsLoading,moreDraws,tests,reportCards,reportLoading,verdict,reviewsSrc,researchSrc,reviewsStandalone,researchStandalone,openedFrames,researchUrl,pad,f4,percent,freezeTime,openTab,navigateTabs,openReviewUrl,generateBlue,generateCompact,generatePoolTier,generateCoverage,applyPreset,generateCustom,savePlan,copyPlan,loadRecords,loadDraws,settle,syncDraws,loadReport,hitRed,hitBlue,frameLoaded};
+  return {smallRedApiUrl,blueApiUrl,intersectionApiUrl,tabs,currentTab,overview,cycle,toast,target,deadline,form,compactModel,compactAlgorithms,compactChoices,presets,activePreset,plan,poolPreview,planSaved,generating,saving,syncing,currentResult,generatedIssue,resultArchive,stalePreview,poolCanFreeze,planRedUnion,planBlueUnion,records,recordFilter,recordsLoading,shownRecords,scoredCover,settling,draws,drawBefore,drawsLoading,moreDraws,tests,reportCards,reportLoading,verdict,reviewsSrc,researchSrc,reviewsStandalone,researchStandalone,openedFrames,researchUrl,pad,f4,percent,freezeTime,openTab,navigateTabs,openReviewUrl,generateSmall,generateBlue,generateCompact,generatePoolTier,generateCoverage,applyPreset,generateCustom,savePlan,copyPlan,loadRecords,loadDraws,settle,syncDraws,loadReport,hitRed,hitBlue,frameLoaded};
 }}).mount('#app');

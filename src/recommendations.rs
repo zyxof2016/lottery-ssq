@@ -75,7 +75,8 @@ fn source_sha() -> String {
             include_str!("ranking.rs"),
             include_str!("conditional.rs"),
             include_str!("pool_algorithms.rs"),
-            include_str!("blue.rs")
+            include_str!("blue.rs"),
+            include_str!("small_red.rs")
         )
         .as_bytes(),
     )
@@ -352,6 +353,7 @@ fn freeze_daily_with_clock(
             "number_pools": old["payload"]["number_pools"]["pools"].as_array().map_or(0, Vec::len),
             "comparison_models": pool::reviewed_models(&old["payload"]["number_pools"]).len(),
             "saved_models": pool::reviewed_models(&old["payload"]["number_pools"]).iter().map(|m|&m["model"]).collect::<Vec<_>>(),
+            "small_red_pool_count":old["payload"]["small_red_pools"]["models"].as_array().map_or(0,|m|m.iter().map(|v|v["pools"].as_array().map_or(0,Vec::len)).sum::<usize>()),
             "comparison_number_pools": comparison_pool_count(&old["payload"]["number_pools"])}),
         );
     }
@@ -393,6 +395,7 @@ fn freeze_daily_with_clock(
     payload["strategies"] = json!(variants);
     payload["presets"] = json!(PRESETS);
     payload["number_pools"] = pool::saved_current(&prepared, draws);
+    payload["small_red_pools"] = crate::small_red::saved(&prepared);
     payload["efficiency"] = json!({"version": efficiency::VERSION, "seed": format!("0x{:016x}", Protocol::SEED),
         "profiles": efficiency::PROFILE_COUNT, "objective": "marginal_number_coverage"});
     let (envelope, created) = write_new_before(&path, payload, Some(deadline), &clock)?;
@@ -404,6 +407,7 @@ fn freeze_daily_with_clock(
             "number_pools": envelope["payload"]["number_pools"]["pools"].as_array().map_or(0, Vec::len),
             "comparison_models": pool::reviewed_models(&envelope["payload"]["number_pools"]).len(),
             "saved_models": pool::reviewed_models(&envelope["payload"]["number_pools"]).iter().map(|m|&m["model"]).collect::<Vec<_>>(),
+            "small_red_pool_count":envelope["payload"]["small_red_pools"]["models"].as_array().map_or(0,|m|m.iter().map(|v|v["pools"].as_array().map_or(0,Vec::len)).sum::<usize>()),
             "comparison_number_pools": comparison_pool_count(&envelope["payload"]["number_pools"])}),
     )
 }
@@ -516,6 +520,11 @@ fn validate_archive(payload: &Value, issue: &str, draws: &[Draw]) -> Result<(), 
             let prefix:Vec<_>=draws.iter().filter(|d|d.issue<=previous.issue).cloned().collect();
             crate::pool_algorithms::validate_history(models,&prefix)?;
         }
+    }
+    if let Some(small)=payload.get("small_red_pools") {
+        let prefix:Vec<_>=draws.iter().filter(|d|fmt_issue(d.issue).as_str()<=payload["data_cutoff"].as_str().unwrap_or("")).cloned().collect();
+        if small["target_issue"]!=issue{return Err("小池扩展目标期号不一致".into());}
+        crate::small_red::validate_history(small,&prefix)?;
     }
     if let Some(strategies)=payload["strategies"].as_object() {
         let mut expected_blue:Option<Value>=None;
@@ -760,6 +769,26 @@ pub fn blue_observations(root:&Path,draws:&[Draw])->Result<Value,String>{
         "hit_periods":hits[m],"hit_rate":(n>0).then(||hits[m]as f64/n as f64),"blue_hit_bets":hit_bets[m],"paired_gains":gains[m],"paired_losses":losses[m]})).collect();
     Ok(json!({"kind":"actual_saved_blue_ticket_observations","cells":cells,"periods":periods,"errors":errors,"independent_timestamp_verified":false,
         "note":"只配对同一期原始保存的4组8注票面；旧档缺方案不补造，待开奖不计失败。4蓝与2蓝数量不同，增加覆盖与改善排序分别判断。"}))
+}
+
+/// Only original paired small-pool extensions enter this prospective statistic.
+pub fn small_red_observations(root:&Path,draws:&[Draw])->Result<Value,String>{
+    let mut paths=Vec::new();match fs::read_dir(root.join("daily")){
+        Ok(entries)=>for entry in entries{let path=entry.map_err(|e|e.to_string())?.path();if path.extension().and_then(|x|x.to_str())==Some("json")&&path.file_stem().and_then(|x|x.to_str()).is_some_and(valid_issue){paths.push(path);}},
+        Err(e)if e.kind()==std::io::ErrorKind::NotFound=>{},Err(e)=>return Err(e.to_string()),
+    }paths.sort();let(mut n,mut pending,mut missing)=(0,0,0);let(mut full,mut sums,mut gains,mut losses)=([0usize;8],[0usize;8],[0usize;8],[0usize;8]);let mut periods=Vec::new();let mut errors=Vec::new();
+    for path in paths{let issue=path.file_stem().unwrap().to_str().unwrap();let result=(||->Result<(),String>{
+        let envelope=read_checked(&path)?;let payload=&envelope["payload"];if payload["kind"]!="daily"{return Err("每日目录中不是每日档案".into());}validate_archive(payload,issue,draws)?;
+        let draw=draws.iter().find(|d|fmt_issue(d.issue)==issue);if saved_after_draw(payload["published_at_unix"].as_u64(),draw){return Err("保存晚于常规开奖时间".into());}
+        let Some(small)=payload.get("small_red_pools")else{missing+=1;return Ok(());};let reviewed=crate::small_red::review(small,draw)?;
+        if draw.is_none(){pending+=1;periods.push(json!({"issue":issue,"archive_sha256":envelope["sha256"],"pending":true,"hits":Value::Null}));return Ok(());}
+        let hits:[[usize;4];2]=std::array::from_fn(|m|std::array::from_fn(|j|reviewed["models"][m]["pools"][j]["red_hits"].as_u64().unwrap()as usize));n+=1;
+        for m in 0..2{for j in 0..4{let i=m*4+j;full[i]+=usize::from(hits[m][j]==6);sums[i]+=hits[m][j];gains[i]+=usize::from(hits[m][j]==6&&hits[0][j]!=6);losses[i]+=usize::from(hits[m][j]!=6&&hits[0][j]==6);}}
+        periods.push(json!({"issue":issue,"archive_sha256":envelope["sha256"],"pending":false,"hits":hits}));Ok(())})();if let Err(e)=result{errors.push(format!("{issue}：{e}"));}}
+    let cells:Vec<_>=crate::small_red::MODELS.iter().enumerate().flat_map(|(m,name)|crate::small_red::SIZES.iter().enumerate().map(move|(j,&k)|{let i=m*4+j;json!({"model":name,"red_count":k,"n":n,"pending":pending,"excluded_missing_pair":missing,"full_red_periods":full[i],"full_red_rate":(n>0).then(||full[i]as f64/n as f64),"mean_missed_reds":(n>0).then(||6.-sums[i]as f64/n as f64),"paired_gains":gains[i],"paired_losses":losses[i]})})).collect();
+    let next=draws.last().map(|d|fmt_issue(d.issue+1)).ok_or("没有开奖数据")?;let path=root.join("daily").join(format!("{next}.json"));let exists=path.exists();let saved=if exists{read_checked(&path).ok().is_some_and(|v|v["payload"].get("small_red_pools").is_some())}else{false};
+    Ok(json!({"kind":"actual_saved_small_red_observations","actual_recommendation":true,"independent_timestamp_verified":false,"cells":cells,"periods":periods,"errors":errors,
+        "next_archive":{"issue":next,"daily_exists":exists,"has_small_red_pools":saved},"note":"只配对每日原档实际保存的原榜和试验小池，同一期同红球数量比较；旧档缺扩展不补造，待开奖不计失败。本地留档无独立时间戳证明。"}))
 }
 
 fn observation_pool<'a>(record: &'a Value, model: &str, red: usize, blue: usize) -> Option<(&'a Value, &'a Value)> {
@@ -1338,6 +1367,7 @@ pub fn issue_detail(
         // Derive new diagnostics from original saved rankings without rewriting
         // the original archive or an already persisted settlement.
         review["number_pools"] = pool::review(&p["number_pools"], draw)?;
+        if let Some(small)=p.get("small_red_pools") {review["small_red_pools"]=crate::small_red::review(small,draw)?;}
         if let Some(variants)=p["strategies"].as_object() {
             for (name,strategy) in variants {
                 if let Some(ranking)=strategy.get("blue_ranking") {review["strategies"][name]["blue_ranking"]=ranking.clone();}
@@ -1378,6 +1408,7 @@ pub fn issue_detail(
         return Err("本期不存在该档案".into());
     };
     response["number_pools"] = result["number_pools"].clone();
+    if let Some(small)=result.get("small_red_pools"){response["small_red_pools"]=small.clone();}
     let variants = result["strategies"].as_object_mut().ok_or("档案缺少策略")?;
     for review in variants.values_mut() {
         enrich_efficiency(review);
@@ -1547,6 +1578,25 @@ mod tests {
             }
         }
         assert_eq!(records,before);
+    }
+
+    #[test]
+    fn small_red_extension_preserves_old_archives_and_scores_saved_pairs() {
+        let temp=Temp::new();let mut draws=synth_draws(220,9);let prepared=prepare_forecast(&draws).unwrap();let old_issue=next(&draws);
+        let mut payload=base_payload(&prepared,&old_issue,"daily",10,Some(100));payload["number_pools"]=pool::saved_current(&prepared,&draws);
+        payload["strategies"]=json!({"frozen":strategy(&build("frozen",&prepared),&prepared)});
+        let old_path=temp.0.join(format!("daily/{old_issue}.json"));write_new(&old_path,payload).unwrap();let original=fs::read(&old_path).unwrap();
+        assert_eq!(freeze_daily_with_clock(&temp.0,&draws,&old_issue,100,||10).unwrap()["small_red_pool_count"],0);
+        append_outcome(&mut draws);let issue=next(&draws);assert_eq!(freeze_daily_with_clock(&temp.0,&draws,&issue,100,||10).unwrap()["small_red_pool_count"],8);
+        let path=temp.0.join(format!("daily/{issue}.json"));let bytes=fs::read(&path).unwrap();let raw=read_checked(&path).unwrap();
+        let pending=small_red_observations(&temp.0,&draws).unwrap();assert_eq!(pending["errors"],json!([]));
+        for cell in pending["cells"].as_array().unwrap(){assert_eq!(cell["n"],0);assert_eq!(cell["pending"],1);assert_eq!(cell["excluded_missing_pair"],1);assert!(cell["full_red_rate"].is_null());}
+        let reds:Vec<u8>=serde_json::from_value(raw["payload"]["small_red_pools"]["models"][1]["pools"][0]["reds"].clone()).unwrap();
+        let outcome=Draw::from_parts(issue.parse().unwrap(),20030901,reds[..6].try_into().unwrap(),1).unwrap();draws.push(outcome.clone());
+        let actual=small_red_observations(&temp.0,&draws).unwrap();assert_eq!(actual["errors"],json!([]));
+        for(m,model)in raw["payload"]["small_red_pools"]["models"].as_array().unwrap().iter().enumerate(){for(j,pool)in model["pools"].as_array().unwrap().iter().enumerate(){let hits=outcome.red.iter().filter(|n|pool["reds"].as_array().unwrap().contains(&json!(n))).count();assert_eq!(actual["cells"][m*4+j]["n"],1);assert_eq!(actual["cells"][m*4+j]["full_red_periods"],usize::from(hits==6));}}
+        let detail=issue_detail(&temp.0,&draws,&[],&issue,Some("daily"),Some("frozen")).unwrap();assert_eq!(detail["small_red_pools"]["models"][1]["pools"][0]["full_red"],true);
+        assert_eq!(fs::read(&old_path).unwrap(),original);assert_eq!(fs::read(&path).unwrap(),bytes);
     }
 
     #[test]

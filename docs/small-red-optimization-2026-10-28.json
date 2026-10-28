@@ -1,0 +1,3785 @@
+{
+  "kind": "at_most_16_red_full_six_optimization_review",
+  "review_date": "2026-10-28",
+  "cutoff_issue": "26123",
+  "actual_recommendation": false,
+  "data_sha256": "a8c3157227f48c8f22ac8b1dbbf90fcf886064fbcf1668c256acbbadf998dbb7",
+  "production_replay_and_saved_observations": {
+    "actual": {
+      "actual_recommendation": true,
+      "cells": [
+        {
+          "excluded_missing_pair": 7,
+          "full_red_periods": 0,
+          "full_red_rate": null,
+          "mean_missed_reds": null,
+          "model": "weighted",
+          "n": 0,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "pending": 0,
+          "red_count": 12
+        },
+        {
+          "excluded_missing_pair": 7,
+          "full_red_periods": 0,
+          "full_red_rate": null,
+          "mean_missed_reds": null,
+          "model": "weighted",
+          "n": 0,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "pending": 0,
+          "red_count": 14
+        },
+        {
+          "excluded_missing_pair": 7,
+          "full_red_periods": 0,
+          "full_red_rate": null,
+          "mean_missed_reds": null,
+          "model": "weighted",
+          "n": 0,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "pending": 0,
+          "red_count": 15
+        },
+        {
+          "excluded_missing_pair": 7,
+          "full_red_periods": 0,
+          "full_red_rate": null,
+          "mean_missed_reds": null,
+          "model": "weighted",
+          "n": 0,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "pending": 0,
+          "red_count": 16
+        },
+        {
+          "excluded_missing_pair": 7,
+          "full_red_periods": 0,
+          "full_red_rate": null,
+          "mean_missed_reds": null,
+          "model": "small_recent",
+          "n": 0,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "pending": 0,
+          "red_count": 12
+        },
+        {
+          "excluded_missing_pair": 7,
+          "full_red_periods": 0,
+          "full_red_rate": null,
+          "mean_missed_reds": null,
+          "model": "small_recent",
+          "n": 0,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "pending": 0,
+          "red_count": 14
+        },
+        {
+          "excluded_missing_pair": 7,
+          "full_red_periods": 0,
+          "full_red_rate": null,
+          "mean_missed_reds": null,
+          "model": "small_recent",
+          "n": 0,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "pending": 0,
+          "red_count": 15
+        },
+        {
+          "excluded_missing_pair": 7,
+          "full_red_periods": 0,
+          "full_red_rate": null,
+          "mean_missed_reds": null,
+          "model": "small_recent",
+          "n": 0,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "pending": 0,
+          "red_count": 16
+        }
+      ],
+      "errors": [],
+      "independent_timestamp_verified": false,
+      "kind": "actual_saved_small_red_observations",
+      "next_archive": {
+        "daily_exists": true,
+        "has_small_red_pools": false,
+        "issue": "26124"
+      },
+      "note": "只配对每日原档实际保存的原榜和试验小池，同一期同红球数量比较；旧档缺扩展不补造，待开奖不计失败。本地留档无独立时间戳证明。",
+      "periods": []
+    },
+    "actual_recommendation": false,
+    "automatic_promotion": false,
+    "cutoff_issue": "26123",
+    "data_sha256": "a8c3157227f48c8f22ac8b1dbbf90fcf886064fbcf1668c256acbbadf998dbb7",
+    "kind": "exploratory_small_red_pool_review",
+    "next": {
+      "base_scores": [
+        0.02644145372890183,
+        0.026850320701769063,
+        0.02694560165594198,
+        0.05025505503323964,
+        0.04711479802346504,
+        0.02966974758271467,
+        0.02515094499915984,
+        0.03501679175178617,
+        0.03028921567655133,
+        0.025092106278963716,
+        0.025822688244933,
+        0.024028489923176685,
+        0.02532449266369745,
+        0.027469308303289572,
+        0.028852940893055543,
+        0.023480625693363087,
+        0.025192844139584013,
+        0.025161563212339307,
+        0.025280824320423483,
+        0.04855291734354869,
+        0.04448919435516207,
+        0.027913175090139266,
+        0.024085895891226918,
+        0.026453790806761017,
+        0.023633372711659727,
+        0.04844028210649308,
+        0.025351346229710223,
+        0.023830804493603648,
+        0.02573379533241605,
+        0.0505487662948661,
+        0.02516708820877808,
+        0.02801858093369115,
+        0.024341177375588437
+      ],
+      "base_weights": [
+        0.21413439674600007,
+        0.110761955861,
+        0.147449264215,
+        0.114768370981,
+        0.173218575488,
+        0.10692923772,
+        0.132738198989
+      ],
+      "data_cutoff": "26123",
+      "ewma_scores": [
+        0.026122782527915483,
+        0.033969902199213406,
+        0.010962543550246173,
+        0.0667322021870454,
+        0.038228255800877936,
+        0.0196688494440243,
+        0.024990003364559102,
+        0.0059817583770652594,
+        0.013834694411862474,
+        0.012216324508858272,
+        0.0287031357032158,
+        0.026114216750419895,
+        0.03727024209528834,
+        0.046921820579444794,
+        0.011620237904948262,
+        0.024361550370925484,
+        0.02361275549448298,
+        0.030170480617253134,
+        0.028185827601404954,
+        0.052222683237069106,
+        0.02585536694193345,
+        0.049065508100774854,
+        0.027875117314018923,
+        0.05131092523837071,
+        0.02031525043121296,
+        0.04644524926005942,
+        0.03074599932851389,
+        0.025022844919424855,
+        0.020067119648209723,
+        0.07097717474962435,
+        0.03934703756279393,
+        0.01121137397716951,
+        0.019870765801773032
+      ],
+      "input_history_sha256": "a8c3157227f48c8f22ac8b1dbbf90fcf886064fbcf1668c256acbbadf998dbb7",
+      "kind": "small_red_pool_observation",
+      "models": [
+        {
+          "label": "原加权融合 · 小池对照",
+          "model": "weighted",
+          "pools": [
+            {
+              "id": "weighted_red12",
+              "model": "weighted",
+              "red_count": 12,
+              "reds": [
+                30,
+                4,
+                20,
+                26,
+                5,
+                21,
+                8,
+                9,
+                6,
+                15,
+                32,
+                22
+              ]
+            },
+            {
+              "id": "weighted_red14",
+              "model": "weighted",
+              "red_count": 14,
+              "reds": [
+                30,
+                4,
+                20,
+                26,
+                5,
+                21,
+                8,
+                9,
+                6,
+                15,
+                32,
+                22,
+                14,
+                3
+              ]
+            },
+            {
+              "id": "weighted_red15",
+              "model": "weighted",
+              "red_count": 15,
+              "reds": [
+                30,
+                4,
+                20,
+                26,
+                5,
+                21,
+                8,
+                9,
+                6,
+                15,
+                32,
+                22,
+                14,
+                3,
+                2
+              ]
+            },
+            {
+              "id": "weighted_red16",
+              "model": "weighted",
+              "red_count": 16,
+              "reds": [
+                30,
+                4,
+                20,
+                26,
+                5,
+                21,
+                8,
+                9,
+                6,
+                15,
+                32,
+                22,
+                14,
+                3,
+                2,
+                24
+              ]
+            }
+          ],
+          "red_ranking": [
+            30,
+            4,
+            20,
+            26,
+            5,
+            21,
+            8,
+            9,
+            6,
+            15,
+            32,
+            22,
+            14,
+            3,
+            2,
+            24,
+            1,
+            11,
+            29,
+            27,
+            13,
+            19,
+            17,
+            31,
+            18,
+            7,
+            10,
+            33,
+            23,
+            12,
+            28,
+            25,
+            16
+          ]
+        },
+        {
+          "label": "小池近况融合 · 试验",
+          "model": "small_recent",
+          "pools": [
+            {
+              "id": "small_recent_red12",
+              "model": "small_recent",
+              "red_count": 12,
+              "reds": [
+                30,
+                4,
+                20,
+                26,
+                5,
+                21,
+                22,
+                24,
+                14,
+                31,
+                13,
+                2
+              ]
+            },
+            {
+              "id": "small_recent_red14",
+              "model": "small_recent",
+              "red_count": 14,
+              "reds": [
+                30,
+                4,
+                20,
+                26,
+                5,
+                21,
+                22,
+                24,
+                14,
+                31,
+                13,
+                2,
+                27,
+                18
+              ]
+            },
+            {
+              "id": "small_recent_red15",
+              "model": "small_recent",
+              "red_count": 15,
+              "reds": [
+                30,
+                4,
+                20,
+                26,
+                5,
+                21,
+                22,
+                24,
+                14,
+                31,
+                13,
+                2,
+                27,
+                18,
+                11
+              ]
+            },
+            {
+              "id": "small_recent_red16",
+              "model": "small_recent",
+              "red_count": 16,
+              "reds": [
+                30,
+                4,
+                20,
+                26,
+                5,
+                21,
+                22,
+                24,
+                14,
+                31,
+                13,
+                2,
+                27,
+                18,
+                11,
+                6
+              ]
+            }
+          ],
+          "red_ranking": [
+            30,
+            4,
+            20,
+            26,
+            5,
+            21,
+            22,
+            24,
+            14,
+            31,
+            13,
+            2,
+            27,
+            18,
+            11,
+            6,
+            1,
+            19,
+            23,
+            8,
+            7,
+            9,
+            12,
+            17,
+            28,
+            29,
+            16,
+            15,
+            33,
+            25,
+            32,
+            3,
+            10
+          ]
+        }
+      ],
+      "policy": {
+        "automatic_promotion": false,
+        "blue_scope": "unchanged_original_blue_ranking",
+        "ewma_weight": 0.25,
+        "label": "小池近况融合 · 试验",
+        "method": "half_original_quarter_ewma_quarter_repeat",
+        "model": "small_recent",
+        "note": "固定使用原融合50%、近期指数25%、上期重号25%；原权重仍仅拟合25111前数据。长期小池回放有增量，但部分近窗退步，尚未证明稳定提高全6红率，不保证未来全覆盖。",
+        "original_weight": 0.5,
+        "primary_metric": "all_six_red_covered_at_same_size_at_most_16",
+        "red_sizes": [
+          12,
+          14,
+          15,
+          16
+        ],
+        "repeat_weight": 0.25,
+        "score_kind": "ranking_evidence_not_probability",
+        "version": 1
+      },
+      "repeat_scores": [
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.13605442176870755,
+        0.13605442176870755,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.13605442176870755,
+        0.13605442176870755,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.13605442176870755,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.13605442176870755,
+        0.006802721088435378,
+        0.006802721088435378,
+        0.006802721088435378
+      ],
+      "target_issue": "26124",
+      "trial_scores": [
+        0.021452102768538633,
+        0.02361831617279673,
+        0.01791411698764138,
+        0.07582418350555806,
+        0.06712806840412888,
+        0.021452766424472254,
+        0.02052365361282854,
+        0.020704515742268243,
+        0.020303961713350128,
+        0.017300814538805272,
+        0.021787808320379295,
+        0.02024347942130216,
+        0.023680487127779655,
+        0.02716578956861483,
+        0.019032210194873684,
+        0.01953138071152176,
+        0.020200291215521596,
+        0.02182408203259178,
+        0.021387549332671826,
+        0.07134573492321851,
+        0.06272204435524129,
+        0.02792364484237219,
+        0.020712407546227034,
+        0.02775530698508203,
+        0.01859617923574195,
+        0.06984505881043829,
+        0.02206285321909243,
+        0.019871793748766884,
+        0.0195843578503693,
+        0.07703228227701603,
+        0.024120983767196368,
+        0.0185128142332468,
+        0.01883896041034632
+      ],
+      "version": 1
+    },
+    "note": "主指标为相同数量下全部6红入池，平均中红只作辅助。历史回放不是实际发布表现；已查看多个候选和重叠窗口，不能视为独立确认。16红均匀全包基准约0.723%，缩小号码池不能保证全覆盖。",
+    "red_sizes": [
+      12,
+      14,
+      15,
+      16
+    ],
+    "source_sha256": "b0cd823db6b03eef9baf05918ca75a9b40e51864a32bfc7c416ed6a71e2b6327",
+    "target_issue": "26124",
+    "windows": {
+      "all_oos": {
+        "cells": [
+          {
+            "at_least_5_red_periods": 51,
+            "full_red_periods": 3,
+            "full_red_rate": 0.0008982035928143712,
+            "mean_missed_reds": 3.827245508982036,
+            "model": "weighted",
+            "n": 3340,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 12,
+            "uniform_full_red_rate": 0.0008342602892102336
+          },
+          {
+            "at_least_5_red_periods": 128,
+            "full_red_periods": 7,
+            "full_red_rate": 0.002095808383233533,
+            "mean_missed_reds": 3.4577844311377244,
+            "model": "weighted",
+            "n": 3340,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "at_least_5_red_periods": 187,
+            "full_red_periods": 17,
+            "full_red_rate": 0.005089820359281437,
+            "mean_missed_reds": 3.271556886227545,
+            "model": "weighted",
+            "n": 3340,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 15,
+            "uniform_full_red_rate": 0.004518909899888766
+          },
+          {
+            "at_least_5_red_periods": 259,
+            "full_red_periods": 31,
+            "full_red_rate": 0.009281437125748504,
+            "mean_missed_reds": 3.0853293413173652,
+            "model": "weighted",
+            "n": 3340,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "at_least_5_red_periods": 48,
+            "full_red_periods": 3,
+            "full_red_rate": 0.0008982035928143712,
+            "mean_missed_reds": 3.809880239520958,
+            "model": "small_recent",
+            "n": 3340,
+            "paired_gains": 1,
+            "paired_losses": 1,
+            "red_count": 12,
+            "uniform_full_red_rate": 0.0008342602892102336
+          },
+          {
+            "at_least_5_red_periods": 134,
+            "full_red_periods": 19,
+            "full_red_rate": 0.005688622754491018,
+            "mean_missed_reds": 3.451497005988024,
+            "model": "small_recent",
+            "n": 3340,
+            "paired_gains": 17,
+            "paired_losses": 5,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "at_least_5_red_periods": 188,
+            "full_red_periods": 25,
+            "full_red_rate": 0.0074850299401197605,
+            "mean_missed_reds": 3.270059880239521,
+            "model": "small_recent",
+            "n": 3340,
+            "paired_gains": 18,
+            "paired_losses": 10,
+            "red_count": 15,
+            "uniform_full_red_rate": 0.004518909899888766
+          },
+          {
+            "at_least_5_red_periods": 254,
+            "full_red_periods": 36,
+            "full_red_rate": 0.010778443113772455,
+            "mean_missed_reds": 3.0826347305389223,
+            "model": "small_recent",
+            "n": 3340,
+            "paired_gains": 28,
+            "paired_losses": 23,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          }
+        ],
+        "from": "04092",
+        "n": 3340,
+        "to": "26123"
+      },
+      "confirmation_exploratory": {
+        "cells": [
+          {
+            "at_least_5_red_periods": 2,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.8333333333333335,
+            "model": "weighted",
+            "n": 156,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 12,
+            "uniform_full_red_rate": 0.0008342602892102336
+          },
+          {
+            "at_least_5_red_periods": 7,
+            "full_red_periods": 3,
+            "full_red_rate": 0.019230769230769232,
+            "mean_missed_reds": 3.4551282051282053,
+            "model": "weighted",
+            "n": 156,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "at_least_5_red_periods": 11,
+            "full_red_periods": 4,
+            "full_red_rate": 0.02564102564102564,
+            "mean_missed_reds": 3.2884615384615383,
+            "model": "weighted",
+            "n": 156,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 15,
+            "uniform_full_red_rate": 0.004518909899888766
+          },
+          {
+            "at_least_5_red_periods": 13,
+            "full_red_periods": 5,
+            "full_red_rate": 0.03205128205128205,
+            "mean_missed_reds": 3.0833333333333335,
+            "model": "weighted",
+            "n": 156,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "at_least_5_red_periods": 4,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.6794871794871793,
+            "model": "small_recent",
+            "n": 156,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 12,
+            "uniform_full_red_rate": 0.0008342602892102336
+          },
+          {
+            "at_least_5_red_periods": 12,
+            "full_red_periods": 2,
+            "full_red_rate": 0.01282051282051282,
+            "mean_missed_reds": 3.2435897435897436,
+            "model": "small_recent",
+            "n": 156,
+            "paired_gains": 2,
+            "paired_losses": 3,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "at_least_5_red_periods": 15,
+            "full_red_periods": 3,
+            "full_red_rate": 0.019230769230769232,
+            "mean_missed_reds": 3.121794871794872,
+            "model": "small_recent",
+            "n": 156,
+            "paired_gains": 3,
+            "paired_losses": 4,
+            "red_count": 15,
+            "uniform_full_red_rate": 0.004518909899888766
+          },
+          {
+            "at_least_5_red_periods": 18,
+            "full_red_periods": 5,
+            "full_red_rate": 0.03205128205128205,
+            "mean_missed_reds": 2.9358974358974357,
+            "model": "small_recent",
+            "n": 156,
+            "paired_gains": 5,
+            "paired_losses": 5,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          }
+        ],
+        "from": "25111",
+        "n": 156,
+        "to": "26115"
+      },
+      "development": {
+        "cells": [
+          {
+            "at_least_5_red_periods": 49,
+            "full_red_periods": 3,
+            "full_red_rate": 0.0009445843828715365,
+            "mean_missed_reds": 3.827141057934509,
+            "model": "weighted",
+            "n": 3176,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 12,
+            "uniform_full_red_rate": 0.0008342602892102336
+          },
+          {
+            "at_least_5_red_periods": 121,
+            "full_red_periods": 4,
+            "full_red_rate": 0.0012594458438287153,
+            "mean_missed_reds": 3.4581234256926954,
+            "model": "weighted",
+            "n": 3176,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "at_least_5_red_periods": 176,
+            "full_red_periods": 13,
+            "full_red_rate": 0.004093198992443325,
+            "mean_missed_reds": 3.270780856423174,
+            "model": "weighted",
+            "n": 3176,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 15,
+            "uniform_full_red_rate": 0.004518909899888766
+          },
+          {
+            "at_least_5_red_periods": 245,
+            "full_red_periods": 26,
+            "full_red_rate": 0.00818639798488665,
+            "mean_missed_reds": 3.086272040302267,
+            "model": "weighted",
+            "n": 3176,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "at_least_5_red_periods": 44,
+            "full_red_periods": 3,
+            "full_red_rate": 0.0009445843828715365,
+            "mean_missed_reds": 3.8173803526448364,
+            "model": "small_recent",
+            "n": 3176,
+            "paired_gains": 1,
+            "paired_losses": 1,
+            "red_count": 12,
+            "uniform_full_red_rate": 0.0008342602892102336
+          },
+          {
+            "at_least_5_red_periods": 121,
+            "full_red_periods": 17,
+            "full_red_rate": 0.0053526448362720405,
+            "mean_missed_reds": 3.462846347607053,
+            "model": "small_recent",
+            "n": 3176,
+            "paired_gains": 15,
+            "paired_losses": 2,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "at_least_5_red_periods": 172,
+            "full_red_periods": 22,
+            "full_red_rate": 0.0069269521410579345,
+            "mean_missed_reds": 3.2783375314861463,
+            "model": "small_recent",
+            "n": 3176,
+            "paired_gains": 15,
+            "paired_losses": 6,
+            "red_count": 15,
+            "uniform_full_red_rate": 0.004518909899888766
+          },
+          {
+            "at_least_5_red_periods": 234,
+            "full_red_periods": 31,
+            "full_red_rate": 0.009760705289672544,
+            "mean_missed_reds": 3.090994962216625,
+            "model": "small_recent",
+            "n": 3176,
+            "paired_gains": 23,
+            "paired_losses": 18,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          }
+        ],
+        "from": "04092",
+        "n": 3176,
+        "to": "25110"
+      },
+      "recent156": {
+        "cells": [
+          {
+            "at_least_5_red_periods": 2,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.801282051282051,
+            "model": "weighted",
+            "n": 156,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 12,
+            "uniform_full_red_rate": 0.0008342602892102336
+          },
+          {
+            "at_least_5_red_periods": 7,
+            "full_red_periods": 3,
+            "full_red_rate": 0.019230769230769232,
+            "mean_missed_reds": 3.4166666666666665,
+            "model": "weighted",
+            "n": 156,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "at_least_5_red_periods": 11,
+            "full_red_periods": 4,
+            "full_red_rate": 0.02564102564102564,
+            "mean_missed_reds": 3.25,
+            "model": "weighted",
+            "n": 156,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 15,
+            "uniform_full_red_rate": 0.004518909899888766
+          },
+          {
+            "at_least_5_red_periods": 14,
+            "full_red_periods": 5,
+            "full_red_rate": 0.03205128205128205,
+            "mean_missed_reds": 3.0256410256410255,
+            "model": "weighted",
+            "n": 156,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "at_least_5_red_periods": 4,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.6474358974358974,
+            "model": "small_recent",
+            "n": 156,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 12,
+            "uniform_full_red_rate": 0.0008342602892102336
+          },
+          {
+            "at_least_5_red_periods": 13,
+            "full_red_periods": 2,
+            "full_red_rate": 0.01282051282051282,
+            "mean_missed_reds": 3.2051282051282053,
+            "model": "small_recent",
+            "n": 156,
+            "paired_gains": 2,
+            "paired_losses": 3,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "at_least_5_red_periods": 16,
+            "full_red_periods": 3,
+            "full_red_rate": 0.019230769230769232,
+            "mean_missed_reds": 3.0833333333333335,
+            "model": "small_recent",
+            "n": 156,
+            "paired_gains": 3,
+            "paired_losses": 4,
+            "red_count": 15,
+            "uniform_full_red_rate": 0.004518909899888766
+          },
+          {
+            "at_least_5_red_periods": 20,
+            "full_red_periods": 5,
+            "full_red_rate": 0.03205128205128205,
+            "mean_missed_reds": 2.8974358974358974,
+            "model": "small_recent",
+            "n": 156,
+            "paired_gains": 5,
+            "paired_losses": 5,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          }
+        ],
+        "from": "25119",
+        "n": 156,
+        "to": "26123"
+      },
+      "recent30": {
+        "cells": [
+          {
+            "at_least_5_red_periods": 0,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.7333333333333334,
+            "model": "weighted",
+            "n": 30,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 12,
+            "uniform_full_red_rate": 0.0008342602892102336
+          },
+          {
+            "at_least_5_red_periods": 1,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.2666666666666666,
+            "model": "weighted",
+            "n": 30,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "at_least_5_red_periods": 2,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.1666666666666665,
+            "model": "weighted",
+            "n": 30,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 15,
+            "uniform_full_red_rate": 0.004518909899888766
+          },
+          {
+            "at_least_5_red_periods": 4,
+            "full_red_periods": 1,
+            "full_red_rate": 0.03333333333333333,
+            "mean_missed_reds": 2.8333333333333335,
+            "model": "weighted",
+            "n": 30,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "at_least_5_red_periods": 2,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.3333333333333335,
+            "model": "small_recent",
+            "n": 30,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 12,
+            "uniform_full_red_rate": 0.0008342602892102336
+          },
+          {
+            "at_least_5_red_periods": 5,
+            "full_red_periods": 1,
+            "full_red_rate": 0.03333333333333333,
+            "mean_missed_reds": 2.8666666666666667,
+            "model": "small_recent",
+            "n": 30,
+            "paired_gains": 1,
+            "paired_losses": 0,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "at_least_5_red_periods": 5,
+            "full_red_periods": 1,
+            "full_red_rate": 0.03333333333333333,
+            "mean_missed_reds": 2.7333333333333334,
+            "model": "small_recent",
+            "n": 30,
+            "paired_gains": 1,
+            "paired_losses": 0,
+            "red_count": 15,
+            "uniform_full_red_rate": 0.004518909899888766
+          },
+          {
+            "at_least_5_red_periods": 6,
+            "full_red_periods": 2,
+            "full_red_rate": 0.06666666666666667,
+            "mean_missed_reds": 2.6,
+            "model": "small_recent",
+            "n": 30,
+            "paired_gains": 2,
+            "paired_losses": 1,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          }
+        ],
+        "from": "26094",
+        "n": 30,
+        "to": "26123"
+      },
+      "recent60": {
+        "cells": [
+          {
+            "at_least_5_red_periods": 1,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.7666666666666666,
+            "model": "weighted",
+            "n": 60,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 12,
+            "uniform_full_red_rate": 0.0008342602892102336
+          },
+          {
+            "at_least_5_red_periods": 4,
+            "full_red_periods": 1,
+            "full_red_rate": 0.016666666666666666,
+            "mean_missed_reds": 3.3666666666666667,
+            "model": "weighted",
+            "n": 60,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "at_least_5_red_periods": 6,
+            "full_red_periods": 2,
+            "full_red_rate": 0.03333333333333333,
+            "mean_missed_reds": 3.2333333333333334,
+            "model": "weighted",
+            "n": 60,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 15,
+            "uniform_full_red_rate": 0.004518909899888766
+          },
+          {
+            "at_least_5_red_periods": 8,
+            "full_red_periods": 3,
+            "full_red_rate": 0.05,
+            "mean_missed_reds": 2.933333333333333,
+            "model": "weighted",
+            "n": 60,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "at_least_5_red_periods": 2,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.6166666666666667,
+            "model": "small_recent",
+            "n": 60,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 12,
+            "uniform_full_red_rate": 0.0008342602892102336
+          },
+          {
+            "at_least_5_red_periods": 5,
+            "full_red_periods": 1,
+            "full_red_rate": 0.016666666666666666,
+            "mean_missed_reds": 3.216666666666667,
+            "model": "small_recent",
+            "n": 60,
+            "paired_gains": 1,
+            "paired_losses": 1,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "at_least_5_red_periods": 5,
+            "full_red_periods": 1,
+            "full_red_rate": 0.016666666666666666,
+            "mean_missed_reds": 3.1,
+            "model": "small_recent",
+            "n": 60,
+            "paired_gains": 1,
+            "paired_losses": 2,
+            "red_count": 15,
+            "uniform_full_red_rate": 0.004518909899888766
+          },
+          {
+            "at_least_5_red_periods": 7,
+            "full_red_periods": 2,
+            "full_red_rate": 0.03333333333333333,
+            "mean_missed_reds": 2.9833333333333334,
+            "model": "small_recent",
+            "n": 60,
+            "paired_gains": 2,
+            "paired_losses": 3,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          }
+        ],
+        "from": "26064",
+        "n": 60,
+        "to": "26123"
+      },
+      "tracking": {
+        "cells": [
+          {
+            "at_least_5_red_periods": 0,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.75,
+            "model": "weighted",
+            "n": 8,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 12,
+            "uniform_full_red_rate": 0.0008342602892102336
+          },
+          {
+            "at_least_5_red_periods": 0,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.375,
+            "model": "weighted",
+            "n": 8,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "at_least_5_red_periods": 0,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.25,
+            "model": "weighted",
+            "n": 8,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 15,
+            "uniform_full_red_rate": 0.004518909899888766
+          },
+          {
+            "at_least_5_red_periods": 1,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 2.75,
+            "model": "weighted",
+            "n": 8,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          },
+          {
+            "at_least_5_red_periods": 0,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.375,
+            "model": "small_recent",
+            "n": 8,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 12,
+            "uniform_full_red_rate": 0.0008342602892102336
+          },
+          {
+            "at_least_5_red_periods": 1,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 3.0,
+            "model": "small_recent",
+            "n": 8,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 14,
+            "uniform_full_red_rate": 0.0027113459399332593
+          },
+          {
+            "at_least_5_red_periods": 1,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 2.875,
+            "model": "small_recent",
+            "n": 8,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 15,
+            "uniform_full_red_rate": 0.004518909899888766
+          },
+          {
+            "at_least_5_red_periods": 2,
+            "full_red_periods": 0,
+            "full_red_rate": 0.0,
+            "mean_missed_reds": 2.625,
+            "model": "small_recent",
+            "n": 8,
+            "paired_gains": 0,
+            "paired_losses": 0,
+            "red_count": 16,
+            "uniform_full_red_rate": 0.007230255839822024
+          }
+        ],
+        "from": "26116",
+        "n": 8,
+        "to": "26123"
+      }
+    }
+  },
+  "all_static_candidates": {
+    "actual_recommendation": false,
+    "automatic_promotion": false,
+    "candidate_count": 45,
+    "data_sha256": "a8c3157227f48c8f22ac8b1dbbf90fcf886064fbcf1668c256acbbadf998dbb7",
+    "kind": "exploratory_small_red_candidates",
+    "models": [
+      "weighted",
+      "equal",
+      "expert0",
+      "expert1",
+      "expert2",
+      "expert3",
+      "expert4",
+      "expert5",
+      "expert6",
+      "quota_ceil",
+      "quota_floor",
+      "rank_mass_calibrated",
+      "pair_0_1",
+      "pair_0_2",
+      "pair_0_3",
+      "pair_0_4",
+      "pair_0_5",
+      "pair_0_6",
+      "pair_1_2",
+      "pair_1_3",
+      "pair_1_4",
+      "pair_1_5",
+      "pair_1_6",
+      "pair_2_3",
+      "pair_2_4",
+      "pair_2_5",
+      "pair_2_6",
+      "pair_3_4",
+      "pair_3_5",
+      "pair_3_6",
+      "pair_4_5",
+      "pair_4_6",
+      "pair_5_6",
+      "geomean",
+      "rootmean",
+      "squaremean",
+      "harmonic",
+      "quota1_consensus_outside",
+      "quota2_consensus_outside",
+      "quota3_consensus_outside",
+      "quota4_consensus_outside",
+      "quota5_consensus_outside",
+      "shrink_recent25",
+      "shrink_recent50",
+      "shrink_recent75"
+    ],
+    "red_sizes": [
+      12,
+      14,
+      15,
+      16
+    ],
+    "source_sha256": "91e9852ac4727877e85c8d11baffc8665d005aae8e18cc08c52c5e2ab4fd3325",
+    "summary": [
+      {
+        "all": [
+          5,
+          16,
+          22,
+          38
+        ],
+        "confirm": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "model": "shrink_recent25",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          3,
+          19,
+          25,
+          36
+        ],
+        "confirm": [
+          0,
+          2,
+          3,
+          5
+        ],
+        "model": "shrink_recent50",
+        "recent60": [
+          0,
+          1,
+          1,
+          2
+        ]
+      },
+      {
+        "all": [
+          4,
+          11,
+          22,
+          32
+        ],
+        "confirm": [
+          2,
+          3,
+          3,
+          3
+        ],
+        "model": "quota_ceil",
+        "recent60": [
+          0,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "all": [
+          2,
+          12,
+          22,
+          32
+        ],
+        "confirm": [
+          0,
+          1,
+          1,
+          3
+        ],
+        "model": "rank_mass_calibrated",
+        "recent60": [
+          0,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "all": [
+          2,
+          12,
+          21,
+          32
+        ],
+        "confirm": [
+          1,
+          2,
+          3,
+          3
+        ],
+        "model": "squaremean",
+        "recent60": [
+          0,
+          1,
+          2,
+          2
+        ]
+      },
+      {
+        "all": [
+          3,
+          7,
+          17,
+          31
+        ],
+        "confirm": [
+          0,
+          3,
+          4,
+          5
+        ],
+        "model": "weighted",
+        "recent60": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      {
+        "all": [
+          2,
+          5,
+          17,
+          31
+        ],
+        "confirm": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "model": "pair_0_5",
+        "recent60": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "all": [
+          2,
+          13,
+          16,
+          31
+        ],
+        "confirm": [
+          0,
+          2,
+          2,
+          4
+        ],
+        "model": "geomean",
+        "recent60": [
+          0,
+          1,
+          1,
+          2
+        ]
+      },
+      {
+        "all": [
+          4,
+          17,
+          23,
+          31
+        ],
+        "confirm": [
+          0,
+          2,
+          4,
+          6
+        ],
+        "model": "shrink_recent75",
+        "recent60": [
+          0,
+          1,
+          1,
+          2
+        ]
+      },
+      {
+        "all": [
+          5,
+          17,
+          22,
+          30
+        ],
+        "confirm": [
+          0,
+          2,
+          4,
+          7
+        ],
+        "model": "pair_1_6",
+        "recent60": [
+          0,
+          1,
+          1,
+          2
+        ]
+      },
+      {
+        "all": [
+          5,
+          10,
+          21,
+          30
+        ],
+        "confirm": [
+          0,
+          0,
+          2,
+          2
+        ],
+        "model": "rootmean",
+        "recent60": [
+          0,
+          0,
+          2,
+          2
+        ]
+      },
+      {
+        "all": [
+          2,
+          8,
+          18,
+          29
+        ],
+        "confirm": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "model": "expert0",
+        "recent60": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "all": [
+          2,
+          6,
+          16,
+          29
+        ],
+        "confirm": [
+          0,
+          1,
+          1,
+          2
+        ],
+        "model": "pair_0_2",
+        "recent60": [
+          0,
+          1,
+          1,
+          2
+        ]
+      },
+      {
+        "all": [
+          2,
+          9,
+          13,
+          29
+        ],
+        "confirm": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "model": "pair_0_3",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          2,
+          7,
+          15,
+          29
+        ],
+        "confirm": [
+          0,
+          1,
+          2,
+          2
+        ],
+        "model": "pair_2_4",
+        "recent60": [
+          0,
+          1,
+          2,
+          2
+        ]
+      },
+      {
+        "all": [
+          0,
+          10,
+          21,
+          29
+        ],
+        "confirm": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "model": "pair_4_6",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          2,
+          11,
+          18,
+          29
+        ],
+        "confirm": [
+          0,
+          2,
+          2,
+          2
+        ],
+        "model": "harmonic",
+        "recent60": [
+          0,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "all": [
+          2,
+          6,
+          18,
+          27
+        ],
+        "confirm": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "model": "equal",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          2,
+          10,
+          16,
+          27
+        ],
+        "confirm": [
+          0,
+          1,
+          1,
+          1
+        ],
+        "model": "expert4",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          5,
+          13,
+          21,
+          27
+        ],
+        "confirm": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "model": "quota_floor",
+        "recent60": [
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "all": [
+          6,
+          12,
+          17,
+          27
+        ],
+        "confirm": [
+          1,
+          1,
+          1,
+          2
+        ],
+        "model": "pair_0_1",
+        "recent60": [
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "all": [
+          5,
+          10,
+          16,
+          27
+        ],
+        "confirm": [
+          0,
+          1,
+          1,
+          2
+        ],
+        "model": "pair_0_4",
+        "recent60": [
+          0,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "all": [
+          2,
+          4,
+          10,
+          26
+        ],
+        "confirm": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "model": "pair_3_6",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          3,
+          10,
+          12,
+          26
+        ],
+        "confirm": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "model": "quota1_consensus_outside",
+        "recent60": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "all": [
+          2,
+          7,
+          13,
+          25
+        ],
+        "confirm": [
+          0,
+          1,
+          1,
+          1
+        ],
+        "model": "expert3",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          2,
+          8,
+          14,
+          25
+        ],
+        "confirm": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "model": "pair_3_4",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          0,
+          9,
+          16,
+          24
+        ],
+        "confirm": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "model": "pair_0_6",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          3,
+          10,
+          16,
+          24
+        ],
+        "confirm": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "model": "pair_1_2",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          2,
+          8,
+          12,
+          24
+        ],
+        "confirm": [
+          0,
+          1,
+          1,
+          1
+        ],
+        "model": "pair_2_5",
+        "recent60": [
+          0,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "all": [
+          1,
+          8,
+          16,
+          24
+        ],
+        "confirm": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "model": "quota5_consensus_outside",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          2,
+          7,
+          14,
+          23
+        ],
+        "confirm": [
+          0,
+          1,
+          1,
+          1
+        ],
+        "model": "expert2",
+        "recent60": [
+          0,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "all": [
+          4,
+          11,
+          18,
+          23
+        ],
+        "confirm": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "model": "pair_1_4",
+        "recent60": [
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "all": [
+          4,
+          14,
+          16,
+          22
+        ],
+        "confirm": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "model": "pair_5_6",
+        "recent60": [
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "all": [
+          2,
+          7,
+          14,
+          21
+        ],
+        "confirm": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "model": "pair_3_5",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          0,
+          5,
+          8,
+          21
+        ],
+        "confirm": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "model": "quota2_consensus_outside",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          2,
+          6,
+          10,
+          20
+        ],
+        "confirm": [
+          0,
+          0,
+          1,
+          2
+        ],
+        "model": "expert6",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          4,
+          11,
+          15,
+          20
+        ],
+        "confirm": [
+          0,
+          1,
+          1,
+          1
+        ],
+        "model": "pair_1_5",
+        "recent60": [
+          0,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "all": [
+          6,
+          12,
+          15,
+          19
+        ],
+        "confirm": [
+          1,
+          1,
+          1,
+          2
+        ],
+        "model": "expert1",
+        "recent60": [
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "all": [
+          2,
+          6,
+          12,
+          19
+        ],
+        "confirm": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "model": "pair_4_5",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          2,
+          5,
+          9,
+          18
+        ],
+        "confirm": [
+          0,
+          1,
+          1,
+          2
+        ],
+        "model": "pair_1_3",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          0,
+          2,
+          11,
+          17
+        ],
+        "confirm": [
+          0,
+          1,
+          1,
+          1
+        ],
+        "model": "expert5",
+        "recent60": [
+          0,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "all": [
+          3,
+          6,
+          12,
+          17
+        ],
+        "confirm": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "model": "pair_2_3",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          3,
+          7,
+          15,
+          17
+        ],
+        "confirm": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "model": "pair_2_6",
+        "recent60": [
+          0,
+          0,
+          1,
+          1
+        ]
+      },
+      {
+        "all": [
+          2,
+          8,
+          12,
+          17
+        ],
+        "confirm": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "model": "quota4_consensus_outside",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "all": [
+          1,
+          4,
+          8,
+          15
+        ],
+        "confirm": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "model": "quota3_consensus_outside",
+        "recent60": [
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "windows": {
+      "all": {
+        "full": [
+          [
+            3,
+            7,
+            17,
+            31
+          ],
+          [
+            2,
+            6,
+            18,
+            27
+          ],
+          [
+            2,
+            8,
+            18,
+            29
+          ],
+          [
+            6,
+            12,
+            15,
+            19
+          ],
+          [
+            2,
+            7,
+            14,
+            23
+          ],
+          [
+            2,
+            7,
+            13,
+            25
+          ],
+          [
+            2,
+            10,
+            16,
+            27
+          ],
+          [
+            0,
+            2,
+            11,
+            17
+          ],
+          [
+            2,
+            6,
+            10,
+            20
+          ],
+          [
+            4,
+            11,
+            22,
+            32
+          ],
+          [
+            5,
+            13,
+            21,
+            27
+          ],
+          [
+            2,
+            12,
+            22,
+            32
+          ],
+          [
+            6,
+            12,
+            17,
+            27
+          ],
+          [
+            2,
+            6,
+            16,
+            29
+          ],
+          [
+            2,
+            9,
+            13,
+            29
+          ],
+          [
+            5,
+            10,
+            16,
+            27
+          ],
+          [
+            2,
+            5,
+            17,
+            31
+          ],
+          [
+            0,
+            9,
+            16,
+            24
+          ],
+          [
+            3,
+            10,
+            16,
+            24
+          ],
+          [
+            2,
+            5,
+            9,
+            18
+          ],
+          [
+            4,
+            11,
+            18,
+            23
+          ],
+          [
+            4,
+            11,
+            15,
+            20
+          ],
+          [
+            5,
+            17,
+            22,
+            30
+          ],
+          [
+            3,
+            6,
+            12,
+            17
+          ],
+          [
+            2,
+            7,
+            15,
+            29
+          ],
+          [
+            2,
+            8,
+            12,
+            24
+          ],
+          [
+            3,
+            7,
+            15,
+            17
+          ],
+          [
+            2,
+            8,
+            14,
+            25
+          ],
+          [
+            2,
+            7,
+            14,
+            21
+          ],
+          [
+            2,
+            4,
+            10,
+            26
+          ],
+          [
+            2,
+            6,
+            12,
+            19
+          ],
+          [
+            0,
+            10,
+            21,
+            29
+          ],
+          [
+            4,
+            14,
+            16,
+            22
+          ],
+          [
+            2,
+            13,
+            16,
+            31
+          ],
+          [
+            5,
+            10,
+            21,
+            30
+          ],
+          [
+            2,
+            12,
+            21,
+            32
+          ],
+          [
+            2,
+            11,
+            18,
+            29
+          ],
+          [
+            3,
+            10,
+            12,
+            26
+          ],
+          [
+            0,
+            5,
+            8,
+            21
+          ],
+          [
+            1,
+            4,
+            8,
+            15
+          ],
+          [
+            2,
+            8,
+            12,
+            17
+          ],
+          [
+            1,
+            8,
+            16,
+            24
+          ],
+          [
+            5,
+            16,
+            22,
+            38
+          ],
+          [
+            3,
+            19,
+            25,
+            36
+          ],
+          [
+            4,
+            17,
+            23,
+            31
+          ]
+        ],
+        "n": 3340
+      },
+      "confirmation": {
+        "full": [
+          [
+            0,
+            3,
+            4,
+            5
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            1,
+            2
+          ],
+          [
+            0,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            0,
+            1,
+            2
+          ],
+          [
+            2,
+            3,
+            3,
+            3
+          ],
+          [
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            1,
+            1,
+            3
+          ],
+          [
+            1,
+            1,
+            1,
+            2
+          ],
+          [
+            0,
+            1,
+            1,
+            2
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            1,
+            2
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            1,
+            2
+          ],
+          [
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            2,
+            4,
+            7
+          ],
+          [
+            0,
+            0,
+            1,
+            1
+          ],
+          [
+            0,
+            1,
+            2,
+            2
+          ],
+          [
+            0,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            0,
+            1,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            2,
+            2,
+            4
+          ],
+          [
+            0,
+            0,
+            2,
+            2
+          ],
+          [
+            1,
+            2,
+            3,
+            3
+          ],
+          [
+            0,
+            2,
+            2,
+            2
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            1
+          ],
+          [
+            0,
+            0,
+            1,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            2,
+            3,
+            5
+          ],
+          [
+            0,
+            2,
+            4,
+            6
+          ]
+        ],
+        "n": 156
+      },
+      "development": {
+        "full": [
+          [
+            3,
+            4,
+            13,
+            26
+          ],
+          [
+            2,
+            6,
+            18,
+            27
+          ],
+          [
+            2,
+            8,
+            18,
+            28
+          ],
+          [
+            5,
+            11,
+            14,
+            17
+          ],
+          [
+            2,
+            6,
+            13,
+            22
+          ],
+          [
+            2,
+            6,
+            12,
+            24
+          ],
+          [
+            2,
+            9,
+            15,
+            26
+          ],
+          [
+            0,
+            1,
+            10,
+            16
+          ],
+          [
+            2,
+            6,
+            9,
+            18
+          ],
+          [
+            2,
+            8,
+            19,
+            29
+          ],
+          [
+            4,
+            12,
+            20,
+            26
+          ],
+          [
+            2,
+            11,
+            21,
+            29
+          ],
+          [
+            5,
+            11,
+            16,
+            25
+          ],
+          [
+            2,
+            5,
+            15,
+            27
+          ],
+          [
+            2,
+            9,
+            13,
+            28
+          ],
+          [
+            5,
+            9,
+            15,
+            25
+          ],
+          [
+            2,
+            5,
+            17,
+            30
+          ],
+          [
+            0,
+            9,
+            16,
+            24
+          ],
+          [
+            3,
+            10,
+            16,
+            24
+          ],
+          [
+            2,
+            4,
+            8,
+            16
+          ],
+          [
+            3,
+            10,
+            17,
+            22
+          ],
+          [
+            4,
+            10,
+            14,
+            19
+          ],
+          [
+            5,
+            15,
+            18,
+            23
+          ],
+          [
+            3,
+            6,
+            11,
+            16
+          ],
+          [
+            2,
+            6,
+            13,
+            27
+          ],
+          [
+            2,
+            7,
+            11,
+            23
+          ],
+          [
+            3,
+            7,
+            14,
+            16
+          ],
+          [
+            2,
+            8,
+            14,
+            24
+          ],
+          [
+            2,
+            7,
+            14,
+            21
+          ],
+          [
+            2,
+            4,
+            10,
+            25
+          ],
+          [
+            1,
+            5,
+            11,
+            18
+          ],
+          [
+            0,
+            10,
+            21,
+            29
+          ],
+          [
+            3,
+            13,
+            15,
+            21
+          ],
+          [
+            2,
+            11,
+            14,
+            27
+          ],
+          [
+            5,
+            10,
+            19,
+            28
+          ],
+          [
+            1,
+            10,
+            18,
+            29
+          ],
+          [
+            2,
+            9,
+            16,
+            27
+          ],
+          [
+            3,
+            10,
+            12,
+            25
+          ],
+          [
+            0,
+            5,
+            8,
+            21
+          ],
+          [
+            1,
+            4,
+            8,
+            15
+          ],
+          [
+            2,
+            8,
+            11,
+            16
+          ],
+          [
+            1,
+            8,
+            15,
+            23
+          ],
+          [
+            5,
+            16,
+            22,
+            38
+          ],
+          [
+            3,
+            17,
+            22,
+            31
+          ],
+          [
+            4,
+            15,
+            19,
+            25
+          ]
+        ],
+        "n": 3176
+      },
+      "recent60": {
+        "full": [
+          [
+            0,
+            1,
+            2,
+            3
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            1,
+            1
+          ],
+          [
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            1,
+            1,
+            1
+          ],
+          [
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            1,
+            1,
+            2
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            1,
+            1,
+            2
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            2,
+            2
+          ],
+          [
+            0,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            0,
+            1,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            1,
+            1,
+            2
+          ],
+          [
+            0,
+            0,
+            2,
+            2
+          ],
+          [
+            0,
+            1,
+            2,
+            2
+          ],
+          [
+            0,
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            1,
+            2
+          ],
+          [
+            0,
+            1,
+            1,
+            2
+          ]
+        ],
+        "n": 60
+      },
+      "tracking": {
+        "full": [
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "n": 8
+      }
+    }
+  },
+  "all_rank_swap_policies": {
+    "actual_recommendation": false,
+    "automatic_promotion": false,
+    "candidates": 16593,
+    "data_sha256": "a8c3157227f48c8f22ac8b1dbbf90fcf886064fbcf1668c256acbbadf998dbb7",
+    "kind": "exploratory_small_red_swap_search",
+    "methods": [
+      "weighted",
+      "swap1_expand",
+      "swap2_expand",
+      "swap1_roll312",
+      "swap2_roll312"
+    ],
+    "source_sha256": "0c027a6eb2fdf16f22c0ddbc3df58bc5f682b0b2c0e0355b5ceea5902d6ca73f",
+    "windows": {
+      "all": {
+        "full": [
+          31,
+          30,
+          23,
+          23,
+          31
+        ],
+        "n": 3340
+      },
+      "confirmation": {
+        "full": [
+          5,
+          2,
+          2,
+          2,
+          2
+        ],
+        "n": 156
+      },
+      "development": {
+        "full": [
+          26,
+          28,
+          21,
+          21,
+          29
+        ],
+        "n": 3176
+      },
+      "recent60": {
+        "full": [
+          3,
+          1,
+          1,
+          1,
+          1
+        ],
+        "n": 60
+      },
+      "tracking": {
+        "full": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "n": 8
+      }
+    }
+  },
+  "decision": {
+    "model": "small_recent",
+    "formula": "0.5*original_weighted+0.25*ewma+0.25*previous_repeat",
+    "red_sizes": [
+      12,
+      14,
+      15,
+      16
+    ],
+    "original_protocol_changed": false,
+    "original_default_changed": false,
+    "all_candidate_windows_exploratory": true,
+    "independent_confirmation": false,
+    "unconditional_full_coverage_claim": false,
+    "old_26124_daily_extension_added": false,
+    "new_daily_extension": "small_red_pools",
+    "new_red_only_pools": 8,
+    "existing_daily_ticket_strategy_count": 25,
+    "existing_standard_pool_count": 171,
+    "old_26124_strategy_count": 21,
+    "old_26124_archive_sha256": "9c5eede0da8dbc8a5abf52daf6f3caed05f02b13b614f002698813c7b03a8467"
+  },
+  "validation": {
+    "rust_tests_passed": 95,
+    "independent_research_matches_production_for_all_reported_shared_windows": true,
+    "all_10_existing_apis_unchanged_except_source_hashes": true,
+    "browser": {
+      "all_56_small_red_comparison_cells_verified": true,
+      "all_8_model_size_previews_at_most16": true,
+      "copy_matches_selected_pool": true,
+      "exports_have_the_correct_model_policy": true,
+      "trial_generation_keeps_the_exact_preview": true,
+      "stale_preview_rejected_without_write": true,
+      "old_daily_26124_still_21_strategies": true,
+      "old_daily_not_given_small_extension": true,
+      "mobile_widths": [
+        320,
+        390,
+        768,
+        1440
+      ],
+      "console_errors": [],
+      "vue_warnings": [],
+      "write_requests": 4
+    }
+  }
+}

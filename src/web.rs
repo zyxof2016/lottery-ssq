@@ -25,11 +25,12 @@ const PAGE: &str = include_str!("web/index.html");
 const REVIEWS_PAGE: &str = include_str!("web/reviews.html");
 const POOLS_PAGE: &str = include_str!("web/pools.html");
 const RESEARCH_PAGE: &str = include_str!("web/research.html");
-const STATIC_ASSETS: [(&str, &str, &[u8]); 7] = [
+const STATIC_ASSETS: [(&str, &str, &[u8]); 8] = [
     ("app.css", "text/css", include_bytes!("web/static/app.css")),
     ("shell.js", "application/javascript", include_bytes!("web/static/shell.js")),
     ("main.js", "application/javascript", include_bytes!("web/static/main.js")),
     ("pool-intersection.js", "application/javascript", include_bytes!("web/static/pool-intersection.js")),
+    ("small-red.js", "application/javascript", include_bytes!("web/static/small-red.js")),
     ("blue-focus.js", "application/javascript", include_bytes!("web/static/blue-focus.js")),
     ("pool-compression.js", "application/javascript", include_bytes!("web/static/pool-compression.js")),
     ("vendor/vue-3.5.24.js", "application/javascript", include_bytes!("web/static/vendor/vue-3.5.24.js")),
@@ -126,6 +127,7 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
         ("GET", "/research") | ("GET", "/research/") | ("GET", "/research.html") => {
             return (200, "text/html", RESEARCH_PAGE.as_bytes().to_vec());
         }
+        ("GET", "/api/small-red") => load_csv(&app.data).and_then(|draws|{let mut report=crate::small_red::analyze(&draws)?;report["actual"]=recommendations::small_red_observations(&recommendation_dir(app),&draws)?;Ok(report)}),
         ("GET", "/api/blue") => load_csv(&app.data).and_then(|draws| {
             let mut report=crate::blue::analyze(&draws)?;
             report["actual"]=recommendations::blue_observations(&recommendation_dir(app),&draws)?;
@@ -346,13 +348,14 @@ fn build_requested(body: &str, draws: &[Draw]) -> Result<(Plan, crate::eval::Pre
         req.drags,
     )?;
     let model = req.ranking_model.as_deref().unwrap_or(if req.preset.as_deref()==Some("coverage24") {crate::conditional::MODEL} else if req.preset.as_deref()==Some("calibrated14") {crate::ranking::MODEL} else if req.preset.as_deref()==Some("equal24") {"equal"} else {"weighted"});
-    if !["weighted","equal",crate::ranking::MODEL,crate::conditional::MODEL].contains(&model) && !crate::pool_algorithms::is_model(model) {return Err("未知红球排名模型".into());}
+    if !["weighted","equal",crate::ranking::MODEL,crate::conditional::MODEL,crate::small_red::MODEL].contains(&model) && !crate::pool_algorithms::is_model(model) {return Err("未知红球排名模型".into());}
     if req.preset.as_deref()==Some("calibrated14") && model!="repeat_calibrated" {return Err("校准排名预设须使用校准模型".into());}
     if req.preset.as_deref()==Some("coverage24") && model!=crate::conditional::MODEL {return Err("24红条件频率预设须使用条件频率模型".into());}
     if req.preset.as_deref()==Some("weighted24") && model!="weighted" {return Err("原排名24红预设须使用原加权模型".into());}
     if req.preset.as_deref()==Some("equal24") && model!="equal" {return Err("等权24红预设须使用等权模型".into());}
     if spec.mode=="frozen" && model!="weighted" {return Err("协议冻结票组使用原加权排名，请用其他方案观察校准排名".into());}
-    let mut prepared = if model==crate::conditional::MODEL {crate::conditional::prepare(draws)?} else if model==crate::ranking::MODEL {crate::ranking::prepare(draws)?} else if model=="equal" {crate::ranking::prepare_equal(draws)?} else if crate::pool_algorithms::is_model(model) {crate::pool_algorithms::prepare(draws,model)?} else {prepare_forecast(draws)?};
+    if model==crate::small_red::MODEL&&["single","balanced"].contains(&spec.mode)&&spec.pool>16{return Err("小池近况试验仅支持不多于16红，请减少候选数量".into());}
+    let mut prepared = if model==crate::small_red::MODEL {crate::small_red::prepare(draws)?} else if model==crate::conditional::MODEL {crate::conditional::prepare(draws)?} else if model==crate::ranking::MODEL {crate::ranking::prepare(draws)?} else if model=="equal" {crate::ranking::prepare_equal(draws)?} else if crate::pool_algorithms::is_model(model) {crate::pool_algorithms::prepare(draws,model)?} else {prepare_forecast(draws)?};
     let blue_model=req.blue_model.as_deref().unwrap_or(if req.preset.as_deref().is_some_and(|p|["bluehit2","bluehit4"].contains(&p)){crate::blue::MODEL}else{"weighted"});
     if !["weighted",crate::blue::MODEL].contains(&blue_model){return Err("未知蓝球排名模型".into());}
     if crate::blue::PRESETS.contains(&req.preset.as_deref().unwrap_or(""))&&model!="weighted"{return Err("蓝球同预算预设使用相同原加权红球".into());}
@@ -1313,6 +1316,16 @@ mod tests {
             mutation: Mutex::new(()),
         };
         (dir, app, draws)
+    }
+
+    #[test]
+    fn small_red_request_is_size_limited_and_has_bound_original_evidence() {
+        let draws=synth_draws(220,9);let expected=crate::small_red::saved(&prepare_forecast(&draws).unwrap());
+        for k in crate::small_red::SIZES {let body=json!({"mode":"balanced","ranking_model":crate::small_red::MODEL,"pool":k,"tickets":8,"blue_count":2,"expected_data_sha256":data_sha256(&draws)});
+            let (plan,prepared)=build_requested(&body.to_string(),&draws).unwrap();assert_eq!(plan.cost,16);assert_eq!(plan.reds,serde_json::from_value::<Vec<u8>>(expected["models"][1]["red_ranking"].as_array().unwrap()[..k].to_vec().into()).unwrap());
+            assert_eq!(prepared.ranking.as_ref().unwrap()["model"],crate::small_red::MODEL);
+        }
+        for body in [json!({"mode":"balanced","ranking_model":crate::small_red::MODEL,"pool":17}),json!({"preset":"frozen","ranking_model":crate::small_red::MODEL})]{assert!(build_requested(&body.to_string(),&draws).is_err());}
     }
 
     #[test]

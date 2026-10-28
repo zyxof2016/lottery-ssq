@@ -316,7 +316,7 @@ fn balanced_plan(fc: &Forecast, spec: &Spec) -> Result<Plan,String> {
     let blues=blues_of(fc,spec.blue_count);
     let tickets=masks.into_iter().enumerate().map(|(i,m)|PlanTicket{red:mask_nums(m),blue:blues[i%blues.len()]}).collect();
     let mut spec=spec.clone();
-    if spec.detail.is_empty(){spec.detail=format!("原融合排名前{}红、{}蓝、{}注，完整覆盖所选红球池并均衡单号曝光；固定试验规则，尚未证实预测优势。",spec.pool,spec.blue_count,spec.tickets);}
+    if spec.detail.is_empty(){spec.detail=format!("所选排名前{}红、{}蓝、{}注，完整覆盖所选红球池并均衡单号曝光；固定试验规则，尚未证实预测优势。",spec.pool,spec.blue_count,spec.tickets);}
     Ok(finish(&spec,tickets,nums(pool),vec![],vec![],blues,vec![]))
 }
 
