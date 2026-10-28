@@ -131,6 +131,11 @@ pub fn build(fc: &Forecast, spec: &Spec) -> Result<Plan, String> {
 fn preset_spec(name: &str) -> Result<Spec, String> {
     Ok(match name {
         "frozen" => frozen_spec(),
+        "bluefocus2" | "bluehit2" | "bluefocus4" | "bluehit4" => Spec {
+            mode: "balanced", title: match name {"bluehit4"=>"蓝球命中目标 · 4蓝试验8注", "bluehit2"=>"蓝球命中目标 · 2蓝试验8注", "bluefocus4"=>"蓝球分散覆盖 · 4蓝8注", _=>"蓝球原榜 · 2蓝对照8注"}.into(),
+            detail: "原加权前16红排相同8组红球，每组只配1个蓝球，蓝球轮换均衡曝光；总计8注16元。更多不同蓝球提高并集覆盖，同时减少每个蓝球重复注数；不等于奖金或收益提高。".into(),
+            tickets:8, pool:16, overlap:5, red_count:6, blue_count:if ["bluefocus4","bluehit4"].contains(&name) {4}else{2}, bankers:0, drags:0,
+        },
         "weighted24" => Spec {
             mode: "balanced", title: "原排名24红覆盖 · 均衡8注".into(),
             detail: "协议原加权前24红、2蓝、8注16元；完整使用24红，每红出现2次。号码池全6红与单注组合分别核对，蓝球沿用原排名。".into(),
@@ -304,7 +309,7 @@ fn single_plan(fc: &Forecast, spec: &Spec, rescued: Vec<u8>) -> Result<Plan, Str
 }
 
 fn balanced_plan(fc: &Forecast, spec: &Spec) -> Result<Plan,String> {
-    if !(1..=3).contains(&spec.blue_count) || spec.blue_count>spec.tickets {return Err("均衡覆盖蓝球须为1–3个且不多于注数".into());}
+    if !(1..=8).contains(&spec.blue_count) || spec.blue_count>spec.tickets {return Err("均衡覆盖蓝球须为1–8个且不多于注数".into());}
     if !(12..=24).contains(&spec.pool) {return Err("均衡覆盖号码池须为12–24红".into());}
     let pool=&fc.red_order[..spec.pool];
     let masks=crate::coverage::balanced_tickets(pool,spec.tickets)?;

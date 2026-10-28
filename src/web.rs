@@ -25,11 +25,12 @@ const PAGE: &str = include_str!("web/index.html");
 const REVIEWS_PAGE: &str = include_str!("web/reviews.html");
 const POOLS_PAGE: &str = include_str!("web/pools.html");
 const RESEARCH_PAGE: &str = include_str!("web/research.html");
-const STATIC_ASSETS: [(&str, &str, &[u8]); 6] = [
+const STATIC_ASSETS: [(&str, &str, &[u8]); 7] = [
     ("app.css", "text/css", include_bytes!("web/static/app.css")),
     ("shell.js", "application/javascript", include_bytes!("web/static/shell.js")),
     ("main.js", "application/javascript", include_bytes!("web/static/main.js")),
     ("pool-intersection.js", "application/javascript", include_bytes!("web/static/pool-intersection.js")),
+    ("blue-focus.js", "application/javascript", include_bytes!("web/static/blue-focus.js")),
     ("pool-compression.js", "application/javascript", include_bytes!("web/static/pool-compression.js")),
     ("vendor/vue-3.5.24.js", "application/javascript", include_bytes!("web/static/vendor/vue-3.5.24.js")),
 ];
@@ -125,6 +126,11 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
         ("GET", "/research") | ("GET", "/research/") | ("GET", "/research.html") => {
             return (200, "text/html", RESEARCH_PAGE.as_bytes().to_vec());
         }
+        ("GET", "/api/blue") => load_csv(&app.data).and_then(|draws| {
+            let mut report=crate::blue::analyze(&draws)?;
+            report["actual"]=recommendations::blue_observations(&recommendation_dir(app),&draws)?;
+            Ok(report)
+        }),
         ("GET", "/api/pools") => load_csv(&app.data).and_then(|draws| pool::analyze(&draws)),
         ("GET", "/api/pool-algorithms") => load_csv(&app.data).and_then(|draws| crate::pool_algorithms::cached_analyze(&draws)),
         ("GET", "/api/full6") => load_csv(&app.data).and_then(|draws| crate::conditional::analyze(&draws)),
@@ -235,6 +241,8 @@ fn forecast_value(app: &App) -> Result<Value, String> {
 
 #[derive(Deserialize)]
 struct GenReq {
+    expected_data_sha256: Option<String>,
+    blue_model: Option<String>,
     ranking_model: Option<String>,
     preset: Option<String>,
     mode: Option<String>,
@@ -325,6 +333,7 @@ fn save_plan_value(app: &App, body: &str) -> Result<Value, String> {
 
 fn build_requested(body: &str, draws: &[Draw]) -> Result<(Plan, crate::eval::Prepared), String> {
     let req = parse_gen(body)?;
+    if req.expected_data_sha256.as_deref().is_some_and(|expected|expected!=crate::draw::data_sha256(draws)){return Err("开奖输入已变化，请刷新蓝球预览后重新生成".into());}
     let spec = plan::resolve(
         req.preset.as_deref(),
         req.mode.as_deref(),
@@ -343,7 +352,16 @@ fn build_requested(body: &str, draws: &[Draw]) -> Result<(Plan, crate::eval::Pre
     if req.preset.as_deref()==Some("weighted24") && model!="weighted" {return Err("原排名24红预设须使用原加权模型".into());}
     if req.preset.as_deref()==Some("equal24") && model!="equal" {return Err("等权24红预设须使用等权模型".into());}
     if spec.mode=="frozen" && model!="weighted" {return Err("协议冻结票组使用原加权排名，请用其他方案观察校准排名".into());}
-    let prepared = if model==crate::conditional::MODEL {crate::conditional::prepare(draws)?} else if model==crate::ranking::MODEL {crate::ranking::prepare(draws)?} else if model=="equal" {crate::ranking::prepare_equal(draws)?} else if crate::pool_algorithms::is_model(model) {crate::pool_algorithms::prepare(draws,model)?} else {prepare_forecast(draws)?};
+    let mut prepared = if model==crate::conditional::MODEL {crate::conditional::prepare(draws)?} else if model==crate::ranking::MODEL {crate::ranking::prepare(draws)?} else if model=="equal" {crate::ranking::prepare_equal(draws)?} else if crate::pool_algorithms::is_model(model) {crate::pool_algorithms::prepare(draws,model)?} else {prepare_forecast(draws)?};
+    let blue_model=req.blue_model.as_deref().unwrap_or(if req.preset.as_deref().is_some_and(|p|["bluehit2","bluehit4"].contains(&p)){crate::blue::MODEL}else{"weighted"});
+    if !["weighted",crate::blue::MODEL].contains(&blue_model){return Err("未知蓝球排名模型".into());}
+    if crate::blue::PRESETS.contains(&req.preset.as_deref().unwrap_or(""))&&model!="weighted"{return Err("蓝球同预算预设使用相同原加权红球".into());}
+    if req.preset.as_deref().is_some_and(|p|["bluehit2","bluehit4"].contains(&p))&&blue_model!=crate::blue::MODEL{return Err("命中目标蓝球预设须使用命中目标模型".into());}
+    if blue_model!="weighted" {
+        if spec.mode=="frozen"||req.preset.as_deref().is_some_and(|p|!["bluehit2","bluehit4"].contains(&p)){return Err("原命名预设与协议票组使用原蓝榜；蓝球试验请用蓝球入口或自定义方案".into());}
+        if req.issue.as_deref().is_some_and(|i|i!=fmt_issue(prepared.cutoff_issue+1)) {return Err("蓝球试验仅支持当前开奖紧邻下一期".into());}
+        prepared=crate::blue::apply(prepared,draws)?;
+    }
     let built = plan::build(&prepared.forecast, &spec)?;
     Ok((built, prepared))
 }
@@ -351,6 +369,8 @@ fn build_requested(body: &str, draws: &[Draw]) -> Result<(Plan, crate::eval::Pre
 fn parse_gen(body: &str) -> Result<GenReq, String> {
     if body.trim().is_empty() {
         return Ok(GenReq {
+            expected_data_sha256: None,
+            blue_model: None,
             ranking_model: None,
             preset: Some("frozen".into()),
             mode: None,
@@ -402,7 +422,7 @@ fn ticket_json(plan: &Plan) -> Vec<Value> {
 
 fn plan_json(plan: &Plan, prepared: &crate::eval::Prepared, draws: &[Draw]) -> Value {
     let last = draws.last();
-    json!({
+    let mut value=json!({
         "mode": plan.mode,
         "ranking": prepared.ranking,
         "title": plan.title,
@@ -422,7 +442,9 @@ fn plan_json(plan: &Plan, prepared: &crate::eval::Prepared, draws: &[Draw]) -> V
         "input_history_sha256": prepared.data_sha,
         "suggested_target": format!("{:05}", prepared.cutoff_issue + 1),
         "last_draw": last.map(draw_json),
-    })
+    });
+    if let Some(ranking)=&prepared.blue_ranking {value["blue_ranking"]=ranking.clone();}
+    value
 }
 
 fn append_plan(path: &Path, value: &Value, id: &str) -> Result<bool, String> {
@@ -1291,6 +1313,24 @@ mod tests {
             mutation: Mutex::new(()),
         };
         (dir, app, draws)
+    }
+
+    #[test]
+    fn blue_focus_preserves_red_tickets_budget_and_named_preset_semantics() {
+        let draws=synth_draws(220,9);
+        let mut groups=Vec::new();
+        for name in crate::blue::PRESETS {
+            let (plan,prepared)=build_requested(&json!({"preset":name}).to_string(),&draws).unwrap();
+            assert_eq!(plan.bet_count,8);assert_eq!(plan.cost,16);assert_eq!(plan.blues.len(),if ["bluefocus4","bluehit4"].contains(&name){4}else{2});
+            assert_eq!(prepared.blue_ranking.is_some(),["bluehit2","bluehit4"].contains(&name));groups.push(plan.tickets.iter().map(|t|t.red).collect::<Vec<_>>());
+        }
+        assert_eq!(groups[0],groups[1]);assert_eq!(groups[0],groups[2]);
+        for body in [json!({"preset":"frozen","blue_model":crate::blue::MODEL}),json!({"preset":"bluehit2","blue_model":"weighted"}),
+            json!({"preset":"weighted24","blue_model":crate::blue::MODEL}),json!({"preset":"bluefocus4","ranking_model":"equal"}),json!({"blue_model":"unknown"}),json!({"preset":"bluehit4","issue":"99999"}),json!({"preset":"bluehit4","expected_data_sha256":"changed"})] {
+            assert!(build_requested(&body.to_string(),&draws).is_err());
+        }
+        for k in [1,2,3,4,8] {let (plan,_)=build_requested(&json!({"mode":"balanced","pool":16,"tickets":8,"blue_count":k}).to_string(),&draws).unwrap();assert_eq!(plan.blues.len(),k);assert_eq!(plan.cost,16);}
+        for (k,bets) in [(0,8),(9,8),(4,2)] {assert!(build_requested(&json!({"mode":"balanced","pool":16,"tickets":bets,"blue_count":k}).to_string(),&draws).is_err());}
     }
 
     #[test]

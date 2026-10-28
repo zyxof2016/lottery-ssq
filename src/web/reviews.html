@@ -282,7 +282,7 @@
 </div>
 </section>
           <section class="card">
-<h2 id="ticket-review" tabindex="-1">逐注核对 · 完整展开票组</h2>
+<p v-if="detail?.blue_ranking" class="notice">蓝球命中目标试验：训练截至 {{ detail.blue_ranking.training_last_issue }}，共 {{ detail.blue_ranking.training_periods }} 条样本外记录，权重在25111前冻结；按原始票面复盘。</p><h2 id="ticket-review" tabindex="-1">逐注核对 · 完整展开票组</h2>
 <p class="muted">复式、胆拖已经展开为单注。重复票按实际购买次数保留，中奖注数和固定奖金逐注累加。</p>
 <div class="scroll">
 <table>

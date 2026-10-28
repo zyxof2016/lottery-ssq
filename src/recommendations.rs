@@ -19,7 +19,7 @@ use crate::pool;
 use crate::protocol::Protocol;
 use crate::select::rank_desc;
 
-pub const PRESETS: [&str; 12] = [
+pub const PRESETS: [&str; 16] = [
     "frozen",
     "disjoint5",
     "single8",
@@ -32,6 +32,10 @@ pub const PRESETS: [&str; 12] = [
     "coverage24",
     "equal24",
     "weighted24",
+    "bluefocus2",
+    "bluehit2",
+    "bluefocus4",
+    "bluehit4",
 ];
 pub const PRIZE_RULES_URL: &str = "https://www.scflcp.com.cn/yxgz/823145252.jhtml";
 
@@ -70,7 +74,8 @@ fn source_sha() -> String {
             include_str!("coverage.rs"),
             include_str!("ranking.rs"),
             include_str!("conditional.rs"),
-            include_str!("pool_algorithms.rs")
+            include_str!("pool_algorithms.rs"),
+            include_str!("blue.rs")
         )
         .as_bytes(),
     )
@@ -254,7 +259,7 @@ fn strategy(plan: &Plan, prepared: &Prepared) -> Value {
     } else {
         json!([{ "stage": "candidate_pool", "color": "red", "numbers": plan.reds }])
     };
-    json!({
+    let mut saved=json!({
         "title": plan.title, "mode": plan.mode, "rationale": plan.detail, "tickets": tickets,
         "coverage_optimization": if plan.mode == "balanced" { let mut p=crate::coverage::ticket_policy(plan.spec.pool,plan.spec.tickets,plan.spec.blue_count);if prepared.ranking.is_some() {p["ranking"]=prepared.ranking.as_ref().unwrap()["model"].clone();p["note"]=json!("完整使用所选模型排名号码池并均衡曝光；排名策略与组票分别留档。");}p } else { Value::Null },
         "parameters": {"mode": plan.spec.mode, "tickets": plan.spec.tickets, "pool": plan.spec.pool,
@@ -263,7 +268,9 @@ fn strategy(plan: &Plan, prepared: &Prepared) -> Value {
         "evidence": evidence, "funnel": stages, "red_weights": prepared.ranking.as_ref().map(|r|r["red_weights"].clone()).unwrap_or_else(||json!(prepared.weights)),
         "ranking": prepared.ranking,
         "blue_weights": prepared.blue_weights, "bankers": plan.bankers, "drags": plan.drags,
-    })
+    });
+    if let Some(ranking)=&prepared.blue_ranking {saved["blue_ranking"]=ranking.clone();}
+    saved
 }
 
 fn efficiency_strategy(profile: &efficiency::Profile, prepared: &Prepared) -> Value {
@@ -362,9 +369,10 @@ fn freeze_daily_with_clock(
     let ranked = crate::ranking::prepare(draws)?;
     let conditional = crate::conditional::prepare(draws)?;
     let equal = crate::ranking::prepare_equal(draws)?;
+    let blue_hit=crate::blue::apply(prepare_forecast(draws)?,draws)?;
     let mut variants = BTreeMap::new();
     for name in PRESETS {
-        let prepared = if name == "calibrated14" {&ranked} else if name == "coverage24" {&conditional} else if name == "equal24" {&equal} else {&prepared};
+        let prepared = if ["bluehit2","bluehit4"].contains(&name) {&blue_hit} else if name == "calibrated14" {&ranked} else if name == "coverage24" {&conditional} else if name == "equal24" {&equal} else {&prepared};
         let spec = plan::resolve(Some(name), None, None, None, None, None, None, None, None)?;
         variants.insert(
             name.to_string(),
@@ -507,6 +515,21 @@ fn validate_archive(payload: &Value, issue: &str, draws: &[Draw]) -> Result<(), 
         if let Some(models)=payload["number_pools"]["algorithm_models"].as_array() {
             let prefix:Vec<_>=draws.iter().filter(|d|d.issue<=previous.issue).cloned().collect();
             crate::pool_algorithms::validate_history(models,&prefix)?;
+        }
+    }
+    if let Some(strategies)=payload["strategies"].as_object() {
+        let mut expected_blue:Option<Value>=None;
+        for strategy in strategies.values() {
+            if let Some(ranking)=strategy.get("blue_ranking") {
+                let prefix:Vec<_>=draws.iter().filter(|d|fmt_issue(d.issue).as_str()<=payload["data_cutoff"].as_str().unwrap_or("")).cloned().collect();
+                if expected_blue.is_none() {
+                    crate::blue::validate_history(ranking,&prefix)?;
+                    expected_blue=Some(ranking.clone());
+                } else if expected_blue.as_ref()!=Some(ranking) {return Err("同档案蓝球试验训练证据不一致".into());}
+                let count=strategy["parameters"]["blue_count"].as_u64().ok_or("缺少蓝球数量")? as usize;
+                let order=ranking["blue_ranking"].as_array().ok_or("缺少蓝球排名")?;
+                if count==0||count>order.len()||strategy["tickets"].as_array().ok_or("缺少原票组")?.iter().any(|t|!order[..count].contains(&t["blue"])) {return Err("原票组蓝球与试验排名不一致".into());}
+            }
         }
     }
     if payload["kind"] == "daily" {
@@ -703,6 +726,40 @@ pub fn pool_observations(root: &Path, draws: &[Draw]) -> Result<Value, String> {
         "missing_tier_archives": missing_tier_archives, "errors": errors,
         "note": "只核对每日档案原始号码，每档只计实际保存且已开奖的期数；待开奖不计入比例，旧期缺档不补造。本地留档无独立时间戳证明。"}),
     )
+}
+
+/// Matched original daily ticket groups; absent new presets never become failures.
+pub fn blue_observations(root:&Path,draws:&[Draw])->Result<Value,String>{
+    let mut files=Vec::new();
+    match fs::read_dir(root.join("daily")) {
+        Ok(entries)=>for entry in entries {let path=entry.map_err(|e|e.to_string())?.path();if path.extension().and_then(|v|v.to_str())==Some("json")&&path.file_stem().and_then(|v|v.to_str()).is_some_and(valid_issue){files.push(path);}},
+        Err(e)if e.kind()==std::io::ErrorKind::NotFound=>{},Err(e)=>return Err(e.to_string()),
+    }
+    files.sort();let(mut missing,mut pending,mut n)=(0,0,0);let mut errors=Vec::new();let mut periods=Vec::new();
+    let(mut hits,mut hit_bets,mut gains,mut losses)=([0usize;4],[0usize;4],[0usize;4],[0usize;4]);
+    for path in files {
+        let issue=path.file_stem().unwrap().to_str().unwrap();
+        let outcome=(||->Result<(),String>{
+            let envelope=read_checked(&path)?;let payload=&envelope["payload"];
+            if payload["kind"]!="daily"{return Err("每日目录中不是每日档案".into());}
+            validate_archive(payload,issue,draws)?;
+            let draw=draws.iter().find(|d|fmt_issue(d.issue)==issue);
+            if saved_after_draw(payload["published_at_unix"].as_u64(),draw){return Err("保存晚于常规开奖时间".into());}
+            if !crate::blue::PRESETS.iter().all(|s|payload["strategies"].get(s).is_some()){missing+=1;return Ok(());}
+            let groups:Vec<Vec<Ticket>>=crate::blue::PRESETS.iter().map(|s|serde_json::from_value(payload["strategies"][s]["tickets"].clone()).map_err(|e|e.to_string())).collect::<Result<_,_>>()?;
+            if groups.iter().any(|g|g.len()!=8)||groups.iter().any(|g|g.iter().map(|t|t.red).collect::<Vec<_>>()!=groups[0].iter().map(|t|t.red).collect::<Vec<_>>()) {return Err("蓝球对照不是相同8注红球票组".into());}
+            let counts:[usize;4]=std::array::from_fn(|m|groups[m].iter().map(|t|t.blue).collect::<BTreeSet<_>>().len());
+            if counts!=[2,2,4,4]{return Err("蓝球对照的实际不同蓝球数量无效".into());}
+            let Some(draw)=draw else{pending+=1;periods.push(json!({"issue":issue,"archive_sha256":envelope["sha256"],"pending":true,"blue_covered":Value::Null,"blue_hit_bets":Value::Null}));return Ok(());};
+            let bets:[usize;4]=std::array::from_fn(|m|groups[m].iter().filter(|t|t.blue==draw.blue).count());let covered=bets.map(|v|v>0);n+=1;
+            for m in 0..4{let reference=if m==3{2}else{0};hits[m]+=usize::from(covered[m]);hit_bets[m]+=bets[m];gains[m]+=usize::from(covered[m]&&!covered[reference]);losses[m]+=usize::from(!covered[m]&&covered[reference]);}
+            periods.push(json!({"issue":issue,"archive_sha256":envelope["sha256"],"pending":false,"blue_covered":covered,"blue_hit_bets":bets}));Ok(())
+        })();if let Err(e)=outcome{errors.push(format!("{issue}：{e}"));}
+    }
+    let cells:Vec<_>=crate::blue::PRESETS.iter().enumerate().map(|(m,name)|json!({"preset":name,"blue_count":if m>=2{4}else{2},"paired_reference_preset":if m==3{"bluefocus4"}else{"bluefocus2"},"n":n,"pending":pending,"excluded_missing_pair":missing,
+        "hit_periods":hits[m],"hit_rate":(n>0).then(||hits[m]as f64/n as f64),"blue_hit_bets":hit_bets[m],"paired_gains":gains[m],"paired_losses":losses[m]})).collect();
+    Ok(json!({"kind":"actual_saved_blue_ticket_observations","cells":cells,"periods":periods,"errors":errors,"independent_timestamp_verified":false,
+        "note":"只配对同一期原始保存的4组8注票面；旧档缺方案不补造，待开奖不计失败。4蓝与2蓝数量不同，增加覆盖与改善排序分别判断。"}))
 }
 
 fn observation_pool<'a>(record: &'a Value, model: &str, red: usize, blue: usize) -> Option<(&'a Value, &'a Value)> {
@@ -956,6 +1013,7 @@ fn review_strategy(saved: &Value, draw: Option<&Draw>) -> Result<Value, String> 
         "numbers": rows, "tickets": ticket_rows, "funnel": funnel,
         "prize_rules_url": PRIZE_RULES_URL,
         "explanation_limit": "专家评分是排序依据，不是中奖概率。合并覆盖不等于单注中奖。固定奖金不含一、二等奖、派奖及福运奖；3红0蓝是否中福运奖须核对当期是否执行特别规定。" });
+    if let Some(ranking)=saved.get("blue_ranking") {result["blue_ranking"]=ranking.clone();}
     enrich_efficiency(&mut result);
     Ok(result)
 }
@@ -1280,6 +1338,11 @@ pub fn issue_detail(
         // Derive new diagnostics from original saved rankings without rewriting
         // the original archive or an already persisted settlement.
         review["number_pools"] = pool::review(&p["number_pools"], draw)?;
+        if let Some(variants)=p["strategies"].as_object() {
+            for (name,strategy) in variants {
+                if let Some(ranking)=strategy.get("blue_ranking") {review["strategies"][name]["blue_ranking"]=ranking.clone();}
+            }
+        }
         let raw = if id == "daily" {
             format!("daily/{issue}.json")
         } else {
@@ -1487,6 +1550,27 @@ mod tests {
     }
 
     #[test]
+    fn blue_daily_pairs_preserve_old_archives_and_score_original_same_budget_tickets() {
+        let temp=Temp::new();let mut draws=synth_draws(220,9);let prepared=prepare_forecast(&draws).unwrap();let old_issue=next(&draws);
+        let mut payload=base_payload(&prepared,&old_issue,"daily",10,Some(100));
+        payload["number_pools"]=pool::saved_current(&prepared,&draws);payload["strategies"]=json!({"frozen":strategy(&build("frozen",&prepared),&prepared)});
+        let old_path=temp.0.join(format!("daily/{old_issue}.json"));write_new(&old_path,payload).unwrap();let old=fs::read(&old_path).unwrap();
+        append_outcome(&mut draws);let issue=next(&draws);freeze_daily_with_clock(&temp.0,&draws,&issue,100,||10).unwrap();
+        let path=temp.0.join(format!("daily/{issue}.json"));let bytes=fs::read(&path).unwrap();let raw=read_checked(&path).unwrap();
+        assert_eq!(raw["payload"]["strategies"].as_object().unwrap().len(),25);
+        let pending=blue_observations(&temp.0,&draws).unwrap();assert_eq!(pending["errors"],json!([]));
+        for cell in pending["cells"].as_array().unwrap(){assert_eq!(cell["n"],0);assert_eq!(cell["pending"],1);assert_eq!(cell["excluded_missing_pair"],1);assert!(cell["hit_rate"].is_null());}
+        let blue=raw["payload"]["strategies"]["bluefocus4"]["tickets"][2]["blue"].as_u64().unwrap()as u8;
+        draws.push(Draw::from_parts(issue.parse().unwrap(),20030901,[1,2,3,4,5,6],blue).unwrap());
+        let observed=blue_observations(&temp.0,&draws).unwrap();assert_eq!(observed["errors"],json!([]));
+        assert_eq!(observed["cells"][0]["hit_periods"],0);assert_eq!(observed["cells"][2]["hit_periods"],1);assert_eq!(observed["cells"][2]["blue_hit_bets"],2);
+        let detail=issue_detail(&temp.0,&draws,&[],&issue,Some("daily"),Some("bluehit2")).unwrap();assert_eq!(detail["detail"]["blue_ranking"]["model"],crate::blue::MODEL);
+        assert_eq!(fs::read(&old_path).unwrap(),old);assert_eq!(fs::read(&path).unwrap(),bytes);
+        let mut invalid=raw["payload"].clone();invalid["strategies"]["bluehit2"]["blue_ranking"]["weights"][0]=json!(0.9);
+        assert!(validate_archive(&invalid,&issue,&draws).is_err());
+    }
+
+    #[test]
     fn algorithm_observations_exclude_missing_models_and_score_only_saved_pools() {
         let temp=Temp::new();let mut draws=synth_draws(220,9);
         let p=prepare_forecast(&draws).unwrap();let old_issue=next(&draws);
@@ -1540,7 +1624,7 @@ mod tests {
         append_outcome(&mut draws);
         let new_issue=next(&draws);
         let result=freeze_daily_with_clock(&temp.0,&draws,&new_issue,100,||10).unwrap();
-        assert_eq!(result["strategies"],21);
+        assert_eq!(result["strategies"],25);
         assert_eq!(result["comparison_models"],9);
         assert_eq!(result["comparison_number_pools"],144);
         let raw=read_checked(&temp.0.join(format!("daily/{new_issue}.json"))).unwrap();
@@ -1631,7 +1715,7 @@ mod tests {
         let mut payload = base_payload(&prepared, &issue, "daily", 10, Some(100));
         payload["strategies"] = json!(PRESETS
             .into_iter()
-            .filter(|name| !["balanced14","calibrated14","coverage24","equal24","weighted24"].contains(name))
+            .filter(|name| ["frozen","disjoint5","single8","compound7","compound8","blue2","dantuo"].contains(name))
             .map(|name| (name, strategy(&build(name, &prepared), &prepared)))
             .collect::<BTreeMap<_, _>>());
         let path = temp.0.join(format!("daily/{issue}.json"));

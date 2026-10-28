@@ -201,3 +201,9 @@ cargo test --release --all-targets
 `GET /api/pools/observations` 的 `compression_cells[].joint_coverage` 追加四个互斥结果：`full_draw`（红蓝全入池）、`red_miss_only`（仅红球未全入池）、`blue_miss_only`（仅蓝球未入池）、`both_miss`（红蓝都漏）。每类保存 `periods`、`issues`、`rate`，四类相加等于该单元的 `n`；分母只包含同一期、同模型、同蓝球数量的小档与24红参照都已原始保存且已开奖的期次。待开奖计入 `pending`，缺少成对原池计入 `excluded_missing_pair`；没有已开奖样本时四类比例均为 `null`。
 
 生成页与研究观察页展示归因与期号；均匀模型没有历史回放时仍可查看原档归因。分类使用原档号码核对，不重排旧期、不回写推荐或复盘。不同模型的可用样本可能不同，这里的次数不用于直接评选模型；“只漏蓝球”不能靠增加红球或更换红球模型补回。
+
+## 蓝球命中目标与相同预算对照（2026-10-28）
+
+`GET /api/blue` 返回原加权、等权及 `blue_hit_frozen` 的1–8蓝因果回放，`same_budget_tickets` 固定原加权16红、相同8组红球、8注16元，比较2／3／4蓝的覆盖期数、命中蓝球的注数及至少4红且蓝球命中的注数。`actual` 只配对原档中 `bluefocus2`、`bluehit2`、`bluefocus4`、`bluehit4` 四组票面；缺档不补造，待开奖不计入比例。`paired_reference_preset` 区分2蓝试验对原2蓝、4蓝试验对原4蓝。
+
+生成接口可带 `expected_data_sha256` 绑定预览输入，输入变化时在生成与写档前拒绝；蓝球入口自动携带该摘要并绑定显示期号。`blue_model` 支持默认 `weighted` 和试验 `blue_hit_frozen`。试验参数、完整蓝榜和训练证据保存为 `blue_ranking`，保存和复盘使用原票面。旧命名预设、协议冻结票组拒绝换蓝榜；试验只支持当前开奖紧邻下一期。均衡组票蓝球数量为1–8且不多于注数；原号码池1–3蓝及原预设预算不变。后续首次每日留档25策略，已有26124保持21策略、171个号码池，四组新策略不追补到旧档。

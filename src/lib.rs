@@ -1,4 +1,5 @@
 pub mod audit;
+pub mod blue;
 pub mod cycle;
 pub mod coverage;
 pub mod conditional;

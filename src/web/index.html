@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>双色球科学量化决策系统</title>
 <link rel="stylesheet" href="static/app.css">
-<script src="static/shell.js"></script><script src="static/vendor/vue-3.5.24.js"></script><script src="static/pool-intersection.js"></script><script src="static/pool-compression.js"></script>
+<script src="static/shell.js"></script><script src="static/vendor/vue-3.5.24.js"></script><script src="static/pool-intersection.js"></script><script src="static/pool-compression.js"></script><script src="static/blue-focus.js"></script>
 </head>
 <body><div id="app" v-cloak>
 <header class="shell-header"><div class="shell-width">
@@ -17,6 +17,7 @@
 <section v-show="currentTab==='generator'" id="panel-generator" role="tabpanel" aria-labelledby="tab-generator">
 <div class="notice">以更少红球覆盖全部 6 个开奖号为观察目标；模型排序尚未证明稳定优于均匀选号。号码池覆盖与单注中奖分别核对。<a href="?tab=reviews" @click.prevent="openTab('reviews')">查看每期实际推荐与复盘</a></div>
 <div class="card" id="compact-picker"><h2>精简选号 · 先看16红＋2蓝</h2><p class="muted">第 {{ overview.next_issue || '待载入' }} 期，每次只看一组。同一算法下14红包含在16红内，16红包含在18红内。</p><label class="field" for="compact-model" style="margin-bottom:14px">选号算法<select id="compact-model" v-model="compactModel" :disabled="generating||saving||syncing"><option v-for="a in compactAlgorithms" :key="a.model" :value="a.model">{{ a.label }}</option></select></label><p class="muted">{{ compactAlgorithms.find(a=>a.model===compactModel)?.desc }} 所有算法以全6红入池为目标，均不保证每期全覆盖。</p><div class="grid3"><button v-for="c in compactChoices" :key="c.size" :id="'compact-'+c.size" :class="['preset',{selected:form.mode==='pool_observation'&&form.ranking_model===compactModel&&form.observation_size===c.size}]" :disabled="generating||saving||syncing||!overview.next_issue" @click="generateCompact(c.size)"><strong>{{ c.name }}</strong><small>{{ c.desc }}</small></button></div><p class="muted" style="margin-top:14px;margin-bottom:0">压缩会减少候选，也会降低全6红覆盖；生成后可查看同一模型的历史比较。</p></div>
+<blue-focus v-if="overview.data_sha256" :key="overview.data_sha256" :api-url="blueApiUrl" :busy="generating||saving||syncing||!overview.next_issue" @generate="generateBlue"></blue-focus>
 <p v-if="generating" class="card" role="status">正在读取所选模型与号码，请稍候…</p>
 <div v-if="!generating&&!plan&&!poolPreview" class="card empty">点击“16红 · 默认”查看一组号码；想更少可选14红，想多留候选可选18红。</div>
 <article v-if="plan||poolPreview" id="generated-plan" class="card result" tabindex="-1" :aria-busy="generating" aria-labelledby="generated-plan-title">
@@ -34,7 +35,7 @@
 </template>
 <template v-else>
 <div class="grid4"><div class="metric">每期注数<strong>{{ plan.bet_count }} 注</strong>完整展开</div><div class="metric">每期成本<strong>{{ plan.cost }} 元</strong>每注 2 元</div><div class="metric">不同红球<strong>{{ planRedUnion.length }} 个</strong>票组红球并集</div><div class="metric">不同蓝球<strong>{{ planBlueUnion.length }} 个</strong>票组蓝球并集</div></div>
-<p class="muted" style="margin-top:16px">{{ plan.detail }}</p><p v-if="plan.ranking" class="notice">红球采用{{ plan.ranking.policy.label }}，与原协议排名分别留档；历史结果尚未证明稳定提高全6红率。</p><p v-if="plan.requires_seal" class="muted">冻结票组保存时以生成时选定的北京时间截止封存。</p>
+<p class="muted" style="margin-top:16px">{{ plan.detail }}</p><p v-if="plan.blue_ranking" class="notice">蓝球采用{{ plan.blue_ranking.policy.model==='blue_hit_frozen'?'命中目标融合 · 试验':plan.blue_ranking.model }}；按前2蓝命中拟合，权重仅用25111前数据，尚未证明稳定改善。红球与蓝球试验分别留档。</p><p v-if="plan.ranking" class="notice">红球采用{{ plan.ranking.policy.label }}，与原协议排名分别留档；历史结果尚未证明稳定提高全6红率。</p><p v-if="plan.requires_seal" class="muted">冻结票组保存时以生成时选定的北京时间截止封存。</p>
 <div v-if="plan.bankers.length" style="margin-bottom:16px"><h3>胆码 / 拖码</h3><div class="balls"><span v-for="n in plan.bankers" :key="'bank'+n" class="ball red ring">{{ pad(n) }}</span><span class="muted">／</span><span v-for="n in plan.drags" :key="'drag'+n" class="ball red">{{ pad(n) }}</span></div></div>
 <div class="ticket-list"><div v-for="(t,i) in plan.tickets" :key="i" class="ticket-row"><span class="muted">第 {{ pad(i+1) }} 注</span><div class="balls"><span v-for="n in t.red" :key="n" :class="['ball','red','sm',{ring:plan.rescued.includes(n)}]">{{ pad(n) }}</span><span class="ball blue sm">{{ pad(t.blue) }}</span></div></div></div>
 </template>
@@ -45,7 +46,7 @@
 <div class="card"><h2>⚡ 按目标生成方案</h2><div class="grid3"><button v-for="p in presets" :key="p.id" :id="'preset-'+p.id" :class="['preset',{selected:activePreset===p.id}]" :disabled="generating||saving||syncing" @click="applyPreset(p.id)"><strong>{{ p.name }}</strong><small>{{ p.desc }}</small></button></div></div>
 <form class="card" @submit.prevent="generateCustom"><h2>🛠️ 自定义参数生成</h2><div class="grid4">
 <label class="field">选择玩法<input value="双色球 · 6 红 + 1 蓝" readonly></label>
-<label class="field" for="plan-mode">投注形态<select id="plan-mode" v-model="form.mode" @change="activePreset='';form.ranking_model=form.mode==='frozen'?'weighted':form.ranking_model">
+<label class="field" for="plan-mode">投注形态<select id="plan-mode" v-model="form.mode" @change="activePreset='';form.ranking_model=form.mode==='frozen'?'weighted':form.ranking_model;form.blue_model='weighted'">
 <option value="pool_observation">分档号码池观察</option><option value="balanced">均衡覆盖单式</option><option value="single">单式多注</option><option value="compound_red">红球复式</option><option value="compound_blue">蓝球复式</option><option value="dantuo">胆拖投注</option><option value="frozen">协议冻结票组</option></select></label>
 <label class="field" for="ranking-model">红球排名<select id="ranking-model" v-model="form.ranking_model" :disabled="form.mode==='frozen'"><option value="conditional_gap">条件频率 · 24红试验</option><option value="repeat_calibrated">重号偏置校准 · 试验</option><option value="dual_support">双专家支持 · 24红试验</option><option value="rank_consensus">名次共识 · 试验</option><option value="scenario_cover">全6情景覆盖 · 试验</option><option value="robust_cover">三窗稳健覆盖 · 试验</option><option value="equal">等权融合 · 对照</option><option value="weighted">协议加权融合</option></select></label>
 <label class="field" for="target-issue">目标期号<input id="target-issue" v-model="target" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" required placeholder="如 26118"></label>
@@ -57,7 +58,8 @@
 <label v-if="form.mode==='compound_red'" class="field">复式红球数<input v-model.number="form.red_count" type="number" min="7" max="10" required></label>
 <label v-if="form.mode==='dantuo'" class="field">胆码个数<input v-model.number="form.bankers" type="number" min="1" max="5" required></label>
 <label v-if="form.mode==='dantuo'" class="field">拖码个数<input v-model.number="form.drags" type="number" min="2" max="15" required></label>
-<label v-if="form.mode!=='frozen'" class="field">蓝球个数<select v-model.number="form.blue_count"><option v-for="n in (['pool_observation','balanced'].includes(form.mode)?[1,2,3]:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])" :value="n">{{ n }} 个</option></select></label>
+<label v-if="!['pool_observation','frozen'].includes(form.mode)" class="field" for="blue-model">蓝球排序<select id="blue-model" v-model="form.blue_model"><option value="weighted">原加权蓝榜</option><option value="blue_hit_frozen">命中目标融合 · 试验</option></select></label>
+<label v-if="form.mode!=='frozen'" class="field">蓝球个数<select v-model.number="form.blue_count"><option v-for="n in (form.mode==='pool_observation'?[1,2,3]:form.mode==='balanced'?[1,2,3,4,5,6,7,8]:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])" :value="n">{{ n }} 个</option></select></label>
 <label v-if="form.mode==='frozen'" class="field" for="seal-deadline">封存截止（北京时间）<input id="seal-deadline" v-model="deadline" type="datetime-local" required></label>
 <div class="field"><span class="muted">{{ form.mode==='pool_observation'?'只生成号码池，不展开复式':'按完整展开票组计算，最多 300 注' }}</span><button class="primary" type="submit" :disabled="generating||saving||syncing">{{ generating?'生成计算中…':'立即生成方案' }}</button></div>
 </div></form></details>
