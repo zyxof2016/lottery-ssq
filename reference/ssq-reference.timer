@@ -1,0 +1,10 @@
+[Unit]
+Description=每30分钟核对参考引擎输入并运行新期
+
+[Timer]
+OnBootSec=3min
+OnUnitInactiveSec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

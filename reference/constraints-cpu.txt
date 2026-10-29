@@ -1,0 +1,2 @@
+# Official PyPI xgboost 3.0.2 CPU wheel, same distribution/version; no CUDA or NCCL.
+xgboost @ https://files.pythonhosted.org/packages/db/71/347f78ac21eb9221231bebf7d7a3eaea20b09377d9d602cee15fe9c7aeba/xgboost-3.0.2-py3-none-manylinux2014_x86_64.whl#sha256=7d1ad8c5ae361161ce5288a04916c89d13d247b9a98e25c4b3983783cfad0377

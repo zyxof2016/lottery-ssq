@@ -1,5 +1,5 @@
 const {createApp,ref,computed,onMounted,onUnmounted,nextTick}=Vue;
-createApp({components:{PoolIntersection:SSQPoolIntersection.component,PoolCompression:SSQPoolCompression.component,BlueFocus:SSQBlueFocus.component,SmallRed:SSQSmallRed.component},setup(){
+createApp({components:{PoolIntersection:SSQPoolIntersection.component,PoolCompression:SSQPoolCompression.component,BlueFocus:SSQBlueFocus.component,SmallRed:SSQSmallRed.component,ReferencePools:SSQReferencePools.component},setup(){
   const {url}=SSQApp,initial=new URLSearchParams(location.search);
   const tabs=[{id:'generator',name:'方案生成',icon:'🎯'},{id:'records',name:'我的方案与对奖',icon:'📊'},{id:'reviews',name:'每期推荐与复盘',icon:'📋'},{id:'draws',name:'开奖历史',icon:'🎱'},{id:'backtest',name:'科学回测与优化',icon:'🧪'},{id:'research',name:'研究评估',icon:'🔬'},{id:'settings',name:'系统设置',icon:'⚙️'}];
   const intersectionApiUrl=url('api/pools'),blueApiUrl=url('api/blue'),smallRedApiUrl=url('api/small-red');

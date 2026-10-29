@@ -221,3 +221,9 @@ cargo test --release --all-targets
 `GET /api/small-red` 区分历史回放、下一期未封存预览及 `actual` 配对实际统计；只有扩展完整且两模型同数量都已保存的期次进入共同分母。待开奖与缺档不记失败，空样本覆盖率为null。已有26124未保存此扩展，不能把当前预览当作旧每日推荐。
 
 `ranking_model:"small_recent"` 可用于个人单式／均衡方案，红球候选池不超过16；原冻结协议拒绝替换排名。首页生成使用所见红球池、8注16元和原榜2蓝，绑定预览期号与输入摘要。个人方案在独立来源中复盘，不混入每日小池实绩。
+
+## 参考代码独立观察
+
+`GET /api/reference-pools` 返回当前参考运算状态、原始5注与融合小池、真实原档统计。`POST /api/reference-pools/freeze` 要求JSON中的 `data_sha256` 和 `target` 与预览相同，截止前将两个池一同保存为 `recommendations/reference/{issue}.json`。旧每日档案不追加内容。
+
+原5注按实际红球并集大小与原榜同数量对照，另报告最佳单注命中；融合池最多16红，与现有small_recent同规格比较。开奖后复盘位于 `recommendations/reviews/{issue}/reference.json`，详情响应独立字段 `independent_reference`，原档和复盘可从现有文件导出接口下载。只计首次真实封存，导入历史回放不进入实际观察。

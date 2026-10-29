@@ -1,0 +1,17 @@
+# V7 分层配置：模型池和生命周期策略。
+models:
+  production_family:
+    - frequency
+    - time_decay
+    - bayesian
+    - logistic_regression
+    - xgboost
+    - lightgbm_ranker
+    - pattern_memory
+  shadow_family:
+    - mlp
+    - catboost
+  lifecycle:
+    shadow_before_production: true
+    retire_if_no_oos_edge: true
+    group_cap_enabled: true

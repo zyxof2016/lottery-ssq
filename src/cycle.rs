@@ -71,6 +71,12 @@ pub fn run_cycle(data: &Path, audit: &Path, publish_dir: &Path, review_dir: &Pat
             Err(error)=>notes.push(format!("小池观察未封存：{error}")),
         }
     }
+    if gate.publish {
+        match crate::reference::freeze(&recommendation_dir,&draws,&gate.target,gate.deadline_unix) {
+            Ok(value)=>notes.push(format!("参考观察 {}：{}",gate.target,value["status"].as_str().unwrap_or(""))),
+            Err(error)=>notes.push(format!("参考观察未封存：{error}")),
+        }
+    }
     let settlement = recommendations::settle_archives(&recommendation_dir, &draws);
     notes.push(format!("实际推荐复盘新增 {} 份", settlement.settled));
     notes.extend(settlement.errors);

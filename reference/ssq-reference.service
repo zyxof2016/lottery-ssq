@@ -1,0 +1,23 @@
+[Unit]
+Description=双色球参考代码原始5注计算与观察封存
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/data/apps/lottery-ssq
+ExecStart=/data/apps/lottery-ssq/reference-venv/bin/python /data/apps/lottery-ssq/current/reference/worker.py --data /data/apps/lottery-ssq/current/data/ssq.csv --cache-dir /data/apps/lottery-ssq/recommendations/reference-cache --work-dir /data/apps/lottery-ssq/reference-runtime/work --ssq /data/apps/lottery-ssq/current/ssq --publish-dir /data/apps/lottery-ssq/publish
+TimeoutStartSec=11000
+Nice=15
+CPUQuota=150%
+MemoryHigh=1400M
+MemoryMax=2200M
+Environment=PYTHONHASHSEED=2026
+Environment=OMP_NUM_THREADS=1
+Environment=OPENBLAS_NUM_THREADS=1
+Environment=MKL_NUM_THREADS=1
+Environment=MPLBACKEND=Agg
+NoNewPrivileges=true
+PrivateTmp=true
+

@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>双色球科学量化决策系统</title>
 <link rel="stylesheet" href="static/app.css">
-<script src="static/shell.js"></script><script src="static/vendor/vue-3.5.24.js"></script><script src="static/pool-intersection.js"></script><script src="static/pool-compression.js"></script><script src="static/blue-focus.js"></script><script src="static/small-red.js"></script>
+<script src="static/shell.js"></script><script src="static/vendor/vue-3.5.24.js"></script><script src="static/pool-intersection.js"></script><script src="static/pool-compression.js"></script><script src="static/blue-focus.js"></script><script src="static/small-red.js"></script><script src="static/reference-pools.js"></script>
 </head>
 <body><div id="app" v-cloak>
 <header class="shell-header"><div class="shell-width">
@@ -17,6 +17,7 @@
 <section v-show="currentTab==='generator'" id="panel-generator" role="tabpanel" aria-labelledby="tab-generator">
 <div class="notice">以更少红球覆盖全部 6 个开奖号为观察目标；模型排序尚未证明稳定优于均匀选号。号码池覆盖与单注中奖分别核对。<a href="?tab=reviews" @click.prevent="openTab('reviews')">查看每期实际推荐与复盘</a></div>
 <small-red v-if="overview.data_sha256" :key="overview.data_sha256" :api-url="smallRedApiUrl" :busy="generating||saving||syncing" @generate="generateSmall"></small-red>
+<reference-pools v-if="overview.data_sha256" :key="overview.data_sha256" :busy="generating||saving||syncing"></reference-pools>
 <div class="card" id="compact-picker"><h2>精简选号 · 先看16红＋2蓝</h2><p class="muted">第 {{ overview.next_issue || '待载入' }} 期，每次只看一组。同一算法下14红包含在16红内，16红包含在18红内。</p><label class="field" for="compact-model" style="margin-bottom:14px">选号算法<select id="compact-model" v-model="compactModel" :disabled="generating||saving||syncing"><option v-for="a in compactAlgorithms" :key="a.model" :value="a.model">{{ a.label }}</option></select></label><p class="muted">{{ compactAlgorithms.find(a=>a.model===compactModel)?.desc }} 所有算法以全6红入池为目标，均不保证每期全覆盖。</p><div class="grid3"><button v-for="c in compactChoices" :key="c.size" :id="'compact-'+c.size" :class="['preset',{selected:form.mode==='pool_observation'&&form.ranking_model===compactModel&&form.observation_size===c.size}]" :disabled="generating||saving||syncing||!overview.next_issue" @click="generateCompact(c.size)"><strong>{{ c.name }}</strong><small>{{ c.desc }}</small></button></div><p class="muted" style="margin-top:14px;margin-bottom:0">压缩会减少候选，也会降低全6红覆盖；生成后可查看同一模型的历史比较。</p></div>
 <blue-focus v-if="overview.data_sha256" :key="overview.data_sha256" :api-url="blueApiUrl" :busy="generating||saving||syncing||!overview.next_issue" @generate="generateBlue"></blue-focus>
 <p v-if="generating" class="card" role="status">正在读取所选模型与号码，请稍候…</p>

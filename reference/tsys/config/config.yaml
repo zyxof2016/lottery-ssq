@@ -1,0 +1,837 @@
+project:
+  name: 概率实验
+  random_seed: 2026
+config_fragments:
+  enabled: true
+  files:
+  - features.yaml
+  - models.yaml
+  - optimizer.yaml
+  - v7.yaml
+logging:
+  level: INFO
+  model_detail: summary
+  per_period_method_detail: summary
+  max_bytes: 10485760
+  backup_count: 5
+paths:
+  raw_data: data/raw/history.csv
+  clean_data: data/processed/clean_data.pkl
+  logs_dir: logs
+  audit_log: logs/audit.log
+  forecast_audit: logs/forecast_audit.json
+  report_json: logs/experiment_report.json
+  performance_plot: logs/performance_comparison.png
+  distribution_plot: logs/hit_distribution.png
+  trend_plot: logs/number_trend.png
+  validation_trace: data/validation_trace.jsonl
+  data_manifest: logs/data_manifest.json
+forecast:
+  lock_official_target: true
+  minimum_official_backtest_periods: 30
+  shadow_runs_can_archive: true
+  shadow_runs_can_email: false
+data:
+  required_columns:
+  - period
+  - date
+  - r1
+  - r2
+  - r3
+  - r4
+  - r5
+  - r6
+  - blue
+  fill_missing_dates: true
+  draw_weekdays:
+  - 1
+  - 3
+  - 6
+  # 无日期数据兜底补全时使用的休市区间。
+  # 福彩官方春节休市等停开奖日不应计入“当年第N个开奖日”，否则后续期号日期会整体提前。
+  # 例如 2026 年春节休市跳过 2026-02-14 至 2026-02-23 后，2026100 才会落到 2026-08-30。
+  draw_blackout_ranges:
+  - start: 2026-02-14
+    end: 2026-02-23
+  min_rows: 60
+  invalid_row_policy: reject
+  validate_source_dates: true
+  load_max_retries: 3
+  load_retry_delay_seconds: 0.25
+randomness_audit:
+  enabled: true
+  significance_level: 0.05
+  autocorrelation_lags: 10
+  spectral_permutations: 199
+  chi_square_simulations: 199
+features:
+  windows:
+  - 5
+  - 10
+  - 30
+  - 100
+  - 300
+  - 500
+  decay_factor: 0.98
+  min_history: 60
+  training_lookback: 800
+  prediction_lookback: 500
+  feature_cache_enabled: true
+  feature_cache_max_entries: 128
+  feature_selection_enabled: true
+  # 日期列已由历史文件提供并通过来源日期校验时，打开星期、月份、季度等日历特征。
+  # 若后续换成缺日期的数据源，清洗层会标记为 derived_schedule，需重新评估后再关闭/开启。
+  calendar_features_enabled: true
+  feature_selection_max_features_by_color:
+    red: 96
+    blue: 72
+  feature_selection_min_variance: 1.0e-10
+upgrade:
+  blue_mode: simplified_guard
+  # V7生产链只允许Core专家直接参与蓝球组合；Challenger/Research只进入影子证据。
+  production_specialists: core_only
+  expert_pool_extend: false
+  ada_hedge_enable: true
+  hmm_regime_full_window: false
+  nested_hedge_enable: false
+  cross_red_blue_feature: false
+  coverage_param_online_tune: true
+  validated_blue_consensus: true
+  blue_coverage_policy: coverage_only
+  simplified_blue_experts: true
+  # 历史数据已补齐真实日期，蓝球专家可重新启用星期/月度条件频率专家。
+  calendar_features_enabled: true
+  blue_evidence_shrinkage_enabled: true
+  # 研究证据不足时不再硬切均匀，而是按证据强弱保留部分模型概率。
+  blue_no_edge_model_alpha: 0.15
+  blue_weak_edge_model_alpha: 0.22
+  blue_medium_edge_model_alpha: 0.45
+  blue_strong_edge_model_alpha: 0.70
+  # NO_EDGE生产链使用16号码完整覆盖池，并加入跨期曝光均衡，避免弱Top1偏置长期集中。
+  blue_coverage_candidate_top_n: 10
+  blue_coverage_max_rank_penalty: 0.04
+  blue_no_edge_strict_uniform_coverage: true
+  blue_no_edge_cross_period_exposure_enabled: true
+  blue_no_edge_exposure_window: 30
+  blue_no_edge_exposure_penalty_weight: 0.30
+  # V11.5：NO_EDGE不再固定轮换/均匀覆盖，改为目标期之前的滚动OOS策略选择。
+  blue_no_edge_adaptive_history_policy: true
+  blue_adaptive_oos_window: 60
+  blue_adaptive_min_history: 120
+  blue_adaptive_fallback_policy: frequency_100
+  blue_adaptive_recency_decay: 0.985
+  # 在线Hedge专家若长期弱于均匀基线，会进入inactive_pool，不再参与当前混合。
+  blue_expert_pruning_enabled: true
+  blue_expert_pruning_loss_margin: 0.01
+  simplified_hedge_eta: 0.03
+  simplified_blue_temperature: 0.85
+  coverage_tune_current_output: false
+  coverage_tune_window: 80
+  coverage_tune_expensive_variant_cap: 20
+  hmm_half_life: 520
+  hmm_pre_change_decay: 0.42
+  nested_replay_warmup: 80
+  runtime_target_minutes: 30
+runtime:
+  default_profile: standard
+  exact_reproducibility: true
+  cache_validation: strict
+  prediction_equivalence_check: true
+  prediction_fingerprint_enabled: true
+  compact_runtime_logs: true
+  performance_profile_enabled: true
+  profiles:
+    fast:
+      label: 快速检查
+      estimated_minutes: 10-20
+      description: 少量验证期和轻量候选，用于新增数据后的快速健康检查。
+      overrides:
+        backtest:
+          periods: 30
+          random_repeats: 30
+          retrain_interval: 20
+        calibration:
+          holdout_periods: 30
+        generation:
+          monte_carlo_samples: 2500
+          candidate_pool_size: 800
+          red_adverse_guard_monte_carlo_samples: 3500
+          red_adverse_guard_candidate_pool_size: 1800
+          red_adverse_guard_coverage_samples: 3500
+          red_adverse_guard_coverage_pool_size: 1800
+        optimizer:
+          methods:
+          - greedy
+          - pareto
+          global_coverage_candidate_cap: 50
+          global_coverage_time_limit: 1
+          global_coverage_time_limit_seconds: 1
+          genetic_population: 18
+          genetic_generations: 16
+        report:
+          permutation_repetitions: 1000
+    standard:
+      label: 标准验证
+      estimated_minutes: 25-45
+      description: 默认推荐；保留100期验证，关闭逐期重型整数规划，适合日常优化。
+      overrides:
+        backtest:
+          periods: 100
+          random_repeats: 80
+          retrain_interval: 20
+        calibration:
+          holdout_periods: 100
+        generation:
+          monte_carlo_samples: 5000
+          candidate_pool_size: 1500
+          red_adverse_guard_monte_carlo_samples: 7000
+          red_adverse_guard_candidate_pool_size: 1800
+          red_adverse_guard_coverage_samples: 7000
+          red_adverse_guard_coverage_pool_size: 1800
+        optimizer:
+          methods:
+          - greedy
+          - pareto
+          - red_ge3_objective
+          - historical_hit
+          - global_coverage
+          global_coverage_candidate_cap: 120
+          global_coverage_time_limit: 5
+          global_coverage_time_limit_seconds: 5
+          genetic_population: 22
+          genetic_generations: 20
+        report:
+          permutation_repetitions: 3000
+    research:
+      label: 完整研究
+      estimated_minutes: 60-120
+      description: 完整300期、全部优化器；历史验证期使用受控整数规划预算，最终目标期仍使用完整全局覆盖求解。
+      overrides:
+        backtest:
+          periods: 300
+          random_repeats: 200
+          retrain_interval: 20
+        calibration:
+          holdout_periods: 300
+        generation:
+          monte_carlo_samples: 10000
+          candidate_pool_size: 2500
+          red_adverse_guard_monte_carlo_samples: 15000
+          red_adverse_guard_candidate_pool_size: 3000
+          red_adverse_guard_coverage_samples: 15000
+          red_adverse_guard_coverage_pool_size: 3000
+        optimizer:
+          methods:
+          - greedy
+          - genetic
+          - pareto
+          - red_ge3_objective
+          - historical_hit
+          - global_coverage
+          # 回测与正式目标期必须走同一套最终蓝球链路，避免验证口径与生产口径不一致。
+          global_coverage_candidate_cap: 700
+          global_coverage_time_limit: 45
+          global_coverage_time_limit_seconds: 45
+          global_coverage_backtest_candidate_cap: 260
+          global_coverage_backtest_time_limit_seconds: 8
+          genetic_population: 30
+          genetic_generations: 32
+        models:
+          catboost:
+            enabled: true
+        report:
+          permutation_repetitions: 20000
+performance:
+  safe_mode: true
+  feature_cache: true
+  candidate_cache: true
+  stacking_cache: true
+  research_refresh:
+    enabled: false
+    nested_inner_oos: 20
+    hmm: 20
+    pelt: 20
+    stacking: 20
+    evidence_search: 20
+  rolling_history_view: false
+  candidate_prescore:
+    enabled: false
+  parallel_models:
+    enabled: false
+  prediction_equivalence_check: true
+stacking:
+  enabled: true
+  min_oof_records: 300
+  # 运行时OOF门控：每次预测前，用已完成OOF记录的前段训练元学习器、后段验证是否跑赢基础融合。
+  # 只有红/蓝各自通过该门控，Stacking 才会在运行时混入对应颜色。
+  min_gate_records: 60
+  gate_validation_records: 100
+  red_gate_min_top6_delta: 0.0
+  blue_gate_min_hit5_delta: 0.0
+  blend_alpha: 0.35
+  red_blend_alpha: 0.32
+  blue_blend_alpha: 0.10
+  red_c: 0.45
+  red_require_gate: true
+  blue_ridge_alpha: 10.0
+  blue_require_gate: true
+  # V7证据用：两个专家在OOF概率上的相关性超过该阈值时，报告会标记为重复投票风险。
+  expert_correlation_threshold: 0.985
+  max_iter: 220
+  random_seed: 2026
+models:
+  fit_max_retries: 2
+  logistic_regression:
+    max_iter: 180
+    c: 0.5
+    blue_c: 0.05
+    red_class_weight: balanced
+    use_blue_sequence_features: true
+  xgboost:
+    objective: rank:ndcg
+    n_estimators: 220
+    max_depth: 4
+    learning_rate: 0.025
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_alpha: 0.2
+    reg_lambda: 2.0
+    n_jobs: 2
+    rank_temperature: 2.0
+    use_blue_sequence_features: true
+  lightgbm_ranker:
+    n_estimators: 260
+    max_depth: 4
+    num_leaves: 31
+    learning_rate: 0.02
+    subsample: 0.85
+    colsample_bytree: 0.85
+    reg_alpha: 0.1
+    reg_lambda: 2.0
+    min_child_samples: 12
+    n_jobs: 2
+    rank_temperature: 2.0
+    use_blue_sequence_features: true
+  mlp:
+    enabled: false
+    hidden_layer_sizes:
+    - 64
+    - 32
+    max_iter: 80
+    alpha: 0.003
+    learning_rate_init: 0.001
+    early_stopping: true
+    n_iter_no_change: 8
+    use_blue_sequence_features: true
+  catboost:
+    enabled: false
+    iterations: 90
+    depth: 5
+    learning_rate: 0.035
+    l2_leaf_reg: 8.0
+    thread_count: 1
+    auto_class_weights: Balanced
+    use_blue_sequence_features: true
+  pattern_memory:
+    decay_factor: 0.985
+    transition_alpha: 1.2
+    temperature: 1.35
+fusion:
+  validation_periods: 30
+  warmup_periods: 10
+  minimum_observations: 10
+  overfit_gap_threshold: 0.025
+  uncertainty_z: 1.645
+  enable_multiscale_shrinkage: true
+  skill_windows:
+  - 30
+  - 100
+  - 200
+  weak_signal_min_windows: 2
+  weak_signal_max_strength: 0.25
+  weak_signal_min_windows_by_color:
+    red: 1
+    blue: 1
+  weak_signal_max_strength_by_color:
+    red: 1.0
+    blue: 1.0
+  weak_signal_min_strength_by_color:
+    red: 0.26
+    blue: 0.1
+  max_uniform_share_if_signal_by_color:
+    red: 0.02
+    blue: 0.02
+  relative_tilt_max_strength: 0.0
+  relative_tilt_max_strength_by_color:
+    red: 0.56
+    blue: 0.3
+  relative_tilt_min_strength_by_color:
+    red: 0.24
+    blue: 0.08
+  relative_tilt_consistency_boost_by_color:
+    red: 0.28
+    blue: 0.16
+  relative_tilt_recovery_max_strength_by_color:
+    red: 0.18
+    blue: 0.1
+  relative_tilt_recovery_consistency_threshold_by_color:
+    red: 0.55
+    blue: 0.6
+  weak_signal_recent_window_power_by_color:
+    red: 0.6
+    blue: 0.45
+  relative_tilt_recent_window_power_by_color:
+    red: 0.7
+    blue: 0.52
+  structured_anchor_mode_by_color:
+    red: tiered_head_tail
+    blue: tiered_head_tail
+  structured_anchor_top_k_by_color:
+    red: 10
+    blue: 5
+  structured_anchor_head_share_by_color:
+    red: 0.72
+    blue: 0.6
+  structured_anchor_min_signal_by_color:
+    red: 0.25
+    blue: 0.1
+  entropy_sharpen_threshold_by_color:
+    red: 0.997
+    blue: 0.99
+  entropy_sharpen_power_by_color:
+    red: 1.18
+    blue: 1.1
+  entropy_sharpen_min_signal_by_color:
+    red: 0.7
+    blue: 0.7
+  model_weight_caps_by_color:
+    red:
+      xgboost: 0.4
+      lightgbm_ranker: 0.4
+      mlp: 0.55
+      catboost: 0.6
+      logistic_regression: 0.55
+      pattern_memory: 0.3
+      time_decay: 0.24
+      frequency: 0.18
+      bayesian: 0.18
+    blue:
+      xgboost: 0.5
+      lightgbm_ranker: 0.5
+      mlp: 0.62
+      catboost: 0.66
+      logistic_regression: 0.45
+      # V7复核：蓝球Top-K未证明稳定优于均匀前，单一时序/形态专家不得主导融合。
+      pattern_memory: 0.40
+      time_decay: 0.35
+      frequency: 0.24
+      bayesian: 0.24
+  model_uniform_caps_by_color:
+    red: 0.02
+    blue: 0.02
+  model_groups:
+  - - frequency
+    - bayesian
+generation:
+  monte_carlo_samples: 5000
+  candidate_pool_size: 1500
+  output_count: 5
+  consensus_output_count: 5
+  model_ranking_red_count: 24
+  model_ranking_blue_count: 8
+  red_adverse_guard_monte_carlo_samples: 7000
+  red_adverse_guard_candidate_pool_size: 1800
+  red_adverse_guard_coverage_samples: 7000
+  red_adverse_guard_coverage_pool_size: 1800
+  red_adverse_guard_include_uniform_coverage_pool: false
+  weak_signal_red_core_size: 21
+  weak_signal_red_anchor_size: 6
+  weak_signal_max_red_changes: 5
+  weak_signal_min_anchor_kept: 0
+  weak_signal_blue_core_size: 8
+exclusion_filter:
+  enabled: true
+  # 低置信号码只做诊断记录，不再默认硬剔除。
+  # 历史回放显示硬剔除会频繁提前挡住真实开奖号码；若要实验“排除不可能号码”，再手动改为 true。
+  hard_exclusion_enabled: false
+  decay_factor: 0.98
+  red_max_excluded: 5
+  red_min_remaining: 24
+  red_score_quantile: 0.18
+  blue_max_excluded: 2
+  blue_min_remaining: 13
+  blue_score_quantile: 0.16
+dantuo:
+  max_amount: 20
+  unit_price: 2
+  preferred_red_dan_count: 2
+  preferred_red_tuo_count: 5
+  preferred_blue_count: 2
+  auto_cap_blue_to_budget: true
+  prefer_compound_when_coverage_like: false
+  preserve_final_portfolio_evidence: true
+  final_to_dantuo_audit_enabled: true
+  compound_red_count: 7
+  compound_blue_count: 1
+  include_method_tickets: true
+  method_ticket_limit_per_method: 5
+  # 预算胆拖压缩层除最终票/各方法票外，再读取完整候选池前N个高质量候选作为低权重证据。
+  # 目的：减少“实际号码已进入候选池，但压缩层不知道候选池强度而被挤掉”的断层。
+  candidate_pool_ticket_limit: 80
+  # 预算内胆拖正式采用 2胆 + 5拖 + 2蓝：C(5,4)*2=10 注/20 元。
+  # 胆拖只压缩最终5注已表达的信息；方法票和候选池只作为证据，不再重新生成另一套预测号码。
+  # 蓝球候选池历史上召回较高，但最终单蓝/Top5 排序偏弱。Final5 并集仍是唯一蓝球预测源，
+  # 压缩时降低融合名次权重，按合理遗漏周期选择 2 个蓝球，并惩罚刚开出的重复号。
+  blue_recent_windows: [20, 50, 100]
+  blue_recent_gap_weight: 0.20
+  blue_recent_frequency_weight: 0.15
+  blue_evidence_weight: 0.75
+  blue_specialist_weight: 0.25
+  blue_omission_balance_weight: 0.80
+  blue_immediate_repeat_penalty: 0.35
+  # V11.5：预算内2蓝独立于Final5蓝球并集，避免Final5二次压缩造成系统性信息损失。
+  blue_adaptive_budget_policy: true
+  blue_adaptive_oos_window: 60
+  blue_adaptive_min_history: 120
+  blue_adaptive_fallback_policy: frequency_100
+core_numbers:
+  enabled: true
+  weights:
+    fusion_probability: 0.35
+    model_consensus: 0.3
+    ticket_frequency: 0.2
+    global_coverage_support: 0.15
+  red_output_count: 6
+  blue_output_count: 3
+  red_model_top_k: 6
+  blue_model_top_k: 3
+  red_consensus_min_models: 5
+  ticket_frequency_min_count: 2
+  concentrated_candidate_pool_size: 20
+  concentrated_sum_range:
+  - 70
+  - 140
+  concentrated_span_range:
+  - 16
+  - 31
+  concentrated_odd_range:
+  - 1
+  - 5
+scoring:
+  red_number_weight: 0.6
+  blue_number_weight: 0.1
+  structure_weight: 0.3
+  number_weight: 1.0
+  diversity_penalty: 0.12
+  portfolio_subset_weight: 0.12
+  consensus_quality_weight: 0.60
+  consensus_support_weight: 0.40
+  consensus_structure_weight: 0.0
+  signal_method_ticket_bonus_weight: 0.55
+  signal_method_core_bonus_weight: 0.28
+  signal_method_agreement_bonus_weight: 0.34
+  signal_shared_method_core_bonus_weight: 0.48
+  signal_shared_method_core_top_k_per_method: 2
+  signal_shared_method_core_min_support: 2
+  consensus_slot_weights:
+    blue_number: 0.3
+    blue_signal: 0.7
+    blue_anchor_signal: 0.45
+    dominant_anchor: 0.95
+    dominant_method_count: 0.35
+    dominant_anchor_gap_penalty: 0.3
+    dominant_min_anchor_overlap: 0.5
+    strong_anchor: 0.42
+    strong_method_agreement: 0.2
+    strong_method_count: 0.16
+    strong_anchor_gap_penalty: 0.22
+    strong_min_anchor_overlap: 0.62
+  history_context_weight: 0.85
+  model_diversity_context_weight: 0.45
+  global_coverage_quality_weight: 0.32
+  global_coverage_red_weight: 1.0
+  global_coverage_blue_weight: 0.4
+optimizer:
+  methods:
+  - greedy
+  - pareto
+  - red_ge3_objective
+  - historical_hit
+  - global_coverage
+  no_signal_strategy: rotational_coverage
+  max_red_overlap: 5
+  blue_diversity_weight: 0.3
+  minimum_blue_unique_count: 4
+  signal_max_red_overlap: 5
+  signal_blue_diversity_weight: 0.35
+  coverage_param_online_tune: true
+  signal_minimum_blue_unique_count: 4
+  signal_minimum_unique_red_sets: 3
+  signal_minimum_red_coverage: 9
+  signal_preserve_top_ticket_count: 0
+  signal_force_method_anchor_count: 1
+  signal_force_method_anchor_top_k_per_method: 2
+  signal_force_method_anchor_min_support: 1
+  signal_top_consensus_margin_threshold: 0.08
+  signal_top_consensus_overlap_bonus_weight: 0.45
+  signal_allow_concentrated_portfolio: true
+  signal_concentrated_ticket_count: 2
+  signal_red_coverage_relief_max: 0.35
+  signal_red_set_relief_max: 0.3
+  signal_blue_focus_bonus_weight: 0.35
+  allow_blue_unique_relaxation: false
+  blue_unique_relaxation_min_strength: 0.85
+  blue_unique_relaxation_floor: 4
+  signal_blue_unique_relief_max: 0.45
+  signal_diversity_penalty_scale: 0.40
+  signal_concentration_weight: 0.28
+  signal_red_consensus_weight: 0.34
+  signal_red_consensus_pool_size: 48
+  signal_blue_consensus_pool_size: 32
+  signal_red_core_bonus_weight: 0.32
+  signal_red_core_top_k: 12
+  final_core_aggregation_enabled: true
+  final_core_quota_collector_enabled: true
+  final_core_candidate_pool_size: 14
+  final_core_fusion_top_k: 12
+  final_core_method_ticket_limit_per_method: 5
+  historical_hit_window: 300
+  # historical_hit 原先 0.70 容易把“历史回放巧合”放大为主导信号；
+  # V7整改后降权，并保留无历史权重消融分支，用严格回测判断它是否真的增益。
+  historical_hit_weight: 0.35
+  historical_hit_current_signal_weight: 0.42
+  historical_hit_coverage_weight: 0.33
+  historical_hit_ablation_enabled: true
+  historical_hit_ablation_history_weight: 0.0
+  historical_hit_ablation_current_signal_weight: 0.55
+  historical_hit_ablation_coverage_weight: 0.45
+  red_ge3_window: 300
+  red_ge3_candidate_cap: 1200
+  red_ge3_max_red_overlap: 5
+  red_ge3_any3_weight: 1.5
+  red_ge3_any4_weight: 0.18
+  red_ge3_best_hit_weight: 0.22
+  red_ge3_quality_weight: 0.14
+  red_ge3_coverage_weight: 0.1
+  global_coverage_candidate_cap: 500
+  global_coverage_time_limit: 30
+  global_coverage_time_limit_seconds: 30
+  global_coverage_backtest_candidate_cap: 220
+  global_coverage_backtest_time_limit_seconds: 6
+  optuna_enabled: true
+  optuna_apply_during_backtest: false
+  optuna_cache_path: logs/optuna_tuning.json
+  optuna_trials: 12
+  optuna_objective_window: 200
+  optuna_candidate_cap: 400
+  optuna_timeout_seconds: 45
+  final_diversity_rebalance_enabled: true
+  final_diversity_force_apply_when_triggered: false
+  final_diversity_synthesize_if_needed: false
+  # V7复核：候选池红球召回高，但最终层压缩损失明显；覆盖目标不再过度摊薄高支持号码。
+  final_diversity_min_red_coverage: 8
+  final_diversity_target_red_coverage: 9
+  final_diversity_max_red_coverage: 12
+  final_diversity_min_unique_red_sets: 5
+  final_diversity_max_average_red_overlap: 3.8
+  final_diversity_max_red_overlap: 5
+  final_diversity_minimum_blue_unique_count: 4
+  rolling_best_method_enabled: false
+  rolling_best_method_window: 20
+  rolling_best_method_min_periods: 12
+  rolling_best_method_score_margin: 0.12
+  rolling_best_method_average_margin: 0.18
+  rolling_best_method_period_any_margin: 0.08
+  rolling_best_method_require_reference_advantage: true
+  rolling_portfolio_memory_enabled: false
+  rolling_portfolio_memory_window: 20
+  rolling_portfolio_memory_min_periods: 8
+  rolling_portfolio_memory_preserve_count: 2
+  rolling_portfolio_memory_min_hit: 2.5
+  rolling_portfolio_memory_red_core_size: 10
+  rolling_portfolio_memory_blue_core_size: 5
+  blue_specialist_portfolio_enabled: true
+  blue_specialist_require_research_edge: false
+  blue_specialist_research_windows:
+  - 100
+  - 300
+  - 500
+  - 1000
+  blue_specialist_research_variants:
+  - high_order_markov
+  - online_hedge
+  - bayes_markov_blend
+  blue_specialist_min_edge: 0.0
+  blue_specialist_max_p_value: 0.2
+  blue_specialist_allow_stable_weak_edge: true
+  # 蓝球研究门控在逐期回测中较重；生产预测禁用研究缓存，回测/研究可缓存策略评估结论。
+  # 缓存键不含跨期曝光，避免连续 STRONG_EDGE 期全部 miss。每期仍按当前历史重新生成蓝球。
+  blue_specialist_research_cache_enabled: false
+  blue_specialist_research_cache_enabled_for_backtest: true
+  blue_specialist_research_cache_interval: 20
+  red_guard_prefer_method_portfolio: true
+  red_guard_default_method: global_coverage
+  red_emergency_guard_shadow_only: true
+  red_guard_stoploss_to_no_signal: true
+  red_guard_stoploss_require_severe: true
+  red_guard_stoploss_min_mean_shortfall: 0.15
+  red_guard_stoploss_min_consensus_shortfall: 0.15
+  red_adverse_guard_max_red_overlap: 5
+  red_adverse_guard_minimum_red_coverage: 10
+  red_adverse_guard_red_signal_weight: 0.18
+  red_adverse_guard_blue_signal_weight: 0.42
+  red_adverse_guard_uniform_relief: 0.42
+  red_emergency_guard_max_red_overlap: 5
+  red_emergency_guard_minimum_red_coverage: 10
+  red_emergency_guard_red_signal_weight: 0.14
+  red_emergency_guard_uniform_relief: 0.5
+  red_emergency_guard_method_anchor_count: 2
+  red_adverse_guard_method_anchor_count: 2
+  red_adverse_guard_method_anchor_top_k_per_method: 2
+  red_adverse_guard_minimum_blue_unique_count: 4
+  genetic_population: 22
+  genetic_generations: 20
+  genetic_mutation_rate: 0.22
+  final_diversity_core_protection_enabled: true
+red_adverse_guard:
+  enabled: true
+  minimum_periods: 12
+  minimum_adverse_methods: 2
+  minimum_severe_methods: 2
+  red_average_margin: 0.02
+  period_any_red_ge3_margin: 0.02
+  require_consensus_adverse: true
+  activate_on_soft_adverse: false
+  severe_average_margin_multiplier: 2.0
+  severe_period_any_margin_multiplier: 2.0
+  backtest_minimum_periods: 6
+  backtest_window: 12
+  backtest_minimum_adverse_methods: 3
+  backtest_minimum_severe_methods: 3
+  backtest_red_average_margin: 0.04
+  backtest_period_any_margin: 0.08
+  backtest_require_consensus_adverse: true
+  backtest_activate_on_soft_adverse: false
+  backtest_persist_periods: 0
+  backtest_severe_average_margin_multiplier: 2.0
+  backtest_severe_period_any_margin_multiplier: 2.0
+  emergency_enabled: true
+  emergency_window: 5
+  emergency_minimum_periods: 3
+  emergency_required_low_periods: 2
+  emergency_low_average_red_hits: 0.8
+  emergency_low_best_red_hits: 1.1
+  emergency_reference_shortfall: 0.25
+backtest:
+  min_train_size: 3000
+  periods: 100
+  retrain_interval: 20
+  random_repeats: 80
+  matched_no_signal_baseline: true
+  training_window: 3000
+  incremental_training: true
+  incremental_tree_ratio: 0.2
+  default_profile: monthly
+calibration:
+  holdout_periods: 100
+  validation_order: chronological_oldest_to_newest
+  enable_hyperparameter_adjustment: true
+  similarity_window: 30
+  minimum_red_hits: 1
+  require_blue_hit: false
+  maximum_brier_ratio: 1.00025
+  training_lookback_step: 100
+  maximum_training_lookback: 1200
+  decay_step: 0.005
+  minimum_decay_factor: 0.95
+  maximum_decay_factor: 0.995
+  loss_tolerance: 1.0e-05
+  minimum_lr_c: 0.05
+  minimum_xgb_depth: 2
+  minimum_xgb_learning_rate: 0.02
+  maximum_xgb_reg_alpha: 2.0
+  maximum_xgb_reg_lambda: 10.0
+  rolling_objective_periods: 200
+  minimum_adjustment_observations: 30
+  minimum_failure_streak: 2
+  adjustment_cooldown_periods: 6
+release:
+  # V7发布口径：30期/100期只能作为实验观察；正式门槛至少需要300期样本外证据。
+  minimum_out_of_sample_periods: 300
+  development_periods: 100
+  confirmatory_periods: 100
+  require_two_window_confirmation: true
+  require_frozen_confirmatory_parameters: true
+  # 最终确认窗口不仅冻结超参数，也冻结融合权重，避免确认窗再次自适应导致口径漂移。
+  freeze_confirmatory_fusion_weights: true
+  # V7蓝球主目标改为 Prediction Set + Hit@5；Top1仅作为诊断指标，不再卡发布门禁。
+  require_blue_top1_evidence: false
+  minimum_blue_signal_coverage: 0.8
+  require_prospective_forecast_validation: true
+  minimum_prospective_validations: 30
+  prospective_code_scope: current
+  allow_provisional_experimental_output: true
+  provisional_min_out_of_sample_periods: 30
+  provisional_min_red_signal_strength: 0.02
+  provisional_min_total_signal_strength: 0.08
+  research_benchmark_windows: [30, 50, 100, 200, 300, 500]
+compliance:
+  enable_export_bet: false
+  show_risk_notice: true
+  watermark: 仅供历史数据概率实验，不构成投注建议
+  require_tamper_evident_audit: true
+  audit_hmac_env: TSYS_AUDIT_HMAC_KEY
+report:
+  confidence_level: 0.95
+  permutation_repetitions: 3000
+notification:
+  email:
+    enabled: false
+
+trend:
+  display_periods: 60
+  analysis_window: 100
+  recent_window: 30
+strategy:
+  multi_period_window: 10
+backtest_profiles:
+  daily:
+    label: 日常快速验证
+    description: 50期回测，2种优化方法，适合日常参数快速验证
+    estimated_minutes: 10-15
+    periods: 50
+    retrain_interval: 25
+    optimizer_methods:
+    - red_ge3_objective
+    - global_coverage
+    monte_carlo_samples: 3000
+    candidate_pool_size: 800
+    permutation_repetitions: 1000
+  monthly:
+    label: 月度标准验证
+    description: 100期回测，3种优化方法，适合月度模型性能评估
+    estimated_minutes: 25-35
+    periods: 100
+    retrain_interval: 20
+    optimizer_methods:
+    - red_ge3_objective
+    - historical_hit
+    - global_coverage
+    monte_carlo_samples: 5000
+    candidate_pool_size: 1500
+    permutation_repetitions: 3000
+  yearly:
+    label: 年度深度研究
+    description: 200期回测，5种优化方法，适合年度深度研究和参数调优
+    estimated_minutes: 60-90
+    periods: 200
+    retrain_interval: 25
+    optimizer_methods:
+    - greedy
+    - red_ge3_objective
+    - historical_hit
+    - global_coverage
+    - pareto
+    monte_carlo_samples: 8000
+    candidate_pool_size: 2000
+    permutation_repetitions: 5000

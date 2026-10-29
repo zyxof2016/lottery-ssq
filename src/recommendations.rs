@@ -77,7 +77,8 @@ fn source_sha() -> String {
             include_str!("pool_algorithms.rs"),
             include_str!("blue.rs"),
             include_str!("small_red.rs"),
-            include_str!("small_archive.rs")
+            include_str!("small_archive.rs"),
+            include_str!("reference.rs")
         )
         .as_bytes(),
     )
@@ -542,7 +543,7 @@ pub(crate) fn validate_archive(payload: &Value, issue: &str, draws: &[Draw]) -> 
             }
         }
     }
-    if payload["kind"] == "daily" || payload["kind"] == "small_red_observation" {
+    if payload["kind"] == "daily" || payload["kind"] == "small_red_observation" || payload["kind"] == "reference_observation" {
         let cutoff = payload["data_cutoff"]
             .as_str()
             .and_then(|s| s.parse().ok())
@@ -1220,12 +1221,14 @@ pub fn settle_archives(root: &Path, draws: &[Draw]) -> Settlement {
     }
     let small=crate::small_archive::settle(root,draws);
     outcome.settled+=small.settled;outcome.errors.extend(small.errors);
+    let reference=crate::reference::settle(root,draws);
+    outcome.settled+=reference.settled;outcome.errors.extend(reference.errors);
     outcome
 }
 
 fn all_issues(root: &Path) -> BTreeSet<String> {
     let mut issues = BTreeSet::new();
-    for dir in [root.join("daily"), root.join("interactive"), root.join("small-red")] {
+    for dir in [root.join("daily"), root.join("interactive"), root.join("small-red"), root.join("reference")] {
         if let Ok(entries) = fs::read_dir(dir) {
             for entry in entries.flatten() {
                 let path = entry.path();
@@ -1337,6 +1340,7 @@ pub fn issue_detail(
     }
     let mut response = json!({"issue": issue, "draw": draw.map(draw_json), "sources": sources});
     if let Some(value)=crate::small_archive::view(root,draws,issue)? {response["independent_small_red"]=value;}
+    if let Some(value)=crate::reference::view(root,draws,issue)? {response["independent_reference"]=value;}
     if sources.is_empty() {
         response["missing"] = json!(true);
         response["message"] =
@@ -1420,7 +1424,7 @@ pub fn issue_detail(
 pub fn artifact(root: &Path, raw: &str) -> Result<Vec<u8>, String> {
     let parts: Vec<_> = raw.split('/').collect();
     let valid = match parts.as_slice() {
-        ["daily" | "small-red", file] => file.strip_suffix(".json").is_some_and(valid_issue),
+        ["daily" | "small-red" | "reference", file] => file.strip_suffix(".json").is_some_and(valid_issue),
         ["interactive", issue, file] => {
             valid_issue(issue) && file.strip_suffix(".json").is_some_and(valid_id)
         }
@@ -1428,7 +1432,7 @@ pub fn artifact(root: &Path, raw: &str) -> Result<Vec<u8>, String> {
             valid_issue(issue)
                 && file
                     .strip_suffix(".json")
-                    .is_some_and(|s| s == "daily" || s == "small-red" || valid_id(s))
+                    .is_some_and(|s| s == "daily" || s == "small-red" || s == "reference" || valid_id(s))
         }
         _ => false,
     };

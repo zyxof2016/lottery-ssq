@@ -1,0 +1,4 @@
+# The supplied requirements plus openpyxl, required by main.py and pyproject.toml.
+-c constraints-cpu.txt
+-r tsys/requirements.txt
+openpyxl==3.1.5

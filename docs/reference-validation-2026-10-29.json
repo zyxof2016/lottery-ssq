@@ -1,0 +1,61 @@
+{
+  "scope": "local_synthetic_fixture_only_not_production",
+  "reference_archive_sha256": "d05210aa06fc7589e418df723b27b146c8d673700e8ea8b18c87fb0464c22188",
+  "linked_daily_sha256": "9c5eede0da8dbc8a5abf52daf6f3caed05f02b13b614f002698813c7b03a8467",
+  "original_five_tickets_retained": true,
+  "original_union_size": 26,
+  "fusion_method": "small_recent90_reference_union10",
+  "four_sizes_checked": [
+    12,
+    14,
+    15,
+    16
+  ],
+  "same_size_baselines_saved": true,
+  "pending_cells": 5,
+  "pending_rate_null": true,
+  "old_daily_21_strategies_and_small_archive_preserved": true,
+  "raw_cache_preserved_and_hashed": true,
+  "deadline_checked": true,
+  "duplicate_and_stale": true,
+  "read_only_gets_do_not_save_reviews": true,
+  "mobile_widths": [
+    320,
+    390,
+    768,
+    1440
+  ],
+  "pages": [
+    "home",
+    "pools",
+    "reviews"
+  ],
+  "console_errors": [],
+  "vue_warnings": [],
+  "write_requests": [
+    {
+      "url": "http://127.0.0.1:16940/api/reference-pools/freeze",
+      "body": {
+        "data_sha256": "a8c3157227f48c8f22ac8b1dbbf90fcf886064fbcf1668c256acbbadf998dbb7",
+        "target": "26124"
+      }
+    },
+    {
+      "url": "http://127.0.0.1:16940/api/reference-pools/freeze",
+      "body": {
+        "data_sha256": "a8c3157227f48c8f22ac8b1dbbf90fcf886064fbcf1668c256acbbadf998dbb7",
+        "target": "26124"
+      }
+    },
+    {
+      "url": "http://127.0.0.1:16940/api/reference-pools/freeze",
+      "body": {
+        "data_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "target": "26124"
+      }
+    }
+  ],
+  "rust_tests_passed": 107,
+  "python_tests_passed": 6,
+  "existing_api_responses_identical": 11
+}

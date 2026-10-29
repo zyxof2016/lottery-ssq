@@ -83,6 +83,13 @@ enum Cmd {
         #[arg(long)]
         review_dir: PathBuf,
     },
+    /// 将已经计算完成的参考5注与融合小池独立封存
+    ReferenceFreeze {
+        #[arg(long)]
+        data: PathBuf,
+        #[arg(long)]
+        out: PathBuf,
+    },
     /// 复算清单哈希；目标期号匹配截止期后的第一期开奖时计分
     Verify {
         #[arg(long)]
@@ -168,6 +175,14 @@ fn run() -> Result<(), String> {
         } => {
             let text = ssq::cycle::run_cycle(&data, &audit, &out, &review_dir)?;
             println!("{text}");
+        }
+        Cmd::ReferenceFreeze { data, out } => {
+            let draws=load_csv(&data)?;let last=draws.last().ok_or("没有开奖数据")?;
+            let gate=ssq::cycle::decide(ssq::recommendations::now_unix(),last.issue,last.date,false);
+            if !gate.publish{return Err(gate.reason);}
+            let root=out.parent().unwrap_or_else(||std::path::Path::new(".")).join("recommendations");
+            let result=ssq::reference::freeze(&root,&draws,&gate.target,gate.deadline_unix)?;
+            println!("{}",serde_json::to_string(&result).map_err(|e|e.to_string())?);
         }
         Cmd::Verify {
             data,

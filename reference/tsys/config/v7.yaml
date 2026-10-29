@@ -1,0 +1,216 @@
+# V7 Evidence-First Adaptive Portfolio System 正式总控配置片段。
+v7:
+  enabled: true
+  mode: evidence_first
+  evidence:
+    falsification_first: true
+    confidence_score: true
+    multiple_testing: holm
+    windows: [30, 100, 300]
+    single_model_cap_by_edge_state:
+      STRONG_EDGE: 0.70
+      WEAK_EDGE: 0.55
+      NO_EDGE: 0.42
+      RECALL_GUARD: 0.35
+  nested_oos:
+    # Inner OOS 是运行期动态参数选择器；Outer OOS 只用于评估，不反向调参。
+    inner_search: true
+    selection_window: 100
+    prediction_set_k_grid: [3, 4, 5, 6, 8, 10, 12, 14, 16]
+    blue_alpha_grid: [0.08, 0.22, 0.45, 0.70]
+    red_jaccard_max_overlap_by_state:
+      STRONG_EDGE: 5
+      WEAK_EDGE: 5
+      NO_EDGE: 4
+      RECALL_GUARD: 3
+    expert_cap_by_state:
+      STRONG_EDGE: 0.70
+      WEAK_EDGE: 0.55
+      NO_EDGE: 0.42
+      RECALL_GUARD: 0.35
+    portfolio_strategy_by_state:
+      STRONG_EDGE: pareto_probability
+      WEAK_EDGE: pareto_balanced
+      NO_EDGE: pareto_coverage
+      RECALL_GUARD: pareto_recall_guard
+    # 真正参与运行期比较的策略候选；Inner OOS 打分后只采用胜出策略。
+    strategy_candidates:
+      - name: "Strategy A - coverage_guard"
+        prediction_set_k: 16
+        blue_alpha: 0.08
+        red_budget_state: RECALL_GUARD
+        jaccard_max_overlap: 3
+        expert_cap: 0.35
+        portfolio_strategy: pareto_recall_guard
+      - name: "Strategy B - balanced"
+        prediction_set_k: 10
+        blue_alpha: 0.22
+        red_budget_state: WEAK_EDGE
+        jaccard_max_overlap: 4
+        expert_cap: 0.42
+        portfolio_strategy: pareto_balanced
+      - name: "Strategy C - probability"
+        production_eligible: false
+        lifecycle: shadow_challenger
+        prediction_set_k: 5
+        blue_alpha: 0.45
+        red_budget_state: STRONG_EDGE
+        jaccard_max_overlap: 5
+        expert_cap: 0.55
+        portfolio_strategy: pareto_probability
+      - name: "Strategy D - exploration"
+        prediction_set_k: 16
+        blue_alpha: 0.12
+        red_budget_state: NO_EDGE
+        jaccard_max_overlap: 3
+        expert_cap: 0.35
+        portfolio_strategy: pareto_coverage
+  uncertainty:
+    probability_shrinkage: true
+    calibration: true
+    prediction_set: true
+    dynamic_alpha: true
+  blue:
+    adaptive_top_k: true
+    adaptive_k_search: true
+    candidate_k_grid: [3, 4, 5, 6, 8, 10, 12, 14, 16]
+    strong_edge_topk: [3, 4, 5, 6]
+    weak_edge_topk: [6, 8, 10, 12]
+    no_edge_topk: [10, 12, 14, 16]
+    edge_windows: [30, 100, 300]
+    minimum_edge_periods: 30
+    no_edge_mode: defensive
+    coverage_priority_without_edge: true
+    no_edge_strict_uniform_coverage: true
+    blue_require_strong_edge_for_research: true
+    edge_coverage_mode_by_state:
+      STRONG_EDGE: probability_optimized
+      WEAK_EDGE: weak_edge_mixed_coverage
+      NO_EDGE: no_edge_coverage_only
+    unique_blue_hard_constraint: true
+    production_specialists: core_only
+  red:
+    recall_guard: true
+    candidate_recall_guard_before_candidate: true
+    independent_model_top6_cutoff: 6
+    independent_model_top10_cutoff: 10
+    independent_model_rescue_min_model_support: 1
+    independent_model_rescue_max_numbers: 18
+    independent_model_evidence_floor_multiplier: 1.18
+    independent_model_rescue_include_uniform_models: false
+    # V8：融合不再只有“概率平均”一条红球通道；独立模型TopK形成召回通道，
+    # 在排名和候选生成前混入，防止真实红球被平均融合提前压低。
+    fusion_recall_channel_enabled: true
+    fusion_recall_channel_alpha: 0.26
+    fusion_recall_channel_top6_bonus: 1.00
+    fusion_recall_channel_top10_bonus: 0.62
+    fusion_recall_channel_top18_bonus: 0.28
+    fusion_recall_channel_support_bonus: 0.10
+    fusion_recall_channel_top6_floor_multiplier: 1.22
+    fusion_recall_channel_top10_floor_multiplier: 1.10
+    fusion_recall_channel_top18_cutoff: 18
+    fusion_topn_recall_guard_enabled: true
+    fusion_topn_recall_guard_count: 18
+    fusion_topn_recall_guard_max_numbers: 18
+    candidate_recall_guard_max_total_protected: 24
+    red_wide_candidate_mandatory_protected_limit: 18
+    min_model_rescue_numbers_in_final: 2
+    # V8.5：号码级证据保留。Protected/Rescue不只保护进入Candidate，
+    # Must Preserve号码必须贯穿到Final Union；Should Preserve尽量保留。
+    evidence_preservation_enabled: true
+    max_must_preserve_union: 14
+    should_preserve_limit: 8
+    must_preserve_top_evidence: 10
+    must_preserve_min_method_support: 2
+    final_must_preserve_required_ratio: 1.0
+    survival_tracking: true
+    regret_tracking: true
+    dynamic_portfolio: true
+    # 红球最终层正式采用 Coverage Backbone + Controlled Concentration。
+    portfolio_objective: coverage_backbone_controlled_concentration
+    production_portfolio_strategy: coverage_backbone_controlled_concentration
+    retention_guard_minimum: 0.80
+    retention_guard_max_backbone_loss: 0.03
+    # V8：当Backbone已经保留足够信息但5注过度分散时，允许共现集中接管。
+    concentration_retention_minimum: 0.84
+    cooccurrence_target_union_min: 18
+    cooccurrence_target_union_max: 21
+    cooccurrence_target_jaccard_floor: 0.12
+    controlled_concentration_slots: {probability: 2, coverage: 2, exploration: 1}
+    red_ge3_lifecycle: shadow_challenger
+    consensus_core_size: 7
+    probability_support_size: 6
+    model_rescue_pool_size: 4
+    exploration_pool_size: 4
+    model_rescue_number_count: 6
+    # V9：Evidence-to-Finite-Portfolio 转换层。
+    # 解决“号码已进入Candidate，但整张候选票评分低，导致没有任何优化方法给席位”的问题。
+    ticket_conversion_enabled: true
+    ticket_conversion_recovery_number_limit: 4
+    ticket_conversion_min_appearance: 3
+    ticket_conversion_max_method_support: 0
+    ticket_conversion_fusion_rank_cutoff: 22
+    ticket_conversion_min_survival_value: 0.26
+    ticket_conversion_max_ticket_changes: 1
+    ticket_conversion_max_retention_loss: 0.025
+    ticket_conversion_max_score_loss: 0.20
+    ticket_conversion_overlap_relaxation: 1
+    number_survival_value_weights:
+      evidence: 0.25
+      probability_mass: 0.16
+      method_consensus: 0.14
+      independent_model_support: 0.18
+      candidate_appearance: 0.13
+      uncertainty_recovery: 0.09
+      protected: 0.05
+    wide_candidate_limit: 22
+    portfolio_candidate_limit: 260
+    portfolio_beam_width: 32
+    edge_detector: true
+    edge_windows: [30, 100, 300]
+    minimum_edge_periods: 30
+    strong_edge_margin: 0.08
+    weak_edge_margin: 0.015
+    minimum_stability: 0.55
+    recall_guard_final_loss_ratio: 0.20
+    recall_guard_compression_loss: 0.85
+    survival_protected_count: 6
+  portfolio:
+    pareto: true
+    dynamic_budget: true
+    regret_tracking: true
+    exploration_slot: true
+    budget_by_edge_state:
+      STRONG_EDGE: {probability: 2, coverage: 2, exploration: 1}
+      WEAK_EDGE: {probability: 1, coverage: 3, exploration: 1}
+      NO_EDGE: {probability: 1, coverage: 3, exploration: 1}
+      RECALL_GUARD: {probability: 1, coverage: 3, exploration: 1}
+  governance:
+    champion_challenger: true
+  final_guard:
+    mode: corrective
+    hard_constraints_only: false
+    # Final Guard 是最后一层最小修复，不再作为第二个组合优化器。
+    # 硬保护只保留少量最高证据号码，其余作为软诊断，避免 19~24 个号码互相打架。
+    hard_protect_limit: 12
+    hard_must_preserve_limit: 8
+    hard_recovery_protected_limit: 4
+    hard_anchor_limit: 3
+    # 红球每期默认最多改 1 张票；若改动导致信息损失过大，直接回滚。
+    max_ticket_changes: 1
+    max_union_loss: 1
+    max_retention_loss: 0.03
+    rollback_on_excessive_loss: true
+    expert_decorrelation: true
+    decorrelation_threshold: 0.85
+    group_cap_by_edge_state:
+      STRONG_EDGE: 0.70
+      WEAK_EDGE: 0.55
+      NO_EDGE: 0.42
+      RECALL_GUARD: 0.35
+    shadow_before_production: true
+  backtest:
+    nested_walk_forward: true
+    matched_random: true
+    block_bootstrap: true
+    confirmatory_gate: true

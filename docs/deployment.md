@@ -37,3 +37,11 @@
 新期首次每日留档可带可选 `small_red_pools` v1，原榜与试验各4个12–16红的池，共8个红球独立池；原25策略、171个常规池不变。26124旧档不追加。发布后核对 `/api/small-red`、小池复制／导出及旧期不显示新增原档，生产只读验收；生成与未来首次留档仅由实际用户或既有自动任务触发。
 
 2026-10-29 起，既有每日档案未包含小池时，周期可在开奖截止前另外创建 `recommendations/small-red/{issue}.json`，复盘保存到 `recommendations/reviews/{issue}/small-red.json`。备份继续覆盖整个 recommendations 目录。新接口 `POST /api/small-red/freeze` 绑定目标期号和输入摘要；生产功能验证使用只读接口，正式启用观察由实际封存或原定时任务执行。发布前暂停定时任务，核对原文件字节未变，再恢复定时任务。
+
+## 参考5注观察运行环境（2026-10-29）
+
+参考观察版本的release还包含 `reference/`，原有Rust服务入口、端口和CSV目录继续沿用。Python3.10独立环境为根目录下 `reference-venv`，解释器/安装文件及工作数据为 `reference-runtime`。这些路径不随release覆盖或删除；工作目录中的本地审计密钥只允许服务用户访问。安装版本与CPU wheel摘要见reference目录的requirements及constraints，禁止复制refs中的通知配置或用户模型pickle。
+
+新增 `ssq-reference.service` 和 `ssq-reference.timer`，每30分钟检查新数据，同一输入只计算一次；CPU及内存有限额。重计算在独立进程进行，不占用网页请求或原180秒cycle。生成缓存后调用当前Rust的 `reference-freeze`，仍检查截止。两个新unit安装完成后daemon-reload、enable --now timer，并核对实际执行状态。部署后续版本前须暂停该timer并等待运行结束或安排安全切换，不能把半成品当成已发布缓存。
+
+`recommendations/reference-cache`、`recommendations/reference`及`recommendations/reviews/{issue}/reference.json`随原recommendations一起备份。首次发布的原档核验只读；正式运算、封存另外记录输入摘要、源码/配置摘要及保存时间。回滚保留所有新观察数据，并使用能够读取参考观察的版本。`reference-runtime/work`保留运行诊断，部署前备份状态与必要诊断，不复制到公共下载路径。

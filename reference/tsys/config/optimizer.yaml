@@ -1,0 +1,15 @@
+# V7 分层配置：组合优化和动态预算。
+# 生产最终红球以 global_coverage 覆盖骨架为主；red_ge3_objective 仅保留为消融/Shadow 对照，
+# 不再作为红球最终决策层默认裁判。
+optimizer:
+  methods: [greedy, pareto, red_ge3_objective, historical_hit, global_coverage]
+  red_guard_default_method: global_coverage
+  shadow_methods: [red_ge3_objective]
+  dynamic_budget: true
+  budget_by_edge_state:
+    STRONG_EDGE: {probability: 2, coverage: 2, exploration: 1}
+    WEAK_EDGE: {probability: 1, coverage: 3, exploration: 1}
+    NO_EDGE: {probability: 1, coverage: 3, exploration: 1}
+    RECALL_GUARD: {probability: 1, coverage: 3, exploration: 1}
+  regret_tracking: true
+  candidate_recall_guard: true

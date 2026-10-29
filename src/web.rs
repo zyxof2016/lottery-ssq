@@ -25,11 +25,12 @@ const PAGE: &str = include_str!("web/index.html");
 const REVIEWS_PAGE: &str = include_str!("web/reviews.html");
 const POOLS_PAGE: &str = include_str!("web/pools.html");
 const RESEARCH_PAGE: &str = include_str!("web/research.html");
-const STATIC_ASSETS: [(&str, &str, &[u8]); 8] = [
+const STATIC_ASSETS: [(&str, &str, &[u8]); 9] = [
     ("app.css", "text/css", include_bytes!("web/static/app.css")),
     ("shell.js", "application/javascript", include_bytes!("web/static/shell.js")),
     ("main.js", "application/javascript", include_bytes!("web/static/main.js")),
     ("pool-intersection.js", "application/javascript", include_bytes!("web/static/pool-intersection.js")),
+    ("reference-pools.js", "application/javascript", include_bytes!("web/static/reference-pools.js")),
     ("small-red.js", "application/javascript", include_bytes!("web/static/small-red.js")),
     ("blue-focus.js", "application/javascript", include_bytes!("web/static/blue-focus.js")),
     ("pool-compression.js", "application/javascript", include_bytes!("web/static/pool-compression.js")),
@@ -134,6 +135,12 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
             report["publication"]=json!({"can_freeze":gate.publish,"target":gate.target,"deadline":gate.deadline_text,"reason":gate.reason});Ok(report)
         }),
         ("POST", "/api/small-red/freeze") => freeze_small_red(app,body),
+        ("GET", "/api/reference-pools") => load_csv(&app.data).and_then(|draws|{
+            let mut report=crate::reference::report(&recommendation_dir(app),&draws)?;
+            let last=draws.last().ok_or("没有开奖数据")?;let gate=decide(recommendations::now_unix(),last.issue,last.date,false);
+            report["publication"]=json!({"can_freeze":gate.publish,"target":gate.target,"deadline":gate.deadline_text,"reason":gate.reason});Ok(report)
+        }),
+        ("POST", "/api/reference-pools/freeze") => freeze_reference(app,body),
         ("GET", "/api/blue") => load_csv(&app.data).and_then(|draws| {
             let mut report=crate::blue::analyze(&draws)?;
             report["actual"]=recommendations::blue_observations(&recommendation_dir(app),&draws)?;
@@ -1074,6 +1081,15 @@ fn recommendation_detail(app: &App, issue: &str, query: &str) -> Result<Value, S
         query_value(query, "archive").as_deref(), query_value(query, "strategy").as_deref())
 }
 
+fn freeze_reference(app:&App,body:&str)->Result<Value,String>{
+    let draws=load_csv(&app.data)?;let last=draws.last().ok_or("没有开奖数据")?;
+    let gate=decide(recommendations::now_unix(),last.issue,last.date,false);
+    let expected:Value=serde_json::from_str(body).map_err(|_|"参考池封存请求无效")?;
+    if expected["data_sha256"]!=data_sha256(&draws)||expected["target"]!=gate.target{return Err("参考池的数据或期号已变化，请刷新后封存".into());}
+    if !gate.publish{return Err(gate.reason);}
+    crate::reference::freeze(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix)
+}
+
 fn freeze_small_red(app:&App,body:&str)->Result<Value,String>{
     let draws=load_csv(&app.data)?;let last=draws.last().ok_or("没有开奖数据")?;
     let gate=decide(recommendations::now_unix(),last.issue,last.date,false);
@@ -1331,6 +1347,16 @@ mod tests {
             mutation: Mutex::new(()),
         };
         (dir, app, draws)
+    }
+
+    #[test]
+    fn reference_get_and_stale_freeze_do_not_write() {
+        let (dir,app,draws)=fixture("reference-routes");let issue=fmt_issue(draws.last().unwrap().issue+1);let root=recommendation_dir(&app);
+        let (status,_,bytes)=route(&app,"GET","/api/reference-pools","","");assert_eq!(status,200);
+        let value:Value=serde_json::from_slice(&bytes).unwrap();assert!(value["next"].is_null());assert!(value["publication"].is_object());
+        let bad=json!({"target":issue,"data_sha256":"stale"}).to_string();let (status,_,_)=route(&app,"POST","/api/reference-pools/freeze","",&bad);assert_ne!(status,200);assert!(!root.join("reference").exists());
+        let (status,_,_)=route(&app,"GET","/api/recommendations/files","path=reference%2F..%2Fdaily%2F26124.json","");assert_ne!(status,200);
+        fs::remove_dir_all(dir).unwrap();
     }
 
     #[test]

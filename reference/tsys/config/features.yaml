@@ -1,0 +1,8 @@
+# V7 分层配置：特征工程入口说明。
+# 主运行仍读取 config.yaml；本文件用于把特征相关参数从主配置中逐步拆出。
+features:
+  red_windows: [5, 10, 30, 100, 300, 500]
+  blue_windows: [5, 10, 30, 100, 300, 500]
+  calendar_features_enabled: true
+  pairwise_red_features_enabled: true
+  structure_features_enabled: true
