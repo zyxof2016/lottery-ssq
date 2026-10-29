@@ -76,7 +76,8 @@ fn source_sha() -> String {
             include_str!("conditional.rs"),
             include_str!("pool_algorithms.rs"),
             include_str!("blue.rs"),
-            include_str!("small_red.rs")
+            include_str!("small_red.rs"),
+            include_str!("small_archive.rs")
         )
         .as_bytes(),
     )
@@ -99,7 +100,7 @@ fn write_new(path: &Path, payload: Value) -> Result<(Value, bool), String> {
     write_new_before(path, payload, None, now_unix)
 }
 
-fn write_new_before(
+pub(crate) fn write_new_before(
     path: &Path,
     payload: Value,
     deadline: Option<u64>,
@@ -304,7 +305,7 @@ fn efficiency_strategy(profile: &efficiency::Profile, prepared: &Prepared) -> Va
     })
 }
 
-fn base_payload(
+pub(crate) fn base_payload(
     prepared: &Prepared,
     issue: &str,
     kind: &str,
@@ -497,7 +498,7 @@ fn validate_prefix(payload: &Value, draws: &[Draw]) -> Result<(), String> {
     Ok(())
 }
 
-fn validate_archive(payload: &Value, issue: &str, draws: &[Draw]) -> Result<(), String> {
+pub(crate) fn validate_archive(payload: &Value, issue: &str, draws: &[Draw]) -> Result<(), String> {
     if payload["issue"] != issue {
         return Err("档案期号与路径不一致".into());
     }
@@ -541,7 +542,7 @@ fn validate_archive(payload: &Value, issue: &str, draws: &[Draw]) -> Result<(), 
             }
         }
     }
-    if payload["kind"] == "daily" {
+    if payload["kind"] == "daily" || payload["kind"] == "small_red_observation" {
         let cutoff = payload["data_cutoff"]
             .as_str()
             .and_then(|s| s.parse().ok())
@@ -590,7 +591,7 @@ fn draw_json(draw: &Draw) -> Value {
     json!({"issue": fmt_issue(draw.issue), "date": fmt_date(draw.date), "red": draw.red.to_vec(), "blue": draw.blue})
 }
 
-fn saved_after_draw(published: Option<u64>, draw: Option<&Draw>) -> bool {
+pub(crate) fn saved_after_draw(published: Option<u64>, draw: Option<&Draw>) -> bool {
     published.zip(draw).is_some_and(|(time, d)| {
         crate::cycle::fmt_cst(time) >= format!("{} 21:10", fmt_date(d.date))
     })
@@ -771,24 +772,8 @@ pub fn blue_observations(root:&Path,draws:&[Draw])->Result<Value,String>{
         "note":"只配对同一期原始保存的4组8注票面；旧档缺方案不补造，待开奖不计失败。4蓝与2蓝数量不同，增加覆盖与改善排序分别判断。"}))
 }
 
-/// Only original paired small-pool extensions enter this prospective statistic.
 pub fn small_red_observations(root:&Path,draws:&[Draw])->Result<Value,String>{
-    let mut paths=Vec::new();match fs::read_dir(root.join("daily")){
-        Ok(entries)=>for entry in entries{let path=entry.map_err(|e|e.to_string())?.path();if path.extension().and_then(|x|x.to_str())==Some("json")&&path.file_stem().and_then(|x|x.to_str()).is_some_and(valid_issue){paths.push(path);}},
-        Err(e)if e.kind()==std::io::ErrorKind::NotFound=>{},Err(e)=>return Err(e.to_string()),
-    }paths.sort();let(mut n,mut pending,mut missing)=(0,0,0);let(mut full,mut sums,mut gains,mut losses)=([0usize;8],[0usize;8],[0usize;8],[0usize;8]);let mut periods=Vec::new();let mut errors=Vec::new();
-    for path in paths{let issue=path.file_stem().unwrap().to_str().unwrap();let result=(||->Result<(),String>{
-        let envelope=read_checked(&path)?;let payload=&envelope["payload"];if payload["kind"]!="daily"{return Err("每日目录中不是每日档案".into());}validate_archive(payload,issue,draws)?;
-        let draw=draws.iter().find(|d|fmt_issue(d.issue)==issue);if saved_after_draw(payload["published_at_unix"].as_u64(),draw){return Err("保存晚于常规开奖时间".into());}
-        let Some(small)=payload.get("small_red_pools")else{missing+=1;return Ok(());};let reviewed=crate::small_red::review(small,draw)?;
-        if draw.is_none(){pending+=1;periods.push(json!({"issue":issue,"archive_sha256":envelope["sha256"],"pending":true,"hits":Value::Null}));return Ok(());}
-        let hits:[[usize;4];2]=std::array::from_fn(|m|std::array::from_fn(|j|reviewed["models"][m]["pools"][j]["red_hits"].as_u64().unwrap()as usize));n+=1;
-        for m in 0..2{for j in 0..4{let i=m*4+j;full[i]+=usize::from(hits[m][j]==6);sums[i]+=hits[m][j];gains[i]+=usize::from(hits[m][j]==6&&hits[0][j]!=6);losses[i]+=usize::from(hits[m][j]!=6&&hits[0][j]==6);}}
-        periods.push(json!({"issue":issue,"archive_sha256":envelope["sha256"],"pending":false,"hits":hits}));Ok(())})();if let Err(e)=result{errors.push(format!("{issue}：{e}"));}}
-    let cells:Vec<_>=crate::small_red::MODELS.iter().enumerate().flat_map(|(m,name)|crate::small_red::SIZES.iter().enumerate().map(move|(j,&k)|{let i=m*4+j;json!({"model":name,"red_count":k,"n":n,"pending":pending,"excluded_missing_pair":missing,"full_red_periods":full[i],"full_red_rate":(n>0).then(||full[i]as f64/n as f64),"mean_missed_reds":(n>0).then(||6.-sums[i]as f64/n as f64),"paired_gains":gains[i],"paired_losses":losses[i]})})).collect();
-    let next=draws.last().map(|d|fmt_issue(d.issue+1)).ok_or("没有开奖数据")?;let path=root.join("daily").join(format!("{next}.json"));let exists=path.exists();let saved=if exists{read_checked(&path).ok().is_some_and(|v|v["payload"].get("small_red_pools").is_some())}else{false};
-    Ok(json!({"kind":"actual_saved_small_red_observations","actual_recommendation":true,"independent_timestamp_verified":false,"cells":cells,"periods":periods,"errors":errors,
-        "next_archive":{"issue":next,"daily_exists":exists,"has_small_red_pools":saved},"note":"只配对每日原档实际保存的原榜和试验小池，同一期同红球数量比较；旧档缺扩展不补造，待开奖不计失败。本地留档无独立时间戳证明。"}))
+    crate::small_archive::observations(root,draws)
 }
 
 fn observation_pool<'a>(record: &'a Value, model: &str, red: usize, blue: usize) -> Option<(&'a Value, &'a Value)> {
@@ -1233,12 +1218,14 @@ pub fn settle_archives(root: &Path, draws: &[Draw]) -> Settlement {
             }
         }
     }
+    let small=crate::small_archive::settle(root,draws);
+    outcome.settled+=small.settled;outcome.errors.extend(small.errors);
     outcome
 }
 
 fn all_issues(root: &Path) -> BTreeSet<String> {
     let mut issues = BTreeSet::new();
-    for dir in [root.join("daily"), root.join("interactive")] {
+    for dir in [root.join("daily"), root.join("interactive"), root.join("small-red")] {
         if let Ok(entries) = fs::read_dir(dir) {
             for entry in entries.flatten() {
                 let path = entry.path();
@@ -1349,10 +1336,11 @@ pub fn issue_detail(
         sources.push(json!({"id": format!("saved:{}", record["file"].as_str().unwrap_or("")), "kind": "saved", "published_at_unix": record["published_at"]}));
     }
     let mut response = json!({"issue": issue, "draw": draw.map(draw_json), "sources": sources});
+    if let Some(value)=crate::small_archive::view(root,draws,issue)? {response["independent_small_red"]=value;}
     if sources.is_empty() {
         response["missing"] = json!(true);
         response["message"] =
-            json!("本期没有实际推荐档案，历史缺档不补造。事后回放请到回测页面查看。");
+            json!(if response.get("independent_small_red").is_some(){"本期没有票组推荐档案；独立小池观察另列。"}else{"本期没有实际推荐档案，历史缺档不补造。事后回放请到回测页面查看。"});
         return Ok(response);
     }
     let id = archive
@@ -1432,7 +1420,7 @@ pub fn issue_detail(
 pub fn artifact(root: &Path, raw: &str) -> Result<Vec<u8>, String> {
     let parts: Vec<_> = raw.split('/').collect();
     let valid = match parts.as_slice() {
-        ["daily", file] => file.strip_suffix(".json").is_some_and(valid_issue),
+        ["daily" | "small-red", file] => file.strip_suffix(".json").is_some_and(valid_issue),
         ["interactive", issue, file] => {
             valid_issue(issue) && file.strip_suffix(".json").is_some_and(valid_id)
         }
@@ -1440,7 +1428,7 @@ pub fn artifact(root: &Path, raw: &str) -> Result<Vec<u8>, String> {
             valid_issue(issue)
                 && file
                     .strip_suffix(".json")
-                    .is_some_and(|s| s == "daily" || valid_id(s))
+                    .is_some_and(|s| s == "daily" || s == "small-red" || valid_id(s))
         }
         _ => false,
     };

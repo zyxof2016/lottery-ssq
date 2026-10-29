@@ -29,8 +29,10 @@ target/release/ssq cycle --data data/ssq.csv --audit audit/log.jsonl --out publi
 ```text
 recommendations/
   daily/26116.json                  # 每期全部预设的实际票组和证据
+  small-red/26124.json              # 截止前另行封存的小红球观察，不修改每日原档
   interactive/26116/<sha256>.json    # 生成或保存的个人方案
   reviews/26116/daily.json          # 绑定每期推荐摘要和开奖摘要的复盘
+  reviews/26124/small-red.json      # 绑定独立小池原档及开奖结果的复盘
   reviews/26116/<sha256>.json        # 个人方案复盘
 ```
 
@@ -57,10 +59,14 @@ recommendations/
 | POST | `/api/recommendations/freeze` | 按本地周期门槛留档下一期全部预设与模型号码池 |
 | GET | `/api/pools` | 六档号码预览及独立的历史因果回放 |
 | GET | `/api/pools/observations` | 按实际每日留档统计六档覆盖，待开奖与缺档不计入比例 |
+| GET | `/api/small-red` | 小池历史回放、实际观察及当前独立封存状态 |
+| POST | `/api/small-red/freeze` | JSON `data_sha256`、`target`；截止前独立封存8个小池，重复返回首次档案 |
 | POST | `/api/recommendations/settle` | 用本地开奖核对，返回新增数与逐档错误 |
 | GET | `/api/recommendations/files?path=daily%2F26116.json` | 验证摘要后导出原始档案或已保存复盘 |
 
 个人来源为 `interactive:<64位摘要>`，旧来源为 `saved:<记录标识>`。文件导出仅允许约定目录及合法期号/摘要，不允许路径穿越和越界符号链接。页面还可导出当前所选方案的复盘 JSON 和完整 49 个号码的 CSV；号码筛选不裁剪导出内容。原始档案 JSON 保存全部方案，复盘原文件也保存全部方案。
+
+独立小池与每日原档分开展示，记录真实封存时间、历史前缀和父档案摘要。统计只使用每日首次扩展或独立首次档案，内容相同的两个来源不重复计数，冲突拒绝混算。待开奖的命中为 null，不作为失败或计入命中率；缺档不补算。GET 可预览核对结果，只有核对操作保存复盘。独立档案也没有独立可信时间戳。
 
 ## 少注覆盖 v1
 

@@ -63,6 +63,14 @@ pub fn run_cycle(data: &Path, audit: &Path, publish_dir: &Path, review_dir: &Pat
             Err(e) => notes.push(format!("封存没有写入：{e}")),
         }
     }
+    // Start prospective small-pool observations even if this issue's daily
+    // archive was sealed before the small-pool extension existed.
+    if gate.publish {
+        match crate::small_archive::freeze(&recommendation_dir,&draws,&gate.target,gate.deadline_unix) {
+            Ok(value)=>notes.push(format!("小池观察 {}：{}（来源{}，摘要{}）",gate.target,value["status"].as_str().unwrap_or(""),value["source"].as_str().unwrap_or(""),value["archive_sha256"].as_str().unwrap_or(""))),
+            Err(error)=>notes.push(format!("小池观察未封存：{error}")),
+        }
+    }
     let settlement = recommendations::settle_archives(&recommendation_dir, &draws);
     notes.push(format!("实际推荐复盘新增 {} 份", settlement.settled));
     notes.extend(settlement.errors);

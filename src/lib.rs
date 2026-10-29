@@ -19,6 +19,7 @@ pub mod report;
 pub mod review;
 pub mod select;
 pub mod small_red;
+pub mod small_archive;
 pub mod stats;
 pub mod tail;
 pub mod web;

@@ -127,7 +127,13 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
         ("GET", "/research") | ("GET", "/research/") | ("GET", "/research.html") => {
             return (200, "text/html", RESEARCH_PAGE.as_bytes().to_vec());
         }
-        ("GET", "/api/small-red") => load_csv(&app.data).and_then(|draws|{let mut report=crate::small_red::analyze(&draws)?;report["actual"]=recommendations::small_red_observations(&recommendation_dir(app),&draws)?;Ok(report)}),
+        ("GET", "/api/small-red") => load_csv(&app.data).and_then(|draws|{
+            let mut report=crate::small_red::analyze(&draws)?;
+            report["actual"]=recommendations::small_red_observations(&recommendation_dir(app),&draws)?;
+            let last=draws.last().ok_or("没有开奖数据")?;let gate=decide(recommendations::now_unix(),last.issue,last.date,false);
+            report["publication"]=json!({"can_freeze":gate.publish,"target":gate.target,"deadline":gate.deadline_text,"reason":gate.reason});Ok(report)
+        }),
+        ("POST", "/api/small-red/freeze") => freeze_small_red(app,body),
         ("GET", "/api/blue") => load_csv(&app.data).and_then(|draws| {
             let mut report=crate::blue::analyze(&draws)?;
             report["actual"]=recommendations::blue_observations(&recommendation_dir(app),&draws)?;
@@ -1068,6 +1074,15 @@ fn recommendation_detail(app: &App, issue: &str, query: &str) -> Result<Value, S
         query_value(query, "archive").as_deref(), query_value(query, "strategy").as_deref())
 }
 
+fn freeze_small_red(app:&App,body:&str)->Result<Value,String>{
+    let draws=load_csv(&app.data)?;let last=draws.last().ok_or("没有开奖数据")?;
+    let gate=decide(recommendations::now_unix(),last.issue,last.date,false);
+    let expected:Value=serde_json::from_str(body).map_err(|_|"小池封存请求无效")?;
+    if expected["data_sha256"]!=data_sha256(&draws)||expected["target"]!=gate.target{return Err("小池预览的数据或期号已变化，请刷新后封存".into());}
+    if !gate.publish{return Err(gate.reason);}
+    crate::small_archive::freeze(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix)
+}
+
 fn freeze_recommendations(app: &App, body: &str) -> Result<Value, String> {
     let draws = load_csv(&app.data)?;
     let last = draws.last().ok_or("没有开奖数据")?;
@@ -1316,6 +1331,15 @@ mod tests {
             mutation: Mutex::new(()),
         };
         (dir, app, draws)
+    }
+
+    #[test]
+    fn independent_small_red_get_export_and_stale_freeze_are_safe() {
+        let (dir,app,draws)=fixture("independent-small-red");let issue=fmt_issue(draws.last().unwrap().issue+1);let root=recommendation_dir(&app);
+        let bad=json!({"target":issue,"data_sha256":"changed"}).to_string();let (status,_,_)=route(&app,"POST","/api/small-red/freeze","",&bad);assert_ne!(status,200);assert!(!root.join("small-red").exists());
+        crate::small_archive::freeze_with_clock(&root,&draws,&issue,100,||20).unwrap();let path=root.join(format!("small-red/{issue}.json"));let original=fs::read(&path).unwrap();
+        let (status,_,bytes)=route(&app,"GET",&format!("/api/recommendations/issues/{issue}"),"","");assert_eq!(status,200);let value:Value=serde_json::from_slice(&bytes).unwrap();assert_eq!(value["missing"],true);assert_eq!(value["independent_small_red"]["source"],"independent");assert!(value["independent_small_red"]["small_red_pools"]["models"][1]["pools"][0]["full_red"].is_null());
+        let (status,_,bytes)=route(&app,"GET","/api/recommendations/files",&format!("path=small-red%2F{issue}.json"),"");assert_eq!(status,200);assert_eq!(bytes,original);assert_eq!(fs::read(&path).unwrap(),original);assert!(!root.join("reviews").exists());fs::remove_dir_all(dir).unwrap();
     }
 
     #[test]

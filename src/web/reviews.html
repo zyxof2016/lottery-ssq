@@ -48,8 +48,8 @@
 <span class="ball selected blue">{{ pad(view.draw.blue) }}</span>
 </div>
           <div v-if="view.missing" class="empty">
-<h2>本期没有实际推荐档案</h2>
-<p class="muted">历史缺档不会用今天的模型补造。事后回放请到首页的回测页面查看。</p>
+<h2>{{ view.independent_small_red?'本期没有票组推荐档案':'本期没有实际推荐档案' }}</h2>
+<p class="muted">{{ view.independent_small_red?'独立小池观察另列如下，不属于完整投注票组。':'历史缺档不会用今天的模型补造。事后回放请到首页的回测页面查看。' }}</p>
 </div>
           <template v-else>
 <div class="flex" style="margin-top:18px">
@@ -71,6 +71,7 @@
 </p>
 </template>
         </section>
+<section v-if="view.independent_small_red" class="card" id="independent-small-red"><h2>独立小池观察 · 与每日原档分开封存</h2><p class="muted">保存时间 {{ time(view.independent_small_red.published_at_unix) }} · 依据截止 {{ view.independent_small_red.data_cutoff }}。这里的号码不属于每日原档追加内容。</p><p class="muted">原档摘要 <code>{{ view.independent_small_red.archive_sha256 }}</code> · 无独立可信时间戳证明。</p><a :href="fileUrl(view.independent_small_red.raw_file)">下载独立原档JSON</a><a v-if="view.independent_small_red.review_file" :href="fileUrl(view.independent_small_red.review_file)">下载首次复盘JSON</a><div class="scroll"><table class="small-red-table"><thead><tr><th>模型 / 数量</th><th>原始红球</th><th>中红 / 全6红</th></tr></thead><tbody><template v-for="m in view.independent_small_red.small_red_pools.models" :key="m.model"><tr v-for="p in m.pools" :key="p.id"><td>{{ m.label }} · {{ p.red_count }}红</td><td>{{ p.reds.slice().sort((a,b)=>a-b).map(pad).join(' ') }}</td><td>{{ nullable(p.red_hits) }}/6 · {{ flag(p.full_red) }}</td></tr></template></tbody></table></div></section>
         <section v-if="view.number_pools" class="card" aria-label="实际小号码池复盘">
 <h2>当时的模型号码池 · 分档核对覆盖</h2>
 <section v-if="view.small_red_pools" id="archived-small-red"><h3>16红以内 · 原始小池观察</h3><p class="muted">只核对本期首次保存的12／14／15／16红；旧档没有此扩展时不补造。</p><div class="scroll"><table class="small-red-table"><thead><tr><th>模型 / 数量</th><th>原始红球</th><th>中红 / 全6红</th></tr></thead><tbody><template v-for="m in view.small_red_pools.models" :key="m.model"><tr v-for="p in m.pools" :key="p.id"><td>{{ m.label }} · {{ p.red_count }}红</td><td>{{ p.reds.slice().sort((a,b)=>a-b).map(pad).join(' ') }}</td><td>{{ nullable(p.red_hits) }}/6 · {{ flag(p.full_red) }}</td></tr></template></tbody></table></div></section>
