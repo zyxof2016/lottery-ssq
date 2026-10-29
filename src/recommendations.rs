@@ -1344,7 +1344,7 @@ pub fn issue_detail(
     if sources.is_empty() {
         response["missing"] = json!(true);
         response["message"] =
-            json!(if response.get("independent_small_red").is_some(){"本期没有票组推荐档案；独立小池观察另列。"}else{"本期没有实际推荐档案，历史缺档不补造。事后回放请到回测页面查看。"});
+            json!(if response.get("independent_small_red").is_some() || response.get("independent_reference").is_some(){"本期没有每日或个人票组档案；独立观察原档另列。"}else{"本期没有实际推荐档案，历史缺档不补造。事后回放请到回测页面查看。"});
         return Ok(response);
     }
     let id = archive
