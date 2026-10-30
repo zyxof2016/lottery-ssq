@@ -1,0 +1,30 @@
+{
+  "scope": "isolated_runtime_read_only",
+  "checkbox_catalogue": true,
+  "reference_choices": 10,
+  "small_pool_choices": 8,
+  "custom_red_blue_input": true,
+  "four_set_methods_verified": true,
+  "red_only_pools_do_not_erase_blue": true,
+  "empty_threshold_input_recoverable": true,
+  "copy_and_full_export": true,
+  "refresh_restores_library_and_selection": true,
+  "clear_keeps_saved_pools": true,
+  "period_switch_keeps_selected": true,
+  "cross_period_comparison_explicit": true,
+  "multiple_tabs_merge_library": true,
+  "corrupt_storage_preserved": true,
+  "archive_review_supported": true,
+  "original_daily_bytes_preserved": true,
+  "widths": [
+    320,
+    390,
+    768,
+    1440
+  ],
+  "console_errors": [],
+  "vue_warnings": [],
+  "write_requests": [],
+  "rust_tests_passed": 107,
+  "node_manual_set_tests_passed": true
+}

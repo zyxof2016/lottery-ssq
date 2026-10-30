@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict');global.window=globalThis;require('../src/web/static/pool-intersection.js');require('../src/web/static/manual-pools.js');const m=globalThis.SSQManualPools;
+const pool=(id,reds,blues=[],issue='26124')=>({id,label:'池'+id,reds,blues,source:{issue,kind:'custom'}}),p=[pool('a',[1,2,3,4,5,6],[1,2]),pool('b',[2,3,4,7,8,9],[2,3]),pool('c',[3,4,7,10])];
+assert.deepEqual(m.parse('０１，02 02、３; 04\n05',33),[1,2,3,4,5]);for(const text of['0','34','2-4','1.5','1 x'])assert.throws(()=>m.parse(text,33));assert.throws(()=>m.parse('17',16));assert.deepEqual(m.parse('',16),[]);
+assert.deepEqual(m.analyze(p).reds,[3,4]);assert.deepEqual(m.analyze(p).blues,[2]);assert.equal(m.analyze(p).blue.eligible_pool_count,2);assert.equal(m.analyze(p).blue.omitted_pool_count,1);
+assert.deepEqual(m.analyze(p,'majority').reds,[2,3,4,7]);assert.deepEqual(m.analyze(p,'threshold',2).reds,[2,3,4,7]);assert.deepEqual(m.analyze(p,'threshold',3).blues,[]);assert.equal(m.analyze(p,'threshold',3).blue.minimum_pool_count,3);assert.deepEqual(m.analyze(p,'union').reds,[1,2,3,4,5,6,7,8,9,10]);assert.deepEqual(m.analyze([p[0]]).reds,p[0].reds);assert.deepEqual(m.analyze([]).reds,[]);assert.equal(m.analyze([]).red.hit_numbers,null);
+assert.throws(()=>m.analyze([p[0],p[0]]));assert.throws(()=>m.normalize([pool('bad',[],[])]));assert.equal(m.normalize([pool('dup',[1,1,2])])[0].reds.length,2);assert.equal(m.analyze([p[0],{...p[0],id:'z'}]).distinct_number_sets,1);assert.throws(()=>m.mergePools([p[0]],[{...p[0],reds:[9]}]));
+const draw={issue:'26124',red:[1,3,4,12,20,33],blue:2},a=m.analyze(p,'strict',2,draw,'26124');assert.deepEqual(a.red.hit_numbers,[3,4]);assert.deepEqual(a.blue.hit_numbers,[2]);assert.deepEqual(a.red.removed_winning_numbers,[1]);assert.throws(()=>m.analyze(p,'strict',2,draw,'26125'));assert.equal(m.analyze([pool('prior',[1],[],'26123')],'strict',2,draw,'26124').cross_issue_pool_count,1);
+const state=JSON.stringify({version:1,pools:p,selected_ids:['a','c'],method:'threshold',minimum:2});assert.deepEqual(m.readState(state).selected.map(x=>x.id),['a','c']);assert.throws(()=>m.readState(state.replace('"a","c"','"missing"')));assert.throws(()=>m.readState('{bad'));assert.throws(()=>m.readState(state.replace('"version":1','"version":2')));assert.equal(m.readState(null),null);assert.equal(m.mergePools([p[0]],[p[0]]).length,1);
+const record={issue:'26124',archive_id:'daily',provenance:{sha256:'x'},strategies:[{name:'first',title:'第一组',summary:{unique_reds:[1,2,3],unique_blues:[4]}}],small_red_pools:{models:[{model:'small_recent',label:'小池',pools:[{red_count:12,reds:[1,2]}]}]}},choices=m.collectArchive(record);assert.equal(choices.length,2);assert.equal(choices[0].source.group,'tickets');assert.equal(choices[1].source.group,'small');assert.deepEqual(choices[1].blues,[]);assert.equal(m.collectArchive({...record,provenance:{sha256:'other'}})[0].id===choices[0].id,false);
+const csv=m.toCsv(m.analyze([{...p[0],label:'=HYPERLINK("x")'}]));assert(csv.includes("'=HYPERLINK"));assert(csv.startsWith('\ufeff'));assert(m.toText(a).includes('全部交集'));assert(m.toText(a).includes('池a'));
+
+
+assert.equal(m.analyze([p[0],{...p[0],id:'other-blue',blues:[3]}]).red.distinct_number_sets,1);
+assert.equal(m.analyze([p[0],{...p[0],id:'other-blue',blues:[3]}]).blue.distinct_number_sets,2);
+
+const rv={...record,independent_reference:{"archive_sha256": "ref-sha", "reference_pools": {"reference": {"reds": [1, 2], "blues": [4], "tickets": [{"red": [1, 2], "blue": 4}]}, "fusion": {"blues": [4], "pools": [{"red_count": 2, "reds": [1, 2]}]}}}};
+assert.deepEqual(m.collectArchive(rv).filter(p=>p.source.kind==='reference').map(p=>p.id),m.collectArchive({...rv,archive_id:'interactive:other'}).filter(p=>p.source.kind==='reference').map(p=>p.id));
+
+assert.throws(()=>m.mergePools(Array.from({length:600},(_,i)=>pool('large'+i,[1])),Array.from({length:600},(_,i)=>pool('other'+i,[2]))));
+console.log('Manual pools: parsing, four methods, color denominators, duplicate votes, nullable results, source identities, persistence bounds and CSV safety passed');

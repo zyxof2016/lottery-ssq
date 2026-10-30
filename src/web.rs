@@ -25,10 +25,11 @@ const PAGE: &str = include_str!("web/index.html");
 const REVIEWS_PAGE: &str = include_str!("web/reviews.html");
 const POOLS_PAGE: &str = include_str!("web/pools.html");
 const RESEARCH_PAGE: &str = include_str!("web/research.html");
-const STATIC_ASSETS: [(&str, &str, &[u8]); 9] = [
+const STATIC_ASSETS: [(&str, &str, &[u8]); 10] = [
     ("app.css", "text/css", include_bytes!("web/static/app.css")),
     ("shell.js", "application/javascript", include_bytes!("web/static/shell.js")),
     ("main.js", "application/javascript", include_bytes!("web/static/main.js")),
+    ("manual-pools.js", "application/javascript", include_bytes!("web/static/manual-pools.js")),
     ("pool-intersection.js", "application/javascript", include_bytes!("web/static/pool-intersection.js")),
     ("reference-pools.js", "application/javascript", include_bytes!("web/static/reference-pools.js")),
     ("small-red.js", "application/javascript", include_bytes!("web/static/small-red.js")),
