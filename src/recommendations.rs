@@ -78,7 +78,8 @@ fn source_sha() -> String {
             include_str!("blue.rs"),
             include_str!("small_red.rs"),
             include_str!("small_archive.rs"),
-            include_str!("reference.rs")
+            include_str!("reference.rs"),
+            include_str!("reference_tickets.rs")
         )
         .as_bytes(),
     )
@@ -543,7 +544,7 @@ pub(crate) fn validate_archive(payload: &Value, issue: &str, draws: &[Draw]) -> 
             }
         }
     }
-    if payload["kind"] == "daily" || payload["kind"] == "small_red_observation" || payload["kind"] == "reference_observation" {
+    if payload["kind"] == "daily" || payload["kind"] == "small_red_observation" || payload["kind"] == "reference_observation" || payload["kind"] == "reference_fusion_tickets" {
         let cutoff = payload["data_cutoff"]
             .as_str()
             .and_then(|s| s.parse().ok())
@@ -885,7 +886,7 @@ fn prize(red: usize, blue: bool) -> Option<u8> {
     }
 }
 
-fn review_strategy(saved: &Value, draw: Option<&Draw>) -> Result<Value, String> {
+pub(crate) fn review_strategy(saved: &Value, draw: Option<&Draw>) -> Result<Value, String> {
     let tickets: Vec<Ticket> =
         serde_json::from_value(saved["tickets"].clone()).map_err(|e| format!("票组无效：{e}"))?;
     if tickets.is_empty() {
@@ -1223,12 +1224,13 @@ pub fn settle_archives(root: &Path, draws: &[Draw]) -> Settlement {
     outcome.settled+=small.settled;outcome.errors.extend(small.errors);
     let reference=crate::reference::settle(root,draws);
     outcome.settled+=reference.settled;outcome.errors.extend(reference.errors);
+    let tickets=crate::reference_tickets::settle(root,draws);outcome.settled+=tickets.settled;outcome.errors.extend(tickets.errors);
     outcome
 }
 
 fn all_issues(root: &Path) -> BTreeSet<String> {
     let mut issues = BTreeSet::new();
-    for dir in [root.join("daily"), root.join("interactive"), root.join("small-red"), root.join("reference")] {
+    for dir in [root.join("daily"), root.join("interactive"), root.join("small-red"), root.join("reference"), root.join("reference-tickets")] {
         if let Ok(entries) = fs::read_dir(dir) {
             for entry in entries.flatten() {
                 let path = entry.path();
@@ -1424,7 +1426,7 @@ pub fn issue_detail(
 pub fn artifact(root: &Path, raw: &str) -> Result<Vec<u8>, String> {
     let parts: Vec<_> = raw.split('/').collect();
     let valid = match parts.as_slice() {
-        ["daily" | "small-red" | "reference", file] => file.strip_suffix(".json").is_some_and(valid_issue),
+        ["daily" | "small-red" | "reference" | "reference-tickets", file] => file.strip_suffix(".json").is_some_and(valid_issue),
         ["interactive", issue, file] => {
             valid_issue(issue) && file.strip_suffix(".json").is_some_and(valid_id)
         }
@@ -1432,7 +1434,7 @@ pub fn artifact(root: &Path, raw: &str) -> Result<Vec<u8>, String> {
             valid_issue(issue)
                 && file
                     .strip_suffix(".json")
-                    .is_some_and(|s| s == "daily" || s == "small-red" || s == "reference" || valid_id(s))
+                    .is_some_and(|s| s == "daily" || s == "small-red" || s == "reference" || s == "reference-tickets" || valid_id(s))
         }
         _ => false,
     };

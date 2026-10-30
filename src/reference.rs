@@ -99,7 +99,7 @@ fn snapshot(p: &Prepared, cache: &Value) -> Value {
       "reference":{"model":"reference_original5","label":"参考代码 · 原始5注观察池","tickets":tickets,"reds":reds,"red_count":reds.len(),"blues":blues.into_iter().collect::<Vec<_>>(),"blue_count":tickets.iter().map(|t|t["blue"].as_u64().unwrap()).collect::<BTreeSet<_>>().len(),"baseline":{"model":"weighted","red_count":reds.len(),"reds":p.forecast.red_order[..reds.len()].iter().map(|n|n+1).collect::<Vec<_>>() }},
       "fusion":{"model":"reference_fused16","label":"现有模型 × 参考5注 · 16红以内融合池","scores":scores.to_vec(),"base_scores":base.to_vec(),"reference_exposure":exposure.to_vec(),"reference_support":support.to_vec(),"ranking":order.map(|n|n+1).to_vec(),"blues":p.forecast.blue_order[..2].iter().map(|n|n+1).collect::<Vec<_>>(),"pools":pools}})
 }
-fn checked(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<Value>, String> {
+pub(crate) fn original(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<Value>, String> {
     if !valid_issue(issue) {
         return Err("期号需要5位数字".into());
     }
@@ -160,7 +160,9 @@ fn metadata(e: &Value) -> Value {
     json!({"issue":p["issue"],"source":"reference","raw_file":format!("reference/{}.json",p["issue"].as_str().unwrap()),"archive_sha256":e["sha256"],"published_at_unix":p["published_at_unix"],"data_cutoff":p["data_cutoff"],"input_history_sha256":p["input_history_sha256"],"linked_daily_sha256":p["linked_daily_sha256"],"engine_sha256":cache["engine_sha256"],"config_sha256":cache["config_sha256"],"reference_cache_sha256":p["reference_cache_sha256"],"generated_at_unix":cache["generated_at_unix"],"independent_timestamp_verified":false})
 }
 pub fn freeze(root: &Path, draws: &[Draw], issue: &str, deadline: u64) -> Result<Value, String> {
-    freeze_with_clock(root, draws, issue, deadline, rec::now_unix)
+    let mut value=freeze_with_clock(root, draws, issue, deadline, rec::now_unix)?;
+    value["fusion_tickets_archive"]=crate::reference_tickets::freeze(root,draws,issue,deadline)?;
+    Ok(value)
 }
 pub(crate) fn freeze_with_clock(
     root: &Path,
@@ -169,7 +171,7 @@ pub(crate) fn freeze_with_clock(
     deadline: u64,
     clock: impl Fn() -> u64,
 ) -> Result<Value, String> {
-    if let Some(old) = checked(root, draws, issue)? {
+    if let Some(old) = original(root, draws, issue)? {
         let mut m = metadata(&old);
         m["status"] = json!("already_frozen");
         return Ok(m);
@@ -209,7 +211,7 @@ pub(crate) fn freeze_with_clock(
         Some(deadline),
         &clock,
     )?;
-    let saved = checked(root, draws, issue)?.ok_or("参考观察写入后未找到原档")?;
+    let saved = original(root, draws, issue)?.ok_or("参考观察写入后未找到原档")?;
     let mut m = metadata(&saved);
     m["status"] = json!(if created { "frozen" } else { "already_frozen" });
     Ok(m)
@@ -276,7 +278,7 @@ fn persisted(root: &Path, e: &Value, draw: Option<&Draw>) -> Result<Option<Value
     Ok(Some(review))
 }
 pub fn view(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<Value>, String> {
-    let Some(e) = checked(root, draws, issue)? else {
+    let Some(e) = original(root, draws, issue)? else {
         return Ok(None);
     };
     let draw = draws.iter().find(|d| fmt_issue(d.issue) == issue);
@@ -285,6 +287,7 @@ pub fn view(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<Value>, S
     m["reference_pools"] = review_snapshot(&e["payload"]["reference_pools"], draw);
     m["review_persisted"] = json!(saved.is_some());
     m["pending"] = json!(draw.is_none());
+    m["fusion_tickets"]=json!(crate::reference_tickets::view(root,draws,issue)?);
     if saved.is_some() {
         m["review_file"] = json!(format!("reviews/{issue}/reference.json"));
     }
@@ -331,7 +334,7 @@ pub fn settle(root: &Path, draws: &[Draw]) -> rec::Settlement {
             continue;
         };
         let outcome = (|| -> Result<usize, String> {
-            let Some(e) = checked(root, draws, &issue)? else {
+            let Some(e) = original(root, draws, &issue)? else {
                 return Ok(0);
             };
             if persisted(root, &e, Some(draw))?.is_some() {
@@ -426,7 +429,7 @@ pub fn report(root: &Path, draws: &[Draw]) -> Result<Value, String> {
         Value::Null,
     );
     let preview = (|| -> Result<(), String> {
-        if let Some(e) = checked(root, draws, &issue)? {
+        if let Some(e) = original(root, draws, &issue)? {
             next = e["payload"]["reference_pools"].clone();
             archive = metadata(&e);
             status = "frozen";
@@ -458,7 +461,7 @@ pub fn report(root: &Path, draws: &[Draw]) -> Result<Value, String> {
         }
     }
     Ok(
-        json!({"version":1,"kind":"reference_pool_observations","data_sha256":data_sha256(draws),"data_cutoff":fmt_issue(last.issue),"target":issue,"status":status,"reason":reason,"job":job,"next":next,"next_archive":archive,"policy":policy(),"actual":{"actual_recommendation":true,"independent_timestamp_verified":false,"cells":cells,"periods":periods,"errors":errors,"note":"只统计真实封存原档，缺档与待开奖不计失败；原5注并集按相同红球数量与原榜比较，融合池与同规格small_recent比较。"}}),
+        json!({"version":1,"kind":"reference_pool_observations","data_sha256":data_sha256(draws),"data_cutoff":fmt_issue(last.issue),"target":issue,"status":status,"reason":reason,"job":job,"fusion_tickets":crate::reference_tickets::current(root,draws,&issue,&next)?,"ticket_actual":crate::reference_tickets::observations(root,draws),"next":next,"next_archive":archive,"policy":policy(),"actual":{"actual_recommendation":true,"independent_timestamp_verified":false,"cells":cells,"periods":periods,"errors":errors,"note":"只统计真实封存原档，缺档与待开奖不计失败；原5注并集按相同红球数量与原榜比较，融合池与同规格small_recent比较。"}}),
     )
 }
 

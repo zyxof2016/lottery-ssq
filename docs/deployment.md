@@ -45,3 +45,5 @@
 新增 `ssq-reference.service` 和 `ssq-reference.timer`，每30分钟检查新数据，同一输入只计算一次；CPU及内存有限额。重计算在独立进程进行，不占用网页请求或原180秒cycle。生成缓存后调用当前Rust的 `reference-freeze`，仍检查截止。两个新unit安装完成后daemon-reload、enable --now timer，并核对实际执行状态。部署后续版本前须暂停该timer并等待运行结束或安排安全切换，不能把半成品当成已发布缓存。
 
 `recommendations/reference-cache`、`recommendations/reference`及`recommendations/reviews/{issue}/reference.json`随原recommendations一起备份。首次发布的原档核验只读；正式运算、封存另外记录输入摘要、源码/配置摘要及保存时间。回滚保留所有新观察数据，并使用能够读取参考观察的版本。`reference-runtime/work`保留运行诊断，部署前备份状态与必要诊断，不复制到公共下载路径。
+
+融合完整票组自2026-10-30起另存于 `recommendations/reference-tickets`，对应复盘为 `recommendations/reviews/{issue}/reference-tickets.json`，继续随recommendations目录完整备份。旧reference文件不补写；发布后先只读核验原档，再由实际封存或原自动任务创建当前下一期的完整票组。

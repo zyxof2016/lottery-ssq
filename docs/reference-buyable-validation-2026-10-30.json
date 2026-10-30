@@ -1,0 +1,31 @@
+{
+  "scope": "isolated_runtime",
+  "issue": "26125",
+  "archive_sha256": "d4e664831066d146f5ba4a7d480e2c4862244da088084effa2a528d8003cac7c",
+  "four_sizes": [
+    12,
+    14,
+    15,
+    16
+  ],
+  "eight_singles_each_six_red_one_blue": true,
+  "cost_each_yuan": 16,
+  "original_red_pool_and_blue_choices_preserved": true,
+  "copy_text_has_eight_complete_singles": true,
+  "only_first_ticket_archive_saved": true,
+  "pending_hits_and_prizes_null": true,
+  "legacy_pool_not_backfilled": true,
+  "manual_pool_catalogue_uses_buyable_fusion": true,
+  "widths": [
+    320,
+    390,
+    768,
+    1440
+  ],
+  "console_errors": [],
+  "vue_warnings": [],
+  "write_requests": [
+    "http://127.0.0.1:16947/api/reference-pools/freeze"
+  ],
+  "rust_tests_passed": 111
+}
