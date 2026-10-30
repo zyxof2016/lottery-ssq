@@ -10,6 +10,7 @@
 <style>
 .tier-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}.tier{border:1px solid #e0e5ed;border-radius:10px;padding:17px;min-width:0}.tier h3{margin:0;font-size:16px}.tier .balls{gap:6px;margin:13px 0}.tier .ball{width:30px;height:30px}.tier .ball.added{outline:2px dashed #d97706;outline-offset:1px}.tier .toolbar{justify-content:space-between}.tier small{line-height:1.7}.observation-table{min-width:720px}.period-links{display:flex;gap:10px;flex-wrap:wrap}.period-links a{padding:8px 10px;background:#f8fafc;border-radius:6px;font-size:12px}@media(max-width:700px){.tier-grid{grid-template-columns:minmax(0,1fr)}}
 </style>
+<style>.small-red-focus .ball.red,.reference-observation .ball.red,.reference-observation .ball.blue,.blue-focus .ball.blue{color:#fff}</style>
 </head>
 <body><div id="app" v-cloak>
 <header><div class="links"><a :href="home">← 选号首页</a><a :href="reviewsUrl">每期实际留档与复盘</a></div><h1>观察池</h1><div>按主题查看当前号码与原档成绩，再展开覆盖分析</div></header>
