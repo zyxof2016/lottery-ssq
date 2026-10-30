@@ -1,6 +1,6 @@
 (function(global){
  'use strict';
- const component={props:{apiUrl:{type:String,required:true},busy:{type:Boolean,default:false}},emits:['generate'],setup(){
+ const component={props:{allowGenerate:{type:Boolean,default:true},apiUrl:{type:String,required:true},busy:{type:Boolean,default:false}},emits:['generate'],setup(){
   const report=Vue.ref(null),error=Vue.ref(''),count=Vue.ref(16),model=Vue.ref('small_recent'),window=Vue.ref('recent60'),message=Vue.ref(''),freezing=Vue.ref(false);
   const selected=Vue.computed(()=>report.value?.next.models.find(m=>m.model===model.value));
   const pool=Vue.computed(()=>selected.value?.pools.find(p=>p.red_count===count.value));
@@ -26,7 +26,7 @@
    <p v-else-if="archived.has_small_red_pools" class="notice small-red-archive-status">本期每日原档已保存小池，号码以首次原档为准。<a :href="rawUrl">查看原始档案JSON</a></p>
    <p v-else class="muted">当前为研究预览；后续新期首次每日留档会同时保存原榜与试验的四个小池。</p>
    <p v-if="report.publication" class="muted">{{ report.publication.reason }}。留档无独立可信时间戳证明。</p>
-   <div class="row"><button v-if="!archived.has_small_red_pools" type="button" :disabled="busy||freezing||!report.publication?.can_freeze" @click="freeze">{{ freezing?'正在封存…':'独立封存8个小池' }}</button><button type="button" @click="copy">复制{{ count }}红小池</button><button type="button" @click="download">导出小池JSON</button><button type="button" :disabled="busy||freezing" @click="$emit('generate',{model,red_count:count,issue:report.target_issue,data_sha256:report.data_sha256})">用这组红球生成8注16元</button></div><p v-if="message" class="muted" role="status">{{ message }}</p>
+   <div class="row"><button v-if="!archived.has_small_red_pools" type="button" :disabled="busy||freezing||!report.publication?.can_freeze" @click="freeze">{{ freezing?'正在封存…':'独立封存8个小池' }}</button><button type="button" @click="copy">复制{{ count }}红小池</button><button type="button" @click="download">导出小池JSON</button><button v-if="allowGenerate" type="button" :disabled="busy||freezing" @click="$emit('generate',{model,red_count:count,issue:report.target_issue,data_sha256:report.data_sha256})">用这组红球生成8注16元</button></div><p v-if="message" class="muted" role="status">{{ message }}</p>
    <details class="small-red-evidence"><summary>查看同数量全包次数与实际原档</summary><p class="muted">{{ report.next.policy.note }}</p>
    <label class="field" style="max-width:300px">比较窗口<select data-small-window v-model="window"><option value="recent60">近60期</option><option value="recent30">近30期</option><option value="recent156">近156期</option><option value="confirmation_exploratory">原确认窗 · 探索性</option><option value="tracking">确认窗后跟踪</option><option value="development">开发期</option><option value="all_oos">全部因果回放</option></select></label>
    <p class="muted">同为{{ count }}红的均匀全包基准 {{ percent(rows[0]?.uniform_full_red_rate) }}。全包率是回放结果，不是下一期覆盖概率。</p>

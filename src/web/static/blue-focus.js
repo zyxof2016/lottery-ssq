@@ -1,6 +1,6 @@
 (function(global){
   'use strict';
-  const component={props:{apiUrl:{type:String,required:true},busy:{type:Boolean,default:false}},emits:['generate'],setup(props){
+  const component={props:{allowGenerate:{type:Boolean,default:true},apiUrl:{type:String,required:true},busy:{type:Boolean,default:false}},emits:['generate'],setup(props){
     const report=Vue.ref(null),error=Vue.ref(''),window=Vue.ref('recent60'),count=Vue.ref(2);
     const choices=[{preset:'bluefocus2',model:'weighted',count:2,label:'原榜2蓝 · 同数量对照'},{preset:'bluehit2',model:'blue_hit_frozen',count:2,label:'命中目标2蓝 · 试验'},{preset:'bluefocus4',model:'weighted',count:4,label:'原榜4蓝 · 分散覆盖'},{preset:'bluehit4',model:'blue_hit_frozen',count:4,label:'命中目标4蓝 · 试验'}];
     const selected=Vue.computed(()=>report.value?.windows[window.value]);
@@ -17,7 +17,7 @@
     <p v-if="error" class="notice error" role="alert">{{ error }}</p><p v-if="!report&&!error" role="status" class="muted">正在比较同数量的蓝球命中与同预算分散覆盖…</p>
     <template v-if="report">
       <p class="muted">第 {{ report.target_issue }} 期预览，依据截止 {{ report.cutoff_issue }}；点击生成后按完整票面独立留档。已有每日原档不追加新方案。</p>
-      <div class="blue-choice-grid"><article v-for="c in choices" :key="c.preset" class="blue-choice" :data-blue-preset="c.preset"><h3>{{ c.label }}</h3><div class="balls"><span v-for="n in numbers(c)" :key="n" class="ball blue">{{ pad(n) }}</span></div><p class="muted">{{ c.count }}个不同蓝球 · 8注16元</p><button type="button" :disabled="busy" @click="$emit('generate',{preset:c.preset,issue:report.target_issue,data_sha256:report.data_sha256})">生成{{ c.count }}蓝{{ c.model==='weighted'?'原榜':'试验' }}8注</button></article></div>
+      <div class="blue-choice-grid"><article v-for="c in choices" :key="c.preset" class="blue-choice" :data-blue-preset="c.preset"><h3>{{ c.label }}</h3><div class="balls"><span v-for="n in numbers(c)" :key="n" class="ball blue">{{ pad(n) }}</span></div><p class="muted">{{ c.count }}个不同蓝球 · 8注16元</p><button v-if="allowGenerate" type="button" :disabled="busy" @click="$emit('generate',{preset:c.preset,issue:report.target_issue,data_sha256:report.data_sha256})">生成{{ c.count }}蓝{{ c.model==='weighted'?'原榜':'试验' }}8注</button></article></div>
       <details class="blue-evidence"><summary>查看蓝球同数量比较与实际留档</summary>
         <p class="muted">命中目标试验直接按此前专家前2蓝命中拟合，25111起权重冻结。改善尚不稳定，原协议保持原蓝榜；新增比较属于探索性回放。</p>
         <div class="row"><label class="field">回放窗口<select data-blue-window v-model="window"><option value="recent30">近30期</option><option value="recent60">近60期</option><option value="recent156">近156期</option><option value="confirmation_exploratory">原确认窗 · 探索性</option><option value="tracking">确认窗后跟踪</option><option value="development">开发期</option><option value="all_oos">全部回放</option></select></label><label class="field">相同蓝球数量<select data-blue-count v-model.number="count"><option v-for="n in [1,2,3,4,5,6,7,8]" :key="n" :value="n">{{ n }}蓝</option></select></label><button type="button" @click="download">导出蓝球研究与实际统计</button></div>

@@ -11,7 +11,7 @@
 </section></main>
 <script>
 const {createApp,ref,computed,onMounted,nextTick}=Vue;
-createApp({setup(){const {url}=SSQApp,params=new URLSearchParams(location.search),view=ref(['replay','observations'].includes(params.get('view'))?params.get('view'):'pools'),poolOpened=ref(view.value!=='replay'),poolSrc=computed(()=>url('pools',{embed:1,research:view.value==='pools'?1:0})),home=url(),reviewsUrl=url('reviews'),from=ref(''),to=ref(''),limit=ref(20),busy=ref(false),error=ref(''),report=ref(null),detail=ref(null),previous=ref('');let sequence=0;
+createApp({setup(){const {url}=SSQApp,params=new URLSearchParams(location.search),view=ref(['replay','observations'].includes(params.get('view'))?params.get('view'):'pools'),poolOpened=ref(view.value!=='replay'),poolSrc=computed(()=>url('pools',{embed:1,pane:view.value==='pools'?'analysis':'tiers'})),home=url(),reviewsUrl=url('reviews'),from=ref(''),to=ref(''),limit=ref(20),busy=ref(false),error=ref(''),report=ref(null),detail=ref(null),previous=ref('');let sequence=0;
 const pad=n=>String(n).padStart(2,'0'),decimal=n=>n==null?'—':Number(n).toFixed(2),percent=n=>n==null?'—':(n*100).toFixed(2)+'%';
 async function read(path){const response=await fetch(url(path));const data=await response.json();if(!response.ok)throw Error(data.error||'读取失败');return data;}
 async function loadHistory(before=''){if(busy.value)return;busy.value=true;sequence++;error.value='';detail.value=null;try{const q=new URLSearchParams({limit:limit.value});if(from.value)q.set('from',from.value);if(to.value)q.set('to',to.value);if(before)q.set('before',before);report.value=await read('api/history?'+q);previous.value=report.value.rows.at(-1)?.issue||'';}catch(e){error.value=e.message;}finally{busy.value=false;}}

@@ -35,7 +35,7 @@
 </div><p class="muted" style="margin:12px 0 0">下一档截止：{{ next.deadline || '…' }}。{{ next.reason }}</p></details></section>
       <div v-if="message" role="status" class="notice" :class="messageType">{{ message }}</div>
       <div v-if="loading" class="card loading" role="status">正在读取 {{ issue }} 期档案…</div>
-      <nav v-if="view&&!view.missing" class="review-jumps" aria-label="本期复盘快捷入口"><button v-if="view.number_pools" @click="jumpTo('archived-pool-comparison')">模型池覆盖</button><button v-if="intersectionSnapshot" @click="jumpTo('archived-intersection')">交集损失诊断</button><button v-if="detail" @click="jumpTo('ticket-review')">完整票组对奖</button></nav>
+      <nav v-if="view&&!view.missing" class="review-jumps section-tabs" aria-label="本期复盘快捷入口"><button v-if="view.independent_reference" @click="jumpTo('independent-reference')">参考与融合</button><button v-if="view.independent_small_red" @click="jumpTo('independent-small-red')">小红球观察</button><button v-if="view.number_pools" @click="jumpTo('archived-pool-comparison')">模型池覆盖</button><button v-if="intersectionSnapshot" @click="jumpTo('archived-intersection')">交集损失诊断</button><button v-if="detail" @click="jumpTo('ticket-review')">完整票组对奖</button></nav>
       <template v-if="view">
         <section class="card">
 <div class="flex">
@@ -71,56 +71,7 @@
 </p>
 </template>
         </section>
-<reference-archive v-if="view.independent_reference" :key="view.independent_reference.archive_sha256" :record="view.independent_reference"></reference-archive>
-<section v-if="view.independent_small_red" class="card" id="independent-small-red"><h2>独立小池观察 · 与每日原档分开封存</h2><p class="muted">保存时间 {{ time(view.independent_small_red.published_at_unix) }} · 依据截止 {{ view.independent_small_red.data_cutoff }}。这里的号码不属于每日原档追加内容。</p><p class="muted">原档摘要 <code>{{ view.independent_small_red.archive_sha256 }}</code> · 无独立可信时间戳证明。</p><a :href="fileUrl(view.independent_small_red.raw_file)">下载独立原档JSON</a><a v-if="view.independent_small_red.review_file" :href="fileUrl(view.independent_small_red.review_file)">下载首次复盘JSON</a><div class="scroll"><table class="small-red-table"><thead><tr><th>模型 / 数量</th><th>原始红球</th><th>中红 / 全6红</th></tr></thead><tbody><template v-for="m in view.independent_small_red.small_red_pools.models" :key="m.model"><tr v-for="p in m.pools" :key="p.id"><td>{{ m.label }} · {{ p.red_count }}红</td><td>{{ p.reds.slice().sort((a,b)=>a-b).map(pad).join(' ') }}</td><td>{{ nullable(p.red_hits) }}/6 · {{ flag(p.full_red) }}</td></tr></template></tbody></table></div></section>
-        <section v-if="view.number_pools" class="card" aria-label="实际小号码池复盘">
-<h2>当时的模型号码池 · 分档核对覆盖</h2>
-<section v-if="view.small_red_pools" id="archived-small-red"><h3>16红以内 · 原始小池观察</h3><p class="muted">只核对本期首次保存的12／14／15／16红；旧档没有此扩展时不补造。</p><div class="scroll"><table class="small-red-table"><thead><tr><th>模型 / 数量</th><th>原始红球</th><th>中红 / 全6红</th></tr></thead><tbody><template v-for="m in view.small_red_pools.models" :key="m.model"><tr v-for="p in m.pools" :key="p.id"><td>{{ m.label }} · {{ p.red_count }}红</td><td>{{ p.reds.slice().sort((a,b)=>a-b).map(pad).join(' ') }}</td><td>{{ nullable(p.red_hits) }}/6 · {{ flag(p.full_red) }}</td></tr></template></tbody></table></div></section>
-<div id="archived-pool-comparison" tabindex="-1"><h3>同一期原档 · 各模型和数量对照</h3><div v-if="view.joint_pool_diagnostic" class="notice" id="joint-pool-diagnostic"><h3>红蓝联合覆盖检查</h3><p v-if="view.joint_pool_diagnostic.pending">待开奖，红球全包档和蓝球瓶颈暂不计算。</p><template v-else><p v-if="view.joint_pool_diagnostic.all_saved_tiers_miss_blue">开奖蓝球 {{ pad(view.draw.blue) }} 在原榜第 {{ view.joint_pool_diagnostic.winning_blue_rank }} 位，全部1–{{ view.joint_pool_diagnostic.maximum_saved_blue_count }}蓝池均未覆盖。即使红球全包，也未覆盖6红1蓝；改变红球模型或取交集不能补回这个蓝球。</p><p v-else>保存规格中{{ view.joint_pool_diagnostic.any_saved_tier_full_draw?'存在6红1蓝全入池':'尚无6红1蓝全入池' }}，号码池全入池不等于已组成中奖单注。</p><p v-if="view.joint_pool_diagnostic.majority_missed_reds?.length">24红共同漏点（原档模型含均匀对照）：{{ view.joint_pool_diagnostic.majority_missed_reds.map(m=>pad(m.number)+'（'+m.missed_count+'/'+m.models_total+'模型漏）').join('；') }}。这里只定位本期问题，不代表下期应追补这些号码。</p><p v-if="view.joint_pool_diagnostic.winning_red_model_coverage?.some(m=>m.missed_count===m.models_total)">全部已存24红池都未包含的开奖红球：{{ view.joint_pool_diagnostic.winning_red_model_coverage.filter(m=>m.missed_count===m.models_total).map(m=>pad(m.number)).join('、') }}。合并这些原池仍会漏掉，取交集也无法补回。</p><p>各模型最小已存全6红档：{{ view.joint_pool_diagnostic.full_red_models.map(m=>poolModelName(m.model)+' '+m.red_count+'红'+(m.is_uniform_control?'（随机对照）':'')).join('；') || '均未全包' }}。</p><p v-if="view.joint_pool_diagnostic.full_red_models.some(m=>m.is_uniform_control)" class="muted">均匀对照也可能单期命中，不根据本期结果自动改用它；新算法实际样本少，继续按同数量观察。</p></template></div>
-<p v-if="view.draw" class="muted">开奖蓝球 {{ pad(view.draw.blue) }}，原榜第 {{ view.number_pools.diagnostics?.winning_blue_rank || '未留存' }} 名。下表蓝球使用当前 {{ poolBlueCount }} 蓝规格；6红全入池和6红1蓝全包分别核对。</p><p v-else class="muted">待开奖，覆盖指标暂为空；只列当时实际保存的模型。</p><p class="mobile-scroll-hint muted">左右滑动下表，查看14–24红各档覆盖。</p><div class="scroll"><table class="comparison-table"><thead><tr><th>已存模型</th><th v-for="k in [14,16,18,20,22,24]" :key="k">{{ k }}红中红</th><th>{{ poolBlueCount }}蓝入池</th><th>最小全6红档</th></tr></thead><tbody><tr v-for="m in archivedPoolComparison" :key="m.model"><td>{{ poolModelName(m.model) }}</td><td v-for="p in m.tiers" :key="p.size">{{ p.saved?nullable(p.red_hits)+'/6':'未保存' }}</td><td>{{ flag(m.blue_hit) }}</td><td>{{ !view.draw?'待开奖':m.smallest_full_red_tier?m.smallest_full_red_tier+'红':'未全包' }}</td></tr></tbody></table></div></div>
-<div class="toolbar" style="margin-bottom:14px"><label for="archived-pool-model">已留档红球模型</label><select id="archived-pool-model" v-model="effectivePoolModel"><option v-for="m in archivedModels" :key="m.model" :value="m.model">{{ poolModelName(m.model) }}</option></select></div>
-<p v-if="archivedModels.length===1" class="muted">本期仅保存加权模型，等权和均匀对照保持缺档；后续首次冻结的新期开始三模型对照。</p>
-<p class="muted">只读取当时封存的原始号码。{{ hasObservationTiers ? '本档案包含14／16／18／20／22／24红六个观察档及原小池对照。' : '本档案仅保存原小池，未补造六档观察池。' }}命中率以开奖红球与真实开奖期数为分母。</p>
-<div class="toolbar" style="margin-bottom:14px"><label for="archived-pool-group">号码池范围</label><select id="archived-pool-group" v-model="effectivePoolGroup"><option v-if="hasObservationTiers" value="observation">六档观察池</option><option v-if="hasLegacyPools" value="legacy">原小池对照</option></select><label for="archived-pool-blue">蓝球数量</label><select id="archived-pool-blue" v-model.number="poolBlueCount"><option v-for="n in [1,2,3]" :key="n" :value="n">{{ n }} 个</option></select></div>
-<p v-if="hasObservationTiers" class="muted">本模型最小全 6 红观察档：{{ !view.draw?'待开奖':activePoolModel.smallest_full_red_tier?activePoolModel.smallest_full_red_tier+' 红':'六档均未全包' }}。<a :href="home+'pools'">查看累计实际覆盖与三模型共同期次对照</a></p>
-<div v-if="poolDiagnostics" class="notice" id="pool-rank-diagnostic"><b>开奖后漏号排名诊断</b><p>原排名至少取前 {{ poolDiagnostics.minimum_full_red_prefix }} 红才能包含本期全部 6 红；开奖蓝球原排名 {{ poolDiagnostics.winning_blue_rank || '未留存' }}。</p><div class="flex"><span v-for="r in poolDiagnostics.winning_red_ranks" :key="r.number">{{ pad(r.number) }}：第 {{ r.rank }} 名</span></div><p class="muted">{{ poolDiagnostics.note }}</p></div>
-<p v-else class="muted">{{ view.draw?'本档案未保存可用的完整排名，无法诊断最小前缀。':'待开奖，漏号排名与最小全包前缀暂不计算。' }}</p>
-<div class="pool-number-cards" role="region" aria-label="各档实际号码池">
-<article v-for="p in shownPools" :key="p.id" class="pool-number-card" :data-pool="p.id" :class="{active:numberPool?.id===p.id}"><h3>{{ p.tier_id?p.tier_id+'档 · ':'' }}{{ p.red_count }} 红 + {{ p.blue_count }} 蓝</h3><div class="balls"><span v-for="n in p.reds.slice().sort((a,b)=>a-b)" :key="'r'+n" class="ball selected red" :class="{hit:isDrawNumber(n,'red')}">{{ pad(n) }}</span><span v-for="n in p.blues.slice().sort((a,b)=>a-b)" :key="'b'+n" class="ball selected blue" :class="{hit:isDrawNumber(n,'blue')}">{{ pad(n) }}</span></div><p class="muted">中红 {{ nullable(p.red_hits) }}/6 · 全6红 {{ flag(p.full_red) }} · 蓝球入池 {{ flag(p.blue_hit) }}</p><p class="muted">漏红：{{ p.missed_reds==null?'待开奖':p.missed_reds.map(pad).join(' ')||'无' }}</p><p v-if="p.boundary_diagnostics?.near_missed_reds.length" class="muted pool-boundary-note">截线后两位漏号：{{ p.boundary_diagnostics.near_missed_reds.map(r=>pad(r.number)+'（第'+r.rank+'名，差'+r.positions_after_cutoff+'位）').join('、') }}</p></article></div>
-<details><summary>展开各档覆盖指标</summary><div class="scroll"><table class="small-pool-table"><thead><tr><th>原池规格</th><th>中红 / 漏红</th><th>全6红</th><th>蓝球入池</th><th>6红1蓝全包</th></tr></thead><tbody><tr v-for="p in shownPools" :key="p.id"><td><button @click="selectedPool=p.id">{{ p.tier_id ? p.tier_id+'档 · ' : '' }}{{ p.red_count }} 红 + {{ p.blue_count }} 蓝</button></td><td>{{ nullable(p.red_hits) }} / {{ p.missed_reds == null ? '—' : p.missed_reds.length }}</td><td>{{ flag(p.full_red) }}</td><td>{{ flag(p.blue_hit) }}</td><td><b>{{ flag(p.full_draw) }}</b></td></tr></tbody></table></div>
-</details><template v-if="numberPool"><h3 style="margin-top:18px">查看原池：{{ numberPool.red_count }} 红 + {{ numberPool.blue_count }} 蓝</h3>
-<div class="balls"><span v-for="n in numberPool.reds" :key="n" class="ball selected red" :class="{hit:(numberPool.hit_reds || []).includes(n)}">{{ pad(n) }}</span><span v-for="n in numberPool.blues" :key="n" class="ball selected blue" :class="{hit:view.draw && view.draw.blue===n}">{{ pad(n) }}</span></div>
-<p class="muted">漏掉的开奖红球：{{ numberPool.missed_reds == null ? '待开奖' : numberPool.missed_reds.map(pad).join(' ') || '无' }}。小池全包表示开奖号都在池内，不等于已组成中奖单注。</p><p v-if="numberPool.missed_red_ranks?.length" class="muted">漏号原排名：{{ numberPool.missed_red_ranks.map(r=>pad(r.number)+'（第'+r.rank+'名）').join('、') }}</p><p v-if="numberPool.boundary_diagnostics?.near_missed_reds.length" class="notice" id="pool-boundary-diagnostic">截线附近漏号：{{ numberPool.boundary_diagnostics.near_missed_reds.map(r=>pad(r.number)+'（第'+r.rank+'名，距'+numberPool.red_count+'红截线'+r.positions_after_cutoff+'位）').join('、') }}。{{ numberPool.boundary_diagnostics.note }}</p></template>
-<pool-intersection id="archived-intersection" tabindex="-1" v-if="intersectionSnapshot" api-url="" :snapshot="intersectionSnapshot" :draw="view.draw" archived></pool-intersection>
-</section>
-<section v-else-if="!view.missing" class="card"><h2>本档案未留存号码池</h2><p class="muted">后续首次留档的新期会保存六档观察池及原小池对照。历史研究可在 <a :href="home + 'pools'">分档号码池与覆盖观察</a> 查看因果回放。</p></section>
-        <template v-if="detail">
-<section v-if="balancedArchived" class="card" aria-label="已留档均衡覆盖票组"><h2>已留档均衡覆盖 · 完整使用{{ balancedArchived.summary.red_coverage }}红</h2><p>{{ balancedArchived.summary.bets }} 注 / {{ balancedArchived.summary.cost }} 元，实际入票 {{ balancedArchived.summary.red_coverage }} 个不同红球，最大单号曝光 {{ balancedArchived.summary.max_red_exposure }} 注。使用原融合排名，避免候选池内号码在组票时闲置。</p><p class="muted">只按这份档案的原票组核对；池内覆盖和单注中奖分别统计。</p><button @click="viewTickets(balancedArchived.name)" :disabled="loading||busy">查看已留档均衡票组</button></section>
-<p v-else class="muted">本份档案未保存新版均衡覆盖票组，保持首次票面；后续新期首次留档会新增该方案。</p>
-          <section v-if="compactArchived && originalArchived" class="card" aria-label="已留档同覆盖少注对照">
-<h2>已留档同覆盖少注对照</h2><p>原冻结票组 {{ originalArchived.summary.bets }} 注 / {{ originalArchived.summary.cost }} 元；同覆盖重组 {{ compactArchived.summary.bets }} 注 / {{ compactArchived.summary.cost }} 元。两者分别保留相同红球与蓝球并集。</p><p class="muted">原方案每注都出现的红球：{{ originalArchived.summary.all_ticket_reds.map(pad).join(' ') || '无' }}；最大单号曝光 {{ originalArchived.summary.max_red_exposure }} / {{ originalArchived.summary.bets }} 注。重组会改变单注组合和对奖结果，按各自原票面核对。</p><button @click="viewTickets(compactArchived.name)" :disabled="loading||busy">查看已留档最少注票组</button>
-</section>
-          <section class="card">
-<h2>本份档案的方案对照</h2><p class="muted">各策略实际号码直接列在下方，带 ✓ 的球表示本期开出；号码并集不能作为一注购买。点击“查看完整票组”查看逐注对奖。</p>
-<div class="flex" style="margin-bottom:14px">
-<label for="strategy-group">方案范围</label>
-<select id="strategy-group" v-model="strategyGroup"><option value="all">全部实际留档</option><option value="original">原有方案</option><option value="efficiency">少注覆盖方案</option></select>
-<label for="comparison-cost">同预算比较</label>
-<select id="comparison-cost" v-model="comparisonCost"><option value="all">全部预算</option><option v-for="cost in comparisonCosts" :key="cost" :value="String(cost)">{{ cost }} 元</option></select>
-<span class="muted">{{ comparedStrategies.length }} 个方案</span>
-</div>
-<div class="strategy-number-cards" role="region" aria-label="各策略实际推荐号码" tabindex="0">
-<article v-for="s in comparedStrategies" :key="s.name" :data-strategy="s.name" class="strategy-number-card" :class="{active:view.strategy===s.name}">
-<div class="flex" style="justify-content:space-between"><button @click="chooseStrategy(s.name)" :disabled="loading||busy"><b>{{ s.title }}</b></button><span class="muted">{{ s.summary.bets }} 注 · {{ s.summary.cost }} 元</span></div>
-<p class="muted">实际推荐：{{ s.summary.red_coverage }} 个不同红球、{{ s.summary.blue_coverage }} 个不同蓝球 · 额外重复红球位置 {{ s.summary.repeated_red_positions }}</p>
-<div class="balls"><span v-for="n in s.summary.unique_reds" :key="'r'+n" class="ball selected red" :class="{hit:isDrawNumber(n,'red')}" :aria-label="numberLabel(n,'red')" :title="numberLabel(n,'red')">{{ pad(n) }}</span><span v-for="n in s.summary.unique_blues" :key="'b'+n" class="ball selected blue" :class="{hit:isDrawNumber(n,'blue')}" :aria-label="numberLabel(n,'blue')" :title="numberLabel(n,'blue')">{{ pad(n) }}</span></div>
-<p v-if="view.draw" class="muted">覆盖 {{ s.summary.covered_red_count }}/6 红 · 蓝球{{ s.summary.blue_covered?'入池':'未入池' }} · 漏红 {{ s.summary.missed_reds.map(pad).join(' ') || '无' }}</p><p v-else class="muted">待开奖，命中与漏号暂不计算。</p>
-<p class="muted">单注最多中红 {{ nullable(s.summary.max_ticket_red_hits) }} · 中奖 {{ nullable(s.summary.prize_tickets) }} 注 · 固定奖金 {{ nullable(s.summary.fixed_prize) }} 元</p><button @click="viewTickets(s.name)" :disabled="loading||busy">查看完整票组{{ view.draw?'与对奖':'' }}</button>
-</article></div>
-<p v-if="!comparedStrategies.length" class="muted">此档案没有符合当前范围和预算的方案。历史档案只展示当时保存的方案。</p>
-<p class="muted">少注方案包括同覆盖重组、2–5 注融合排名分散及同预算均匀分散对照。方案只在首次留档时保存，历史档案不追加。扩大覆盖会同时提高均匀基准；不同预算的覆盖和单期奖金不能直接说明预测优势。</p>
-</section>
-          <section class="card">
+<section v-if="detail" class="card">
 <h2>{{ detail.title }}</h2>
 <p class="muted">{{ detail.rationale }}<span v-if="detail.ranking"> · 红球模型：{{ detail.ranking.policy.label }}</span></p>
 <div class="metrics">
@@ -158,7 +109,57 @@
 <p class="muted">{{ detail.explanation_limit }} <a :href="detail.prize_rules_url" target="_blank" rel="noopener">官方规则</a>
 </p>
 </section>
-          <section v-if="compactPreview" class="card" aria-label="同覆盖减注结构试算">
+<details v-if="view.independent_reference" class="card review-group" :open="view.missing"><summary>参考5注与融合小池 · 独立原档</summary><div class="detail-content"><reference-archive :key="view.independent_reference.archive_sha256" :record="view.independent_reference"></reference-archive></div></details>
+<details v-if="view.independent_small_red" class="card review-group" id="independent-small-red"><summary>独立小红球池 · 原始留档</summary><div class="detail-content"><h2>独立小池观察 · 与每日原档分开封存</h2><p class="muted">保存时间 {{ time(view.independent_small_red.published_at_unix) }} · 依据截止 {{ view.independent_small_red.data_cutoff }}。这里的号码不属于每日原档追加内容。</p><p class="muted">原档摘要 <code>{{ view.independent_small_red.archive_sha256 }}</code> · 无独立可信时间戳证明。</p><a :href="fileUrl(view.independent_small_red.raw_file)">下载独立原档JSON</a><a v-if="view.independent_small_red.review_file" :href="fileUrl(view.independent_small_red.review_file)">下载首次复盘JSON</a><div class="scroll"><table class="small-red-table"><thead><tr><th>模型 / 数量</th><th>原始红球</th><th>中红 / 全6红</th></tr></thead><tbody><template v-for="m in view.independent_small_red.small_red_pools.models" :key="m.model"><tr v-for="p in m.pools" :key="p.id"><td>{{ m.label }} · {{ p.red_count }}红</td><td>{{ p.reds.slice().sort((a,b)=>a-b).map(pad).join(' ') }}</td><td>{{ nullable(p.red_hits) }}/6 · {{ flag(p.full_red) }}</td></tr></template></tbody></table></div></div></details>
+        <details v-if="view.number_pools" class="card review-group" aria-label="实际小号码池复盘"><summary>模型号码池 · 覆盖与漏号</summary><div class="detail-content">
+<h2>当时的模型号码池 · 分档核对覆盖</h2>
+<section v-if="view.small_red_pools" id="archived-small-red"><h3>16红以内 · 原始小池观察</h3><p class="muted">只核对本期首次保存的12／14／15／16红；旧档没有此扩展时不补造。</p><div class="scroll"><table class="small-red-table"><thead><tr><th>模型 / 数量</th><th>原始红球</th><th>中红 / 全6红</th></tr></thead><tbody><template v-for="m in view.small_red_pools.models" :key="m.model"><tr v-for="p in m.pools" :key="p.id"><td>{{ m.label }} · {{ p.red_count }}红</td><td>{{ p.reds.slice().sort((a,b)=>a-b).map(pad).join(' ') }}</td><td>{{ nullable(p.red_hits) }}/6 · {{ flag(p.full_red) }}</td></tr></template></tbody></table></div></section>
+<div id="archived-pool-comparison" tabindex="-1"><h3>同一期原档 · 各模型和数量对照</h3><div v-if="view.joint_pool_diagnostic" class="notice" id="joint-pool-diagnostic"><h3>红蓝联合覆盖检查</h3><p v-if="view.joint_pool_diagnostic.pending">待开奖，红球全包档和蓝球瓶颈暂不计算。</p><template v-else><p v-if="view.joint_pool_diagnostic.all_saved_tiers_miss_blue">开奖蓝球 {{ pad(view.draw.blue) }} 在原榜第 {{ view.joint_pool_diagnostic.winning_blue_rank }} 位，全部1–{{ view.joint_pool_diagnostic.maximum_saved_blue_count }}蓝池均未覆盖。即使红球全包，也未覆盖6红1蓝；改变红球模型或取交集不能补回这个蓝球。</p><p v-else>保存规格中{{ view.joint_pool_diagnostic.any_saved_tier_full_draw?'存在6红1蓝全入池':'尚无6红1蓝全入池' }}，号码池全入池不等于已组成中奖单注。</p><p v-if="view.joint_pool_diagnostic.majority_missed_reds?.length">24红共同漏点（原档模型含均匀对照）：{{ view.joint_pool_diagnostic.majority_missed_reds.map(m=>pad(m.number)+'（'+m.missed_count+'/'+m.models_total+'模型漏）').join('；') }}。这里只定位本期问题，不代表下期应追补这些号码。</p><p v-if="view.joint_pool_diagnostic.winning_red_model_coverage?.some(m=>m.missed_count===m.models_total)">全部已存24红池都未包含的开奖红球：{{ view.joint_pool_diagnostic.winning_red_model_coverage.filter(m=>m.missed_count===m.models_total).map(m=>pad(m.number)).join('、') }}。合并这些原池仍会漏掉，取交集也无法补回。</p><p>各模型最小已存全6红档：{{ view.joint_pool_diagnostic.full_red_models.map(m=>poolModelName(m.model)+' '+m.red_count+'红'+(m.is_uniform_control?'（随机对照）':'')).join('；') || '均未全包' }}。</p><p v-if="view.joint_pool_diagnostic.full_red_models.some(m=>m.is_uniform_control)" class="muted">均匀对照也可能单期命中，不根据本期结果自动改用它；新算法实际样本少，继续按同数量观察。</p></template></div>
+<p v-if="view.draw" class="muted">开奖蓝球 {{ pad(view.draw.blue) }}，原榜第 {{ view.number_pools.diagnostics?.winning_blue_rank || '未留存' }} 名。下表蓝球使用当前 {{ poolBlueCount }} 蓝规格；6红全入池和6红1蓝全包分别核对。</p><p v-else class="muted">待开奖，覆盖指标暂为空；只列当时实际保存的模型。</p><p class="mobile-scroll-hint muted">左右滑动下表，查看14–24红各档覆盖。</p><div class="scroll"><table class="comparison-table"><thead><tr><th>已存模型</th><th v-for="k in [14,16,18,20,22,24]" :key="k">{{ k }}红中红</th><th>{{ poolBlueCount }}蓝入池</th><th>最小全6红档</th></tr></thead><tbody><tr v-for="m in archivedPoolComparison" :key="m.model"><td>{{ poolModelName(m.model) }}</td><td v-for="p in m.tiers" :key="p.size">{{ p.saved?nullable(p.red_hits)+'/6':'未保存' }}</td><td>{{ flag(m.blue_hit) }}</td><td>{{ !view.draw?'待开奖':m.smallest_full_red_tier?m.smallest_full_red_tier+'红':'未全包' }}</td></tr></tbody></table></div></div>
+<div class="toolbar" style="margin-bottom:14px"><label for="archived-pool-model">已留档红球模型</label><select id="archived-pool-model" v-model="effectivePoolModel"><option v-for="m in archivedModels" :key="m.model" :value="m.model">{{ poolModelName(m.model) }}</option></select></div>
+<p v-if="archivedModels.length===1" class="muted">本期仅保存加权模型，等权和均匀对照保持缺档；后续首次冻结的新期开始三模型对照。</p>
+<p class="muted">只读取当时封存的原始号码。{{ hasObservationTiers ? '本档案包含14／16／18／20／22／24红六个观察档及原小池对照。' : '本档案仅保存原小池，未补造六档观察池。' }}命中率以开奖红球与真实开奖期数为分母。</p>
+<div class="toolbar" style="margin-bottom:14px"><label for="archived-pool-group">号码池范围</label><select id="archived-pool-group" v-model="effectivePoolGroup"><option v-if="hasObservationTiers" value="observation">六档观察池</option><option v-if="hasLegacyPools" value="legacy">原小池对照</option></select><label for="archived-pool-blue">蓝球数量</label><select id="archived-pool-blue" v-model.number="poolBlueCount"><option v-for="n in [1,2,3]" :key="n" :value="n">{{ n }} 个</option></select></div>
+<p v-if="hasObservationTiers" class="muted">本模型最小全 6 红观察档：{{ !view.draw?'待开奖':activePoolModel.smallest_full_red_tier?activePoolModel.smallest_full_red_tier+' 红':'六档均未全包' }}。<a :href="home+'pools'">查看累计实际覆盖与三模型共同期次对照</a></p>
+<div v-if="poolDiagnostics" class="notice" id="pool-rank-diagnostic"><b>开奖后漏号排名诊断</b><p>原排名至少取前 {{ poolDiagnostics.minimum_full_red_prefix }} 红才能包含本期全部 6 红；开奖蓝球原排名 {{ poolDiagnostics.winning_blue_rank || '未留存' }}。</p><div class="flex"><span v-for="r in poolDiagnostics.winning_red_ranks" :key="r.number">{{ pad(r.number) }}：第 {{ r.rank }} 名</span></div><p class="muted">{{ poolDiagnostics.note }}</p></div>
+<p v-else class="muted">{{ view.draw?'本档案未保存可用的完整排名，无法诊断最小前缀。':'待开奖，漏号排名与最小全包前缀暂不计算。' }}</p>
+<div class="pool-number-cards" role="region" aria-label="各档实际号码池">
+<article v-for="p in shownPools" :key="p.id" class="pool-number-card" :data-pool="p.id" :class="{active:numberPool?.id===p.id}"><h3>{{ p.tier_id?p.tier_id+'档 · ':'' }}{{ p.red_count }} 红 + {{ p.blue_count }} 蓝</h3><div class="balls"><span v-for="n in p.reds.slice().sort((a,b)=>a-b)" :key="'r'+n" class="ball selected red" :class="{hit:isDrawNumber(n,'red')}">{{ pad(n) }}</span><span v-for="n in p.blues.slice().sort((a,b)=>a-b)" :key="'b'+n" class="ball selected blue" :class="{hit:isDrawNumber(n,'blue')}">{{ pad(n) }}</span></div><p class="muted">中红 {{ nullable(p.red_hits) }}/6 · 全6红 {{ flag(p.full_red) }} · 蓝球入池 {{ flag(p.blue_hit) }}</p><p class="muted">漏红：{{ p.missed_reds==null?'待开奖':p.missed_reds.map(pad).join(' ')||'无' }}</p><p v-if="p.boundary_diagnostics?.near_missed_reds.length" class="muted pool-boundary-note">截线后两位漏号：{{ p.boundary_diagnostics.near_missed_reds.map(r=>pad(r.number)+'（第'+r.rank+'名，差'+r.positions_after_cutoff+'位）').join('、') }}</p></article></div>
+<details><summary>展开各档覆盖指标</summary><div class="scroll"><table class="small-pool-table"><thead><tr><th>原池规格</th><th>中红 / 漏红</th><th>全6红</th><th>蓝球入池</th><th>6红1蓝全包</th></tr></thead><tbody><tr v-for="p in shownPools" :key="p.id"><td><button @click="selectedPool=p.id">{{ p.tier_id ? p.tier_id+'档 · ' : '' }}{{ p.red_count }} 红 + {{ p.blue_count }} 蓝</button></td><td>{{ nullable(p.red_hits) }} / {{ p.missed_reds == null ? '—' : p.missed_reds.length }}</td><td>{{ flag(p.full_red) }}</td><td>{{ flag(p.blue_hit) }}</td><td><b>{{ flag(p.full_draw) }}</b></td></tr></tbody></table></div>
+</details><template v-if="numberPool"><h3 style="margin-top:18px">查看原池：{{ numberPool.red_count }} 红 + {{ numberPool.blue_count }} 蓝</h3>
+<div class="balls"><span v-for="n in numberPool.reds" :key="n" class="ball selected red" :class="{hit:(numberPool.hit_reds || []).includes(n)}">{{ pad(n) }}</span><span v-for="n in numberPool.blues" :key="n" class="ball selected blue" :class="{hit:view.draw && view.draw.blue===n}">{{ pad(n) }}</span></div>
+<p class="muted">漏掉的开奖红球：{{ numberPool.missed_reds == null ? '待开奖' : numberPool.missed_reds.map(pad).join(' ') || '无' }}。小池全包表示开奖号都在池内，不等于已组成中奖单注。</p><p v-if="numberPool.missed_red_ranks?.length" class="muted">漏号原排名：{{ numberPool.missed_red_ranks.map(r=>pad(r.number)+'（第'+r.rank+'名）').join('、') }}</p><p v-if="numberPool.boundary_diagnostics?.near_missed_reds.length" class="notice" id="pool-boundary-diagnostic">截线附近漏号：{{ numberPool.boundary_diagnostics.near_missed_reds.map(r=>pad(r.number)+'（第'+r.rank+'名，距'+numberPool.red_count+'红截线'+r.positions_after_cutoff+'位）').join('、') }}。{{ numberPool.boundary_diagnostics.note }}</p></template>
+<pool-intersection id="archived-intersection" tabindex="-1" v-if="intersectionSnapshot" api-url="" :snapshot="intersectionSnapshot" :draw="view.draw" archived></pool-intersection>
+</div></details>
+<section v-else-if="!view.missing" class="card"><h2>本档案未留存号码池</h2><p class="muted">后续首次留档的新期会保存六档观察池及原小池对照。历史研究可在 <a :href="home + 'pools'">分档号码池与覆盖观察</a> 查看因果回放。</p></section>
+        <template v-if="detail">
+<details v-if="balancedArchived" class="card review-group" aria-label="已留档均衡覆盖票组"><summary>已留档均衡覆盖票组</summary><div class="detail-content"><h2>已留档均衡覆盖 · 完整使用{{ balancedArchived.summary.red_coverage }}红</h2><p>{{ balancedArchived.summary.bets }} 注 / {{ balancedArchived.summary.cost }} 元，实际入票 {{ balancedArchived.summary.red_coverage }} 个不同红球，最大单号曝光 {{ balancedArchived.summary.max_red_exposure }} 注。使用原融合排名，避免候选池内号码在组票时闲置。</p><p class="muted">只按这份档案的原票组核对；池内覆盖和单注中奖分别统计。</p><button @click="viewTickets(balancedArchived.name)" :disabled="loading||busy">查看已留档均衡票组</button></div></details>
+<p v-else class="muted">本份档案未保存新版均衡覆盖票组，保持首次票面；后续新期首次留档会新增该方案。</p>
+          <details v-if="compactArchived && originalArchived" class="card review-group" aria-label="已留档同覆盖少注对照"><summary>已留档同覆盖少注对照</summary><div class="detail-content">
+<h2>已留档同覆盖少注对照</h2><p>原冻结票组 {{ originalArchived.summary.bets }} 注 / {{ originalArchived.summary.cost }} 元；同覆盖重组 {{ compactArchived.summary.bets }} 注 / {{ compactArchived.summary.cost }} 元。两者分别保留相同红球与蓝球并集。</p><p class="muted">原方案每注都出现的红球：{{ originalArchived.summary.all_ticket_reds.map(pad).join(' ') || '无' }}；最大单号曝光 {{ originalArchived.summary.max_red_exposure }} / {{ originalArchived.summary.bets }} 注。重组会改变单注组合和对奖结果，按各自原票面核对。</p><button @click="viewTickets(compactArchived.name)" :disabled="loading||busy">查看已留档最少注票组</button>
+</div></details>
+          <details class="card review-group"><summary>全部策略 · 同预算对照</summary><div class="detail-content">
+<h2>本份档案的方案对照</h2><p class="muted">各策略实际号码直接列在下方，带 ✓ 的球表示本期开出；号码并集不能作为一注购买。点击“查看完整票组”查看逐注对奖。</p>
+<div class="flex" style="margin-bottom:14px">
+<label for="strategy-group">方案范围</label>
+<select id="strategy-group" v-model="strategyGroup"><option value="all">全部实际留档</option><option value="original">原有方案</option><option value="efficiency">少注覆盖方案</option></select>
+<label for="comparison-cost">同预算比较</label>
+<select id="comparison-cost" v-model="comparisonCost"><option value="all">全部预算</option><option v-for="cost in comparisonCosts" :key="cost" :value="String(cost)">{{ cost }} 元</option></select>
+<span class="muted">{{ comparedStrategies.length }} 个方案</span>
+</div>
+<div class="strategy-number-cards" role="region" aria-label="各策略实际推荐号码" tabindex="0">
+<article v-for="s in comparedStrategies" :key="s.name" :data-strategy="s.name" class="strategy-number-card" :class="{active:view.strategy===s.name}">
+<div class="flex" style="justify-content:space-between"><button @click="chooseStrategy(s.name)" :disabled="loading||busy"><b>{{ s.title }}</b></button><span class="muted">{{ s.summary.bets }} 注 · {{ s.summary.cost }} 元</span></div>
+<p class="muted">实际推荐：{{ s.summary.red_coverage }} 个不同红球、{{ s.summary.blue_coverage }} 个不同蓝球 · 额外重复红球位置 {{ s.summary.repeated_red_positions }}</p>
+<div class="balls"><span v-for="n in s.summary.unique_reds" :key="'r'+n" class="ball selected red" :class="{hit:isDrawNumber(n,'red')}" :aria-label="numberLabel(n,'red')" :title="numberLabel(n,'red')">{{ pad(n) }}</span><span v-for="n in s.summary.unique_blues" :key="'b'+n" class="ball selected blue" :class="{hit:isDrawNumber(n,'blue')}" :aria-label="numberLabel(n,'blue')" :title="numberLabel(n,'blue')">{{ pad(n) }}</span></div>
+<p v-if="view.draw" class="muted">覆盖 {{ s.summary.covered_red_count }}/6 红 · 蓝球{{ s.summary.blue_covered?'入池':'未入池' }} · 漏红 {{ s.summary.missed_reds.map(pad).join(' ') || '无' }}</p><p v-else class="muted">待开奖，命中与漏号暂不计算。</p>
+<p class="muted">单注最多中红 {{ nullable(s.summary.max_ticket_red_hits) }} · 中奖 {{ nullable(s.summary.prize_tickets) }} 注 · 固定奖金 {{ nullable(s.summary.fixed_prize) }} 元</p><button @click="viewTickets(s.name)" :disabled="loading||busy">查看完整票组{{ view.draw?'与对奖':'' }}</button>
+</article></div>
+<p v-if="!comparedStrategies.length" class="muted">此档案没有符合当前范围和预算的方案。历史档案只展示当时保存的方案。</p>
+<p class="muted">少注方案包括同覆盖重组、2–5 注融合排名分散及同预算均匀分散对照。方案只在首次留档时保存，历史档案不追加。扩大覆盖会同时提高均匀基准；不同预算的覆盖和单期奖金不能直接说明预测优势。</p>
+</div></details>
+
+          <details v-if="compactPreview" class="card review-group" aria-label="同覆盖减注结构试算"><summary>同覆盖减注 · 结构试算</summary><div class="detail-content">
 <h2>同覆盖减注 · 结构试算</h2>
 <div class="notice">{{ compactPreview.note }}</div>
 <p>分别保留 {{ summary.red_coverage }} 个红球和 {{ summary.blue_coverage }} 个蓝球，{{ summary.bets }} 注可重组为 {{ compactPreview.summary.bets }} 注，成本 {{ summary.cost }} → {{ compactPreview.summary.cost }} 元，减少 {{ compactPreview.saved_cost }} 元。</p>
@@ -170,8 +171,8 @@
 </table></div>
 <details style="margin-top:14px"><summary style="cursor:pointer">查看完整试算票组</summary><div v-for="t in compactPreview.tickets" :key="t.index" class="balls" style="margin-top:12px"><span class="muted">{{ t.index }} 注</span><span v-for="n in t.red" :key="n" class="ball selected red" :class="{hit:(t.hit_reds || []).includes(n)}">{{ pad(n) }}</span><span class="ball selected blue" :class="{hit:t.blue_hit}">{{ pad(t.blue) }}</span><span class="muted">{{ prizeName(t) }}</span></div></details>
 <button style="margin-top:16px" @click="exportCompactJson">导出结构试算 JSON</button>
-</section>
-          <section class="card">
+</div></details>
+          <details class="card review-group"><summary>全号码轨迹与筛选原因</summary><div class="detail-content">
 <h2>全号码轨迹</h2>
 <p class="muted">着色表示进入原票组，金色 ✓ 表示开奖号码；未着色但带 ✓ 的号码是漏中的开奖号码。鼠标悬停可查看排名和曝光次数。</p>
 <h3>红球 · 01–33</h3>
@@ -236,8 +237,8 @@
 </tbody>
 </table>
 </div>
-</section>
-          <section class="card columns">
+</div></details>
+          <details class="card columns"><summary>选号漏斗与漏号诊断</summary><div class="detail-content">
 <div>
 <h2>选号漏斗</h2>
 <div class="scroll">
@@ -283,8 +284,8 @@
 </div>
 <p v-if="!detail.structural" class="muted">权重与分数来自原始留档。未提供因果解释或校准后的中奖概率。</p>
 </div>
-</section>
-          <section class="card">
+</div></details>
+          <details class="card review-group"><summary>逐注对奖 · 完整票组</summary><div class="detail-content">
 <p v-if="detail?.blue_ranking" class="notice">蓝球命中目标试验：训练截至 {{ detail.blue_ranking.training_last_issue }}，共 {{ detail.blue_ranking.training_periods }} 条样本外记录，权重在25111前冻结；按原始票面复盘。</p><h2 id="ticket-review" tabindex="-1">逐注核对 · 完整展开票组</h2>
 <p class="muted">复式、胆拖已经展开为单注。重复票按实际购买次数保留，中奖注数和固定奖金逐注累加。</p>
 <div class="scroll">
@@ -321,7 +322,7 @@
 <button @click="ticketPage--" :disabled="ticketPage === 0">上一页</button>
 <button @click="ticketPage++" :disabled="ticketPage + 1 >= ticketPages">下一页</button>
 </div>
-</section>
+</div></details>
         </template>
       </template>
       <div v-else-if="!loading" class="card empty">选择期号查看实际推荐。</div>
@@ -374,8 +375,8 @@ createApp({components:{PoolIntersection:SSQPoolIntersection.component,ReferenceA
   function chooseIssue(id){message.value='';return loadIssue(id);}function chooseArchive(id){return loadIssue(issue.value,id);}function chooseStrategy(name){return loadIssue(issue.value,view.value.archive_id,name);}
   const isDrawNumber=(n,color)=>view.value?.draw?(color==='blue'?view.value.draw.blue===n:view.value.draw.red.includes(n)):false;
   const numberLabel=(n,color)=>`${color==='blue'?'蓝球':'红球'} ${pad(n)} · ${view.value?.draw?isDrawNumber(n,color)?'本期已开出':'本期未开出':'待开奖'}`;
-  async function jumpTo(id){await nextTick();const el=document.getElementById(id);if(el?.tagName==='DETAILS')el.open=true;el?.focus({preventScroll:true});el?.scrollIntoView({block:'start'});}
-  async function viewTickets(name){await chooseStrategy(name);if(view.value?.strategy!==name)return;await nextTick();const el=document.getElementById('ticket-review');el?.focus({preventScroll:true});el?.scrollIntoView({block:'start'});}
+  async function jumpTo(id){await nextTick();const el=document.getElementById(id);for(let parent=el;parent;parent=parent.parentElement)if(parent.tagName==='DETAILS')parent.open=true;await nextTick();el?.focus({preventScroll:true});el?.scrollIntoView({block:'start'});}
+  async function viewTickets(name){await chooseStrategy(name);if(view.value?.strategy!==name)return;await jumpTo('ticket-review');}
 
   async function action(path,after){if(busy.value)return;busy.value=true;try{const data=await api(path,{method:'POST'});await after(data);}catch(e){notice(e.message,'error');}finally{busy.value=false;}}
   function freeze(){return action('api/recommendations/freeze',async d=>{notice(`已保留 ${d.number_pools || 0} 个主模型池、${d.comparison_number_pools || 0} 个对照池、${d.strategies} 个票组，已有档案保持首次版本。`,'success');await refresh(d.issue,'daily');});}
@@ -386,7 +387,7 @@ createApp({components:{PoolIntersection:SSQPoolIntersection.component,ReferenceA
   function exportJson(){download(JSON.stringify(view.value,null,2),'application/json',`ssq-review-${issue.value}-${view.value.strategy}.json`);}
   function exportCompactJson(){download(JSON.stringify({issue:issue.value,source_archive_sha256:provenance.value.sha256 || null,source_strategy:view.value.strategy,draw:view.value.draw,...compactPreview.value},null,2),'application/json',`ssq-structural-preview-${issue.value}.json`);}
   function exportCsv(){const cols=['color','number','fusion_rank','fusion_score','in_candidate_pool','rescued','displaced','ticket_exposure','draw_hit','recommendation_result','reason_text','expert_scores','nominating_experts'];const cell=v=>'"'+String(v==null?'':typeof v==='object'?JSON.stringify(v):v).replace(/"/g,'""')+'"';const rows=[cols,...detail.value.numbers.map(n=>cols.map(c=>n[c]))];download('\ufeff'+rows.map(r=>r.map(cell).join(',')).join('\r\n'),'text/csv;charset=utf-8',`ssq-numbers-${issue.value}-${view.value.strategy}.csv`);}
-  onMounted(()=>refresh(issue.value,params.get('archive'),params.get('strategy')));
+  onMounted(async()=>{await refresh(issue.value,params.get('archive'),params.get('strategy'));if(location.hash)await jumpTo(location.hash.slice(1));});
   return {home,issues,next,limit,issue,view,detail,summary,provenance,compactPreview,comparisonCosts,comparedStrategies,missedReasons,strategyGroup,comparisonCost,selectedPool,effectivePoolGroup,poolBlueCount,hasObservationTiers,hasLegacyPools,shownPools,numberPool,archivedModels,intersectionSnapshot,archivedPoolComparison,activePoolModel,effectivePoolModel,poolDiagnostics,poolModelName,balancedArchived,compactArchived,originalArchived,loading,busy,message,messageType,color,filter,ticketPage,redNumbers,blueNumbers,filteredNumbers,shownTickets,ticketPages,expertNames,isDrawNumber,numberLabel,viewTickets,jumpTo,pad,nullable,decimal,signed,flag,score,time,sourceName,stageName,resultName,numberTitle,prizeName,weight,refresh,chooseIssue,chooseArchive,chooseStrategy,freeze,settle,sync,fileUrl,exportJson,exportCompactJson,exportCsv};
 }}).mount('#app');
 </script>

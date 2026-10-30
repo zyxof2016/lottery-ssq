@@ -32,12 +32,12 @@
     if (u.origin !== location.origin || !u.pathname.startsWith(base.pathname)) return;
     if (u.pathname === location.pathname && u.hash) return;
     const path = u.pathname.slice(base.pathname.length).replace(/\.html$/, '').replace(/\/$/, '');
-    const tab = ({'': 'generator', 'index': 'generator', reviews: 'reviews', research: 'research', pools: 'research'})[path];
+    const tab = ({'': 'generator', 'index': 'generator', reviews: 'reviews', research: 'research', pools: 'pools'})[path];
     if (!tab) return;
     event.preventDefault();
     const params = Object.fromEntries(u.searchParams);
     delete params.embed;
-    if (path === 'pools') params.view = 'observations';
+    if (path === 'pools' && !params.pane) params.pane = params.research === '1' ? 'analysis' : 'small';
     parent.postMessage({type: 'ssq:navigate', tab, params}, location.origin);
   });
 })();

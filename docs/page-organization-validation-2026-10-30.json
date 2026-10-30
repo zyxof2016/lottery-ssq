@@ -1,0 +1,33 @@
+{
+  "scope": "isolated_real_runtime",
+  "goal_cards": 6,
+  "observations_absent_from_generation": true,
+  "default_home_requests_only_core": true,
+  "original_five_tickets_accessible": true,
+  "pool_pane_survives_navigation_and_reload": true,
+  "small_and_blue_generation": true,
+  "analysis_one_topic_at_a_time": true,
+  "review_jump_opens_details": true,
+  "source_anchor_opens_group": true,
+  "original_daily_bytes_preserved": true,
+  "widths": [
+    320,
+    390,
+    768,
+    1440
+  ],
+  "heights": {
+    "home": 1475,
+    "pools": 1000,
+    "reviews": 2000
+  },
+  "console_errors": [],
+  "vue_warnings": [],
+  "write_requests": [
+    "http://127.0.0.1:16944/ssq/api/generate",
+    "http://127.0.0.1:16944/ssq/api/generate",
+    "http://127.0.0.1:16944/ssq/api/generate"
+  ],
+  "rust_tests_passed": 107,
+  "node_compression_tests_passed": true
+}
