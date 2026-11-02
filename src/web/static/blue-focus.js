@@ -1,23 +1,35 @@
 (function(global){
   'use strict';
   const component={props:{allowGenerate:{type:Boolean,default:true},apiUrl:{type:String,required:true},busy:{type:Boolean,default:false}},emits:['generate'],setup(props){
-    const report=Vue.ref(null),error=Vue.ref(''),window=Vue.ref('recent60'),count=Vue.ref(2);
-    const choices=[{preset:'bluefocus2',model:'weighted',count:2,label:'原榜2蓝 · 同数量对照'},{preset:'bluehit2',model:'blue_hit_frozen',count:2,label:'命中目标2蓝 · 试验'},{preset:'bluefocus4',model:'weighted',count:4,label:'原榜4蓝 · 分散覆盖'},{preset:'bluehit4',model:'blue_hit_frozen',count:4,label:'命中目标4蓝 · 试验'}];
+    const coverage=Vue.ref(null),coverageError=Vue.ref(''),report=Vue.ref(null),error=Vue.ref(''),window=Vue.ref('recent60'),count=Vue.ref(2);
+    const choices=[{preset:'bluefocus8',model:'weighted',count:8,label:'小奖分散覆盖 · 8蓝8注'},{preset:'bluefocus2',model:'weighted',count:2,label:'原榜2蓝 · 同数量对照'},{preset:'bluehit2',model:'blue_hit_frozen',count:2,label:'命中目标2蓝 · 试验'},{preset:'bluefocus4',model:'weighted',count:4,label:'原榜4蓝 · 分散覆盖'},{preset:'bluehit4',model:'blue_hit_frozen',count:4,label:'命中目标4蓝 · 试验'}];
     const selected=Vue.computed(()=>report.value?.windows[window.value]);
     const cells=Vue.computed(()=>(selected.value?.cells||[]).filter(c=>c.blue_count===count.value));
     const percent=n=>n==null?'—':(n*100).toFixed(1)+'%',pad=n=>String(n).padStart(2,'0');
     function numbers(c){return report.value?.next.find(m=>m.model===c.model)?.ranking.slice(0,c.count)||[];}
     function label(model){return report.value?.next.find(m=>m.model===model)?.label||model;}
     function download(){const url=URL.createObjectURL(new Blob([JSON.stringify(report.value,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='ssq-blue-review-'+report.value.cutoff_issue+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+    const budgetCells=Vue.computed(()=>coverage.value?.windows?.[window.value]?.cells||[]);
+    const reviewHref=Vue.computed(()=>coverage.value?.current?.url?new URL(coverage.value.current.url,SSQApp.base).href:'');
+    Vue.onMounted(async()=>{try{const response=await fetch(props.apiUrl.replace(/api\/blue(?=$|\?)/,'api/prize-coverage'));const data=await response.json();if(!response.ok)throw Error(data.error||'小奖覆盖读取失败');coverage.value=data;}catch(e){coverageError.value=e.message;}});
     Vue.onMounted(async()=>{try{const response=await fetch(props.apiUrl),data=await response.json();if(!response.ok)throw Error(data.error||'蓝球研究读取失败');report.value=data;}catch(e){error.value=e.message;}});
-    return {report,error,window,count,choices,selected,cells,percent,pad,numbers,label,download};
+    return {coverage,coverageError,budgetCells,reviewHref,report,error,window,count,choices,selected,cells,percent,pad,numbers,label,download};
   },template:`<section class="card blue-focus" aria-label="蓝球命中优化">
     <h2>蓝球优先 · 相同8注16元</h2>
-    <p class="muted">原加权16红排相同8组红球，每注配1个蓝球。2蓝每蓝4注；4蓝每蓝2注，总注数和预算相同。增加不同蓝球提高覆盖范围，同时减少每个蓝球命中时的注数。</p>
+    <p class="muted">原加权16红排相同8组红球，每注配1个蓝球。2蓝每蓝4注；4蓝每蓝2注；8蓝每蓝1注，总注数和预算相同。增加不同蓝球提高覆盖范围，同时减少每个蓝球命中时的注数。</p>
     <p v-if="error" class="notice error" role="alert">{{ error }}</p><p v-if="!report&&!error" role="status" class="muted">正在比较同数量的蓝球命中与同预算分散覆盖…</p>
     <template v-if="report">
       <p class="muted">第 {{ report.target_issue }} 期预览，依据截止 {{ report.cutoff_issue }}；点击生成后按完整票面独立留档。已有每日原档不追加新方案。</p>
-      <div class="blue-choice-grid"><article v-for="c in choices" :key="c.preset" class="blue-choice" :data-blue-preset="c.preset"><h3>{{ c.label }}</h3><div class="balls"><span v-for="n in numbers(c)" :key="n" class="ball blue">{{ pad(n) }}</span></div><p class="muted">{{ c.count }}个不同蓝球 · 8注16元</p><button v-if="allowGenerate" type="button" :disabled="busy" @click="$emit('generate',{preset:c.preset,issue:report.target_issue,data_sha256:report.data_sha256})">生成{{ c.count }}蓝{{ c.model==='weighted'?'原榜':'试验' }}8注</button></article></div>
+      <div class="blue-choice-grid"><article v-for="c in choices" :key="c.preset" class="blue-choice" :data-blue-preset="c.preset"><h3>{{ c.label }}</h3><div class="balls"><span v-for="n in numbers(c)" :key="n" class="ball selected blue">{{ pad(n) }}</span></div><p class="muted">{{ c.count }}个不同蓝球 · 8注16元</p><button v-if="allowGenerate" type="button" :disabled="busy" @click="$emit('generate',{preset:c.preset,issue:report.target_issue,data_sha256:report.data_sha256})">生成{{ c.count }}蓝{{ c.model==='weighted'?'原榜':'试验' }}8注</button></article></div>
+      <p class="notice">小奖分散覆盖优先减少蓝球重复。8蓝在均匀开奖假设下覆盖8/16个蓝球结果；不是模型预测概率。只中普通六等奖为5元，低于16元成本，不保证中奖或回本。</p>
+      <p v-if="coverageError" class="notice error" role="alert">{{coverageError}}</p>
+      <details v-if="coverage" class="blue-evidence" data-prize-coverage open><summary>小奖覆盖复盘 · 同样8注16元</summary>
+       <p class="muted">{{coverage.current.status==='frozen'?'本期8蓝票组已首次留档':'本期8蓝票组尚未留档'}}；已开奖{{coverage.actual.n}}期，待开奖{{coverage.actual.pending}}期，旧期缺档{{coverage.actual.excluded_missing}}期。<a v-if="reviewHref" :href="reviewHref">查看本期8蓝完整原档与复盘</a></p>
+       <label class="field">相同预算回放窗口<select data-prize-window v-model="window"><option value="recent30">近30期</option><option value="recent60">近60期</option><option value="recent156">近156期</option><option value="all_oos">全部回放</option><option value="tracking">确认窗后跟踪</option></select></label>
+       <p class="muted">每期只用此前数据，三种方案使用完全相同的8组红球。历史回放单列；固定奖金不含浮动奖和待核特别奖。</p>
+       <div class="scroll"><table class="blue-table"><thead><tr><th>蓝球分配</th><th>至少一注常规中奖</th><th>中奖注数</th><th>固定奖金达16元期数</th><th>已知固定奖金累计</th></tr></thead><tbody><tr v-for="r in budgetCells" :key="r.blue_count" :data-prize-blue-count="r.blue_count"><td>{{r.blue_count}}蓝 · 8注16元</td><td>{{r.prize_periods}}/{{r.n}} · {{percent(r.prize_rate)}}</td><td>{{r.prize_bets}}</td><td>{{r.fixed_at_least_cost_periods}}/{{r.n}}</td><td>{{r.fixed_prize_total}}元</td></tr></tbody></table></div>
+       <h3>最近真实留档为什么没中奖</h3><p class="muted">{{coverage.audit.note}}</p><div class="scroll"><table class="blue-table"><thead><tr><th>期号</th><th>常规中奖组数</th><th>蓝球是否入票</th><th>最佳单注中红</th></tr></thead><tbody><tr v-for="r in coverage.audit.periods.slice(0,3)" :key="r.issue" :data-prize-audit-issue="r.issue"><td>{{r.issue}}</td><td>{{r.winning_groups}}/{{r.group_count}}</td><td>{{r.any_blue_covered?'已入至少一组':'所列票组全部漏蓝'}}</td><td>{{r.max_single_red}}/6</td></tr></tbody></table></div><p v-if="coverage.audit.errors.length||coverage.actual.errors.length" class="notice error">{{[...coverage.audit.errors,...coverage.actual.errors].join('；')}}</p>
+      </details>
       <details class="blue-evidence"><summary>查看蓝球同数量比较与实际留档</summary>
         <p class="muted">命中目标试验直接按此前专家前2蓝命中拟合，25111起权重冻结。改善尚不稳定，原协议保持原蓝榜；新增比较属于探索性回放。</p>
         <div class="row"><label class="field">回放窗口<select data-blue-window v-model="window"><option value="recent30">近30期</option><option value="recent60">近60期</option><option value="recent156">近156期</option><option value="confirmation_exploratory">原确认窗 · 探索性</option><option value="tracking">确认窗后跟踪</option><option value="development">开发期</option><option value="all_oos">全部回放</option></select></label><label class="field">相同蓝球数量<select data-blue-count v-model.number="count"><option v-for="n in [1,2,3,4,5,6,7,8]" :key="n" :value="n">{{ n }}蓝</option></select></label><button type="button" @click="download">导出蓝球研究与实际统计</button></div>

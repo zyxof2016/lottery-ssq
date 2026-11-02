@@ -1,0 +1,38 @@
+{
+  "scope": "isolated_runtime",
+  "issue": "26126",
+  "archive_sha256": "d77c87c54751a37c324e3a4d9ad0c8bba8e00ddbaf91754026de183c4c3d80c3",
+  "archive_id": "interactive:963a0fde31f5c62638b5cf1f05172b050dce6342caaf0a340a320ec05ee37c16",
+  "current_eight_unique_blues_eight_singles_yuan16": true,
+  "same_sixteen_reds_and_same_red_tickets_as_two_blue_control": true,
+  "no_prediction_model_change": true,
+  "copy_eight_complete_singles": true,
+  "causal_same_budget_windows_verified": true,
+  "win_frequency_and_prize_money_tradeoff_visible": true,
+  "recent60": {
+    "two_blue_prize_periods": 9,
+    "eight_blue_prize_periods": 29,
+    "two_blue_fixed_yuan": 575,
+    "eight_blue_fixed_yuan": 175
+  },
+  "pending_outcomes_null": true,
+  "old_daily_and_reference_bytes_preserved": true,
+  "old_daily_strategy_count": 25,
+  "no_historical_backfill": true,
+  "widths": [
+    320,
+    390,
+    768,
+    1440
+  ],
+  "console_errors": [],
+  "vue_warnings": [],
+  "write_requests": [
+    "http://127.0.0.1:16949/api/generate"
+  ],
+  "rust_tests_passed": 120,
+  "original_apis_preserved": 13,
+  "authorized_added_current_archive_source_only": true,
+  "original_files_including_csv_preserved": 56,
+  "existing_blue_analysis_matched_cells": 21
+}

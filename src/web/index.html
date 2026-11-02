@@ -18,12 +18,12 @@
 <div class="notice">以更少红球覆盖全部 6 个开奖号为观察目标；模型排序尚未证明稳定优于均匀选号。号码池覆盖与单注中奖分别核对。<a href="?tab=reviews" @click.prevent="openTab('reviews')">查看每期实际推荐与复盘</a></div>
 <div class="workspace-intro"><div><p class="eyebrow">方案生成</p><h2>先选目标，再查看本期号码</h2><p class="muted">第 {{ overview.next_issue || '待载入' }} 期 · 依据截止 {{ overview.latest_draw?.issue || '待核对' }}</p></div><button @click="openTab('pools',{pane:'reference'})">参考5注、胆拖与融合 →</button></div>
 <section class="card goal-presets" aria-label="按目标生成方案"><h2>按目标生成方案</h2><div class="grid3">
+<button id="goal-bluefocus8" class="preset goal-card goal-blue" :disabled="generating||saving||syncing||!overview.next_issue" @click="generateBlue({preset:'bluefocus8',issue:overview.next_issue,data_sha256:overview.data_sha256})"><strong>小奖分散覆盖 · 8蓝8注</strong><small>16红均衡组票，每注1个不同蓝球。普通六等奖5元低于本组成本。</small><span class="goal-tag">8注 · 16元</span></button>
 <button id="goal-pool16" class="preset goal-card goal-red" :disabled="generating||saving||syncing" @click="generateCompact(16)"><strong>16红＋2蓝 · 观察号码池</strong><small>先看一组精简号码，保存原池并观察全6红覆盖。</small><span class="goal-tag">号码池预览</span></button>
 <button id="goal-balanced16" class="preset goal-card goal-blue" :disabled="generating||saving||syncing" @click="applyPreset('balanced16')"><strong>16红均衡覆盖 · 8注</strong><small>将16个候选红球均衡分配到8注，配原榜2蓝。</small><span class="goal-tag">8注 · 16元</span></button>
 <button id="goal-balanced14" class="preset goal-card goal-green" :disabled="generating||saving||syncing" @click="applyPreset('balanced14')"><strong>14红小池 · 均衡8注</strong><small>缩小红球范围，比较少选号码与覆盖的取舍。</small><span class="goal-tag">8注 · 16元</span></button>
 <button id="goal-disjoint5" class="preset goal-card" :disabled="generating||saving||syncing" @click="applyPreset('disjoint5')"><strong>5注红球不重叠</strong><small>分散覆盖30个红球，蓝球按原榜轮换。</small><span class="goal-tag">5注 · 10元</span></button>
 <button id="goal-compound7" class="preset goal-card" :disabled="generating||saving||syncing" @click="applyPreset('compound7')"><strong>7红复式</strong><small>选择7个红球配1蓝，完整展开7注。</small><span class="goal-tag">7注 · 14元</span></button>
-<button id="goal-dantuo" class="preset goal-card" :disabled="generating||saving||syncing" @click="applyPreset('dantuo')"><strong>2胆6拖</strong><small>按原榜区分胆码和拖码，查看完整票组。</small><span class="goal-tag">15注 · 30元</span></button>
 </div></section>
 <form class="card" @submit.prevent="generateCustom"><h2>自定义参数生成</h2><div class="grid4">
 <label class="field">选择玩法<input value="双色球 · 6 红 + 1 蓝" readonly></label>

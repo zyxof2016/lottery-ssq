@@ -131,6 +131,7 @@ pub fn build(fc: &Forecast, spec: &Spec) -> Result<Plan, String> {
 fn preset_spec(name: &str) -> Result<Spec, String> {
     Ok(match name {
         "frozen" => frozen_spec(),
+        "bluefocus8" => Spec {mode:"balanced",title:crate::prize_coverage::TITLE.into(),detail:"16红均衡分配到8注，每注配原榜前8蓝中一个不同蓝球，共8注16元。目标是分散小奖覆盖；普通六等奖5元低于16元成本，不保证中奖或回本。".into(),tickets:8,pool:16,overlap:5,red_count:6,blue_count:8,bankers:0,drags:0},
         "bluefocus2" | "bluehit2" | "bluefocus4" | "bluehit4" => Spec {
             mode: "balanced", title: match name {"bluehit4"=>"蓝球命中目标 · 4蓝试验8注", "bluehit2"=>"蓝球命中目标 · 2蓝试验8注", "bluefocus4"=>"蓝球分散覆盖 · 4蓝8注", _=>"蓝球原榜 · 2蓝对照8注"}.into(),
             detail: "原加权前16红排相同8组红球，每组只配1个蓝球，蓝球轮换均衡曝光；总计8注16元。更多不同蓝球提高并集覆盖，同时减少每个蓝球重复注数；不等于奖金或收益提高。".into(),

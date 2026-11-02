@@ -49,3 +49,5 @@
 融合完整票组自2026-10-30起另存于 `recommendations/reference-tickets`，对应复盘为 `recommendations/reviews/{issue}/reference-tickets.json`，继续随recommendations目录完整备份。旧reference文件不补写；发布后先只读核验原档，再由实际封存或原自动任务创建当前下一期的完整票组。
 
 2026-11-02起参考同次报告的原始胆拖／复式单独导出为 `recommendations/reference-dantuo-cache/{输入摘要}.json`，截止前首次封存到 `recommendations/reference-dantuo/{期号}.json`，逐注复盘为 `recommendations/reviews/{期号}/reference-dantuo.json`，继续随整个recommendations目录备份。更新release中的reference/worker.py，保留reference-runtime原始工作报告与私有审计密钥；旧5注缓存及reference原档不改写，未封存的历史胆拖不补造。后台可从已有同次工作报告导出当前方案，无需重跑模型。
+
+2026-11-02小奖覆盖扩展新增bluefocus8，新期首次daily为26策略；已封存旧daily不追加。旧日档缺该策略时，cycle通过既有interactive目录封存当前下一期完整票组（prize_coverage v1），继续随recommendations完整备份和原有reviews流程对奖。部署只读核验后再正式生成当前方案，不能把本地浏览器测试产生的interactive档案上传生产。新增GET /api/prize-coverage不写盘，核对实际样本与历史回放分列、16红/8个不同蓝球/8注16元、原档保留及截止边界。

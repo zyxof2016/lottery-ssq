@@ -142,6 +142,7 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
             report["publication"]=json!({"can_freeze":gate.publish,"target":gate.target,"deadline":gate.deadline_text,"reason":gate.reason});Ok(report)
         }),
         ("POST", "/api/reference-pools/freeze") => freeze_reference(app,body),
+        ("GET", "/api/prize-coverage") => load_csv(&app.data).and_then(|draws| crate::prize_coverage::report(&recommendation_dir(app),&draws)),
         ("GET", "/api/blue") => load_csv(&app.data).and_then(|draws| {
             let mut report=crate::blue::analyze(&draws)?;
             report["actual"]=recommendations::blue_observations(&recommendation_dir(app),&draws)?;
@@ -277,7 +278,8 @@ struct GenReq {
 fn generate_value(app: &App, body: &str) -> Result<Value, String> {
     let draws = load_csv(&app.data)?;
     let (plan, prepared) = build_requested(body, &draws)?;
-    let req = parse_gen(body)?;
+    let mut req = parse_gen(body)?;
+    if req.preset.as_deref()==Some(crate::prize_coverage::PRESET){let last=draws.last().ok_or("没有开奖数据")?;let gate=decide(recommendations::now_unix(),last.issue,last.date,true);if !gate.publish||req.issue.as_ref().is_some_and(|s|s!=&gate.target){return Err("小奖覆盖仅在截止前生成当前紧邻下一期".into());}req.not_after=Some(req.not_after.unwrap_or(gate.deadline_unix).min(gate.deadline_unix));}
     let issue = req.issue.unwrap_or_else(|| fmt_issue(prepared.cutoff_issue + 1));
     let archive = recommendations::archive_plan(&recommendation_dir(app), &plan, &prepared, &issue, req.not_after)?;
     let mut value = plan_json(&plan, &prepared, &draws);
@@ -372,7 +374,7 @@ fn build_requested(body: &str, draws: &[Draw]) -> Result<(Plan, crate::eval::Pre
     let mut prepared = if model==crate::small_red::MODEL {crate::small_red::prepare(draws)?} else if model==crate::conditional::MODEL {crate::conditional::prepare(draws)?} else if model==crate::ranking::MODEL {crate::ranking::prepare(draws)?} else if model=="equal" {crate::ranking::prepare_equal(draws)?} else if crate::pool_algorithms::is_model(model) {crate::pool_algorithms::prepare(draws,model)?} else {prepare_forecast(draws)?};
     let blue_model=req.blue_model.as_deref().unwrap_or(if req.preset.as_deref().is_some_and(|p|["bluehit2","bluehit4"].contains(&p)){crate::blue::MODEL}else{"weighted"});
     if !["weighted",crate::blue::MODEL].contains(&blue_model){return Err("未知蓝球排名模型".into());}
-    if crate::blue::PRESETS.contains(&req.preset.as_deref().unwrap_or(""))&&model!="weighted"{return Err("蓝球同预算预设使用相同原加权红球".into());}
+    if (crate::blue::PRESETS.contains(&req.preset.as_deref().unwrap_or(""))||req.preset.as_deref()==Some(crate::prize_coverage::PRESET))&&model!="weighted"{return Err("蓝球同预算预设使用相同原加权红球".into());}
     if req.preset.as_deref().is_some_and(|p|["bluehit2","bluehit4"].contains(&p))&&blue_model!=crate::blue::MODEL{return Err("命中目标蓝球预设须使用命中目标模型".into());}
     if blue_model!="weighted" {
         if spec.mode=="frozen"||req.preset.as_deref().is_some_and(|p|!["bluehit2","bluehit4"].contains(&p)){return Err("原命名预设与协议票组使用原蓝榜；蓝球试验请用蓝球入口或自定义方案".into());}

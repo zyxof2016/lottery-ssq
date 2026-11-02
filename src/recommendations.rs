@@ -19,7 +19,7 @@ use crate::pool;
 use crate::protocol::Protocol;
 use crate::select::rank_desc;
 
-pub const PRESETS: [&str; 16] = [
+pub const PRESETS: [&str; 17] = [
     "frozen",
     "disjoint5",
     "single8",
@@ -36,6 +36,7 @@ pub const PRESETS: [&str; 16] = [
     "bluehit2",
     "bluefocus4",
     "bluehit4",
+    "bluefocus8",
 ];
 pub const PRIZE_RULES_URL: &str = "https://www.scflcp.com.cn/yxgz/823145252.jhtml";
 
@@ -80,7 +81,8 @@ fn source_sha() -> String {
             include_str!("small_archive.rs"),
             include_str!("reference.rs"),
             include_str!("reference_tickets.rs"),
-            include_str!("reference_dantuo.rs")
+            include_str!("reference_dantuo.rs"),
+            include_str!("prize_coverage.rs")
         )
         .as_bytes(),
     )
@@ -275,6 +277,7 @@ fn strategy(plan: &Plan, prepared: &Prepared) -> Value {
         "blue_weights": prepared.blue_weights, "bankers": plan.bankers, "drags": plan.drags,
     });
     if let Some(ranking)=&prepared.blue_ranking {saved["blue_ranking"]=ranking.clone();}
+    if plan.title==crate::prize_coverage::TITLE {saved["prize_coverage"]=crate::prize_coverage::policy();}
     saved
 }
 
@@ -444,7 +447,7 @@ pub fn archive_plan(
     } else {
         let mut payload = base_payload(prepared, issue, "interactive", now_unix(), deadline);
         payload["strategies"] = json!({"custom": saved});
-        write_new(&path, payload)?.0
+        if saved.get("prize_coverage").is_some(){let deadline=deadline.ok_or("小奖覆盖方案缺少封存截止")?;write_new_before(&path,payload,Some(deadline),now_unix)?.0}else{write_new(&path,payload)?.0}
     };
     Ok(
         json!({"archive_id": format!("interactive:{identity}"), "sha256": envelope["sha256"],
@@ -533,6 +536,7 @@ pub(crate) fn validate_archive(payload: &Value, issue: &str, draws: &[Draw]) -> 
     if let Some(strategies)=payload["strategies"].as_object() {
         let mut expected_blue:Option<Value>=None;
         for strategy in strategies.values() {
+            if strategy.get("prize_coverage").is_some(){crate::prize_coverage::validate_saved(strategy,payload,draws)?;}
             if let Some(ranking)=strategy.get("blue_ranking") {
                 let prefix:Vec<_>=draws.iter().filter(|d|fmt_issue(d.issue).as_str()<=payload["data_cutoff"].as_str().unwrap_or("")).cloned().collect();
                 if expected_blue.is_none() {
@@ -875,7 +879,7 @@ fn reason_text(reason: &str) -> &'static str {
     }
 }
 
-fn prize(red: usize, blue: bool) -> Option<u8> {
+pub(crate) fn prize(red: usize, blue: bool) -> Option<u8> {
     match (red, blue) {
         (6, true) => Some(1),
         (6, false) => Some(2),
@@ -886,6 +890,8 @@ fn prize(red: usize, blue: bool) -> Option<u8> {
         _ => None,
     }
 }
+
+pub(crate) fn fixed_prize_amount(level: Option<u8>) -> u64 {match level {Some(3)=>3000,Some(4)=>200,Some(5)=>10,Some(6)=>5,_=>0}}
 
 pub(crate) fn review_strategy(saved: &Value, draw: Option<&Draw>) -> Result<Value, String> {
     let tickets: Vec<Ticket> =
@@ -920,13 +926,7 @@ pub(crate) fn review_strategy(saved: &Value, draw: Option<&Draw>) -> Result<Valu
         let hits = hit_numbers.as_ref().map(Vec::len);
         let blue_hit = draw.map(|d| d.blue == ticket.blue);
         let level = hits.and_then(|h| prize(h, blue_hit.unwrap_or(false)));
-        let fixed = match level {
-            Some(3) => 3000,
-            Some(4) => 200,
-            Some(5) => 10,
-            Some(6) => 5,
-            _ => 0,
-        };
+        let fixed = fixed_prize_amount(level);
         let needs_special =
             draw.is_some_and(|d| d.issue >= 26014) && hits == Some(3) && blue_hit == Some(false);
         if let Some(h) = hits {
@@ -1603,7 +1603,7 @@ mod tests {
         let old_path=temp.0.join(format!("daily/{old_issue}.json"));write_new(&old_path,payload).unwrap();let old=fs::read(&old_path).unwrap();
         append_outcome(&mut draws);let issue=next(&draws);freeze_daily_with_clock(&temp.0,&draws,&issue,100,||10).unwrap();
         let path=temp.0.join(format!("daily/{issue}.json"));let bytes=fs::read(&path).unwrap();let raw=read_checked(&path).unwrap();
-        assert_eq!(raw["payload"]["strategies"].as_object().unwrap().len(),25);
+        assert_eq!(raw["payload"]["strategies"].as_object().unwrap().len(),26);
         let pending=blue_observations(&temp.0,&draws).unwrap();assert_eq!(pending["errors"],json!([]));
         for cell in pending["cells"].as_array().unwrap(){assert_eq!(cell["n"],0);assert_eq!(cell["pending"],1);assert_eq!(cell["excluded_missing_pair"],1);assert!(cell["hit_rate"].is_null());}
         let blue=raw["payload"]["strategies"]["bluefocus4"]["tickets"][2]["blue"].as_u64().unwrap()as u8;
@@ -1670,7 +1670,7 @@ mod tests {
         append_outcome(&mut draws);
         let new_issue=next(&draws);
         let result=freeze_daily_with_clock(&temp.0,&draws,&new_issue,100,||10).unwrap();
-        assert_eq!(result["strategies"],25);
+        assert_eq!(result["strategies"],26);
         assert_eq!(result["comparison_models"],9);
         assert_eq!(result["comparison_number_pools"],144);
         let raw=read_checked(&temp.0.join(format!("daily/{new_issue}.json"))).unwrap();

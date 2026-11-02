@@ -1,0 +1,3222 @@
+{
+  "actual": {
+    "errors": [],
+    "excluded_missing": 9,
+    "fixed_prize_total": null,
+    "n": 0,
+    "note": "每期仅使用首次真实保存的小奖覆盖方案；待开奖和旧期缺档不计失败，日档与个人来源同一期不重复计数。",
+    "pending": 0,
+    "periods": [],
+    "prize_bets": null,
+    "prize_periods": 0,
+    "prize_rate": null
+  },
+  "audit": {
+    "errors": [],
+    "note": "核对每日原档及参考独立原档，均匀机选研究对照不计入推荐组数；未实际购买不代表已发生投入或收益。3红0蓝特别奖资格单列待核，不计已确认奖金。",
+    "periods": [
+      {
+        "any_blue_covered": false,
+        "archive_sha256": "faa6a3654144a2b9f6fd94348fd88e6992eec404c6269c4e317b21b31b486153",
+        "blue_union": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          9,
+          12,
+          13
+        ],
+        "draw": {
+          "blue": 11,
+          "red": [
+            4,
+            6,
+            10,
+            15,
+            26,
+            27
+          ]
+        },
+        "group_count": 26,
+        "groups": [
+          {
+            "best_red": 3,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "balanced14",
+            "prize_bets": 0,
+            "special_prize_unverified": 1
+          },
+          {
+            "best_red": 0,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "blue2",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "bluefocus2",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              4,
+              9,
+              12,
+              13
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "bluefocus4",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "bluehit2",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              3,
+              4,
+              9,
+              12
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "bluehit4",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "calibrated14",
+            "prize_bets": 0,
+            "special_prize_unverified": 1
+          },
+          {
+            "best_red": 0,
+            "bets": 7,
+            "blue_hit": false,
+            "blues": [
+              12
+            ],
+            "cost": 14,
+            "fixed_prize": 0,
+            "name": "compound7",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 0,
+            "bets": 28,
+            "blue_hit": false,
+            "blues": [
+              12
+            ],
+            "cost": 56,
+            "fixed_prize": 0,
+            "name": "compound8",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "coverage24",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 0,
+            "bets": 15,
+            "blue_hit": false,
+            "blues": [
+              12
+            ],
+            "cost": 30,
+            "fixed_prize": 0,
+            "name": "dantuo",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 5,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 10,
+            "fixed_prize": 0,
+            "name": "disjoint5",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "efficiency:compact",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "efficiency:model:2",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 3,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 6,
+            "fixed_prize": 0,
+            "name": "efficiency:model:3",
+            "prize_bets": 0,
+            "special_prize_unverified": 1
+          },
+          {
+            "best_red": 2,
+            "bets": 4,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 8,
+            "fixed_prize": 0,
+            "name": "efficiency:model:4",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 5,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 10,
+            "fixed_prize": 0,
+            "name": "efficiency:model:5",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "equal24",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "frozen",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "single8",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "weighted24",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 5,
+            "blue_hit": false,
+            "blues": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "cost": 10,
+            "fixed_prize": 0,
+            "name": "参考原始5注",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "融合12红8注",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "融合14红8注",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "融合15红8注",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              9,
+              12
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "融合16红8注",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          }
+        ],
+        "issue": "26125",
+        "max_single_red": 3,
+        "url": "reviews?issue=26125&archive=daily",
+        "winning_groups": 0
+      },
+      {
+        "any_blue_covered": false,
+        "archive_sha256": "9c5eede0da8dbc8a5abf52daf6f3caed05f02b13b614f002698813c7b03a8467",
+        "blue_union": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          12,
+          13
+        ],
+        "draw": {
+          "blue": 9,
+          "red": [
+            3,
+            11,
+            17,
+            22,
+            23,
+            29
+          ]
+        },
+        "group_count": 18,
+        "groups": [
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              12,
+              13
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "balanced14",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 0,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              12,
+              13
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "blue2",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              12,
+              13
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "calibrated14",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 0,
+            "bets": 7,
+            "blue_hit": false,
+            "blues": [
+              12
+            ],
+            "cost": 14,
+            "fixed_prize": 0,
+            "name": "compound7",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 0,
+            "bets": 28,
+            "blue_hit": false,
+            "blues": [
+              12
+            ],
+            "cost": 56,
+            "fixed_prize": 0,
+            "name": "compound8",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              12,
+              13
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "coverage24",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 0,
+            "bets": 15,
+            "blue_hit": false,
+            "blues": [
+              12
+            ],
+            "cost": 30,
+            "fixed_prize": 0,
+            "name": "dantuo",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 5,
+            "blue_hit": false,
+            "blues": [
+              12,
+              13
+            ],
+            "cost": 10,
+            "fixed_prize": 0,
+            "name": "disjoint5",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 0,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              12,
+              13
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "efficiency:compact",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              12,
+              13
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "efficiency:model:2",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 3,
+            "blue_hit": false,
+            "blues": [
+              12,
+              13
+            ],
+            "cost": 6,
+            "fixed_prize": 0,
+            "name": "efficiency:model:3",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 4,
+            "blue_hit": false,
+            "blues": [
+              12,
+              13
+            ],
+            "cost": 8,
+            "fixed_prize": 0,
+            "name": "efficiency:model:4",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 5,
+            "blue_hit": false,
+            "blues": [
+              12,
+              13
+            ],
+            "cost": 10,
+            "fixed_prize": 0,
+            "name": "efficiency:model:5",
+            "prize_bets": 0,
+            "special_prize_unverified": 1
+          },
+          {
+            "best_red": 3,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              12,
+              13
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "equal24",
+            "prize_bets": 0,
+            "special_prize_unverified": 2
+          },
+          {
+            "best_red": 0,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              12,
+              13
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "frozen",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 0,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              12,
+              13
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "single8",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              12,
+              13
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "weighted24",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 5,
+            "blue_hit": false,
+            "blues": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "cost": 10,
+            "fixed_prize": 0,
+            "name": "参考原始5注",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          }
+        ],
+        "issue": "26124",
+        "max_single_red": 3,
+        "url": "reviews?issue=26124&archive=daily",
+        "winning_groups": 0
+      },
+      {
+        "any_blue_covered": false,
+        "archive_sha256": "a7a249716deec78a94023b23cdc2ab62e21e3d6999ff7e44acef9e9520ae2e58",
+        "blue_union": [
+          4,
+          9
+        ],
+        "draw": {
+          "blue": 12,
+          "red": [
+            4,
+            5,
+            20,
+            21,
+            26,
+            30
+          ]
+        },
+        "group_count": 17,
+        "groups": [
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              4,
+              9
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "balanced14",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              4,
+              9
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "blue2",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              4,
+              9
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "calibrated14",
+            "prize_bets": 0,
+            "special_prize_unverified": 2
+          },
+          {
+            "best_red": 2,
+            "bets": 7,
+            "blue_hit": false,
+            "blues": [
+              9
+            ],
+            "cost": 14,
+            "fixed_prize": 0,
+            "name": "compound7",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 28,
+            "blue_hit": false,
+            "blues": [
+              9
+            ],
+            "cost": 56,
+            "fixed_prize": 0,
+            "name": "compound8",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 4,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              4,
+              9
+            ],
+            "cost": 16,
+            "fixed_prize": 10,
+            "name": "coverage24",
+            "prize_bets": 1,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 15,
+            "blue_hit": false,
+            "blues": [
+              9
+            ],
+            "cost": 30,
+            "fixed_prize": 0,
+            "name": "dantuo",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 5,
+            "blue_hit": false,
+            "blues": [
+              4,
+              9
+            ],
+            "cost": 10,
+            "fixed_prize": 0,
+            "name": "disjoint5",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              4,
+              9
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "efficiency:compact",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              4,
+              9
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "efficiency:model:2",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 3,
+            "blue_hit": false,
+            "blues": [
+              4,
+              9
+            ],
+            "cost": 6,
+            "fixed_prize": 0,
+            "name": "efficiency:model:3",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 4,
+            "blue_hit": false,
+            "blues": [
+              4,
+              9
+            ],
+            "cost": 8,
+            "fixed_prize": 0,
+            "name": "efficiency:model:4",
+            "prize_bets": 0,
+            "special_prize_unverified": 1
+          },
+          {
+            "best_red": 2,
+            "bets": 5,
+            "blue_hit": false,
+            "blues": [
+              4,
+              9
+            ],
+            "cost": 10,
+            "fixed_prize": 0,
+            "name": "efficiency:model:5",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              4,
+              9
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "equal24",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              4,
+              9
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "frozen",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              4,
+              9
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "single8",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              4,
+              9
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "weighted24",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          }
+        ],
+        "issue": "26123",
+        "max_single_red": 4,
+        "url": "reviews?issue=26123&archive=daily",
+        "winning_groups": 1
+      },
+      {
+        "any_blue_covered": false,
+        "archive_sha256": "68c063b0e02bf54a95fab01d1cba5ab03242e79c87d72996fcf1d7ae90eb79ab",
+        "blue_union": [
+          2,
+          4
+        ],
+        "draw": {
+          "blue": 9,
+          "red": [
+            1,
+            2,
+            4,
+            17,
+            19,
+            30
+          ]
+        },
+        "group_count": 17,
+        "groups": [
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              2,
+              4
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "balanced14",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              2,
+              4
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "blue2",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 4,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              2,
+              4
+            ],
+            "cost": 16,
+            "fixed_prize": 10,
+            "name": "calibrated14",
+            "prize_bets": 1,
+            "special_prize_unverified": 1
+          },
+          {
+            "best_red": 2,
+            "bets": 7,
+            "blue_hit": false,
+            "blues": [
+              2
+            ],
+            "cost": 14,
+            "fixed_prize": 0,
+            "name": "compound7",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 28,
+            "blue_hit": false,
+            "blues": [
+              2
+            ],
+            "cost": 56,
+            "fixed_prize": 0,
+            "name": "compound8",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              2,
+              4
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "coverage24",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 15,
+            "blue_hit": false,
+            "blues": [
+              2
+            ],
+            "cost": 30,
+            "fixed_prize": 0,
+            "name": "dantuo",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 5,
+            "blue_hit": false,
+            "blues": [
+              2,
+              4
+            ],
+            "cost": 10,
+            "fixed_prize": 0,
+            "name": "disjoint5",
+            "prize_bets": 0,
+            "special_prize_unverified": 1
+          },
+          {
+            "best_red": 3,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              2,
+              4
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "efficiency:compact",
+            "prize_bets": 0,
+            "special_prize_unverified": 1
+          },
+          {
+            "best_red": 2,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              2,
+              4
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "efficiency:model:2",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 3,
+            "blue_hit": false,
+            "blues": [
+              2,
+              4
+            ],
+            "cost": 6,
+            "fixed_prize": 0,
+            "name": "efficiency:model:3",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 4,
+            "blue_hit": false,
+            "blues": [
+              2,
+              4
+            ],
+            "cost": 8,
+            "fixed_prize": 0,
+            "name": "efficiency:model:4",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 5,
+            "blue_hit": false,
+            "blues": [
+              2,
+              4
+            ],
+            "cost": 10,
+            "fixed_prize": 0,
+            "name": "efficiency:model:5",
+            "prize_bets": 0,
+            "special_prize_unverified": 1
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              2,
+              4
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "equal24",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              2,
+              4
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "frozen",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              2,
+              4
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "single8",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              2,
+              4
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "weighted24",
+            "prize_bets": 0,
+            "special_prize_unverified": 1
+          }
+        ],
+        "issue": "26122",
+        "max_single_red": 4,
+        "url": "reviews?issue=26122&archive=daily",
+        "winning_groups": 1
+      },
+      {
+        "any_blue_covered": false,
+        "archive_sha256": "1454a2671a94d965b5e78d51669e1420c3e4930aeb3bde74e518b73394942dd0",
+        "blue_union": [
+          3,
+          4
+        ],
+        "draw": {
+          "blue": 2,
+          "red": [
+            2,
+            7,
+            20,
+            24,
+            26,
+            30
+          ]
+        },
+        "group_count": 16,
+        "groups": [
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              3,
+              4
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "balanced14",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              3,
+              4
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "blue2",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              3,
+              4
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "calibrated14",
+            "prize_bets": 0,
+            "special_prize_unverified": 1
+          },
+          {
+            "best_red": 1,
+            "bets": 7,
+            "blue_hit": false,
+            "blues": [
+              3
+            ],
+            "cost": 14,
+            "fixed_prize": 0,
+            "name": "compound7",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 28,
+            "blue_hit": false,
+            "blues": [
+              3
+            ],
+            "cost": 56,
+            "fixed_prize": 0,
+            "name": "compound8",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              3,
+              4
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "coverage24",
+            "prize_bets": 0,
+            "special_prize_unverified": 1
+          },
+          {
+            "best_red": 1,
+            "bets": 15,
+            "blue_hit": false,
+            "blues": [
+              3
+            ],
+            "cost": 30,
+            "fixed_prize": 0,
+            "name": "dantuo",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 5,
+            "blue_hit": false,
+            "blues": [
+              3,
+              4
+            ],
+            "cost": 10,
+            "fixed_prize": 0,
+            "name": "disjoint5",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              3,
+              4
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "efficiency:compact",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              3,
+              4
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "efficiency:model:2",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 3,
+            "blue_hit": false,
+            "blues": [
+              3,
+              4
+            ],
+            "cost": 6,
+            "fixed_prize": 0,
+            "name": "efficiency:model:3",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 4,
+            "blue_hit": false,
+            "blues": [
+              3,
+              4
+            ],
+            "cost": 8,
+            "fixed_prize": 0,
+            "name": "efficiency:model:4",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 5,
+            "blue_hit": false,
+            "blues": [
+              3,
+              4
+            ],
+            "cost": 10,
+            "fixed_prize": 0,
+            "name": "efficiency:model:5",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              3,
+              4
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "equal24",
+            "prize_bets": 0,
+            "special_prize_unverified": 1
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              3,
+              4
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "frozen",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              3,
+              4
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "single8",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          }
+        ],
+        "issue": "26121",
+        "max_single_red": 3,
+        "url": "reviews?issue=26121&archive=daily",
+        "winning_groups": 0
+      },
+      {
+        "any_blue_covered": false,
+        "archive_sha256": "a1d6ed3b5b81f3c45691c2a977f04d0dd926c3dc4dec440c3a5198889f5d0e6d",
+        "blue_union": [
+          4,
+          14
+        ],
+        "draw": {
+          "blue": 3,
+          "red": [
+            13,
+            14,
+            16,
+            18,
+            20,
+            31
+          ]
+        },
+        "group_count": 15,
+        "groups": [
+          {
+            "best_red": 1,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "balanced14",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 0,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "blue2",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "calibrated14",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 0,
+            "bets": 7,
+            "blue_hit": false,
+            "blues": [
+              4
+            ],
+            "cost": 14,
+            "fixed_prize": 0,
+            "name": "compound7",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 0,
+            "bets": 28,
+            "blue_hit": false,
+            "blues": [
+              4
+            ],
+            "cost": 56,
+            "fixed_prize": 0,
+            "name": "compound8",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "coverage24",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 0,
+            "bets": 15,
+            "blue_hit": false,
+            "blues": [
+              4
+            ],
+            "cost": 30,
+            "fixed_prize": 0,
+            "name": "dantuo",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 4,
+            "bets": 5,
+            "blue_hit": false,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 10,
+            "fixed_prize": 10,
+            "name": "disjoint5",
+            "prize_bets": 1,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "efficiency:compact",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "efficiency:model:2",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 3,
+            "blue_hit": false,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 6,
+            "fixed_prize": 0,
+            "name": "efficiency:model:3",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 4,
+            "blue_hit": false,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 8,
+            "fixed_prize": 0,
+            "name": "efficiency:model:4",
+            "prize_bets": 0,
+            "special_prize_unverified": 1
+          },
+          {
+            "best_red": 2,
+            "bets": 5,
+            "blue_hit": false,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 10,
+            "fixed_prize": 0,
+            "name": "efficiency:model:5",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "frozen",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "single8",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          }
+        ],
+        "issue": "26120",
+        "max_single_red": 4,
+        "url": "reviews?issue=26120&archive=daily",
+        "winning_groups": 1
+      },
+      {
+        "any_blue_covered": true,
+        "archive_sha256": "18ad62afffab08fcf9307245e7ff8d31bccb231cdfdd6a418496c165ffb13b49",
+        "blue_union": [
+          4,
+          14
+        ],
+        "draw": {
+          "blue": 4,
+          "red": [
+            12,
+            22,
+            23,
+            25,
+            27,
+            30
+          ]
+        },
+        "group_count": 12,
+        "groups": [
+          {
+            "best_red": 2,
+            "bets": 2,
+            "blue_hit": true,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 4,
+            "fixed_prize": 5,
+            "name": "blue2",
+            "prize_bets": 1,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 7,
+            "blue_hit": false,
+            "blues": [
+              14
+            ],
+            "cost": 14,
+            "fixed_prize": 0,
+            "name": "compound7",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 28,
+            "blue_hit": false,
+            "blues": [
+              14
+            ],
+            "cost": 56,
+            "fixed_prize": 0,
+            "name": "compound8",
+            "prize_bets": 0,
+            "special_prize_unverified": 10
+          },
+          {
+            "best_red": 3,
+            "bets": 15,
+            "blue_hit": false,
+            "blues": [
+              14
+            ],
+            "cost": 30,
+            "fixed_prize": 0,
+            "name": "dantuo",
+            "prize_bets": 0,
+            "special_prize_unverified": 6
+          },
+          {
+            "best_red": 2,
+            "bets": 5,
+            "blue_hit": true,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 10,
+            "fixed_prize": 10,
+            "name": "disjoint5",
+            "prize_bets": 2,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 2,
+            "blue_hit": true,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 4,
+            "fixed_prize": 10,
+            "name": "efficiency:compact",
+            "prize_bets": 1,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 2,
+            "blue_hit": true,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 4,
+            "fixed_prize": 5,
+            "name": "efficiency:model:2",
+            "prize_bets": 1,
+            "special_prize_unverified": 1
+          },
+          {
+            "best_red": 2,
+            "bets": 3,
+            "blue_hit": true,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 6,
+            "fixed_prize": 5,
+            "name": "efficiency:model:3",
+            "prize_bets": 1,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 4,
+            "blue_hit": true,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 8,
+            "fixed_prize": 15,
+            "name": "efficiency:model:4",
+            "prize_bets": 2,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 3,
+            "bets": 5,
+            "blue_hit": true,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 10,
+            "fixed_prize": 10,
+            "name": "efficiency:model:5",
+            "prize_bets": 2,
+            "special_prize_unverified": 1
+          },
+          {
+            "best_red": 3,
+            "bets": 8,
+            "blue_hit": true,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 16,
+            "fixed_prize": 30,
+            "name": "frozen",
+            "prize_bets": 4,
+            "special_prize_unverified": 1
+          },
+          {
+            "best_red": 3,
+            "bets": 8,
+            "blue_hit": true,
+            "blues": [
+              4,
+              14
+            ],
+            "cost": 16,
+            "fixed_prize": 30,
+            "name": "single8",
+            "prize_bets": 4,
+            "special_prize_unverified": 1
+          }
+        ],
+        "issue": "26119",
+        "max_single_red": 3,
+        "url": "reviews?issue=26119&archive=daily",
+        "winning_groups": 9
+      },
+      {
+        "any_blue_covered": false,
+        "archive_sha256": "2623c692d3b2c5ab70a343a8df76a9fe0154842c5c266cb7df456bed90640db3",
+        "blue_union": [
+          4,
+          12
+        ],
+        "draw": {
+          "blue": 14,
+          "red": [
+            5,
+            21,
+            22,
+            23,
+            28,
+            31
+          ]
+        },
+        "group_count": 12,
+        "groups": [
+          {
+            "best_red": 1,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              4,
+              12
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "blue2",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 7,
+            "blue_hit": false,
+            "blues": [
+              4
+            ],
+            "cost": 14,
+            "fixed_prize": 0,
+            "name": "compound7",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 28,
+            "blue_hit": false,
+            "blues": [
+              4
+            ],
+            "cost": 56,
+            "fixed_prize": 0,
+            "name": "compound8",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 15,
+            "blue_hit": false,
+            "blues": [
+              4
+            ],
+            "cost": 30,
+            "fixed_prize": 0,
+            "name": "dantuo",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 5,
+            "blue_hit": false,
+            "blues": [
+              4,
+              12
+            ],
+            "cost": 10,
+            "fixed_prize": 0,
+            "name": "disjoint5",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              4,
+              12
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "efficiency:compact",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 2,
+            "blue_hit": false,
+            "blues": [
+              4,
+              12
+            ],
+            "cost": 4,
+            "fixed_prize": 0,
+            "name": "efficiency:model:2",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 1,
+            "bets": 3,
+            "blue_hit": false,
+            "blues": [
+              4,
+              12
+            ],
+            "cost": 6,
+            "fixed_prize": 0,
+            "name": "efficiency:model:3",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 4,
+            "blue_hit": false,
+            "blues": [
+              4,
+              12
+            ],
+            "cost": 8,
+            "fixed_prize": 0,
+            "name": "efficiency:model:4",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 5,
+            "blue_hit": false,
+            "blues": [
+              4,
+              12
+            ],
+            "cost": 10,
+            "fixed_prize": 0,
+            "name": "efficiency:model:5",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              4,
+              12
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "frozen",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          },
+          {
+            "best_red": 2,
+            "bets": 8,
+            "blue_hit": false,
+            "blues": [
+              4,
+              12
+            ],
+            "cost": 16,
+            "fixed_prize": 0,
+            "name": "single8",
+            "prize_bets": 0,
+            "special_prize_unverified": 0
+          }
+        ],
+        "issue": "26118",
+        "max_single_red": 2,
+        "url": "reviews?issue=26118&archive=daily",
+        "winning_groups": 0
+      }
+    ]
+  },
+  "current": {
+    "actual_recommendation": false,
+    "issue": "26126",
+    "plan": {
+      "blue_weights": null,
+      "coverage_optimization": null,
+      "efficiency": null,
+      "explanation_limit": "专家评分是排序依据，不是中奖概率。合并覆盖不等于单注中奖。固定奖金不含一、二等奖、派奖及福运奖；3红0蓝是否中福运奖须核对当期是否执行特别规定。",
+      "funnel": [
+        {
+          "color": "red",
+          "draw_hits": null,
+          "hit_numbers": null,
+          "numbers": [
+            4,
+            6,
+            8,
+            9,
+            10,
+            11,
+            14,
+            15,
+            17,
+            20,
+            22,
+            26,
+            27,
+            30,
+            32,
+            33
+          ],
+          "size": 16,
+          "stage": "final_union"
+        }
+      ],
+      "mode": null,
+      "numbers": [
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 1,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 2,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 3,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 4,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 3
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 5,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 6,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 3
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 7,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 8,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 3
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 9,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 3
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 10,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 3
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 11,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 3
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 12,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 13,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 14,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 3
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 15,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 3
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 16,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 17,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 3
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 18,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 19,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 20,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 3
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 21,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 22,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 3
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 23,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 24,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 25,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 26,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 3
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 27,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 3
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 28,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 29,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 30,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 3
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 31,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 32,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 3
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 33,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 3
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 1,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 1
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 2,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 3,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 1
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 4,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 1
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 5,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 6,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 7,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 8,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 9,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 1
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 10,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 11,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 1
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 12,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 1
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 13,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 1
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 14,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 1
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 15,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 16,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        }
+      ],
+      "prize_rules_url": "https://www.scflcp.com.cn/yxgz/823145252.jhtml",
+      "ranking": null,
+      "rationale": "16红均衡分配到8注，每注配原榜前8蓝中一个不同蓝球，共8注16元。目标是分散小奖覆盖；普通六等奖5元低于16元成本，不保证中奖或回本。",
+      "red_weights": null,
+      "structural": true,
+      "summary": {
+        "all_ticket_reds": [],
+        "bets": 8,
+        "blue_coverage": 8,
+        "blue_coverage_excess": null,
+        "blue_coverage_per_yuan": 0.5,
+        "blue_covered": null,
+        "blue_hit_bets": null,
+        "cost": 16,
+        "covered_red_count": null,
+        "covered_reds": null,
+        "duplicate_tickets": 0,
+        "fixed_prize": null,
+        "floating_prize_tickets": null,
+        "max_blue_exposure": 1,
+        "max_red_exposure": 3,
+        "max_ticket_red_hits": null,
+        "mean_ticket_red_hits": null,
+        "minimum_union_bets": 8,
+        "missed_reds": null,
+        "missed_reds_by_reason": null,
+        "prize_tickets": null,
+        "red_coverage": 16,
+        "red_coverage_excess": null,
+        "red_coverage_per_yuan": 1.0,
+        "red_hit_histogram": null,
+        "repeated_blue_positions": 0,
+        "repeated_red_positions": 32,
+        "special_prize_candidates": null,
+        "total_red_positions": 48,
+        "uniform_expected_blue_coverage": 0.5,
+        "uniform_expected_blue_hit_bets": 0.5,
+        "uniform_expected_red_hits": 2.909090909090909,
+        "uniform_expected_ticket_red_hits": 1.0909090909090908,
+        "unique_blues": [
+          1,
+          3,
+          4,
+          9,
+          11,
+          12,
+          13,
+          14
+        ],
+        "unique_reds": [
+          4,
+          6,
+          8,
+          9,
+          10,
+          11,
+          14,
+          15,
+          17,
+          20,
+          22,
+          26,
+          27,
+          30,
+          32,
+          33
+        ]
+      },
+      "tickets": [
+        {
+          "blue": 11,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 1,
+          "prize_level": null,
+          "red": [
+            4,
+            6,
+            10,
+            15,
+            26,
+            27
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 9,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 2,
+          "prize_level": null,
+          "red": [
+            8,
+            9,
+            14,
+            22,
+            30,
+            32
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 12,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 3,
+          "prize_level": null,
+          "red": [
+            4,
+            8,
+            11,
+            17,
+            20,
+            33
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 1,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 4,
+          "prize_level": null,
+          "red": [
+            9,
+            20,
+            26,
+            27,
+            32,
+            33
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 3,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 5,
+          "prize_level": null,
+          "red": [
+            6,
+            10,
+            11,
+            17,
+            22,
+            30
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 4,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 6,
+          "prize_level": null,
+          "red": [
+            6,
+            9,
+            11,
+            14,
+            15,
+            20
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 13,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 7,
+          "prize_level": null,
+          "red": [
+            14,
+            15,
+            17,
+            22,
+            26,
+            33
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 14,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 8,
+          "prize_level": null,
+          "red": [
+            4,
+            8,
+            10,
+            27,
+            30,
+            32
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        }
+      ],
+      "title": "小奖分散覆盖 · 8蓝8注"
+    },
+    "status": "preview"
+  },
+  "cutoff_issue": "26125",
+  "data_sha256": "2d51769c960b4f97805a8d85a2b9441664960bc4d064f5afa53cf5544b6b36e6",
+  "kind": "same_budget_prize_coverage",
+  "note": "每期先预测再计分，2／4／8蓝使用完全相同8组红球；只改变蓝球重复曝光。已被查看的历史属于探索回放，不是新方案已发布实绩。普通奖金按实际单注规则计算，浮动奖与特别奖不纳入固定奖金；不按最近一期挑选参数。",
+  "policy": {
+    "automatic_model_promotion": false,
+    "bets": 8,
+    "blue_assignment": "eight_distinct_ranked_blues_one_per_ticket",
+    "blue_count": 8,
+    "cost": 16,
+    "note": "同8注预算分散蓝球覆盖；8个不同蓝球在均匀开奖假设下覆盖概率为8/16，不代表模型预测优势。只中普通六等奖为5元，低于16元成本；不保证中奖、回本或收益。",
+    "objective": "any_regular_prize_period",
+    "preset": "bluefocus8",
+    "ranking": "weighted",
+    "red_count": 16,
+    "uniform_blue_covered_rate": 0.5,
+    "uniform_expected_blue_hit_bets": 0.5,
+    "version": 1
+  },
+  "source_sha256": "4f2f30972fc5638d1536b3e0b77878aec04e90759ce24373c7f35d30d6b7cbc8",
+  "target_issue": "26126",
+  "version": 1,
+  "windows": {
+    "all_oos": {
+      "cells": [
+        {
+          "bets": 8,
+          "blue_count": 2,
+          "blue_covered_periods": 456,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 464,
+          "fixed_prize_total": 15515,
+          "floating_prize_bets": 0,
+          "n": 3342,
+          "paired_prize_gains": 0,
+          "paired_prize_losses": 0,
+          "prize_bets": 1935,
+          "prize_periods": 551,
+          "prize_rate": 0.16487133453022143,
+          "special_prize_unverified_bets": 57,
+          "uniform_blue_covered_rate": 0.125
+        },
+        {
+          "bets": 8,
+          "blue_count": 4,
+          "blue_covered_periods": 856,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 43,
+          "fixed_prize_total": 15240,
+          "floating_prize_bets": 0,
+          "n": 3342,
+          "paired_prize_gains": 385,
+          "paired_prize_losses": 0,
+          "prize_bets": 1821,
+          "prize_periods": 936,
+          "prize_rate": 0.2800718132854578,
+          "special_prize_unverified_bets": 56,
+          "uniform_blue_covered_rate": 0.25
+        },
+        {
+          "bets": 8,
+          "blue_count": 8,
+          "blue_covered_periods": 1659,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 18,
+          "fixed_prize_total": 14385,
+          "floating_prize_bets": 0,
+          "n": 3342,
+          "paired_prize_gains": 1162,
+          "paired_prize_losses": 0,
+          "prize_bets": 1771,
+          "prize_periods": 1713,
+          "prize_rate": 0.5125673249551167,
+          "special_prize_unverified_bets": 56,
+          "uniform_blue_covered_rate": 0.5
+        }
+      ],
+      "from": "04092",
+      "n": 3342,
+      "to": "26125"
+    },
+    "confirmation_exploratory": {
+      "cells": [
+        {
+          "bets": 8,
+          "blue_count": 2,
+          "blue_covered_periods": 18,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 20,
+          "fixed_prize_total": 1000,
+          "floating_prize_bets": 0,
+          "n": 156,
+          "paired_prize_gains": 0,
+          "paired_prize_losses": 0,
+          "prize_bets": 77,
+          "prize_periods": 22,
+          "prize_rate": 0.14102564102564102,
+          "special_prize_unverified_bets": 52,
+          "uniform_blue_covered_rate": 0.125
+        },
+        {
+          "bets": 8,
+          "blue_count": 4,
+          "blue_covered_periods": 35,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 4,
+          "fixed_prize_total": 1000,
+          "floating_prize_bets": 0,
+          "n": 156,
+          "paired_prize_gains": 16,
+          "paired_prize_losses": 0,
+          "prize_bets": 75,
+          "prize_periods": 38,
+          "prize_rate": 0.24358974358974358,
+          "special_prize_unverified_bets": 51,
+          "uniform_blue_covered_rate": 0.25
+        },
+        {
+          "bets": 8,
+          "blue_count": 8,
+          "blue_covered_periods": 76,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 3,
+          "fixed_prize_total": 845,
+          "floating_prize_bets": 0,
+          "n": 156,
+          "paired_prize_gains": 56,
+          "paired_prize_losses": 0,
+          "prize_bets": 82,
+          "prize_periods": 78,
+          "prize_rate": 0.5,
+          "special_prize_unverified_bets": 51,
+          "uniform_blue_covered_rate": 0.5
+        }
+      ],
+      "from": "25111",
+      "n": 156,
+      "to": "26115"
+    },
+    "development": {
+      "cells": [
+        {
+          "bets": 8,
+          "blue_count": 2,
+          "blue_covered_periods": 437,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 443,
+          "fixed_prize_total": 14495,
+          "floating_prize_bets": 0,
+          "n": 3176,
+          "paired_prize_gains": 0,
+          "paired_prize_losses": 0,
+          "prize_bets": 1854,
+          "prize_periods": 528,
+          "prize_rate": 0.16624685138539042,
+          "special_prize_unverified_bets": 0,
+          "uniform_blue_covered_rate": 0.125
+        },
+        {
+          "bets": 8,
+          "blue_count": 4,
+          "blue_covered_periods": 819,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 39,
+          "fixed_prize_total": 14220,
+          "floating_prize_bets": 0,
+          "n": 3176,
+          "paired_prize_gains": 368,
+          "paired_prize_losses": 0,
+          "prize_bets": 1742,
+          "prize_periods": 896,
+          "prize_rate": 0.28211586901763225,
+          "special_prize_unverified_bets": 0,
+          "uniform_blue_covered_rate": 0.25
+        },
+        {
+          "bets": 8,
+          "blue_count": 8,
+          "blue_covered_periods": 1579,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 15,
+          "fixed_prize_total": 13520,
+          "floating_prize_bets": 0,
+          "n": 3176,
+          "paired_prize_gains": 1103,
+          "paired_prize_losses": 0,
+          "prize_bets": 1685,
+          "prize_periods": 1631,
+          "prize_rate": 0.5135390428211587,
+          "special_prize_unverified_bets": 0,
+          "uniform_blue_covered_rate": 0.5
+        }
+      ],
+      "from": "04092",
+      "n": 3176,
+      "to": "25110"
+    },
+    "recent156": {
+      "cells": [
+        {
+          "bets": 8,
+          "blue_count": 2,
+          "blue_covered_periods": 19,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 21,
+          "fixed_prize_total": 1020,
+          "floating_prize_bets": 0,
+          "n": 156,
+          "paired_prize_gains": 0,
+          "paired_prize_losses": 0,
+          "prize_bets": 81,
+          "prize_periods": 23,
+          "prize_rate": 0.14743589743589744,
+          "special_prize_unverified_bets": 57,
+          "uniform_blue_covered_rate": 0.125
+        },
+        {
+          "bets": 8,
+          "blue_count": 4,
+          "blue_covered_periods": 34,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 4,
+          "fixed_prize_total": 990,
+          "floating_prize_bets": 0,
+          "n": 156,
+          "paired_prize_gains": 14,
+          "paired_prize_losses": 0,
+          "prize_bets": 73,
+          "prize_periods": 37,
+          "prize_rate": 0.23717948717948717,
+          "special_prize_unverified_bets": 56,
+          "uniform_blue_covered_rate": 0.25
+        },
+        {
+          "bets": 8,
+          "blue_count": 8,
+          "blue_covered_periods": 76,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 3,
+          "fixed_prize_total": 845,
+          "floating_prize_bets": 0,
+          "n": 156,
+          "paired_prize_gains": 55,
+          "paired_prize_losses": 0,
+          "prize_bets": 82,
+          "prize_periods": 78,
+          "prize_rate": 0.5,
+          "special_prize_unverified_bets": 56,
+          "uniform_blue_covered_rate": 0.5
+        }
+      ],
+      "from": "25121",
+      "n": 156,
+      "to": "26125"
+    },
+    "recent30": {
+      "cells": [
+        {
+          "bets": 8,
+          "blue_count": 2,
+          "blue_covered_periods": 3,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 3,
+          "fixed_prize_total": 255,
+          "floating_prize_bets": 0,
+          "n": 30,
+          "paired_prize_gains": 0,
+          "paired_prize_losses": 0,
+          "prize_bets": 12,
+          "prize_periods": 3,
+          "prize_rate": 0.1,
+          "special_prize_unverified_bets": 15,
+          "uniform_blue_covered_rate": 0.125
+        },
+        {
+          "bets": 8,
+          "blue_count": 4,
+          "blue_covered_periods": 4,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 1,
+          "fixed_prize_total": 50,
+          "floating_prize_bets": 0,
+          "n": 30,
+          "paired_prize_gains": 1,
+          "paired_prize_losses": 0,
+          "prize_bets": 9,
+          "prize_periods": 4,
+          "prize_rate": 0.13333333333333333,
+          "special_prize_unverified_bets": 15,
+          "uniform_blue_covered_rate": 0.25
+        },
+        {
+          "bets": 8,
+          "blue_count": 8,
+          "blue_covered_periods": 12,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 0,
+          "fixed_prize_total": 70,
+          "floating_prize_bets": 0,
+          "n": 30,
+          "paired_prize_gains": 9,
+          "paired_prize_losses": 0,
+          "prize_bets": 13,
+          "prize_periods": 12,
+          "prize_rate": 0.4,
+          "special_prize_unverified_bets": 15,
+          "uniform_blue_covered_rate": 0.5
+        }
+      ],
+      "from": "26096",
+      "n": 30,
+      "to": "26125"
+    },
+    "recent60": {
+      "cells": [
+        {
+          "bets": 8,
+          "blue_count": 2,
+          "blue_covered_periods": 9,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 9,
+          "fixed_prize_total": 575,
+          "floating_prize_bets": 0,
+          "n": 60,
+          "paired_prize_gains": 0,
+          "paired_prize_losses": 0,
+          "prize_bets": 36,
+          "prize_periods": 9,
+          "prize_rate": 0.15,
+          "special_prize_unverified_bets": 32,
+          "uniform_blue_covered_rate": 0.125
+        },
+        {
+          "bets": 8,
+          "blue_count": 4,
+          "blue_covered_periods": 13,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 2,
+          "fixed_prize_total": 340,
+          "floating_prize_bets": 0,
+          "n": 60,
+          "paired_prize_gains": 4,
+          "paired_prize_losses": 0,
+          "prize_bets": 27,
+          "prize_periods": 13,
+          "prize_rate": 0.21666666666666667,
+          "special_prize_unverified_bets": 32,
+          "uniform_blue_covered_rate": 0.25
+        },
+        {
+          "bets": 8,
+          "blue_count": 8,
+          "blue_covered_periods": 29,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 1,
+          "fixed_prize_total": 175,
+          "floating_prize_bets": 0,
+          "n": 60,
+          "paired_prize_gains": 20,
+          "paired_prize_losses": 0,
+          "prize_bets": 31,
+          "prize_periods": 29,
+          "prize_rate": 0.48333333333333334,
+          "special_prize_unverified_bets": 31,
+          "uniform_blue_covered_rate": 0.5
+        }
+      ],
+      "from": "26066",
+      "n": 60,
+      "to": "26125"
+    },
+    "tracking": {
+      "cells": [
+        {
+          "bets": 8,
+          "blue_count": 2,
+          "blue_covered_periods": 1,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 1,
+          "fixed_prize_total": 20,
+          "floating_prize_bets": 0,
+          "n": 10,
+          "paired_prize_gains": 0,
+          "paired_prize_losses": 0,
+          "prize_bets": 4,
+          "prize_periods": 1,
+          "prize_rate": 0.1,
+          "special_prize_unverified_bets": 5,
+          "uniform_blue_covered_rate": 0.125
+        },
+        {
+          "bets": 8,
+          "blue_count": 4,
+          "blue_covered_periods": 2,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 0,
+          "fixed_prize_total": 20,
+          "floating_prize_bets": 0,
+          "n": 10,
+          "paired_prize_gains": 1,
+          "paired_prize_losses": 0,
+          "prize_bets": 4,
+          "prize_periods": 2,
+          "prize_rate": 0.2,
+          "special_prize_unverified_bets": 5,
+          "uniform_blue_covered_rate": 0.25
+        },
+        {
+          "bets": 8,
+          "blue_count": 8,
+          "blue_covered_periods": 4,
+          "cost": 16,
+          "fixed_at_least_cost_periods": 0,
+          "fixed_prize_total": 20,
+          "floating_prize_bets": 0,
+          "n": 10,
+          "paired_prize_gains": 3,
+          "paired_prize_losses": 0,
+          "prize_bets": 4,
+          "prize_periods": 4,
+          "prize_rate": 0.4,
+          "special_prize_unverified_bets": 5,
+          "uniform_blue_covered_rate": 0.5
+        }
+      ],
+      "from": "26116",
+      "n": 10,
+      "to": "26125"
+    }
+  }
+}
