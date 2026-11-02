@@ -49,7 +49,7 @@
 </div>
           <div v-if="view.missing" class="empty">
 <h2>{{ view.independent_reference?'本期独立参考观察另列如下':view.independent_small_red?'本期没有票组推荐档案':'本期没有实际推荐档案' }}</h2>
-<p class="muted">{{ view.independent_reference?'参考5注与融合小池使用各自首次封存号码。':view.independent_small_red?'独立小池观察另列如下，不属于完整投注票组。':'历史缺档不会用今天的模型补造。事后回放请到首页的回测页面查看。' }}</p>
+<p class="muted">{{ view.independent_reference?'参考5注、胆拖与融合票组使用各自首次封存号码。':view.independent_small_red?'独立小池观察另列如下，不属于完整投注票组。':'历史缺档不会用今天的模型补造。事后回放请到首页的回测页面查看。' }}</p>
 </div>
           <template v-else>
 <div class="flex" style="margin-top:18px">
@@ -109,7 +109,7 @@
 <p class="muted">{{ detail.explanation_limit }} <a :href="detail.prize_rules_url" target="_blank" rel="noopener">官方规则</a>
 </p>
 </section>
-<details v-if="view.independent_reference" class="card review-group" :open="view.missing"><summary>参考5注与融合小池 · 独立原档</summary><div class="detail-content"><reference-archive :key="view.independent_reference.archive_sha256" :record="view.independent_reference"></reference-archive></div></details>
+<details v-if="view.independent_reference" class="card review-group" :open="view.missing"><summary>参考5注、胆拖与融合票组 · 独立原档</summary><div class="detail-content"><reference-archive :key="view.independent_reference.archive_sha256" :record="view.independent_reference"></reference-archive></div></details>
 <details v-if="view.independent_small_red" class="card review-group" id="independent-small-red"><summary>独立小红球池 · 原始留档</summary><div class="detail-content"><h2>独立小池观察 · 与每日原档分开封存</h2><p class="muted">保存时间 {{ time(view.independent_small_red.published_at_unix) }} · 依据截止 {{ view.independent_small_red.data_cutoff }}。这里的号码不属于每日原档追加内容。</p><p class="muted">原档摘要 <code>{{ view.independent_small_red.archive_sha256 }}</code> · 无独立可信时间戳证明。</p><a :href="fileUrl(view.independent_small_red.raw_file)">下载独立原档JSON</a><a v-if="view.independent_small_red.review_file" :href="fileUrl(view.independent_small_red.review_file)">下载首次复盘JSON</a><div class="scroll"><table class="small-red-table"><thead><tr><th>模型 / 数量</th><th>原始红球</th><th>中红 / 全6红</th></tr></thead><tbody><template v-for="m in view.independent_small_red.small_red_pools.models" :key="m.model"><tr v-for="p in m.pools" :key="p.id"><td>{{ m.label }} · {{ p.red_count }}红</td><td>{{ p.reds.slice().sort((a,b)=>a-b).map(pad).join(' ') }}</td><td>{{ nullable(p.red_hits) }}/6 · {{ flag(p.full_red) }}</td></tr></template></tbody></table></div></div></details>
         <details v-if="view.number_pools" class="card review-group" aria-label="实际小号码池复盘"><summary>模型号码池 · 覆盖与漏号</summary><div class="detail-content">
 <h2>当时的模型号码池 · 分档核对覆盖</h2>

@@ -22,7 +22,7 @@ fn valid_sha(v: &Value) -> bool {
 pub fn policy() -> Value {
     json!({"version":1,"reference_model":"reference_original5","fusion_model":"reference_fused16","method":"small_recent90_reference_union10","small_recent_weight":0.9,"reference_support_weight":0.1,"reference_support":"uniform_over_original_ticket_red_union","red_sizes":SIZES,"automatic_promotion":false,"score_kind":"ranking_evidence_not_probability","note":"原池保留参考程序5注及其实际并集；融合池固定90%现有小池评分、10%参考5注红球并集均匀支持，最多16红。并集全6红与单注命中分开统计，尚未证明稳定优势。"})
 }
-fn validate_cache(cache: &Value, draws: &[Draw], at: u64) -> Result<(), String> {
+pub(crate) fn validate_cache(cache: &Value, draws: &[Draw], at: u64) -> Result<(), String> {
     let last = draws.last().ok_or("没有开奖数据")?;
     if cache["version"] != 1
         || cache["data_sha256"] != data_sha256(draws)
@@ -162,6 +162,7 @@ fn metadata(e: &Value) -> Value {
 pub fn freeze(root: &Path, draws: &[Draw], issue: &str, deadline: u64) -> Result<Value, String> {
     let mut value=freeze_with_clock(root, draws, issue, deadline, rec::now_unix)?;
     value["fusion_tickets_archive"]=crate::reference_tickets::freeze(root,draws,issue,deadline)?;
+    value["dantuo_archive"]=crate::reference_dantuo::freeze(root,draws,issue,deadline)?;
     Ok(value)
 }
 pub(crate) fn freeze_with_clock(
@@ -288,6 +289,7 @@ pub fn view(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<Value>, S
     m["review_persisted"] = json!(saved.is_some());
     m["pending"] = json!(draw.is_none());
     m["fusion_tickets"]=json!(crate::reference_tickets::view(root,draws,issue)?);
+    m["dantuo"]=json!(crate::reference_dantuo::view(root,draws,issue)?);
     if saved.is_some() {
         m["review_file"] = json!(format!("reviews/{issue}/reference.json"));
     }
@@ -461,7 +463,7 @@ pub fn report(root: &Path, draws: &[Draw]) -> Result<Value, String> {
         }
     }
     Ok(
-        json!({"version":1,"kind":"reference_pool_observations","data_sha256":data_sha256(draws),"data_cutoff":fmt_issue(last.issue),"target":issue,"status":status,"reason":reason,"job":job,"fusion_tickets":crate::reference_tickets::current(root,draws,&issue,&next)?,"ticket_actual":crate::reference_tickets::observations(root,draws),"next":next,"next_archive":archive,"policy":policy(),"actual":{"actual_recommendation":true,"independent_timestamp_verified":false,"cells":cells,"periods":periods,"errors":errors,"note":"只统计真实封存原档，缺档与待开奖不计失败；原5注并集按相同红球数量与原榜比较，融合池与同规格small_recent比较。"}}),
+        json!({"version":1,"kind":"reference_pool_observations","data_sha256":data_sha256(draws),"data_cutoff":fmt_issue(last.issue),"target":issue,"status":status,"reason":reason,"job":job,"fusion_tickets":crate::reference_tickets::current(root,draws,&issue,&next)?,"ticket_actual":crate::reference_tickets::observations(root,draws),"dantuo":crate::reference_dantuo::current(root,draws).unwrap_or_else(|e|json!({"status":"error","reason":e})),"dantuo_actual":crate::reference_dantuo::observations(root,draws),"next":next,"next_archive":archive,"policy":policy(),"actual":{"actual_recommendation":true,"independent_timestamp_verified":false,"cells":cells,"periods":periods,"errors":errors,"note":"只统计真实封存原档，缺档与待开奖不计失败；原5注并集按相同红球数量与原榜比较，融合池与同规格small_recent比较。"}}),
     )
 }
 

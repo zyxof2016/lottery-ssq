@@ -47,3 +47,5 @@
 `recommendations/reference-cache`、`recommendations/reference`及`recommendations/reviews/{issue}/reference.json`随原recommendations一起备份。首次发布的原档核验只读；正式运算、封存另外记录输入摘要、源码/配置摘要及保存时间。回滚保留所有新观察数据，并使用能够读取参考观察的版本。`reference-runtime/work`保留运行诊断，部署前备份状态与必要诊断，不复制到公共下载路径。
 
 融合完整票组自2026-10-30起另存于 `recommendations/reference-tickets`，对应复盘为 `recommendations/reviews/{issue}/reference-tickets.json`，继续随recommendations目录完整备份。旧reference文件不补写；发布后先只读核验原档，再由实际封存或原自动任务创建当前下一期的完整票组。
+
+2026-11-02起参考同次报告的原始胆拖／复式单独导出为 `recommendations/reference-dantuo-cache/{输入摘要}.json`，截止前首次封存到 `recommendations/reference-dantuo/{期号}.json`，逐注复盘为 `recommendations/reviews/{期号}/reference-dantuo.json`，继续随整个recommendations目录备份。更新release中的reference/worker.py，保留reference-runtime原始工作报告与私有审计密钥；旧5注缓存及reference原档不改写，未封存的历史胆拖不补造。后台可从已有同次工作报告导出当前方案，无需重跑模型。

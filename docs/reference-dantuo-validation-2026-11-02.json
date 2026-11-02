@@ -1,0 +1,43 @@
+{
+  "scope": "isolated_runtime",
+  "issue": "26126",
+  "archive_sha256": "fb10cd5e2312d0d9f6e7f7df075e12d7462002612ecca087955e4b6248fec1a1",
+  "original_same_run_dantuo_preserved": true,
+  "red_dan": [
+    14,
+    24
+  ],
+  "red_tuo": [
+    2,
+    20,
+    25,
+    27,
+    30
+  ],
+  "blues": [
+    4,
+    5
+  ],
+  "expanded_bets": 10,
+  "amount_yuan": 20,
+  "copy_compact_and_ten_complete_singles": true,
+  "old_five_and_fusion_archives_preserved": true,
+  "pending_hits_and_prizes_null": true,
+  "legacy_dantuo_not_backfilled": true,
+  "manual_pool_catalogue_includes_dantuo": true,
+  "widths": [
+    320,
+    390,
+    768,
+    1440
+  ],
+  "console_errors": [],
+  "vue_warnings": [],
+  "write_requests": [
+    "http://127.0.0.1:16948/api/reference-pools/freeze"
+  ],
+  "rust_tests_passed": 116,
+  "python_tests_passed": 8,
+  "original_apis_preserved": 13,
+  "original_files_including_csv_preserved": 54
+}

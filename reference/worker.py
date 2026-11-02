@@ -126,6 +126,103 @@ def atomic_json(path: Path, value: dict, *, first: bool = False) -> bool:
         temporary.unlink(missing_ok=True)
 
 
+def validate_dantuo_plan(plan: dict) -> None:
+    from math import comb
+    numbers = []
+    for key, high in [("red_dan", 33), ("red_tuo", 33), ("blue", 16)]:
+        values = plan.get(key)
+        if (not isinstance(values, list) or len(values) != len(set(values))
+                or any(type(n) is not int or not 1 <= n <= high for n in values)):
+            raise ValueError("参考胆拖号码无效")
+        numbers.append(values)
+    dan, tuo, blue = numbers
+    if len(dan) > 5 or len(tuo) < 6 - len(dan) or set(dan) & set(tuo) or not blue:
+        raise ValueError("参考胆拖胆拖结构无效")
+    bets = comb(len(tuo), 6 - len(dan)) * len(blue)
+    if (any(type(plan.get(k)) is not int for k in ["unit_price", "bet_count", "amount", "max_amount"])
+            or plan.get("unit_price") != 2 or plan.get("bet_count") != bets
+            or plan.get("amount") != bets * 2 or not 0 < bets <= 10
+            or not bets * 2 <= plan.get("max_amount", 0) <= 20):
+        raise ValueError("参考胆拖注数或预算不一致")
+
+
+def verify_source_audit(payload: dict, work: Path) -> None:
+    # Reuse the supplied verifier. The signing key stays in the private work dir.
+    sys.path.insert(0, str(ROOT / "tsys"))
+    try:
+        from src.report.export import verify_forecast_audit
+        result = verify_forecast_audit(payload, signing_key=(work / "audit.key").read_text().strip(),
+                                       require_integrity=True)
+        if not result["verified"]:
+            raise ValueError("参考原始审计未通过核验")
+    finally:
+        sys.path.pop(0)
+
+
+def validate_dantuo_cache(saved: dict, reference: dict, parent_sha: str) -> None:
+    if (saved.get("version") != 1 or saved["reference_cache_sha256"] != parent_sha
+            or any(saved.get(k) != reference[k] for k in ["data_sha256", "data_cutoff", "target_issue",
+                                                        "engine_sha256", "config_sha256", "generated_at_unix"])):
+        raise ValueError("参考胆拖绑定的首次5注缓存已变化")
+    source = saved["source_forecast_json"]
+    forecast = json.loads(source)
+    if (sha(source.encode()) != saved["source_forecast_sha256"]
+            or saved["dantuo_plan"] != forecast["metadata"]["dantuo_plan"]
+            or forecast["source_period"] != "20" + reference["data_cutoff"]
+            or forecast["target_period"] != "20" + reference["target_issue"]
+            or [{"red": t["red"], "blue": t["blue"]} for t in forecast["tickets"]] != reference["tickets"]):
+        raise ValueError("参考胆拖与同次原始报告不一致")
+    exported = saved["exported_at_unix"]
+    if type(exported) is not int or not reference["generated_at_unix"] <= exported <= time.time():
+        raise ValueError("参考胆拖导出时间无效")
+    validate_dantuo_plan(saved["dantuo_plan"])
+
+
+def export_dantuo(args: argparse.Namespace, reference: dict, cache: Path) -> dict:
+    """Export the original run's plan, including old completed runs; never rerun it."""
+    destination = args.cache_dir.parent / "reference-dantuo-cache" / cache.name
+    parent_sha = sha(cache.read_bytes())
+    if destination.exists():
+        saved = json.loads(destination.read_text())
+        validate_dantuo_cache(saved, reference, parent_sha)
+        return {"dantuo_status": "cached", "dantuo_cache_file": str(destination)}
+    for work in sorted(args.work_dir.glob(reference["data_sha256"][:12] + "-*")):
+        result_path, request_path = work / "result.json", work / "request.json"
+        if not result_path.exists() or not request_path.exists():
+            continue
+        if json.loads(result_path.read_text()) != reference:
+            continue
+        request = json.loads(request_path.read_text())
+        if (any(request.get(k) != reference[k] for k in ["data_sha256", "engine_sha256", "data_cutoff", "target_issue"])
+                or sha((work / "input.csv").read_bytes()) != reference["data_sha256"]):
+            raise ValueError("参考原始工作记录与缓存或输入不一致")
+        source = work / "engine/logs/forecast_audit.json"
+        raw = source.read_bytes()
+        audit = json.loads(raw)
+        verify_source_audit(audit, work)
+        matches = [forecast for forecast in audit["forecasts"]
+                   if forecast.get("source_period") == "20" + reference["data_cutoff"]
+                   and forecast.get("target_period") == "20" + reference["target_issue"]
+                   and [{"red": t["red"], "blue": t["blue"]} for t in forecast["tickets"]] == reference["tickets"]]
+        if len(matches) != 1:
+            raise ValueError("参考胆拖缺少唯一且与原始5注一致的来源记录")
+        forecast = matches[0]
+        plan = forecast["metadata"]["dantuo_plan"]
+        validate_dantuo_plan(plan)
+        source_json = json.dumps(forecast, ensure_ascii=False, sort_keys=True, allow_nan=False)
+        value = {"version": 1, **{k: reference[k] for k in ["data_sha256", "data_cutoff", "target_issue",
+                 "engine_sha256", "config_sha256", "generated_at_unix"]},
+                 "exported_at_unix": int(time.time()), "reference_cache_sha256": parent_sha,
+                 "source_audit_file_sha256": sha(raw), "source_forecast_json": source_json,
+                 "source_forecast_sha256": sha(source_json.encode()), "dantuo_plan": plan}
+        if not atomic_json(destination, value, first=True):
+            if json.loads(destination.read_text())["source_forecast_sha256"] != value["source_forecast_sha256"]:
+                raise ValueError("已有参考胆拖与原始报告不同，拒绝覆盖")
+        validate_dantuo_cache(json.loads(destination.read_text()), reference, parent_sha)
+        return {"dantuo_status": "ready", "dantuo_cache_file": str(destination)}
+    return {"dantuo_status": "unavailable", "dantuo_reason": "原始计算报告尚未就绪，未按5注另算胆拖"}
+
+
 def _run(args: argparse.Namespace) -> dict:
     args.work_dir.mkdir(parents=True, exist_ok=True)
     with (args.work_dir / "worker.lock").open("a") as lock:
@@ -188,6 +285,7 @@ def _run(args: argparse.Namespace) -> dict:
             except Exception as error:
                 atomic_json(status_path, {**state, "status": "error", "error": str(error), "finished_at_unix": int(time.time())})
                 raise
+        result.update(export_dantuo(args, value, cache))
         atomic_json(status_path, {**result, "finished_at_unix": int(time.time())})
         if args.ssq:
             completed = subprocess.run([str(args.ssq), "reference-freeze", "--data", str(args.data),

@@ -477,7 +477,7 @@ fn binom(n: usize, k: usize) -> usize {
     c
 }
 
-fn combinations(nums: &[u8], k: usize) -> Result<Vec<Vec<u8>>, String> {
+pub(crate) fn combinations(nums: &[u8], k: usize) -> Result<Vec<Vec<u8>>, String> {
     let mut out = Vec::new();
     let mut cur = Vec::new();
     comb_rec(nums, k, 0, &mut cur, &mut out)?;
