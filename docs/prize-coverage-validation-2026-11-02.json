@@ -34,5 +34,12 @@
   "original_apis_preserved": 13,
   "authorized_added_current_archive_source_only": true,
   "original_files_including_csv_preserved": 56,
-  "existing_blue_analysis_matched_cells": 21
+  "existing_blue_analysis_matched_cells": 21,
+  "blue_ball_contrast": {
+    "scope": "local",
+    "all_twenty_blue_labels_readable": true,
+    "min_contrast": 6.157973971775643,
+    "foreground": "rgb(29, 78, 216)",
+    "background": "rgb(239, 246, 255)"
+  }
 }
