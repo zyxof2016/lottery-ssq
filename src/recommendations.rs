@@ -36,7 +36,7 @@ pub const PRESETS: [&str; 17] = [
     "bluehit2",
     "bluefocus4",
     "bluehit4",
-    "bluefocus8",
+    "jackpot8",
 ];
 pub const PRIZE_RULES_URL: &str = "https://www.scflcp.com.cn/yxgz/823145252.jhtml";
 
@@ -82,7 +82,8 @@ fn source_sha() -> String {
             include_str!("reference.rs"),
             include_str!("reference_tickets.rs"),
             include_str!("reference_dantuo.rs"),
-            include_str!("prize_coverage.rs")
+            include_str!("prize_coverage.rs"),
+            include_str!("jackpot.rs")
         )
         .as_bytes(),
     )
@@ -278,6 +279,7 @@ fn strategy(plan: &Plan, prepared: &Prepared) -> Value {
     });
     if let Some(ranking)=&prepared.blue_ranking {saved["blue_ranking"]=ranking.clone();}
     if plan.title==crate::prize_coverage::TITLE {saved["prize_coverage"]=crate::prize_coverage::policy();}
+    if plan.mode=="jackpot" {saved["jackpot_goal"]=crate::jackpot::policy();}
     saved
 }
 
@@ -447,7 +449,7 @@ pub fn archive_plan(
     } else {
         let mut payload = base_payload(prepared, issue, "interactive", now_unix(), deadline);
         payload["strategies"] = json!({"custom": saved});
-        if saved.get("prize_coverage").is_some(){let deadline=deadline.ok_or("小奖覆盖方案缺少封存截止")?;write_new_before(&path,payload,Some(deadline),now_unix)?.0}else{write_new(&path,payload)?.0}
+        if saved.get("prize_coverage").is_some()||saved.get("jackpot_goal").is_some(){let deadline=deadline.ok_or("前瞻票组缺少封存截止")?;write_new_before(&path,payload,Some(deadline),now_unix)?.0}else{write_new(&path,payload)?.0}
     };
     Ok(
         json!({"archive_id": format!("interactive:{identity}"), "sha256": envelope["sha256"],
@@ -536,6 +538,7 @@ pub(crate) fn validate_archive(payload: &Value, issue: &str, draws: &[Draw]) -> 
     if let Some(strategies)=payload["strategies"].as_object() {
         let mut expected_blue:Option<Value>=None;
         for strategy in strategies.values() {
+            if strategy.get("jackpot_goal").is_some(){crate::jackpot::validate_saved(strategy,payload,draws)?;}
             if strategy.get("prize_coverage").is_some(){crate::prize_coverage::validate_saved(strategy,payload,draws)?;}
             if let Some(ranking)=strategy.get("blue_ranking") {
                 let prefix:Vec<_>=draws.iter().filter(|d|fmt_issue(d.issue).as_str()<=payload["data_cutoff"].as_str().unwrap_or("")).cloned().collect();
@@ -1115,6 +1118,7 @@ fn enrich_efficiency(review: &mut Value) {
 }
 
 fn compact_preview(review: &Value, draw: Option<&Draw>) -> Result<Value, String> {
+    if review["mode"]=="jackpot" {return Ok(Value::Null);}
     let original: Vec<Ticket> =
         serde_json::from_value(review["tickets"].clone()).map_err(|e| e.to_string())?;
     let reds: Vec<_> = original
@@ -2341,5 +2345,14 @@ mod tests {
                 .unwrap_err()
                 .contains("越界"));
         }
+    }
+}
+
+#[cfg(test)]
+mod jackpot_compact_tests {
+    use super::*;
+    #[test]
+    fn jackpot_ticket_pairs_cannot_be_replaced_by_union_only_compaction() {
+        let draws=crate::draw::synth_draws(220,9);let p=prepare_forecast(&draws).unwrap();let plan=crate::plan::build(&p.forecast,&crate::jackpot::spec()).unwrap();let saved=strategy(&plan,&p);let reviewed=review_strategy(&saved,None).unwrap();assert!(compact_preview(&reviewed,None).unwrap().is_null());let mut generic=reviewed;generic["mode"]=json!("balanced");assert!(compact_preview(&generic,None).unwrap()["summary"]["bets"].as_u64().unwrap()<8);
     }
 }

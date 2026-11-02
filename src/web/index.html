@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>双色球科学量化决策系统</title>
 <link rel="stylesheet" href="static/app.css">
-<script src="static/shell.js"></script><script src="static/vendor/vue-3.5.24.js"></script><script src="static/pool-intersection.js"></script><script src="static/pool-compression.js"></script><script src="static/blue-focus.js"></script><script src="static/small-red.js"></script><script src="static/reference-pools.js"></script>
+<script src="static/shell.js"></script><script src="static/vendor/vue-3.5.24.js"></script><script src="static/pool-intersection.js"></script><script src="static/pool-compression.js"></script><script src="static/blue-focus.js"></script><script src="static/jackpot.js"></script><script src="static/small-red.js"></script><script src="static/reference-pools.js"></script>
 </head>
 <body><div id="app" v-cloak>
 <header class="shell-header"><div class="shell-width">
@@ -15,21 +15,22 @@
 <main class="page">
 <div v-if="toast.show" :class="['notice','toast',toast.type==='error'?'error':'success']" :role="toast.type==='error'?'alert':'status'"><div class="row between"><span>{{ toast.message }}</span><button @click="toast.show=false" aria-label="关闭提示">×</button></div></div>
 <section v-show="currentTab==='generator'" id="panel-generator" role="tabpanel" aria-labelledby="tab-generator">
-<div class="notice">以更少红球覆盖全部 6 个开奖号为观察目标；模型排序尚未证明稳定优于均匀选号。号码池覆盖与单注中奖分别核对。<a href="?tab=reviews" @click.prevent="openTab('reviews')">查看每期实际推荐与复盘</a></div>
+<div class="notice">当前以单注6红＋1蓝为头奖目标；号码池包含开奖号与完整单注全中分别核对。模型排序尚未证明预测优势。<a href="?tab=reviews" @click.prevent="openTab('reviews')">查看每期实际推荐与复盘</a></div>
 <div class="workspace-intro"><div><p class="eyebrow">方案生成</p><h2>先选目标，再查看本期号码</h2><p class="muted">第 {{ overview.next_issue || '待载入' }} 期 · 依据截止 {{ overview.latest_draw?.issue || '待核对' }}</p></div><button @click="openTab('pools',{pane:'reference'})">参考5注、胆拖与融合 →</button></div>
 <section class="card goal-presets" aria-label="按目标生成方案"><h2>按目标生成方案</h2><div class="grid3">
-<button id="goal-bluefocus8" class="preset goal-card goal-blue" :disabled="generating||saving||syncing||!overview.next_issue" @click="generateBlue({preset:'bluefocus8',issue:overview.next_issue,data_sha256:overview.data_sha256})"><strong>小奖分散覆盖 · 8蓝8注</strong><small>16红均衡组票，每注1个不同蓝球。普通六等奖5元低于本组成本。</small><span class="goal-tag">8注 · 16元</span></button>
+<button id="goal-jackpot8" class="preset goal-card goal-blue" :disabled="generating||saving||syncing||!overview.next_issue" @click="generateJackpot({issue:overview.next_issue,data_sha256:overview.data_sha256})"><strong>头奖目标 · 4组6红各配2蓝</strong><small>保留完整六红组合，逐注核对6红1蓝；未证实头奖优势。</small><span class="goal-tag">8注 · 16元 · 试验</span></button>
 <button id="goal-pool16" class="preset goal-card goal-red" :disabled="generating||saving||syncing" @click="generateCompact(16)"><strong>16红＋2蓝 · 观察号码池</strong><small>先看一组精简号码，保存原池并观察全6红覆盖。</small><span class="goal-tag">号码池预览</span></button>
 <button id="goal-balanced16" class="preset goal-card goal-blue" :disabled="generating||saving||syncing" @click="applyPreset('balanced16')"><strong>16红均衡覆盖 · 8注</strong><small>将16个候选红球均衡分配到8注，配原榜2蓝。</small><span class="goal-tag">8注 · 16元</span></button>
 <button id="goal-balanced14" class="preset goal-card goal-green" :disabled="generating||saving||syncing" @click="applyPreset('balanced14')"><strong>14红小池 · 均衡8注</strong><small>缩小红球范围，比较少选号码与覆盖的取舍。</small><span class="goal-tag">8注 · 16元</span></button>
 <button id="goal-disjoint5" class="preset goal-card" :disabled="generating||saving||syncing" @click="applyPreset('disjoint5')"><strong>5注红球不重叠</strong><small>分散覆盖30个红球，蓝球按原榜轮换。</small><span class="goal-tag">5注 · 10元</span></button>
 <button id="goal-compound7" class="preset goal-card" :disabled="generating||saving||syncing" @click="applyPreset('compound7')"><strong>7红复式</strong><small>选择7个红球配1蓝，完整展开7注。</small><span class="goal-tag">7注 · 14元</span></button>
 </div></section>
+<jackpot-focus :api-url="jackpotApiUrl" :busy="generating||saving||syncing" @generate="generateJackpot"></jackpot-focus>
 <form class="card" @submit.prevent="generateCustom"><h2>自定义参数生成</h2><div class="grid4">
 <label class="field">选择玩法<input value="双色球 · 6 红 + 1 蓝" readonly></label>
-<label class="field" for="plan-mode">投注形态<select id="plan-mode" v-model="form.mode" @change="activePreset='';form.ranking_model=form.mode==='frozen'?'weighted':form.ranking_model;form.blue_model='weighted'">
-<option value="pool_observation">分档号码池观察</option><option value="balanced">均衡覆盖单式</option><option value="single">单式多注</option><option value="compound_red">红球复式</option><option value="compound_blue">蓝球复式</option><option value="dantuo">胆拖投注</option><option value="frozen">协议冻结票组</option></select></label>
-<label class="field" for="ranking-model">红球排名<select id="ranking-model" v-model="form.ranking_model" :disabled="form.mode==='frozen'"><option value="small_recent">小池近况融合 · 16红内试验</option><option value="conditional_gap">条件频率 · 24红试验</option><option value="repeat_calibrated">重号偏置校准 · 试验</option><option value="dual_support">双专家支持 · 24红试验</option><option value="rank_consensus">名次共识 · 试验</option><option value="scenario_cover">全6情景覆盖 · 试验</option><option value="robust_cover">三窗稳健覆盖 · 试验</option><option value="equal">等权融合 · 对照</option><option value="weighted">协议加权融合</option></select></label>
+<label class="field" for="plan-mode">投注形态<select id="plan-mode" v-model="form.mode" @change="activePreset='';form.ranking_model=['frozen','jackpot'].includes(form.mode)?'weighted':form.ranking_model;form.blue_model='weighted'">
+<option value="jackpot">头奖目标单式 · 8注</option><option value="pool_observation">分档号码池观察</option><option value="balanced">均衡覆盖单式</option><option value="single">单式多注</option><option value="compound_red">红球复式</option><option value="compound_blue">蓝球复式</option><option value="dantuo">胆拖投注</option><option value="frozen">协议冻结票组</option></select></label>
+<label class="field" for="ranking-model">红球排名<select id="ranking-model" v-model="form.ranking_model" :disabled="['frozen','jackpot'].includes(form.mode)"><option value="small_recent">小池近况融合 · 16红内试验</option><option value="conditional_gap">条件频率 · 24红试验</option><option value="repeat_calibrated">重号偏置校准 · 试验</option><option value="dual_support">双专家支持 · 24红试验</option><option value="rank_consensus">名次共识 · 试验</option><option value="scenario_cover">全6情景覆盖 · 试验</option><option value="robust_cover">三窗稳健覆盖 · 试验</option><option value="equal">等权融合 · 对照</option><option value="weighted">协议加权融合</option></select></label>
 <label class="field" for="target-issue">目标期号<input id="target-issue" v-model="target" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" required placeholder="如 26118"></label>
 </div><div class="grid4 divider">
 <label v-if="form.mode==='pool_observation'" class="field" for="observation-size">观察档位<select id="observation-size" v-model.number="form.observation_size"><option v-for="(n,i) in [14,16,18,20,22,24]" :value="n">{{ String.fromCharCode(65+i) }}档 · {{ n }} 红</option></select></label>
@@ -39,8 +40,8 @@
 <label v-if="form.mode==='compound_red'" class="field">复式红球数<input v-model.number="form.red_count" type="number" min="7" max="10" required></label>
 <label v-if="form.mode==='dantuo'" class="field">胆码个数<input v-model.number="form.bankers" type="number" min="1" max="5" required></label>
 <label v-if="form.mode==='dantuo'" class="field">拖码个数<input v-model.number="form.drags" type="number" min="2" max="15" required></label>
-<label v-if="!['pool_observation','frozen'].includes(form.mode)" class="field" for="blue-model">蓝球排序<select id="blue-model" v-model="form.blue_model"><option value="weighted">原加权蓝榜</option><option value="blue_hit_frozen">命中目标融合 · 试验</option></select></label>
-<label v-if="form.mode!=='frozen'" class="field">蓝球个数<select v-model.number="form.blue_count"><option v-for="n in (form.mode==='pool_observation'?[1,2,3]:form.mode==='balanced'?[1,2,3,4,5,6,7,8]:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])" :value="n">{{ n }} 个</option></select></label>
+<label v-if="!['pool_observation','frozen','jackpot'].includes(form.mode)" class="field" for="blue-model">蓝球排序<select id="blue-model" v-model="form.blue_model"><option value="weighted">原加权蓝榜</option><option value="blue_hit_frozen">命中目标融合 · 试验</option></select></label>
+<label v-if="!['frozen','jackpot'].includes(form.mode)" class="field">蓝球个数<select v-model.number="form.blue_count"><option v-for="n in (form.mode==='pool_observation'?[1,2,3]:form.mode==='balanced'?[1,2,3,4,5,6,7,8]:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])" :value="n">{{ n }} 个</option></select></label>
 <label v-if="form.mode==='frozen'" class="field" for="seal-deadline">封存截止（北京时间）<input id="seal-deadline" v-model="deadline" type="datetime-local" required></label>
 <div class="field"><span class="muted">{{ form.mode==='pool_observation'?'只生成号码池，不展开复式':'按完整展开票组计算，最多 300 注' }}</span><button class="primary" type="submit" :disabled="generating||saving||syncing">{{ generating?'生成计算中…':'立即生成方案' }}</button></div>
 </div></form>

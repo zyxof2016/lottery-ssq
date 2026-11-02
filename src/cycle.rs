@@ -77,7 +77,7 @@ pub fn run_cycle(data: &Path, audit: &Path, publish_dir: &Path, review_dir: &Pat
             Err(error)=>notes.push(format!("参考观察未封存：{error}")),
         }
     }
-    if gate.publish {match crate::prize_coverage::freeze_current(&recommendation_dir,&draws,&gate.target,gate.deadline_unix){Ok(v)=>notes.push(format!("8蓝小奖覆盖 {}",v["status"])),Err(e)=>notes.push(format!("小奖覆盖未封存：{e}"))}}
+    if gate.publish {match crate::jackpot::freeze_current(&recommendation_dir,&draws,&gate.target,gate.deadline_unix){Ok(v)=>notes.push(format!("头奖目标8注 {}",v["status"])),Err(e)=>notes.push(format!("头奖目标未封存：{e}"))}}
     let settlement = recommendations::settle_archives(&recommendation_dir, &draws);
     notes.push(format!("实际推荐复盘新增 {} 份", settlement.settled));
     notes.extend(settlement.errors);

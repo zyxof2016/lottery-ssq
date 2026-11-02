@@ -1,0 +1,1193 @@
+{
+  "actual": {
+    "candidate_full_six_periods": 0,
+    "errors": [],
+    "excluded_missing": 9,
+    "jackpot_periods": 0,
+    "jackpot_rate": null,
+    "n": 0,
+    "note": "只统计本目标首次真实保存的完整票面；同一期多来源只计一次。头奖必须同一注6红1蓝，待开奖和旧期缺档不计失败。",
+    "pending": 0,
+    "periods": [],
+    "single_six_red_periods": 0
+  },
+  "adoption": {
+    "note": "此方案用于按单注6红1蓝目标前瞻观察；历史回放尚不能证明头奖优势，不以小奖、蓝球入池或红球并集覆盖代替头奖。",
+    "objective_corrected": true,
+    "prediction_advantage_established": false
+  },
+  "current": {
+    "actual_recommendation": false,
+    "candidate_reds": [
+      4,
+      26,
+      27,
+      6,
+      10,
+      15,
+      8,
+      9,
+      32,
+      22,
+      30,
+      14,
+      20,
+      33,
+      11,
+      17
+    ],
+    "diagnostic": null,
+    "issue": "26126",
+    "plan": {
+      "blue_weights": null,
+      "coverage_optimization": null,
+      "efficiency": null,
+      "explanation_limit": "专家评分是排序依据，不是中奖概率。合并覆盖不等于单注中奖。固定奖金不含一、二等奖、派奖及福运奖；3红0蓝是否中福运奖须核对当期是否执行特别规定。",
+      "funnel": [
+        {
+          "color": "red",
+          "draw_hits": null,
+          "hit_numbers": null,
+          "numbers": [
+            4,
+            6,
+            8,
+            10,
+            15,
+            26,
+            27
+          ],
+          "size": 7,
+          "stage": "final_union"
+        }
+      ],
+      "mode": "jackpot",
+      "numbers": [
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 1,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 2,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 3,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 4,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 8
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 5,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 6,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 6
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 7,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 8,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 6
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 9,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 10,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 6
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 11,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 12,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 13,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 14,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 15,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 6
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 16,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 17,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 18,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 19,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 20,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 21,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 22,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 23,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 24,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 25,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 26,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 8
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 27,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 8
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 28,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 29,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 30,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 31,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 32,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 33,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 1,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 2,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 3,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 4,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 5,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 6,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 7,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 8,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 9,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 4
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 10,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 11,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 4
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 12,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 13,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 14,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 15,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 16,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        }
+      ],
+      "prize_rules_url": "https://www.scflcp.com.cn/yxgz/823145252.jhtml",
+      "ranking": null,
+      "rationale": "最多16红候选，按固定组合分数保留4个完整六红组合，每组分别配原榜2蓝，共8注16元。允许红球高度重叠，不强求每个候选号入票。分数不是中奖概率，尚未证实头奖优势。",
+      "red_weights": null,
+      "structural": true,
+      "summary": {
+        "all_ticket_reds": [
+          4,
+          26,
+          27
+        ],
+        "bets": 8,
+        "blue_coverage": 2,
+        "blue_coverage_excess": null,
+        "blue_coverage_per_yuan": 0.125,
+        "blue_covered": null,
+        "blue_hit_bets": null,
+        "cost": 16,
+        "covered_red_count": null,
+        "covered_reds": null,
+        "duplicate_tickets": 0,
+        "fixed_prize": null,
+        "floating_prize_tickets": null,
+        "max_blue_exposure": 4,
+        "max_red_exposure": 8,
+        "max_ticket_red_hits": null,
+        "mean_ticket_red_hits": null,
+        "minimum_union_bets": 2,
+        "missed_reds": null,
+        "missed_reds_by_reason": null,
+        "prize_tickets": null,
+        "red_coverage": 7,
+        "red_coverage_excess": null,
+        "red_coverage_per_yuan": 0.4375,
+        "red_hit_histogram": null,
+        "repeated_blue_positions": 6,
+        "repeated_red_positions": 41,
+        "special_prize_candidates": null,
+        "total_red_positions": 48,
+        "uniform_expected_blue_coverage": 0.125,
+        "uniform_expected_blue_hit_bets": 0.5,
+        "uniform_expected_red_hits": 1.2727272727272727,
+        "uniform_expected_ticket_red_hits": 1.0909090909090908,
+        "unique_blues": [
+          9,
+          11
+        ],
+        "unique_reds": [
+          4,
+          6,
+          8,
+          10,
+          15,
+          26,
+          27
+        ]
+      },
+      "tickets": [
+        {
+          "blue": 11,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 1,
+          "prize_level": null,
+          "red": [
+            4,
+            6,
+            10,
+            15,
+            26,
+            27
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 9,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 2,
+          "prize_level": null,
+          "red": [
+            4,
+            6,
+            10,
+            15,
+            26,
+            27
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 11,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 3,
+          "prize_level": null,
+          "red": [
+            4,
+            6,
+            8,
+            10,
+            26,
+            27
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 9,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 4,
+          "prize_level": null,
+          "red": [
+            4,
+            6,
+            8,
+            10,
+            26,
+            27
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 11,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 5,
+          "prize_level": null,
+          "red": [
+            4,
+            6,
+            8,
+            15,
+            26,
+            27
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 9,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 6,
+          "prize_level": null,
+          "red": [
+            4,
+            6,
+            8,
+            15,
+            26,
+            27
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 11,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 7,
+          "prize_level": null,
+          "red": [
+            4,
+            8,
+            10,
+            15,
+            26,
+            27
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 9,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 8,
+          "prize_level": null,
+          "red": [
+            4,
+            8,
+            10,
+            15,
+            26,
+            27
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        }
+      ],
+      "title": "头奖目标 · 4组6红各配2蓝"
+    },
+    "red_combination_count": 4,
+    "status": "preview"
+  },
+  "cutoff_issue": "26125",
+  "data_sha256": "2d51769c960b4f97805a8d85a2b9441664960bc4d064f5afa53cf5544b6b36e6",
+  "kind": "exact_jackpot_objective",
+  "note": "逐期只用开奖前历史；25111起沿用原冻结权重。已被查看的窗口为探索回放，与真实首次留档成绩分开，不按最近一期命中挑选参数。",
+  "policy": {
+    "automatic_model_promotion": false,
+    "bets": 8,
+    "blue_assignment": "full_cartesian_product_each_red_set_with_both_ranked_blues",
+    "blue_count": 2,
+    "cost": 16,
+    "exposure_balance_required": false,
+    "note": "目标是单注6红1蓝。保留4个完整六红组合，每组配原榜2蓝；不以均衡曝光或小奖频率代替头奖。组合乘积分数未经概率校准，未证明提高头奖命中；公平开奖下，同8注不同票面的头奖基准概率相同。",
+    "objective": "exact_six_red_and_one_blue_same_ticket",
+    "preset": "jackpot8",
+    "red_candidate_limit": 16,
+    "red_combinations": 4,
+    "score_kind": "uncalibrated_ranking_evidence_not_joint_probability",
+    "selector": "exact_best_first_top4_product_of_quantized_ranking_scores",
+    "ties": "sum_quantized_log_scores_descending_then_rank_indices_lexicographic",
+    "uniform_eight_distinct_tickets_probability": 4.514395504384381e-07,
+    "uniform_outcomes": 17721088,
+    "version": 1
+  },
+  "prize_rules_url": "https://www.scflcp.com.cn/yxgz/823145252.jhtml",
+  "publication": {
+    "can_freeze": true,
+    "deadline": "2026-11-03 21:10",
+    "target": "26126"
+  },
+  "source_sha256": "2b9274bb990e5b92b69cab7548babe26885c647b37edc160c8cf514f53b1edf8",
+  "target_issue": "26126",
+  "uniform": {
+    "distinct_tickets": 8,
+    "one_in": 2215136,
+    "outcomes": 17721088,
+    "probability": 4.514395504384381e-07,
+    "red_combinations": 1107568,
+    "six_red_sets_inside_16": 8008
+  },
+  "version": 1,
+  "windows": {
+    "all_oos": {
+      "cells": [
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 31,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 1,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "原均衡16红2蓝8注",
+          "mean_best_single_red": 2.1992818671454217,
+          "model": "balanced16_2blue",
+          "n": 3342,
+          "red_combination_miss_periods": 31,
+          "red_pool_miss_periods": 3311,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        },
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 31,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 1,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "小奖8蓝方案·对照",
+          "mean_best_single_red": 2.1992818671454217,
+          "model": "small_prize_8blue",
+          "n": 3342,
+          "red_combination_miss_periods": 31,
+          "red_pool_miss_periods": 3311,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        },
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 31,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 1,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "头奖目标4红组×2蓝",
+          "mean_best_single_red": 1.3372232196289646,
+          "model": "jackpot8",
+          "n": 3342,
+          "red_combination_miss_periods": 31,
+          "red_pool_miss_periods": 3311,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        }
+      ],
+      "from": "04092",
+      "n": 3342,
+      "to": "26125"
+    },
+    "confirmation_exploratory": {
+      "cells": [
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 5,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 0,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "原均衡16红2蓝8注",
+          "mean_best_single_red": 2.1666666666666665,
+          "model": "balanced16_2blue",
+          "n": 156,
+          "red_combination_miss_periods": 5,
+          "red_pool_miss_periods": 151,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        },
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 5,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 0,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "小奖8蓝方案·对照",
+          "mean_best_single_red": 2.1666666666666665,
+          "model": "small_prize_8blue",
+          "n": 156,
+          "red_combination_miss_periods": 5,
+          "red_pool_miss_periods": 151,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        },
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 5,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 0,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "头奖目标4红组×2蓝",
+          "mean_best_single_red": 1.3782051282051282,
+          "model": "jackpot8",
+          "n": 156,
+          "red_combination_miss_periods": 5,
+          "red_pool_miss_periods": 151,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        }
+      ],
+      "from": "25111",
+      "n": 156,
+      "to": "26115"
+    },
+    "development": {
+      "cells": [
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 26,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 1,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "原均衡16红2蓝8注",
+          "mean_best_single_red": 2.200566750629723,
+          "model": "balanced16_2blue",
+          "n": 3176,
+          "red_combination_miss_periods": 26,
+          "red_pool_miss_periods": 3150,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        },
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 26,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 1,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "小奖8蓝方案·对照",
+          "mean_best_single_red": 2.200566750629723,
+          "model": "small_prize_8blue",
+          "n": 3176,
+          "red_combination_miss_periods": 26,
+          "red_pool_miss_periods": 3150,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        },
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 26,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 1,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "头奖目标4红组×2蓝",
+          "mean_best_single_red": 1.3356423173803527,
+          "model": "jackpot8",
+          "n": 3176,
+          "red_combination_miss_periods": 26,
+          "red_pool_miss_periods": 3150,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        }
+      ],
+      "from": "04092",
+      "n": 3176,
+      "to": "25110"
+    },
+    "recent156": {
+      "cells": [
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 5,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 0,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "原均衡16红2蓝8注",
+          "mean_best_single_red": 2.2115384615384617,
+          "model": "balanced16_2blue",
+          "n": 156,
+          "red_combination_miss_periods": 5,
+          "red_pool_miss_periods": 151,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        },
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 5,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 0,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "小奖8蓝方案·对照",
+          "mean_best_single_red": 2.2115384615384617,
+          "model": "small_prize_8blue",
+          "n": 156,
+          "red_combination_miss_periods": 5,
+          "red_pool_miss_periods": 151,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        },
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 5,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 0,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "头奖目标4红组×2蓝",
+          "mean_best_single_red": 1.3782051282051282,
+          "model": "jackpot8",
+          "n": 156,
+          "red_combination_miss_periods": 5,
+          "red_pool_miss_periods": 151,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        }
+      ],
+      "from": "25121",
+      "n": 156,
+      "to": "26125"
+    },
+    "recent30": {
+      "cells": [
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 1,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 0,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "原均衡16红2蓝8注",
+          "mean_best_single_red": 2.2666666666666666,
+          "model": "balanced16_2blue",
+          "n": 30,
+          "red_combination_miss_periods": 1,
+          "red_pool_miss_periods": 29,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        },
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 1,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 0,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "小奖8蓝方案·对照",
+          "mean_best_single_red": 2.2666666666666666,
+          "model": "small_prize_8blue",
+          "n": 30,
+          "red_combination_miss_periods": 1,
+          "red_pool_miss_periods": 29,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        },
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 1,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 0,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "头奖目标4红组×2蓝",
+          "mean_best_single_red": 1.4333333333333333,
+          "model": "jackpot8",
+          "n": 30,
+          "red_combination_miss_periods": 1,
+          "red_pool_miss_periods": 29,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        }
+      ],
+      "from": "26096",
+      "n": 30,
+      "to": "26125"
+    },
+    "recent60": {
+      "cells": [
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 3,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 0,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "原均衡16红2蓝8注",
+          "mean_best_single_red": 2.25,
+          "model": "balanced16_2blue",
+          "n": 60,
+          "red_combination_miss_periods": 3,
+          "red_pool_miss_periods": 57,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        },
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 3,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 0,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "小奖8蓝方案·对照",
+          "mean_best_single_red": 2.25,
+          "model": "small_prize_8blue",
+          "n": 60,
+          "red_combination_miss_periods": 3,
+          "red_pool_miss_periods": 57,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        },
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 3,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 0,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "头奖目标4红组×2蓝",
+          "mean_best_single_red": 1.4333333333333333,
+          "model": "jackpot8",
+          "n": 60,
+          "red_combination_miss_periods": 3,
+          "red_pool_miss_periods": 57,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        }
+      ],
+      "from": "26066",
+      "n": 60,
+      "to": "26125"
+    },
+    "tracking": {
+      "cells": [
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 0,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 0,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "原均衡16红2蓝8注",
+          "mean_best_single_red": 2.3,
+          "model": "balanced16_2blue",
+          "n": 10,
+          "red_combination_miss_periods": 0,
+          "red_pool_miss_periods": 10,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        },
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 0,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 0,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "小奖8蓝方案·对照",
+          "mean_best_single_red": 2.3,
+          "model": "small_prize_8blue",
+          "n": 10,
+          "red_combination_miss_periods": 0,
+          "red_pool_miss_periods": 10,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        },
+        {
+          "bets": 8,
+          "blue_pairing_miss_periods": 0,
+          "blue_ranking_miss_periods": 0,
+          "candidate_full_six_red_periods": 0,
+          "cost": 16,
+          "five_or_more_red_and_blue_periods": 0,
+          "jackpot_periods": 0,
+          "jackpot_rate": 0.0,
+          "label": "头奖目标4红组×2蓝",
+          "mean_best_single_red": 1.2,
+          "model": "jackpot8",
+          "n": 10,
+          "red_combination_miss_periods": 0,
+          "red_pool_miss_periods": 10,
+          "single_exact_six_red_periods": 0,
+          "uniform_jackpot_probability": 4.514395504384381e-07
+        }
+      ],
+      "from": "26116",
+      "n": 10,
+      "to": "26125"
+    }
+  }
+}

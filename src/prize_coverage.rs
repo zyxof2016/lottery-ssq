@@ -92,6 +92,9 @@ fn candidates(root: &Path, issue: &str) -> Vec<(String, PathBuf, String)> {
     out
 }
 fn record(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<Value>, String> {
+    record_for(root,draws,issue,"prize_coverage")
+}
+pub(crate) fn record_for(root: &Path, draws: &[Draw], issue: &str, tag: &str) -> Result<Option<Value>, String> {
     if issue.len() != 5 || !issue.bytes().all(|c| c.is_ascii_digit()) {
         return Err("期号须为5位数字".into());
     }
@@ -104,7 +107,7 @@ fn record(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<Value>, Str
         };
         if !strategies
             .values()
-            .any(|s| s.get("prize_coverage").is_some())
+            .any(|s| s.get(tag).is_some())
         {
             continue;
         }
@@ -114,7 +117,7 @@ fn record(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<Value>, Str
             return Err("小奖覆盖保存晚于开奖".into());
         }
         for (name, saved) in strategies {
-            if saved.get("prize_coverage").is_none() {
+            if saved.get(tag).is_none() {
                 continue;
             }
             found.push(json!({"issue":issue,"archive_id":id,"strategy":name,"archive_sha256":e["sha256"],"published_at_unix":p["published_at_unix"],"input_history_sha256":p["input_history_sha256"],"raw_file":raw,"saved":saved}));
@@ -132,7 +135,7 @@ fn record(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<Value>, Str
     });
     Ok(found.into_iter().next())
 }
-fn view_record(mut v: Value, draws: &[Draw]) -> Result<Value, String> {
+pub(crate) fn view_record(mut v: Value, draws: &[Draw]) -> Result<Value, String> {
     let issue = v["issue"].as_str().unwrap().to_string();
     let draw = draws.iter().find(|d| fmt_issue(d.issue) == issue);
     v["plan"] = rec::review_strategy(&v["saved"], draw)?;
@@ -170,7 +173,7 @@ pub fn freeze_current(
         json!({"status":"frozen","issue":issue,"archive_id":archive["archive_id"],"archive_sha256":archive["sha256"]}),
     )
 }
-fn issues(root: &Path) -> BTreeSet<String> {
+pub(crate) fn issues(root: &Path) -> BTreeSet<String> {
     let mut out = BTreeSet::new();
     for folder in ["daily", "interactive"] {
         if let Ok(entries) = fs::read_dir(root.join(folder)) {

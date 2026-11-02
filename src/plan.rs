@@ -53,6 +53,7 @@ pub fn resolve(
     }
     let mode = mode.unwrap_or("frozen");
     match mode {
+        "jackpot" => Ok(crate::jackpot::spec()),
         "frozen" => Ok(frozen_spec()),
         "balanced" => Ok(Spec {
             mode: "balanced", title: "均衡覆盖单式 · 试验".into(), detail: String::new(),
@@ -114,6 +115,7 @@ pub fn resolve(
 pub fn build(fc: &Forecast, spec: &Spec) -> Result<Plan, String> {
     let rescued = fc.mild.rescued.iter().map(|i| *i as u8 + 1).collect();
     let plan = match spec.mode {
+        "jackpot" => crate::jackpot::build(fc,spec)?,
         "frozen" => frozen_plan(fc, spec, rescued),
         "single" => single_plan(fc, spec, rescued)?,
         "balanced" => balanced_plan(fc, spec)?,
@@ -130,6 +132,7 @@ pub fn build(fc: &Forecast, spec: &Spec) -> Result<Plan, String> {
 
 fn preset_spec(name: &str) -> Result<Spec, String> {
     Ok(match name {
+        "jackpot8" => crate::jackpot::spec(),
         "frozen" => frozen_spec(),
         "bluefocus8" => Spec {mode:"balanced",title:crate::prize_coverage::TITLE.into(),detail:"16红均衡分配到8注，每注配原榜前8蓝中一个不同蓝球，共8注16元。目标是分散小奖覆盖；普通六等奖5元低于16元成本，不保证中奖或回本。".into(),tickets:8,pool:16,overlap:5,red_count:6,blue_count:8,bankers:0,drags:0},
         "bluefocus2" | "bluehit2" | "bluefocus4" | "bluehit4" => Spec {
@@ -405,7 +408,7 @@ fn dantuo(fc: &Forecast, spec: &Spec, rescued: Vec<u8>) -> Result<Plan, String> 
     Ok(finish(&spec, tickets, reds, bankers, drags, blues, rescued))
 }
 
-fn finish(
+pub(crate) fn finish(
     spec: &Spec,
     tickets: Vec<PlanTicket>,
     reds: Vec<u8>,
@@ -439,7 +442,7 @@ fn nums(idx: &[usize]) -> Vec<u8> {
     idx.iter().map(|i| *i as u8 + 1).collect()
 }
 
-fn mask_nums(mask: u64) -> [u8; 6] {
+pub(crate) fn mask_nums(mask: u64) -> [u8; 6] {
     let mut red = [0u8; 6];
     let mut k = 0;
     let mut bits = mask;

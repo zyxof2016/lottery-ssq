@@ -1,0 +1,36 @@
+{
+  "scope": "isolated_runtime",
+  "issue": "26126",
+  "archive_id": "interactive:791232262343a75ee3fb9938251d55c155c1e3348db37836ec4641ac62617ce9",
+  "archive_sha256": "736daf882d437572d8c3151397a3b6c9233eaacad12601c0d89f218a275a22b6",
+  "objective": "single_exact_six_red_and_one_blue",
+  "four_complete_six_red_sets_crossed_with_two_blues": true,
+  "eight_distinct_complete_tickets_yuan16": true,
+  "candidate_red_count": 16,
+  "actual_ticket_red_union": 7,
+  "copy_eight_complete_singles": true,
+  "uniform_same_budget_one_in": 2215136,
+  "no_claim_of_validated_prediction_advantage": true,
+  "all_oos": {
+    "n": 3342,
+    "candidate_full_six": 31,
+    "single_six_red": 0,
+    "jackpot": 0
+  },
+  "pending_results_null": true,
+  "old_daily_reference_and_small_prize_archives_preserved": true,
+  "widths": [
+    320,
+    390,
+    768,
+    1440
+  ],
+  "all_ball_text_contrast_at_least_4_5": true,
+  "console_errors": [],
+  "vue_warnings": [],
+  "write_requests": [
+    "http://127.0.0.1:16950/api/generate"
+  ],
+  "rust_tests_passed": 127,
+  "old_runtime_files_including_csv_byte_preserved": 57
+}

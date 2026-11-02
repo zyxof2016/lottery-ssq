@@ -23,6 +23,7 @@ pub mod reference;
 pub mod reference_tickets;
 pub mod reference_dantuo;
 pub mod prize_coverage;
+pub mod jackpot;
 pub mod small_archive;
 pub mod stats;
 pub mod tail;
