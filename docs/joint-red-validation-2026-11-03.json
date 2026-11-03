@@ -1,0 +1,33 @@
+{
+  "scope": "isolated_runtime_read_only",
+  "issue": "26126",
+  "current_archive_sha256": "82d9f2ad03730030c00e3e1a8c5979971e99337b79d78223229129a6ce5b7ce4",
+  "pending_not_counted_as_failure": true,
+  "actual_current_sets": 4,
+  "actual_current_red_union": 7,
+  "copied_previous_set_count": 1,
+  "common_reds": 3,
+  "normalized_model_replay_n": 3342,
+  "old_joint_score": -0.1750310241066606,
+  "candidate_joint_score": -0.00793595079837164,
+  "candidate_still_below_uniform": true,
+  "publication_allowed": false,
+  "independent_prospective_n": 0,
+  "candidate_full_tickets": 8,
+  "budget": 16,
+  "current_copy_and_original_review_work": true,
+  "widths": [
+    320,
+    390,
+    768,
+    1440
+  ],
+  "ball_contrast_4_5": true,
+  "console_errors": [],
+  "vue_warnings": [],
+  "write_requests": [],
+  "rust_tests_passed": 132,
+  "all_15_existing_api_results_unchanged": true,
+  "original_runtime_files_byte_preserved": 57,
+  "manual_pool_and_compression_tests_passed": true
+}

@@ -143,6 +143,7 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
             report["publication"]=json!({"can_freeze":gate.publish,"target":gate.target,"deadline":gate.deadline_text,"reason":gate.reason});Ok(report)
         }),
         ("POST", "/api/reference-pools/freeze") => freeze_reference(app,body),
+        ("GET", "/api/jackpot/model-review") => load_csv(&app.data).and_then(|draws| crate::joint_red::report(&recommendation_dir(app),&draws)),
         ("GET", "/api/jackpot") => load_csv(&app.data).and_then(|draws| {let mut v=crate::jackpot::report(&recommendation_dir(app),&draws)?;let last=draws.last().ok_or("没有开奖数据")?;let gate=decide(recommendations::now_unix(),last.issue,last.date,false);v["publication"]=json!({"can_freeze":gate.publish,"target":gate.target,"deadline":gate.deadline_text});Ok(v)}),
         ("GET", "/api/prize-coverage") => load_csv(&app.data).and_then(|draws| crate::prize_coverage::report(&recommendation_dir(app),&draws)),
         ("GET", "/api/blue") => load_csv(&app.data).and_then(|draws| {
@@ -1656,6 +1657,16 @@ mod tests {
         for panel in ["generator", "records", "reviews", "draws", "backtest", "research", "settings"] {
             assert!(html.contains(&format!("panel-{panel}")));
         }
+        let before: Vec<_> = fs::read_dir(&dir).unwrap().map(|e|e.unwrap().path()).collect();
+        let (status, _, body) = route(&app, "GET", "/api/jackpot/model-review", "", "");
+        assert_eq!(status, 200);
+        let research: Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(research["candidate"]["publication_allowed"], false);
+        assert_eq!(research["adoption"]["replace_current_recommendation"], false);
+        assert_eq!(research["current_health"]["status"], "pending");
+        assert_eq!(research["candidate"]["plan"]["tickets"].as_array().unwrap().len(), 8);
+        let after: Vec<_> = fs::read_dir(&dir).unwrap().map(|e|e.unwrap().path()).collect();
+        assert_eq!(before, after);
         let (status, _, body) = route(&app, "POST", "/api/generate", "", r#"{"preset":"compound7"}"#);
         assert_eq!(status, 200);
         let generated: Value = serde_json::from_slice(&body).unwrap();

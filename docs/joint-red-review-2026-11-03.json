@@ -1,0 +1,1125 @@
+{
+  "adoption": {
+    "historical_tracking_joint_score_positive": false,
+    "historical_tracking_n": 10,
+    "minimum_new_prospective_periods": 156,
+    "new_prospective_n": 0,
+    "prediction_advantage_established": false,
+    "reason": "新模型缺少独立前瞻验证，且须先超过均匀完整组合基准；不替换当前已封存号码。历史窗口已被查看，仅作探索。",
+    "replace_current_recommendation": false
+  },
+  "candidate": {
+    "actual_recommendation": false,
+    "candidate_reds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "plan": {
+      "blue_weights": null,
+      "coverage_optimization": null,
+      "efficiency": null,
+      "explanation_limit": "专家评分是排序依据，不是中奖概率。合并覆盖不等于单注中奖。固定奖金不含一、二等奖、派奖及福运奖；3红0蓝是否中福运奖须核对当期是否执行特别规定。",
+      "funnel": [
+        {
+          "color": "red",
+          "draw_hits": null,
+          "hit_numbers": null,
+          "numbers": [
+            1,
+            2,
+            3,
+            6,
+            7,
+            8,
+            9,
+            10,
+            14
+          ],
+          "size": 9,
+          "stage": "final_union"
+        }
+      ],
+      "mode": "research",
+      "numbers": [
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 1,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 8
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 2,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 8
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 3,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 2
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 4,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 5,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 6,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 8
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 7,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 8
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 8,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 2
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 9,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 2
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 10,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 2
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 11,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 12,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 13,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 14,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 8
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 15,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 16,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 17,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 18,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 19,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 20,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 21,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 22,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 23,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 24,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 25,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 26,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 27,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 28,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 29,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 30,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 31,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 32,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 33,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 1,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 2,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 3,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 4,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 5,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 6,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 7,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 8,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 9,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 4
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 10,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 11,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 4
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 12,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 13,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 14,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 15,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 16,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        }
+      ],
+      "prize_rules_url": "https://www.scflcp.com.cn/yxgz/823145252.jhtml",
+      "ranking": null,
+      "rationale": null,
+      "red_weights": null,
+      "structural": true,
+      "summary": {
+        "all_ticket_reds": [
+          1,
+          2,
+          6,
+          7,
+          14
+        ],
+        "bets": 8,
+        "blue_coverage": 2,
+        "blue_coverage_excess": null,
+        "blue_coverage_per_yuan": 0.125,
+        "blue_covered": null,
+        "blue_hit_bets": null,
+        "cost": 16,
+        "covered_red_count": null,
+        "covered_reds": null,
+        "duplicate_tickets": 0,
+        "fixed_prize": null,
+        "floating_prize_tickets": null,
+        "max_blue_exposure": 4,
+        "max_red_exposure": 8,
+        "max_ticket_red_hits": null,
+        "mean_ticket_red_hits": null,
+        "minimum_union_bets": 2,
+        "missed_reds": null,
+        "missed_reds_by_reason": null,
+        "prize_tickets": null,
+        "red_coverage": 9,
+        "red_coverage_excess": null,
+        "red_coverage_per_yuan": 0.5625,
+        "red_hit_histogram": null,
+        "repeated_blue_positions": 6,
+        "repeated_red_positions": 39,
+        "special_prize_candidates": null,
+        "total_red_positions": 48,
+        "uniform_expected_blue_coverage": 0.125,
+        "uniform_expected_blue_hit_bets": 0.5,
+        "uniform_expected_red_hits": 1.6363636363636365,
+        "uniform_expected_ticket_red_hits": 1.0909090909090908,
+        "unique_blues": [
+          9,
+          11
+        ],
+        "unique_reds": [
+          1,
+          2,
+          3,
+          6,
+          7,
+          8,
+          9,
+          10,
+          14
+        ]
+      },
+      "tickets": [
+        {
+          "blue": 11,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 1,
+          "prize_level": null,
+          "red": [
+            1,
+            2,
+            3,
+            6,
+            7,
+            14
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 9,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 2,
+          "prize_level": null,
+          "red": [
+            1,
+            2,
+            3,
+            6,
+            7,
+            14
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 11,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 3,
+          "prize_level": null,
+          "red": [
+            1,
+            2,
+            6,
+            7,
+            8,
+            14
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 9,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 4,
+          "prize_level": null,
+          "red": [
+            1,
+            2,
+            6,
+            7,
+            8,
+            14
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 11,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 5,
+          "prize_level": null,
+          "red": [
+            1,
+            2,
+            6,
+            7,
+            9,
+            14
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 9,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 6,
+          "prize_level": null,
+          "red": [
+            1,
+            2,
+            6,
+            7,
+            9,
+            14
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 11,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 7,
+          "prize_level": null,
+          "red": [
+            1,
+            2,
+            6,
+            7,
+            10,
+            14
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 9,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 8,
+          "prize_level": null,
+          "red": [
+            1,
+            2,
+            6,
+            7,
+            10,
+            14
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        }
+      ],
+      "title": "联合评分研究候选·未发布"
+    },
+    "publication_allowed": false,
+    "status": "research_preview"
+  },
+  "current_health": {
+    "actual_red_union": 7,
+    "common_reds_in_all_sets": [
+      4,
+      26,
+      27
+    ],
+    "complete_red_sets": 4,
+    "copied_previous_six_sets": 1,
+    "issue": "26126",
+    "latest_draw": {
+      "blue": 11,
+      "issue": "26125",
+      "red": [
+        4,
+        6,
+        10,
+        15,
+        26,
+        27
+      ]
+    },
+    "note": "检查原始封存票面，不改写号码。尚无本期入库结果，不计算成败。复制上期号码说明评分集中，不等于下一期必然不会重复。",
+    "outcome_known": false,
+    "previous_red_overlap_per_set": [
+      5,
+      5,
+      6,
+      5
+    ],
+    "source": {
+      "archive_sha256": "82d9f2ad03730030c00e3e1a8c5979971e99337b79d78223229129a6ce5b7ce4",
+      "raw_file": "interactive/26126/791232262343a75ee3fb9938251d55c155c1e3348db37836ec4641ac62617ce9.json",
+      "status": "frozen"
+    },
+    "status": "pending"
+  },
+  "cutoff_issue": "26125",
+  "data_sha256": "2d51769c960b4f97805a8d85a2b9441664960bc4d064f5afa53cf5544b6b36e6",
+  "kind": "joint_red_scoring_research",
+  "method_sources": [
+    "https://sites.stat.washington.edu/people/raftery/Research/PDF/Gneiting2007jasa.pdf",
+    "https://arxiv.org/abs/2012.03103"
+  ],
+  "note": "原规则的乘积仅为审计而归一化，旧发布评分并非已校准概率。所有比较逐期只使用此前数据，边界后权重冻结；数学归一化和评分改善不等于头奖能力提升。",
+  "policy": {
+    "auto_promote": false,
+    "bets": 8,
+    "blue_count": 2,
+    "cost": 16,
+    "experts": "seven_original_causal_experts_plus_uniform",
+    "forced_expert_weight_floor": false,
+    "minimum_evaluation_fit_periods": 30,
+    "mixture": "equal_prior_bayesian_model_weights_from_pre_boundary_log_likelihood",
+    "note": "完整组合按全部C(33,6)种结果归一化，并用对数评分与均匀基准比较；新混合不强制给弱专家最低权重。仅研究，不替换当前原档，不宣称提高头奖。",
+    "objective": "proper_log_score_of_normalized_complete_six_red_sets",
+    "publication_allowed": false,
+    "red_limit": 16,
+    "red_sets": 4,
+    "required_prospective_periods": 156,
+    "score_meaning": "model_assumption_probability_not_verified_winning_probability",
+    "set_distribution": "product_of_positive_weights_divided_by_elementary_symmetric_polynomial_order6",
+    "training_freeze_before_issue": 25111,
+    "version": 1
+  },
+  "source_sha256": "fd0521a40dd12a65296e579d8bba6b11b4cb97742f7a443dd51098950b4779ac",
+  "target_issue": "26126",
+  "training": {
+    "expert_cumulative_red_log_scores": [
+      -44644.304111573,
+      -46491.9113549251,
+      -50419.921266921134,
+      -50530.95014369141,
+      -44699.37458864508,
+      -44687.928130754946,
+      -58320.70130699002,
+      -44620.07303447733
+    ],
+    "expert_names": [
+      "frequency",
+      "ewma",
+      "overdue",
+      "hot",
+      "cooccur",
+      "zone",
+      "repeat",
+      "uniform"
+    ],
+    "last_issue": "25110",
+    "n": 3206,
+    "weights": [
+      2.996242271092564e-11,
+      0.0,
+      0.0,
+      0.0,
+      3.6288800954140327e-35,
+      3.39551862982251e-30,
+      0.0,
+      0.9999999999700375
+    ]
+  },
+  "version": 1,
+  "windows": {
+    "all_oos": {
+      "cells": [
+        {
+          "candidate_full_six_periods": 31,
+          "copied_previous_six_periods": 3140,
+          "jackpot_periods": 0,
+          "label": "原乘积规则·归一化审计",
+          "mean_actual_red_union": 7.617295032914423,
+          "mean_joint_log_excess_vs_uniform": -0.1750310241066606,
+          "mean_red_log_excess_vs_uniform": -0.16727325150439776,
+          "model": "weighted_product_proxy",
+          "n": 3342,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": 23,
+          "copied_previous_six_periods": 0,
+          "jackpot_periods": 0,
+          "label": "完整组合混合·研究",
+          "mean_actual_red_union": 8.292639138240574,
+          "mean_joint_log_excess_vs_uniform": -0.00793595079837164,
+          "mean_red_log_excess_vs_uniform": -0.00017817819610903293,
+          "model": "joint_mixture",
+          "n": 3342,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": null,
+          "copied_previous_six_periods": null,
+          "jackpot_periods": null,
+          "label": "均匀基准",
+          "mean_actual_red_union": null,
+          "mean_joint_log_excess_vs_uniform": 0.0,
+          "mean_red_log_excess_vs_uniform": 0.0,
+          "model": "uniform",
+          "n": 3342,
+          "single_six_red_periods": null
+        }
+      ],
+      "from": "04092",
+      "n": 3342,
+      "to": "26125"
+    },
+    "confirmation_exploratory": {
+      "cells": [
+        {
+          "candidate_full_six_periods": 5,
+          "copied_previous_six_periods": 155,
+          "jackpot_periods": 0,
+          "label": "原乘积规则·归一化审计",
+          "mean_actual_red_union": 7.282051282051282,
+          "mean_joint_log_excess_vs_uniform": -0.12688833888014353,
+          "mean_red_log_excess_vs_uniform": -0.11130973978139601,
+          "model": "weighted_product_proxy",
+          "n": 156,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": 3,
+          "copied_previous_six_periods": 0,
+          "jackpot_periods": 0,
+          "label": "完整组合混合·研究",
+          "mean_actual_red_union": 8.326923076923077,
+          "mean_joint_log_excess_vs_uniform": -0.015578599098849887,
+          "mean_red_log_excess_vs_uniform": -1.023910301274811e-13,
+          "model": "joint_mixture",
+          "n": 156,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": null,
+          "copied_previous_six_periods": null,
+          "jackpot_periods": null,
+          "label": "均匀基准",
+          "mean_actual_red_union": null,
+          "mean_joint_log_excess_vs_uniform": 0.0,
+          "mean_red_log_excess_vs_uniform": 0.0,
+          "model": "uniform",
+          "n": 156,
+          "single_six_red_periods": null
+        }
+      ],
+      "from": "25111",
+      "n": 156,
+      "to": "26115"
+    },
+    "development": {
+      "cells": [
+        {
+          "candidate_full_six_periods": 26,
+          "copied_previous_six_periods": 2975,
+          "jackpot_periods": 0,
+          "label": "原乘积规则·归一化审计",
+          "mean_actual_red_union": 7.635390428211587,
+          "mean_joint_log_excess_vs_uniform": -0.17746766133966704,
+          "mean_red_log_excess_vs_uniform": -0.1700814960266528,
+          "model": "weighted_product_proxy",
+          "n": 3176,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": 20,
+          "copied_previous_six_periods": 0,
+          "jackpot_periods": 0,
+          "label": "完整组合混合·研究",
+          "mean_actual_red_union": 8.289987405541561,
+          "mean_joint_log_excess_vs_uniform": -0.007573656349344506,
+          "mean_red_log_excess_vs_uniform": -0.00018749103633039756,
+          "model": "joint_mixture",
+          "n": 3176,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": null,
+          "copied_previous_six_periods": null,
+          "jackpot_periods": null,
+          "label": "均匀基准",
+          "mean_actual_red_union": null,
+          "mean_joint_log_excess_vs_uniform": 0.0,
+          "mean_red_log_excess_vs_uniform": 0.0,
+          "model": "uniform",
+          "n": 3176,
+          "single_six_red_periods": null
+        }
+      ],
+      "from": "04092",
+      "n": 3176,
+      "to": "25110"
+    },
+    "recent156": {
+      "cells": [
+        {
+          "candidate_full_six_periods": 5,
+          "copied_previous_six_periods": 155,
+          "jackpot_periods": 0,
+          "label": "原乘积规则·归一化审计",
+          "mean_actual_red_union": 7.2756410256410255,
+          "mean_joint_log_excess_vs_uniform": -0.1139958056559086,
+          "mean_red_log_excess_vs_uniform": -0.10179335806981833,
+          "model": "weighted_product_proxy",
+          "n": 156,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": 3,
+          "copied_previous_six_periods": 0,
+          "jackpot_periods": 0,
+          "label": "完整组合混合·研究",
+          "mean_actual_red_union": 8.365384615384615,
+          "mean_joint_log_excess_vs_uniform": -0.012202447586151993,
+          "mean_red_log_excess_vs_uniform": -6.175117397479204e-14,
+          "model": "joint_mixture",
+          "n": 156,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": null,
+          "copied_previous_six_periods": null,
+          "jackpot_periods": null,
+          "label": "均匀基准",
+          "mean_actual_red_union": null,
+          "mean_joint_log_excess_vs_uniform": 0.0,
+          "mean_red_log_excess_vs_uniform": 0.0,
+          "model": "uniform",
+          "n": 156,
+          "single_six_red_periods": null
+        }
+      ],
+      "from": "25121",
+      "n": 156,
+      "to": "26125"
+    },
+    "recent30": {
+      "cells": [
+        {
+          "candidate_full_six_periods": 1,
+          "copied_previous_six_periods": 30,
+          "jackpot_periods": 0,
+          "label": "原乘积规则·归一化审计",
+          "mean_actual_red_union": 7.066666666666666,
+          "mean_joint_log_excess_vs_uniform": -0.11191076569328998,
+          "mean_red_log_excess_vs_uniform": -0.08282014119604894,
+          "model": "weighted_product_proxy",
+          "n": 30,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": 0,
+          "copied_previous_six_periods": 0,
+          "jackpot_periods": 0,
+          "label": "完整组合混合·研究",
+          "mean_actual_red_union": 8.2,
+          "mean_joint_log_excess_vs_uniform": -0.029090624496716948,
+          "mean_red_log_excess_vs_uniform": 5.240844795177206e-13,
+          "model": "joint_mixture",
+          "n": 30,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": null,
+          "copied_previous_six_periods": null,
+          "jackpot_periods": null,
+          "label": "均匀基准",
+          "mean_actual_red_union": null,
+          "mean_joint_log_excess_vs_uniform": 0.0,
+          "mean_red_log_excess_vs_uniform": 0.0,
+          "model": "uniform",
+          "n": 30,
+          "single_six_red_periods": null
+        }
+      ],
+      "from": "26096",
+      "n": 30,
+      "to": "26125"
+    },
+    "recent60": {
+      "cells": [
+        {
+          "candidate_full_six_periods": 3,
+          "copied_previous_six_periods": 60,
+          "jackpot_periods": 0,
+          "label": "原乘积规则·归一化审计",
+          "mean_actual_red_union": 7.3,
+          "mean_joint_log_excess_vs_uniform": -0.09533411789457835,
+          "mean_red_log_excess_vs_uniform": -0.08714736421112275,
+          "model": "weighted_product_proxy",
+          "n": 60,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": 1,
+          "copied_previous_six_periods": 0,
+          "jackpot_periods": 0,
+          "label": "完整组合混合·研究",
+          "mean_actual_red_union": 8.216666666666667,
+          "mean_joint_log_excess_vs_uniform": -0.00818675368349083,
+          "mean_red_log_excess_vs_uniform": -3.5260683262094974e-14,
+          "model": "joint_mixture",
+          "n": 60,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": null,
+          "copied_previous_six_periods": null,
+          "jackpot_periods": null,
+          "label": "均匀基准",
+          "mean_actual_red_union": null,
+          "mean_joint_log_excess_vs_uniform": 0.0,
+          "mean_red_log_excess_vs_uniform": 0.0,
+          "model": "uniform",
+          "n": 60,
+          "single_six_red_periods": null
+        }
+      ],
+      "from": "26066",
+      "n": 60,
+      "to": "26125"
+    },
+    "tracking": {
+      "cells": [
+        {
+          "candidate_full_six_periods": 0,
+          "copied_previous_six_periods": 10,
+          "jackpot_periods": 0,
+          "label": "原乘积规则·归一化审计",
+          "mean_actual_red_union": 7.1,
+          "mean_joint_log_excess_vs_uniform": -0.15218092843747325,
+          "mean_red_log_excess_vs_uniform": -0.1484055741150508,
+          "model": "weighted_product_proxy",
+          "n": 10,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": 0,
+          "copied_previous_six_periods": 0,
+          "jackpot_periods": 0,
+          "label": "完整组合混合·研究",
+          "mean_actual_red_union": 8.6,
+          "mean_joint_log_excess_vs_uniform": -0.0037753543219297024,
+          "mean_red_log_excess_vs_uniform": 4.927613872496294e-13,
+          "model": "joint_mixture",
+          "n": 10,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": null,
+          "copied_previous_six_periods": null,
+          "jackpot_periods": null,
+          "label": "均匀基准",
+          "mean_actual_red_union": null,
+          "mean_joint_log_excess_vs_uniform": 0.0,
+          "mean_red_log_excess_vs_uniform": 0.0,
+          "model": "uniform",
+          "n": 10,
+          "single_six_red_periods": null
+        }
+      ],
+      "from": "26116",
+      "n": 10,
+      "to": "26125"
+    }
+  }
+}
