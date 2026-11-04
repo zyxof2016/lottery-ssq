@@ -57,3 +57,5 @@
 2026-11-03新增只读GET /api/jackpot/model-review及头奖页评分复盘。研究模型不接入生成或cycle，不新增运行目录或改写原档；候选尚未优于均匀且无独立前瞻样本，不能自动替换头奖v1。发布核对原15个只读接口结果、当前头奖与小奖原档摘要、待开奖空指标，以及研究面板的集中度、评分对照和禁用发布状态。两个timer和全部运行目录继续保护，部署验收仅GET，不为测试新增推荐。
 
 2026-11-04固定联合评分研究启用独立前瞻观察：recommendations/joint-red/{issue}.json及recommendations/reviews/{issue}/joint-red.json随现有recommendations全目录备份。沿用cycle，不新增timer；它只追加研究记录，不调整每日策略或现有头奖原档。GET /api/jackpot/model-review增加最新原档归因、prospective及current_observation；POST /api/jackpot/model-review/freeze绑定当前target/data_sha256，GET /api/jackpot/model-review/archives/{issue}核验并下载原文件。部署前暂停两个timer并等运行结束；先只读核验16个旧接口和运行文件，再正式启动当前下一期研究观察，单独记录新增文件、封存时间和输入摘要。历史预览及隔离测试档案不导入。
+
+2026-11-04红蓝联合选票观察新增recommendations/blue-joint/{issue}.json和reviews/{issue}/blue-joint.json，继续随recommendations完整备份。沿用原cycle封存及复盘，不新增timer、不改变旧每日策略。GET /api/blue/deep为只读，POST /api/blue/deep/freeze绑定target/data_sha256，GET /api/blue/deep/archives/{issue}下载核验后的首次原档。新静态资源blue-deep.js同时在主界面和pools加载，核对代理前缀、手机显示及号码文字对比度。发布前保护两个timer和全部运行文件；先只读核验17个旧接口、原头奖与红球研究摘要，再正式启动当前下一期联合选票观察。不得上传隔离环境生成的blue-joint文件。

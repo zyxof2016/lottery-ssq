@@ -1,0 +1,100 @@
+{
+  "kind": "fixed_blue_convex_mixture_research",
+  "data_sha256": "f0ef9e4c21f4b9aa9a6905c05728c4f0f0db7e15696657babb62893fe7878f78",
+  "source_sha256": "870adb3a0f50560c4beceadc160c691949da1ed13625d462dc2a87b405965459",
+  "training": {
+    "n": 2864,
+    "first_issue": 4092,
+    "last_issue": 23100,
+    "pre_boundary_holdout": 312,
+    "iterations": 173,
+    "normalized_dual_gap": 9.295241790427322e-09,
+    "weights": [
+      0.0,
+      0.022094688098095512,
+      0.027831404092709882,
+      0.02733833666174918,
+      0.0,
+      0.0,
+      0.9227355711474449
+    ],
+    "experts": [
+      "frequency",
+      "ewma",
+      "overdue",
+      "hot",
+      "anti_repeat",
+      "markov",
+      "uniform"
+    ]
+  },
+  "windows": {
+    "pre_boundary_validation": {
+      "n": 312,
+      "weighted_top2_hits": 34,
+      "mixture_top2_hits": 40,
+      "uniform_expected_top2_hits": 39.0,
+      "paired_gains": 10,
+      "paired_losses": 4,
+      "mean_blue_log_excess_vs_uniform": [
+        -0.0037417797683801245,
+        -7.598991139425067e-05
+      ],
+      "last_period_mixture_winner_rank": 9
+    },
+    "confirmation_exploratory": {
+      "n": 156,
+      "weighted_top2_hits": 18,
+      "mixture_top2_hits": 19,
+      "uniform_expected_top2_hits": 19.5,
+      "paired_gains": 3,
+      "paired_losses": 2,
+      "mean_blue_log_excess_vs_uniform": [
+        -0.015578599098747406,
+        -0.0012678840116491113
+      ],
+      "last_period_mixture_winner_rank": 10
+    },
+    "tracking": {
+      "n": 11,
+      "weighted_top2_hits": 1,
+      "mixture_top2_hits": 2,
+      "uniform_expected_top2_hits": 1.375,
+      "paired_gains": 1,
+      "paired_losses": 0,
+      "mean_blue_log_excess_vs_uniform": [
+        0.011063836177969409,
+        -0.00305772299428374
+      ],
+      "last_period_mixture_winner_rank": 4
+    },
+    "all_held_out": {
+      "n": 479,
+      "weighted_top2_hits": 53,
+      "mixture_top2_hits": 61,
+      "uniform_expected_top2_hits": 59.875,
+      "paired_gains": 14,
+      "paired_losses": 6,
+      "mean_blue_log_excess_vs_uniform": [
+        -0.00725677358910549,
+        -0.0005326382277857798
+      ],
+      "last_period_mixture_winner_rank": 4
+    },
+    "recent60": {
+      "n": 60,
+      "weighted_top2_hits": 9,
+      "mixture_top2_hits": 10,
+      "uniform_expected_top2_hits": 7.5,
+      "paired_gains": 2,
+      "paired_losses": 1,
+      "mean_blue_log_excess_vs_uniform": [
+        -0.005799074967992067,
+        0.0007998188710255257
+      ],
+      "last_period_mixture_winner_rank": 4
+    }
+  },
+  "automatic_adoption": false,
+  "note": "Same two-blue comparison on held-out chronological rows, already inspected history; not independent prospective evidence. This weight fit is not deployed as the operational joint-ticket model."
+}

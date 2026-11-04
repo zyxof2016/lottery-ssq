@@ -25,7 +25,7 @@ const PAGE: &str = include_str!("web/index.html");
 const REVIEWS_PAGE: &str = include_str!("web/reviews.html");
 const POOLS_PAGE: &str = include_str!("web/pools.html");
 const RESEARCH_PAGE: &str = include_str!("web/research.html");
-const STATIC_ASSETS: [(&str, &str, &[u8]); 11] = [
+const STATIC_ASSETS: [(&str, &str, &[u8]); 12] = [
     ("app.css", "text/css", include_bytes!("web/static/app.css")),
     ("shell.js", "application/javascript", include_bytes!("web/static/shell.js")),
     ("main.js", "application/javascript", include_bytes!("web/static/main.js")),
@@ -34,6 +34,7 @@ const STATIC_ASSETS: [(&str, &str, &[u8]); 11] = [
     ("reference-pools.js", "application/javascript", include_bytes!("web/static/reference-pools.js")),
     ("small-red.js", "application/javascript", include_bytes!("web/static/small-red.js")),
     ("blue-focus.js", "application/javascript", include_bytes!("web/static/blue-focus.js")),
+    ("blue-deep.js", "application/javascript", include_bytes!("web/static/blue-deep.js")),
     ("jackpot.js", "application/javascript", include_bytes!("web/static/jackpot.js")),
     ("pool-compression.js", "application/javascript", include_bytes!("web/static/pool-compression.js")),
     ("vendor/vue-3.5.24.js", "application/javascript", include_bytes!("web/static/vendor/vue-3.5.24.js")),
@@ -151,6 +152,12 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
         ("GET", "/api/jackpot/model-review") => load_csv(&app.data).and_then(|draws| crate::joint_observation::report(&recommendation_dir(app),&draws)),
         ("GET", "/api/jackpot") => load_csv(&app.data).and_then(|draws| {let mut v=crate::jackpot::report(&recommendation_dir(app),&draws)?;let last=draws.last().ok_or("没有开奖数据")?;let gate=decide(recommendations::now_unix(),last.issue,last.date,false);v["publication"]=json!({"can_freeze":gate.publish,"target":gate.target,"deadline":gate.deadline_text});Ok(v)}),
         ("GET", "/api/prize-coverage") => load_csv(&app.data).and_then(|draws| crate::prize_coverage::report(&recommendation_dir(app),&draws)),
+        ("GET", "/api/blue/deep") => load_csv(&app.data).and_then(|draws|crate::blue_joint_archive::report(&recommendation_dir(app),&draws)),
+        ("POST", "/api/blue/deep/freeze") => freeze_blue_joint(app,body),
+        ("GET", path) if path.starts_with("/api/blue/deep/archives/") => {
+            let result=load_csv(&app.data).and_then(|draws|crate::blue_joint_archive::artifact(&recommendation_dir(app),&draws,&path["/api/blue/deep/archives/".len()..]));
+            match result{Ok(bytes)=>return(200,"application/json",bytes),Err(e)=>Err(e)}
+        },
         ("GET", "/api/blue") => load_csv(&app.data).and_then(|draws| {
             let mut report=crate::blue::analyze(&draws)?;
             report["actual"]=recommendations::blue_observations(&recommendation_dir(app),&draws)?;
@@ -1101,6 +1108,14 @@ fn freeze_reference(app:&App,body:&str)->Result<Value,String>{
     if expected["data_sha256"]!=data_sha256(&draws)||expected["target"]!=gate.target{return Err("参考池的数据或期号已变化，请刷新后封存".into());}
     if !gate.publish{return Err(gate.reason);}
     crate::reference::freeze(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix)
+}
+
+fn freeze_blue_joint(app:&App,body:&str)->Result<Value,String>{
+    let draws=load_csv(&app.data)?;let last=draws.last().ok_or("没有开奖数据")?;let gate=decide(recommendations::now_unix(),last.issue,last.date,false);
+    let expected:Value=serde_json::from_str(body).map_err(|_|"联合蓝球封存请求无效")?;
+    if expected["data_sha256"]!=data_sha256(&draws)||expected["target"]!=gate.target{return Err("联合选票预览数据或期号已变化，请刷新".into());}
+    if !gate.publish{return Err(gate.reason);}
+    crate::blue_joint_archive::freeze(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix)
 }
 
 fn freeze_joint_observation(app:&App,body:&str)->Result<Value,String>{

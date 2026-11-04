@@ -1,0 +1,1666 @@
+{
+  "version": 1,
+  "kind": "blue_joint_allocation_review",
+  "policy": {
+    "algorithm": "exact_monotone_best_first_over_six_red_indices_and_blue_rank",
+    "automatic_adoption": false,
+    "bets": 8,
+    "blue_limit": 16,
+    "cost": 16,
+    "forced_blue_count": false,
+    "objective": "eight_highest_joint_red_blue_ranking_products",
+    "red_candidate_limit": 16,
+    "score": "sum_of_quantized_logs_of_quantized_original_scores",
+    "score_meaning": "uncalibrated_model_assumption_not_verified_winning_probability",
+    "ties": "red_rank_indices_then_blue_rank",
+    "version": 1,
+    "weights": "original_frozen_weights_unchanged"
+  },
+  "data_sha256": "f0ef9e4c21f4b9aa9a6905c05728c4f0f0db7e15696657babb62893fe7878f78",
+  "target_issue": "26127",
+  "cutoff_issue": "26126",
+  "next": {
+    "plan": {
+      "blue_weights": null,
+      "coverage_optimization": null,
+      "efficiency": null,
+      "explanation_limit": "专家评分是排序依据，不是中奖概率。合并覆盖不等于单注中奖。固定奖金不含一、二等奖、派奖及福运奖；3红0蓝是否中福运奖须核对当期是否执行特别规定。",
+      "funnel": [
+        {
+          "color": "red",
+          "draw_hits": null,
+          "hit_numbers": null,
+          "numbers": [
+            8,
+            9,
+            10,
+            13,
+            22,
+            29,
+            32
+          ],
+          "size": 7,
+          "stage": "final_union"
+        }
+      ],
+      "mode": "research_joint",
+      "numbers": [
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 1,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 2,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 3,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 4,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 5,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 6,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 7,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 8,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 5
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 9,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 7
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 10,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 7
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 11,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 12,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 13,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 7
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 14,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 15,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 16,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 17,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 18,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 19,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 20,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 21,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 22,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 8
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 23,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 24,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 25,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 26,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 27,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 28,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 29,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 7
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 30,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 31,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 32,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 7
+        },
+        {
+          "color": "red",
+          "draw_hit": null,
+          "number": 33,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 1,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 2,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 3,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 4,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 5,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 6,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 7,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 8,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 9,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 1
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 10,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 11,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 1
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 12,
+          "reason": "ticketed",
+          "reason_text": "已进入完整票组",
+          "recommendation_result": "pending",
+          "ticket_exposure": 6
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 13,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 14,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 15,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        },
+        {
+          "color": "blue",
+          "draw_hit": null,
+          "number": 16,
+          "reason": "structural_unselected",
+          "reason_text": "确定性分散或组合构票未选入，无专家评分",
+          "recommendation_result": "pending",
+          "ticket_exposure": 0
+        }
+      ],
+      "prize_rules_url": "https://www.scflcp.com.cn/yxgz/823145252.jhtml",
+      "ranking": null,
+      "rationale": null,
+      "red_weights": null,
+      "structural": true,
+      "summary": {
+        "all_ticket_reds": [
+          22
+        ],
+        "bets": 8,
+        "blue_coverage": 3,
+        "blue_coverage_excess": null,
+        "blue_coverage_per_yuan": 0.1875,
+        "blue_covered": null,
+        "blue_hit_bets": null,
+        "cost": 16,
+        "covered_red_count": null,
+        "covered_reds": null,
+        "duplicate_tickets": 0,
+        "fixed_prize": null,
+        "floating_prize_tickets": null,
+        "max_blue_exposure": 6,
+        "max_red_exposure": 8,
+        "max_ticket_red_hits": null,
+        "mean_ticket_red_hits": null,
+        "minimum_union_bets": 3,
+        "missed_reds": null,
+        "missed_reds_by_reason": null,
+        "prize_tickets": null,
+        "red_coverage": 7,
+        "red_coverage_excess": null,
+        "red_coverage_per_yuan": 0.4375,
+        "red_hit_histogram": null,
+        "repeated_blue_positions": 5,
+        "repeated_red_positions": 41,
+        "special_prize_candidates": null,
+        "total_red_positions": 48,
+        "uniform_expected_blue_coverage": 0.1875,
+        "uniform_expected_blue_hit_bets": 0.5,
+        "uniform_expected_red_hits": 1.2727272727272727,
+        "uniform_expected_ticket_red_hits": 1.0909090909090908,
+        "unique_blues": [
+          9,
+          11,
+          12
+        ],
+        "unique_reds": [
+          8,
+          9,
+          10,
+          13,
+          22,
+          29,
+          32
+        ]
+      },
+      "tickets": [
+        {
+          "blue": 12,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 1,
+          "prize_level": null,
+          "red": [
+            9,
+            10,
+            13,
+            22,
+            29,
+            32
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 12,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 2,
+          "prize_level": null,
+          "red": [
+            8,
+            9,
+            10,
+            13,
+            22,
+            29
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 12,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 3,
+          "prize_level": null,
+          "red": [
+            8,
+            10,
+            13,
+            22,
+            29,
+            32
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 12,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 4,
+          "prize_level": null,
+          "red": [
+            8,
+            9,
+            10,
+            13,
+            22,
+            32
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 12,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 5,
+          "prize_level": null,
+          "red": [
+            8,
+            9,
+            13,
+            22,
+            29,
+            32
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 11,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 6,
+          "prize_level": null,
+          "red": [
+            9,
+            10,
+            13,
+            22,
+            29,
+            32
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 12,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 7,
+          "prize_level": null,
+          "red": [
+            8,
+            9,
+            10,
+            22,
+            29,
+            32
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        },
+        {
+          "blue": 9,
+          "blue_hit": null,
+          "fixed_prize": null,
+          "hit_reds": null,
+          "index": 8,
+          "prize_level": null,
+          "red": [
+            9,
+            10,
+            13,
+            22,
+            29,
+            32
+          ],
+          "red_hits": null,
+          "result": "pending",
+          "special_prize_candidate": null
+        }
+      ],
+      "title": "红蓝联合选票观察·8注16元"
+    },
+    "prediction": {
+      "baseline_tickets": [
+        {
+          "blue": 12,
+          "red": [
+            9,
+            10,
+            13,
+            22,
+            29,
+            32
+          ]
+        },
+        {
+          "blue": 11,
+          "red": [
+            9,
+            10,
+            13,
+            22,
+            29,
+            32
+          ]
+        },
+        {
+          "blue": 12,
+          "red": [
+            8,
+            9,
+            10,
+            13,
+            22,
+            29
+          ]
+        },
+        {
+          "blue": 11,
+          "red": [
+            8,
+            9,
+            10,
+            13,
+            22,
+            29
+          ]
+        },
+        {
+          "blue": 12,
+          "red": [
+            8,
+            10,
+            13,
+            22,
+            29,
+            32
+          ]
+        },
+        {
+          "blue": 11,
+          "red": [
+            8,
+            10,
+            13,
+            22,
+            29,
+            32
+          ]
+        },
+        {
+          "blue": 12,
+          "red": [
+            8,
+            9,
+            10,
+            13,
+            22,
+            32
+          ]
+        },
+        {
+          "blue": 11,
+          "red": [
+            8,
+            9,
+            10,
+            13,
+            22,
+            32
+          ]
+        }
+      ],
+      "blue_ranking": [
+        12,
+        11,
+        9,
+        13,
+        16,
+        4,
+        1,
+        3,
+        15,
+        6,
+        2,
+        14,
+        10,
+        7,
+        8,
+        5
+      ],
+      "blue_scores": [
+        0.06236206911958875,
+        0.05758546993144123,
+        0.06235002330585196,
+        0.06273687125422611,
+        0.053248378738759226,
+        0.058292794018244144,
+        0.055770480972203475,
+        0.05492381513749242,
+        0.0701986143648338,
+        0.0558106756074396,
+        0.07370397051455511,
+        0.08391736069904826,
+        0.0688666315975118,
+        0.05677960831278085,
+        0.059319677130183504,
+        0.06413355929583964
+      ],
+      "candidate_reds": [
+        22,
+        13,
+        10,
+        29,
+        9,
+        32,
+        8,
+        4,
+        26,
+        14,
+        30,
+        33,
+        24,
+        18,
+        20,
+        27
+      ],
+      "policy": {
+        "algorithm": "exact_monotone_best_first_over_six_red_indices_and_blue_rank",
+        "automatic_adoption": false,
+        "bets": 8,
+        "blue_limit": 16,
+        "cost": 16,
+        "forced_blue_count": false,
+        "objective": "eight_highest_joint_red_blue_ranking_products",
+        "red_candidate_limit": 16,
+        "score": "sum_of_quantized_logs_of_quantized_original_scores",
+        "score_meaning": "uncalibrated_model_assumption_not_verified_winning_probability",
+        "ties": "red_rank_indices_then_blue_rank",
+        "version": 1,
+        "weights": "original_frozen_weights_unchanged"
+      },
+      "red_scores": [
+        0.025805353531602262,
+        0.026052711576937112,
+        0.024265348424588426,
+        0.02963031905902014,
+        0.025201597875917657,
+        0.026072170088385412,
+        0.025845255404744107,
+        0.04109285857351794,
+        0.04554295510009065,
+        0.04677734071095215,
+        0.025174834721881173,
+        0.026333924941946404,
+        0.0468527596438173,
+        0.02825561456847127,
+        0.02423674695294945,
+        0.025532231190567193,
+        0.025340057689069745,
+        0.026716558619945464,
+        0.024821121846215943,
+        0.02660287874777212,
+        0.023086477779634785,
+        0.05009540521835192,
+        0.02447717578459411,
+        0.026975095768941918,
+        0.02579593893287739,
+        0.028563921938736997,
+        0.026429426600257558,
+        0.026384738067689286,
+        0.04585321903908691,
+        0.027661658640387294,
+        0.025964039931427856,
+        0.0449206166829117,
+        0.027639646346710234
+      ],
+      "tickets": [
+        {
+          "blue": 12,
+          "red": [
+            9,
+            10,
+            13,
+            22,
+            29,
+            32
+          ]
+        },
+        {
+          "blue": 12,
+          "red": [
+            8,
+            9,
+            10,
+            13,
+            22,
+            29
+          ]
+        },
+        {
+          "blue": 12,
+          "red": [
+            8,
+            10,
+            13,
+            22,
+            29,
+            32
+          ]
+        },
+        {
+          "blue": 12,
+          "red": [
+            8,
+            9,
+            10,
+            13,
+            22,
+            32
+          ]
+        },
+        {
+          "blue": 12,
+          "red": [
+            8,
+            9,
+            13,
+            22,
+            29,
+            32
+          ]
+        },
+        {
+          "blue": 11,
+          "red": [
+            9,
+            10,
+            13,
+            22,
+            29,
+            32
+          ]
+        },
+        {
+          "blue": 12,
+          "red": [
+            8,
+            9,
+            10,
+            22,
+            29,
+            32
+          ]
+        },
+        {
+          "blue": 9,
+          "red": [
+            9,
+            10,
+            13,
+            22,
+            29,
+            32
+          ]
+        }
+      ]
+    }
+  },
+  "windows": {
+    "all_oos": {
+      "cells": [
+        {
+          "blue_count_histogram": [
+            {
+              "count": 1,
+              "n": 0
+            },
+            {
+              "count": 2,
+              "n": 3343
+            },
+            {
+              "count": 3,
+              "n": 0
+            },
+            {
+              "count": 4,
+              "n": 0
+            },
+            {
+              "count": 5,
+              "n": 0
+            },
+            {
+              "count": 6,
+              "n": 0
+            },
+            {
+              "count": 7,
+              "n": 0
+            },
+            {
+              "count": 8,
+              "n": 0
+            }
+          ],
+          "blue_covered_periods": 456,
+          "blue_pairing_miss_periods": 0,
+          "jackpot_periods": 0,
+          "mean_blue_count": 2.0,
+          "model": "fixed4x2",
+          "n": 3343,
+          "paired_blue_gains": 0,
+          "paired_blue_losses": 0,
+          "single_six_red_periods": 0
+        },
+        {
+          "blue_count_histogram": [
+            {
+              "count": 1,
+              "n": 151
+            },
+            {
+              "count": 2,
+              "n": 344
+            },
+            {
+              "count": 3,
+              "n": 252
+            },
+            {
+              "count": 4,
+              "n": 245
+            },
+            {
+              "count": 5,
+              "n": 220
+            },
+            {
+              "count": 6,
+              "n": 234
+            },
+            {
+              "count": 7,
+              "n": 284
+            },
+            {
+              "count": 8,
+              "n": 1613
+            }
+          ],
+          "blue_covered_periods": 1253,
+          "blue_pairing_miss_periods": 0,
+          "jackpot_periods": 0,
+          "mean_blue_count": 5.973975471133712,
+          "model": "joint8",
+          "n": 3343,
+          "paired_blue_gains": 805,
+          "paired_blue_losses": 8,
+          "single_six_red_periods": 0
+        }
+      ],
+      "from": "04092",
+      "n": 3343,
+      "third_blue_retained_periods": 2848,
+      "to": "26126"
+    },
+    "confirmation_exploratory": {
+      "cells": [
+        {
+          "blue_count_histogram": [
+            {
+              "count": 1,
+              "n": 0
+            },
+            {
+              "count": 2,
+              "n": 156
+            },
+            {
+              "count": 3,
+              "n": 0
+            },
+            {
+              "count": 4,
+              "n": 0
+            },
+            {
+              "count": 5,
+              "n": 0
+            },
+            {
+              "count": 6,
+              "n": 0
+            },
+            {
+              "count": 7,
+              "n": 0
+            },
+            {
+              "count": 8,
+              "n": 0
+            }
+          ],
+          "blue_covered_periods": 18,
+          "blue_pairing_miss_periods": 0,
+          "jackpot_periods": 0,
+          "mean_blue_count": 2.0,
+          "model": "fixed4x2",
+          "n": 156,
+          "paired_blue_gains": 0,
+          "paired_blue_losses": 0,
+          "single_six_red_periods": 0
+        },
+        {
+          "blue_count_histogram": [
+            {
+              "count": 1,
+              "n": 0
+            },
+            {
+              "count": 2,
+              "n": 11
+            },
+            {
+              "count": 3,
+              "n": 11
+            },
+            {
+              "count": 4,
+              "n": 14
+            },
+            {
+              "count": 5,
+              "n": 13
+            },
+            {
+              "count": 6,
+              "n": 9
+            },
+            {
+              "count": 7,
+              "n": 17
+            },
+            {
+              "count": 8,
+              "n": 81
+            }
+          ],
+          "blue_covered_periods": 61,
+          "blue_pairing_miss_periods": 0,
+          "jackpot_periods": 0,
+          "mean_blue_count": 6.391025641025641,
+          "model": "joint8",
+          "n": 156,
+          "paired_blue_gains": 43,
+          "paired_blue_losses": 0,
+          "single_six_red_periods": 0
+        }
+      ],
+      "from": "25111",
+      "n": 156,
+      "third_blue_retained_periods": 145,
+      "to": "26115"
+    },
+    "recent156": {
+      "cells": [
+        {
+          "blue_count_histogram": [
+            {
+              "count": 1,
+              "n": 0
+            },
+            {
+              "count": 2,
+              "n": 156
+            },
+            {
+              "count": 3,
+              "n": 0
+            },
+            {
+              "count": 4,
+              "n": 0
+            },
+            {
+              "count": 5,
+              "n": 0
+            },
+            {
+              "count": 6,
+              "n": 0
+            },
+            {
+              "count": 7,
+              "n": 0
+            },
+            {
+              "count": 8,
+              "n": 0
+            }
+          ],
+          "blue_covered_periods": 19,
+          "blue_pairing_miss_periods": 0,
+          "jackpot_periods": 0,
+          "mean_blue_count": 2.0,
+          "model": "fixed4x2",
+          "n": 156,
+          "paired_blue_gains": 0,
+          "paired_blue_losses": 0,
+          "single_six_red_periods": 0
+        },
+        {
+          "blue_count_histogram": [
+            {
+              "count": 1,
+              "n": 0
+            },
+            {
+              "count": 2,
+              "n": 11
+            },
+            {
+              "count": 3,
+              "n": 12
+            },
+            {
+              "count": 4,
+              "n": 12
+            },
+            {
+              "count": 5,
+              "n": 14
+            },
+            {
+              "count": 6,
+              "n": 11
+            },
+            {
+              "count": 7,
+              "n": 16
+            },
+            {
+              "count": 8,
+              "n": 80
+            }
+          ],
+          "blue_covered_periods": 61,
+          "blue_pairing_miss_periods": 0,
+          "jackpot_periods": 0,
+          "mean_blue_count": 6.371794871794871,
+          "model": "joint8",
+          "n": 156,
+          "paired_blue_gains": 42,
+          "paired_blue_losses": 0,
+          "single_six_red_periods": 0
+        }
+      ],
+      "from": "25122",
+      "n": 156,
+      "third_blue_retained_periods": 145,
+      "to": "26126"
+    },
+    "recent60": {
+      "cells": [
+        {
+          "blue_count_histogram": [
+            {
+              "count": 1,
+              "n": 0
+            },
+            {
+              "count": 2,
+              "n": 60
+            },
+            {
+              "count": 3,
+              "n": 0
+            },
+            {
+              "count": 4,
+              "n": 0
+            },
+            {
+              "count": 5,
+              "n": 0
+            },
+            {
+              "count": 6,
+              "n": 0
+            },
+            {
+              "count": 7,
+              "n": 0
+            },
+            {
+              "count": 8,
+              "n": 0
+            }
+          ],
+          "blue_covered_periods": 9,
+          "blue_pairing_miss_periods": 0,
+          "jackpot_periods": 0,
+          "mean_blue_count": 2.0,
+          "model": "fixed4x2",
+          "n": 60,
+          "paired_blue_gains": 0,
+          "paired_blue_losses": 0,
+          "single_six_red_periods": 0
+        },
+        {
+          "blue_count_histogram": [
+            {
+              "count": 1,
+              "n": 0
+            },
+            {
+              "count": 2,
+              "n": 0
+            },
+            {
+              "count": 3,
+              "n": 2
+            },
+            {
+              "count": 4,
+              "n": 3
+            },
+            {
+              "count": 5,
+              "n": 6
+            },
+            {
+              "count": 6,
+              "n": 5
+            },
+            {
+              "count": 7,
+              "n": 7
+            },
+            {
+              "count": 8,
+              "n": 37
+            }
+          ],
+          "blue_covered_periods": 24,
+          "blue_pairing_miss_periods": 0,
+          "jackpot_periods": 0,
+          "mean_blue_count": 7.05,
+          "model": "joint8",
+          "n": 60,
+          "paired_blue_gains": 15,
+          "paired_blue_losses": 0,
+          "single_six_red_periods": 0
+        }
+      ],
+      "from": "26067",
+      "n": 60,
+      "third_blue_retained_periods": 60,
+      "to": "26126"
+    },
+    "tracking": {
+      "cells": [
+        {
+          "blue_count_histogram": [
+            {
+              "count": 1,
+              "n": 0
+            },
+            {
+              "count": 2,
+              "n": 11
+            },
+            {
+              "count": 3,
+              "n": 0
+            },
+            {
+              "count": 4,
+              "n": 0
+            },
+            {
+              "count": 5,
+              "n": 0
+            },
+            {
+              "count": 6,
+              "n": 0
+            },
+            {
+              "count": 7,
+              "n": 0
+            },
+            {
+              "count": 8,
+              "n": 0
+            }
+          ],
+          "blue_covered_periods": 1,
+          "blue_pairing_miss_periods": 0,
+          "jackpot_periods": 0,
+          "mean_blue_count": 2.0,
+          "model": "fixed4x2",
+          "n": 11,
+          "paired_blue_gains": 0,
+          "paired_blue_losses": 0,
+          "single_six_red_periods": 0
+        },
+        {
+          "blue_count_histogram": [
+            {
+              "count": 1,
+              "n": 0
+            },
+            {
+              "count": 2,
+              "n": 0
+            },
+            {
+              "count": 3,
+              "n": 1
+            },
+            {
+              "count": 4,
+              "n": 0
+            },
+            {
+              "count": 5,
+              "n": 1
+            },
+            {
+              "count": 6,
+              "n": 2
+            },
+            {
+              "count": 7,
+              "n": 0
+            },
+            {
+              "count": 8,
+              "n": 7
+            }
+          ],
+          "blue_covered_periods": 4,
+          "blue_pairing_miss_periods": 0,
+          "jackpot_periods": 0,
+          "mean_blue_count": 6.909090909090909,
+          "model": "joint8",
+          "n": 11,
+          "paired_blue_gains": 3,
+          "paired_blue_losses": 0,
+          "single_six_red_periods": 0
+        }
+      ],
+      "from": "26116",
+      "n": 11,
+      "third_blue_retained_periods": 11,
+      "to": "26126"
+    }
+  },
+  "source_sha256": "fa4e41458bb0147215d31443c71f17c9010781b0913ed1412fa8d3adb1c8e1e0",
+  "latest_why": {
+    "all_blue_scores": [
+      {
+        "number": 11,
+        "rank": 1,
+        "score": 0.08346903483460749,
+        "ticket_exposure": 4
+      },
+      {
+        "number": 9,
+        "rank": 2,
+        "score": 0.0739358567200194,
+        "ticket_exposure": 4
+      },
+      {
+        "number": 12,
+        "rank": 3,
+        "score": 0.0733045219454948,
+        "ticket_exposure": 0
+      },
+      {
+        "number": 1,
+        "rank": 4,
+        "score": 0.06412935587792304,
+        "ticket_exposure": 0
+      },
+      {
+        "number": 3,
+        "rank": 5,
+        "score": 0.06345446091885712,
+        "ticket_exposure": 0
+      },
+      {
+        "number": 4,
+        "rank": 6,
+        "score": 0.06237488167572378,
+        "ticket_exposure": 0
+      },
+      {
+        "number": 13,
+        "rank": 7,
+        "score": 0.06225020275871021,
+        "ticket_exposure": 0
+      },
+      {
+        "number": 14,
+        "rank": 8,
+        "score": 0.06184527181736138,
+        "ticket_exposure": 0
+      },
+      {
+        "number": 7,
+        "rank": 9,
+        "score": 0.06111732661565377,
+        "ticket_exposure": 0
+      },
+      {
+        "number": 15,
+        "rank": 10,
+        "score": 0.05953498313937779,
+        "ticket_exposure": 0
+      },
+      {
+        "number": 2,
+        "rank": 11,
+        "score": 0.05940364495203665,
+        "ticket_exposure": 0
+      },
+      {
+        "number": 16,
+        "rank": 12,
+        "score": 0.05781094712567616,
+        "ticket_exposure": 0
+      },
+      {
+        "number": 5,
+        "rank": 13,
+        "score": 0.055716803078483756,
+        "ticket_exposure": 0
+      },
+      {
+        "number": 6,
+        "rank": 14,
+        "score": 0.055573451849538935,
+        "ticket_exposure": 0
+      },
+      {
+        "number": 10,
+        "rank": 15,
+        "score": 0.0553311829336737,
+        "ticket_exposure": 0
+      },
+      {
+        "number": 8,
+        "rank": 16,
+        "score": 0.050748073756861876,
+        "ticket_exposure": 0
+      }
+    ],
+    "archive_sha256": "82d9f2ad03730030c00e3e1a8c5979971e99337b79d78223229129a6ce5b7ce4",
+    "contributions": [
+      {
+        "cutoff_contribution": 0.02340866257732957,
+        "cutoff_score": 0.06161673261729791,
+        "expert": "frequency",
+        "label": "长期频率",
+        "weight": 0.3799075605440001,
+        "winner_contribution": 0.024482454438674965,
+        "winner_minus_cutoff": 0.0010737918613453936,
+        "winner_score": 0.0644431882419446
+      },
+      {
+        "cutoff_contribution": 0.01280375362165257,
+        "cutoff_score": 0.15361872371564878,
+        "expert": "ewma",
+        "label": "指数近期",
+        "weight": 0.083347610968,
+        "winner_contribution": 0.009868939737642133,
+        "winner_minus_cutoff": -0.002934813884010437,
+        "winner_score": 0.11840698999076478
+      },
+      {
+        "cutoff_contribution": 0.0006486316256653697,
+        "cutoff_score": 0.007782101167315175,
+        "expert": "overdue",
+        "label": "遗漏回补",
+        "weight": 0.083349163898,
+        "winner_contribution": 0.0009729474384980544,
+        "winner_minus_cutoff": 0.00032431581283268483,
+        "winner_score": 0.011673151750972763
+      },
+      {
+        "cutoff_contribution": 0.014332597391443437,
+        "cutoff_score": 0.17198401249484446,
+        "expert": "hot",
+        "label": "近期热号",
+        "weight": 0.083336800808,
+        "winner_contribution": 0.009555064927628958,
+        "winner_minus_cutoff": -0.004777532463814479,
+        "winner_score": 0.11465600832989631
+      },
+      {
+        "cutoff_contribution": 0.012525535393126818,
+        "cutoff_score": 0.06474606474606474,
+        "expert": "anti_repeat",
+        "label": "回避上期",
+        "weight": 0.19345631958099999,
+        "winner_contribution": 0.013100101236848231,
+        "winner_minus_cutoff": 0.0005745658437214129,
+        "winner_score": 0.06771606771606771
+      },
+      {
+        "cutoff_contribution": 0.010216676110801653,
+        "cutoff_score": 0.05785123966942149,
+        "expert": "markov",
+        "label": "转移矩阵",
+        "weight": 0.176602544201,
+        "winner_contribution": 0.015325014166202479,
+        "winner_minus_cutoff": 0.005108338055400827,
+        "winner_score": 0.08677685950413223
+      }
+    ],
+    "counterfactual": {
+      "actual_recommendation": false,
+      "blue_count": 3,
+      "blue_in_joint_tickets": true,
+      "jackpot": false,
+      "note": "同输入、同8注的事后结构回放；没有在当时发布，不能补算实际命中。",
+      "single_six_red": false
+    },
+    "cutoff_blue": 9,
+    "cutoff_score": 0.0739358567200194,
+    "gap_to_second": 0.0006313347745245945,
+    "issue": "26126",
+    "selected_blues": [
+      9,
+      11
+    ],
+    "url": "reviews?issue=26126&archive=interactive:791232262343a75ee3fb9938251d55c155c1e3348db37836ec4641ac62617ce9&strategy=custom",
+    "winning_blue": 12,
+    "winning_rank": 3,
+    "winning_score": 0.0733045219454948
+  },
+  "note": "联合选票取消固定2蓝限制，允许第3蓝进入部分注单；更多不同蓝球会改变红球组数与蓝球重复注数。同8注公平头奖基准相同，回放不计实绩，尚未证明头奖优势。"
+}

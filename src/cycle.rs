@@ -81,6 +81,8 @@ pub fn run_cycle(data: &Path, audit: &Path, publish_dir: &Path, review_dir: &Pat
     if gate.publish {match crate::joint_observation::freeze(&recommendation_dir,&draws,&gate.target,gate.deadline_unix){Ok(v)=>notes.push(format!("联合评分研究观察 {}",v["status"])),Err(e)=>notes.push(format!("联合评分研究未封存：{e}"))}}
     let research=crate::joint_observation::settle(&recommendation_dir,&draws);
     notes.push(format!("联合评分研究复盘新增 {} 份",research.settled));notes.extend(research.errors);
+    if gate.publish {match crate::blue_joint_archive::freeze(&recommendation_dir,&draws,&gate.target,gate.deadline_unix){Ok(v)=>notes.push(format!("红蓝联合选票观察 {}",v["status"])),Err(e)=>notes.push(format!("红蓝联合选票未封存：{e}"))}}
+    let joint_blue=crate::blue_joint_archive::settle(&recommendation_dir,&draws);notes.push(format!("红蓝联合选票复盘新增 {} 份",joint_blue.settled));notes.extend(joint_blue.errors);
     let settlement = recommendations::settle_archives(&recommendation_dir, &draws);
     notes.push(format!("实际推荐复盘新增 {} 份", settlement.settled));
     notes.extend(settlement.errors);

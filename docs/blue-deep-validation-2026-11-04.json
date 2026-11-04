@@ -1,0 +1,41 @@
+{
+  "scope": "isolated_runtime_test_observation",
+  "issue": "26127",
+  "explained_issue": "26126",
+  "winning_blue": 12,
+  "original_rank": 3,
+  "score_gap_to_second": 0.0006313347745245945,
+  "all_six_contributions_sum_correctly": true,
+  "full_sixteen_blue_ranking_visible": true,
+  "third_blue_in_counterfactual": true,
+  "counterfactual_not_counted_as_real_head_success": true,
+  "eight_joint_tickets_cost16": true,
+  "current_joint_blues": [
+    9,
+    11,
+    12
+  ],
+  "candidate_red_limit": 16,
+  "blue_joint_archive_sha256": "96e9af1551b5a3f0ab59cb7fa5545fb117f3dcff33d572b82f8c093d61cd03a6",
+  "original_head_and_red_research_preserved": true,
+  "observation_pending_not_failure": true,
+  "history_not_backfilled": true,
+  "copy_complete_singles": true,
+  "insecure_http_copy_fallback": true,
+  "main_and_pool_ball_contrast_4_5": true,
+  "widths": [
+    320,
+    390,
+    768,
+    1440
+  ],
+  "console_errors": [],
+  "vue_warnings": [],
+  "write_requests": [
+    "http://127.0.0.1:16953/api/blue/deep/freeze"
+  ],
+  "rust_tests_passed": 141,
+  "all_17_original_apis_preserved": true,
+  "original_runtime_files_byte_preserved": 72,
+  "only_new_file_is_local_test_observation": true
+}

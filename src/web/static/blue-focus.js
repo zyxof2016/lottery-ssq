@@ -1,6 +1,6 @@
 (function(global){
   'use strict';
-  const component={props:{allowGenerate:{type:Boolean,default:true},apiUrl:{type:String,required:true},busy:{type:Boolean,default:false}},emits:['generate'],setup(props){
+  const component={components:{BlueDeep:global.SSQBlueDeep.component},props:{allowGenerate:{type:Boolean,default:true},apiUrl:{type:String,required:true},busy:{type:Boolean,default:false}},emits:['generate'],setup(props){
     const coverage=Vue.ref(null),coverageError=Vue.ref(''),report=Vue.ref(null),error=Vue.ref(''),window=Vue.ref('recent60'),count=Vue.ref(2);
     const choices=[{preset:'bluefocus8',model:'weighted',count:8,label:'小奖分散覆盖 · 8蓝8注'},{preset:'bluefocus2',model:'weighted',count:2,label:'原榜2蓝 · 同数量对照'},{preset:'bluehit2',model:'blue_hit_frozen',count:2,label:'命中目标2蓝 · 试验'},{preset:'bluefocus4',model:'weighted',count:4,label:'原榜4蓝 · 分散覆盖'},{preset:'bluehit4',model:'blue_hit_frozen',count:4,label:'命中目标4蓝 · 试验'}];
     const selected=Vue.computed(()=>report.value?.windows[window.value]);
@@ -20,6 +20,7 @@
     <p v-if="error" class="notice error" role="alert">{{ error }}</p><p v-if="!report&&!error" role="status" class="muted">正在比较同数量的蓝球命中与同预算分散覆盖…</p>
     <template v-if="report">
       <p class="muted">第 {{ report.target_issue }} 期预览，依据截止 {{ report.cutoff_issue }}；点击生成后按完整票面独立留档。已有每日原档不追加新方案。</p>
+      <blue-deep :api-url="apiUrl+'/deep'" />
       <div class="blue-choice-grid"><article v-for="c in choices" :key="c.preset" class="blue-choice" :data-blue-preset="c.preset"><h3>{{ c.label }}</h3><div class="balls"><span v-for="n in numbers(c)" :key="n" class="ball selected blue">{{ pad(n) }}</span></div><p class="muted">{{ c.count }}个不同蓝球 · 8注16元</p><button v-if="allowGenerate" type="button" :disabled="busy" @click="$emit('generate',{preset:c.preset,issue:report.target_issue,data_sha256:report.data_sha256})">生成{{ c.count }}蓝{{ c.model==='weighted'?'原榜':'试验' }}8注</button></article></div>
       <p class="notice">小奖分散覆盖优先减少蓝球重复。8蓝在均匀开奖假设下覆盖8/16个蓝球结果；不是模型预测概率。只中普通六等奖为5元，低于16元成本，不保证中奖或回本。</p>
       <p v-if="coverageError" class="notice error" role="alert">{{coverageError}}</p>
