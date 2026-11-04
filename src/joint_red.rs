@@ -310,6 +310,66 @@ fn summarize(rows: &[Period]) -> Value {
 fn policy() -> Value {
     json!({"version":1,"objective":"proper_log_score_of_normalized_complete_six_red_sets","set_distribution":"product_of_positive_weights_divided_by_elementary_symmetric_polynomial_order6","experts":"seven_original_causal_experts_plus_uniform","mixture":"equal_prior_bayesian_model_weights_from_pre_boundary_log_likelihood","training_freeze_before_issue":Protocol::CONFIRM_START_ISSUE,"minimum_evaluation_fit_periods":30,"forced_expert_weight_floor":false,"red_limit":16,"red_sets":4,"blue_count":2,"bets":8,"cost":16,"auto_promote":false,"publication_allowed":false,"required_prospective_periods":156,"score_meaning":"model_assumption_probability_not_verified_winning_probability","note":"完整组合按全部C(33,6)种结果归一化，并用对数评分与均匀基准比较；新混合不强制给弱专家最低权重。仅研究，不替换当前原档，不宣称提高头奖。"})
 }
+/// Compact frozen predictor for prospective observations. Training and ticket
+/// selection are identical to the research replay; this does not fit on outcomes
+/// after the fixed training boundary.
+pub(crate) fn prediction(draws: &[Draw]) -> Result<Value, String> {
+    let snap = roll_all(draws)?;
+    let mut fit = Fit::default();
+    let (mut blue_sum, mut n) = ([0.; 6], 0usize);
+    for row in &snap.rows {
+        if row.issue >= Protocol::CONFIRM_START_ISSUE {
+            continue;
+        }
+        let ms = models(&row.expert_p)?;
+        fit.observe(
+            row.issue,
+            &std::array::from_fn(|i| ms[i].logp(row.red_mask)),
+        );
+        for (i, s) in blue_sum.iter_mut().enumerate() {
+            *s += row.blue_p[i][row.blue as usize].clamp(1e-12, 1.).ln();
+        }
+        n += 1;
+    }
+    if fit.n < 30 {
+        return Err("研究观察至少需要30个训练样本".into());
+    }
+    let weights = fit.weights();
+    let ms = models(&snap.next_red)?;
+    let order = mixture_rank(&ms, &weights);
+    let blue = fuse6(&snap.next_blue, &softmax_shrink(&blue_sum, n as f64));
+    let blue_order = rank_desc(&blue);
+    let tickets = pairs(&best_sets(&ms, &weights, &order[..16]), &blue_order[..2]);
+    Ok(
+        json!({"policy":policy(),"red_experts":snap.next_red.iter().map(|p|p.to_vec()).collect::<Vec<_>>(),"red_weights":weights,"blue_probabilities":blue,"candidate_reds":order[..16].iter().map(|i|i+1).collect::<Vec<_>>(),"tickets":tickets.iter().map(|t|json!({"red":t.red,"blue":t.blue})).collect::<Vec<_>>(),"training_n":fit.n,"training_last_issue":fit.last.map(fmt_issue)}),
+    )
+}
+pub(crate) fn score_prediction(prediction: &Value, draw: &Draw) -> Result<Value, String> {
+    let rows: Vec<Vec<f64>> = serde_json::from_value(prediction["red_experts"].clone())
+        .map_err(|_| "研究红球分布无效")?;
+    let experts: [[f64; 33]; 7] = rows
+        .into_iter()
+        .map(|r| r.try_into().map_err(|_| "研究红球分布长度无效"))
+        .collect::<Result<Vec<[f64; 33]>, _>>()?
+        .try_into()
+        .map_err(|_| "研究专家数量无效")?;
+    let weights: [f64; 8] = serde_json::from_value(prediction["red_weights"].clone())
+        .map_err(|_| "研究模型权重无效")?;
+    let blue: [f64; 16] = serde_json::from_value(prediction["blue_probabilities"].clone())
+        .map_err(|_| "研究蓝球分布无效")?;
+    if weights.iter().any(|v| !v.is_finite() || *v < 0.)
+        || (weights.iter().sum::<f64>() - 1.).abs() > 1e-10
+        || blue.iter().any(|v| !v.is_finite() || *v <= 0.)
+        || (blue.iter().sum::<f64>() - 1.).abs() > 1e-10
+    {
+        return Err("研究分布未归一化".into());
+    }
+    let red = mixture_logp(&models(&experts)?, &weights, draw.red_mask);
+    let blue_log = blue[(draw.blue - 1) as usize].ln();
+    Ok(
+        json!({"red_log_score":red,"joint_log_score":red+blue_log,"red_log_excess_vs_uniform":red+(UNIVERSE as f64).ln(),"joint_log_excess_vs_uniform":red+blue_log+((UNIVERSE*16)as f64).ln()}),
+    )
+}
 fn analyze(draws: &[Draw]) -> Result<Value, String> {
     let (result, fit, _, bs, n) = rows(draws)?;
     let start = result
@@ -393,6 +453,34 @@ mod tests {
     use super::*;
     fn close(a: f64, b: f64) {
         assert!((a - b).abs() < 1e-11, "{a} != {b}");
+    }
+    #[test]
+    fn compact_predictor_matches_replay_and_scores_only_the_frozen_prefix() {
+        let draws = crate::draw::synth_draws(240, 91);
+        let prefix = &draws[..239];
+        let saved = prediction(prefix).unwrap();
+        let full_report = analyze(prefix).unwrap();
+        let tickets: Vec<_> = full_report["candidate"]["plan"]["tickets"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|t| json!({"red":t["red"],"blue":t["blue"]}))
+            .collect();
+        assert_eq!(saved["tickets"], json!(tickets));
+        assert_eq!(
+            saved["candidate_reds"],
+            full_report["candidate"]["candidate_reds"]
+        );
+        let actual = score_prediction(&saved, draws.last().unwrap()).unwrap();
+        let replay = rows(&draws).unwrap().0;
+        close(
+            actual["red_log_excess_vs_uniform"].as_f64().unwrap(),
+            replay.last().unwrap().red_excess[1],
+        );
+        close(
+            actual["joint_log_excess_vs_uniform"].as_f64().unwrap(),
+            replay.last().unwrap().joint_excess[1],
+        );
     }
     #[test]
     fn normalization_and_marginals_match_independent_exhaustive_oracle() {

@@ -78,6 +78,9 @@ pub fn run_cycle(data: &Path, audit: &Path, publish_dir: &Path, review_dir: &Pat
         }
     }
     if gate.publish {match crate::jackpot::freeze_current(&recommendation_dir,&draws,&gate.target,gate.deadline_unix){Ok(v)=>notes.push(format!("头奖目标8注 {}",v["status"])),Err(e)=>notes.push(format!("头奖目标未封存：{e}"))}}
+    if gate.publish {match crate::joint_observation::freeze(&recommendation_dir,&draws,&gate.target,gate.deadline_unix){Ok(v)=>notes.push(format!("联合评分研究观察 {}",v["status"])),Err(e)=>notes.push(format!("联合评分研究未封存：{e}"))}}
+    let research=crate::joint_observation::settle(&recommendation_dir,&draws);
+    notes.push(format!("联合评分研究复盘新增 {} 份",research.settled));notes.extend(research.errors);
     let settlement = recommendations::settle_archives(&recommendation_dir, &draws);
     notes.push(format!("实际推荐复盘新增 {} 份", settlement.settled));
     notes.extend(settlement.errors);

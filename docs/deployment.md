@@ -55,3 +55,5 @@
 2026-11-02头奖目标纠偏：后续首次daily仍26策略，jackpot8替代自动小奖bluefocus8；已保存的小奖、每日及参考档案不改写。cycle通过既有interactive通道为当前下一期单独封存jackpot_goal v1。新增GET /api/jackpot只读，核对4个完整六红组合×2蓝=8注16元、首次留档和逐注6红1蓝指标；头奖模式禁用仅按并集减注。新旧目标档案使用同一recommendations备份及原复盘通道，部署不得上传本地模拟头奖或测试档案。
 
 2026-11-03新增只读GET /api/jackpot/model-review及头奖页评分复盘。研究模型不接入生成或cycle，不新增运行目录或改写原档；候选尚未优于均匀且无独立前瞻样本，不能自动替换头奖v1。发布核对原15个只读接口结果、当前头奖与小奖原档摘要、待开奖空指标，以及研究面板的集中度、评分对照和禁用发布状态。两个timer和全部运行目录继续保护，部署验收仅GET，不为测试新增推荐。
+
+2026-11-04固定联合评分研究启用独立前瞻观察：recommendations/joint-red/{issue}.json及recommendations/reviews/{issue}/joint-red.json随现有recommendations全目录备份。沿用cycle，不新增timer；它只追加研究记录，不调整每日策略或现有头奖原档。GET /api/jackpot/model-review增加最新原档归因、prospective及current_observation；POST /api/jackpot/model-review/freeze绑定当前target/data_sha256，GET /api/jackpot/model-review/archives/{issue}核验并下载原文件。部署前暂停两个timer并等运行结束；先只读核验16个旧接口和运行文件，再正式启动当前下一期研究观察，单独记录新增文件、封存时间和输入摘要。历史预览及隔离测试档案不导入。

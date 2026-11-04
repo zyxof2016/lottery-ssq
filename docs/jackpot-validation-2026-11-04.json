@@ -1,0 +1,44 @@
+{
+  "scope": "isolated_runtime_with_test_observation",
+  "issue": "26127",
+  "reviewed_issue": "26126",
+  "head_original_archive_preserved": true,
+  "head_pool_misses": [
+    13,
+    29
+  ],
+  "head_grouping_drops": [
+    9,
+    22,
+    32
+  ],
+  "head_best_single_red": 1,
+  "head_winning_blue_rank": 3,
+  "research_recipe_and_replay_unchanged": true,
+  "research_archive_sha256": "ad593abb9e4161223f4f78d82ee38435815a42503df0fcefa6635417c26cd36b",
+  "first_observation_preserved": true,
+  "past_preview_not_backfilled": true,
+  "research_scored_n": 0,
+  "research_pending": 1,
+  "pending_scores_null": true,
+  "full_tickets": 8,
+  "cost": 16,
+  "predictor_distributions_saved": true,
+  "automatic_adoption": false,
+  "widths": [
+    320,
+    390,
+    768,
+    1440
+  ],
+  "ball_contrast_4_5": true,
+  "console_errors": [],
+  "vue_warnings": [],
+  "write_requests": [
+    "http://127.0.0.1:16952/api/jackpot/model-review/freeze"
+  ],
+  "rust_tests_passed": 136,
+  "all_16_existing_api_results_preserved": true,
+  "original_runtime_files_byte_preserved": 71,
+  "only_new_file_is_local_test_observation": true
+}

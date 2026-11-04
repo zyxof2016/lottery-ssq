@@ -1,0 +1,771 @@
+{
+  "review_date": "2026-11-04",
+  "data_sha256": "f0ef9e4c21f4b9aa9a6905c05728c4f0f0db7e15696657babb62893fe7878f78",
+  "latest_draw": {
+    "blue": 12,
+    "date": "2026-11-03",
+    "issue": "26126",
+    "red": [
+      9,
+      10,
+      13,
+      22,
+      29,
+      32
+    ]
+  },
+  "actual_head_before_change": {
+    "candidate_full_six_periods": 0,
+    "errors": [],
+    "excluded_missing": 8,
+    "jackpot_periods": 0,
+    "jackpot_rate": 0.0,
+    "n": 1,
+    "note": "只统计本目标首次真实保存的完整票面；同一期多来源只计一次。头奖必须同一注6红1蓝，待开奖和旧期缺档不计失败。",
+    "pending": 1,
+    "periods": [
+      {
+        "archive_sha256": "82d9f2ad03730030c00e3e1a8c5979971e99337b79d78223229129a6ce5b7ce4",
+        "diagnostic": {
+          "best_single_red": 1,
+          "blue_in_selected_blues": false,
+          "blue_pairing_miss": false,
+          "candidate_full_six_red": false,
+          "five_or_more_red_and_blue": false,
+          "funnel_result": "red_pool_miss",
+          "single_exact_six_red": false,
+          "single_exact_six_red_and_blue": false
+        },
+        "issue": "26126",
+        "pending": false,
+        "url": "reviews?issue=26126&archive=interactive:791232262343a75ee3fb9938251d55c155c1e3348db37836ec4641ac62617ce9&strategy=custom"
+      },
+      {
+        "archive_sha256": "6963fcd95aeb2467ff27371a2ec1f910794dc85dbebf596875c5d5c0cee29808",
+        "diagnostic": null,
+        "issue": "26127",
+        "pending": true,
+        "url": "reviews?issue=26127&archive=daily&strategy=jackpot8"
+      }
+    ],
+    "single_six_red_periods": 0
+  },
+  "reviewed_head_archive_sha256": "82d9f2ad03730030c00e3e1a8c5979971e99337b79d78223229129a6ce5b7ce4",
+  "next_head_archive_sha256": "6963fcd95aeb2467ff27371a2ec1f910794dc85dbebf596875c5d5c0cee29808",
+  "next_head_issue": "26127",
+  "head_original_summary": {
+    "all_ticket_reds": [
+      4,
+      26,
+      27
+    ],
+    "bets": 8,
+    "blue_coverage": 2,
+    "blue_coverage_excess": -0.125,
+    "blue_coverage_per_yuan": 0.125,
+    "blue_covered": false,
+    "blue_hit_bets": 0,
+    "cost": 16,
+    "covered_red_count": 1,
+    "covered_reds": [
+      10
+    ],
+    "duplicate_tickets": 0,
+    "fixed_prize": 0,
+    "floating_prize_tickets": 0,
+    "max_blue_exposure": 4,
+    "max_red_exposure": 8,
+    "max_ticket_red_hits": 1,
+    "mean_ticket_red_hits": 0.75,
+    "minimum_union_bets": 2,
+    "missed_reds": [
+      9,
+      13,
+      22,
+      29,
+      32
+    ],
+    "missed_reds_by_reason": {
+      "below_candidate_cutoff": 2,
+      "not_selected_by_ticket_objective": 3
+    },
+    "prize_tickets": 0,
+    "red_coverage": 7,
+    "red_coverage_excess": -0.2727272727272727,
+    "red_coverage_per_yuan": 0.4375,
+    "red_hit_histogram": {
+      "0": 2,
+      "1": 6
+    },
+    "repeated_blue_positions": 6,
+    "repeated_red_positions": 41,
+    "special_prize_candidates": 0,
+    "total_red_positions": 48,
+    "uniform_expected_blue_coverage": 0.125,
+    "uniform_expected_blue_hit_bets": 0.5,
+    "uniform_expected_red_hits": 1.2727272727272727,
+    "uniform_expected_ticket_red_hits": 1.0909090909090908,
+    "unique_blues": [
+      9,
+      11
+    ],
+    "unique_reds": [
+      4,
+      6,
+      8,
+      10,
+      15,
+      26,
+      27
+    ]
+  },
+  "head_original_funnel": [
+    {
+      "color": "red",
+      "draw_hits": 4,
+      "hit_numbers": [
+        10,
+        9,
+        32,
+        22
+      ],
+      "numbers": [
+        4,
+        26,
+        27,
+        6,
+        10,
+        15,
+        8,
+        9,
+        32,
+        22,
+        30,
+        14,
+        20,
+        33,
+        11,
+        17
+      ],
+      "size": 16,
+      "stage": "candidate_pool"
+    },
+    {
+      "color": "red",
+      "draw_hits": 1,
+      "hit_numbers": [
+        10
+      ],
+      "numbers": [
+        4,
+        6,
+        8,
+        10,
+        15,
+        26,
+        27
+      ],
+      "size": 7,
+      "stage": "final_union"
+    }
+  ],
+  "historical_exploratory_windows": {
+    "all_oos": {
+      "cells": [
+        {
+          "candidate_full_six_periods": 31,
+          "copied_previous_six_periods": 3141,
+          "jackpot_periods": 0,
+          "label": "原乘积规则·归一化审计",
+          "mean_actual_red_union": 7.617110379898295,
+          "mean_joint_log_excess_vs_uniform": -0.17489018014174035,
+          "mean_red_log_excess_vs_uniform": -0.16718242653851553,
+          "model": "weighted_product_proxy",
+          "n": 3343,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": 23,
+          "copied_previous_six_periods": 0,
+          "jackpot_periods": 0,
+          "label": "完整组合混合·研究",
+          "mean_actual_red_union": 8.292850732874664,
+          "mean_joint_log_excess_vs_uniform": -0.007885878500440924,
+          "mean_red_log_excess_vs_uniform": -0.00017812489721635058,
+          "model": "joint_mixture",
+          "n": 3343,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": null,
+          "copied_previous_six_periods": null,
+          "jackpot_periods": null,
+          "label": "均匀基准",
+          "mean_actual_red_union": null,
+          "mean_joint_log_excess_vs_uniform": 0.0,
+          "mean_red_log_excess_vs_uniform": 0.0,
+          "model": "uniform",
+          "n": 3343,
+          "single_six_red_periods": null
+        }
+      ],
+      "from": "04092",
+      "n": 3343,
+      "to": "26126"
+    },
+    "confirmation_exploratory": {
+      "cells": [
+        {
+          "candidate_full_six_periods": 5,
+          "copied_previous_six_periods": 155,
+          "jackpot_periods": 0,
+          "label": "原乘积规则·归一化审计",
+          "mean_actual_red_union": 7.282051282051282,
+          "mean_joint_log_excess_vs_uniform": -0.12688833888014353,
+          "mean_red_log_excess_vs_uniform": -0.11130973978139601,
+          "model": "weighted_product_proxy",
+          "n": 156,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": 3,
+          "copied_previous_six_periods": 0,
+          "jackpot_periods": 0,
+          "label": "完整组合混合·研究",
+          "mean_actual_red_union": 8.326923076923077,
+          "mean_joint_log_excess_vs_uniform": -0.015578599098849887,
+          "mean_red_log_excess_vs_uniform": -1.023910301274811e-13,
+          "model": "joint_mixture",
+          "n": 156,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": null,
+          "copied_previous_six_periods": null,
+          "jackpot_periods": null,
+          "label": "均匀基准",
+          "mean_actual_red_union": null,
+          "mean_joint_log_excess_vs_uniform": 0.0,
+          "mean_red_log_excess_vs_uniform": 0.0,
+          "model": "uniform",
+          "n": 156,
+          "single_six_red_periods": null
+        }
+      ],
+      "from": "25111",
+      "n": 156,
+      "to": "26115"
+    },
+    "development": {
+      "cells": [
+        {
+          "candidate_full_six_periods": 26,
+          "copied_previous_six_periods": 2975,
+          "jackpot_periods": 0,
+          "label": "原乘积规则·归一化审计",
+          "mean_actual_red_union": 7.635390428211587,
+          "mean_joint_log_excess_vs_uniform": -0.17746766133966704,
+          "mean_red_log_excess_vs_uniform": -0.1700814960266528,
+          "model": "weighted_product_proxy",
+          "n": 3176,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": 20,
+          "copied_previous_six_periods": 0,
+          "jackpot_periods": 0,
+          "label": "完整组合混合·研究",
+          "mean_actual_red_union": 8.289987405541561,
+          "mean_joint_log_excess_vs_uniform": -0.007573656349344506,
+          "mean_red_log_excess_vs_uniform": -0.00018749103633039756,
+          "model": "joint_mixture",
+          "n": 3176,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": null,
+          "copied_previous_six_periods": null,
+          "jackpot_periods": null,
+          "label": "均匀基准",
+          "mean_actual_red_union": null,
+          "mean_joint_log_excess_vs_uniform": 0.0,
+          "mean_red_log_excess_vs_uniform": 0.0,
+          "model": "uniform",
+          "n": 3176,
+          "single_six_red_periods": null
+        }
+      ],
+      "from": "04092",
+      "n": 3176,
+      "to": "25110"
+    },
+    "recent156": {
+      "cells": [
+        {
+          "candidate_full_six_periods": 5,
+          "copied_previous_six_periods": 155,
+          "jackpot_periods": 0,
+          "label": "原乘积规则·归一化审计",
+          "mean_actual_red_union": 7.2756410256410255,
+          "mean_joint_log_excess_vs_uniform": -0.10717930159220121,
+          "mean_red_log_excess_vs_uniform": -0.09676076953686454,
+          "model": "weighted_product_proxy",
+          "n": 156,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": 3,
+          "copied_previous_six_periods": 0,
+          "jackpot_periods": 0,
+          "label": "完整组合混合·研究",
+          "mean_actual_red_union": 8.371794871794872,
+          "mean_joint_log_excess_vs_uniform": -0.010418532055381631,
+          "mean_red_log_excess_vs_uniform": -4.496687922302301e-14,
+          "model": "joint_mixture",
+          "n": 156,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": null,
+          "copied_previous_six_periods": null,
+          "jackpot_periods": null,
+          "label": "均匀基准",
+          "mean_actual_red_union": null,
+          "mean_joint_log_excess_vs_uniform": 0.0,
+          "mean_red_log_excess_vs_uniform": 0.0,
+          "model": "uniform",
+          "n": 156,
+          "single_six_red_periods": null
+        }
+      ],
+      "from": "25122",
+      "n": 156,
+      "to": "26126"
+    },
+    "recent30": {
+      "cells": [
+        {
+          "candidate_full_six_periods": 1,
+          "copied_previous_six_periods": 30,
+          "jackpot_periods": 0,
+          "label": "原乘积规则·归一化审计",
+          "mean_actual_red_union": 7.066666666666666,
+          "mean_joint_log_excess_vs_uniform": -0.11599078039293181,
+          "mean_red_log_excess_vs_uniform": -0.09413142080755996,
+          "model": "weighted_product_proxy",
+          "n": 30,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": 0,
+          "copied_previous_six_periods": 0,
+          "jackpot_periods": 0,
+          "label": "完整组合混合·研究",
+          "mean_actual_red_union": 8.233333333333333,
+          "mean_joint_log_excess_vs_uniform": -0.021859359584841604,
+          "mean_red_log_excess_vs_uniform": 5.302425165609748e-13,
+          "model": "joint_mixture",
+          "n": 30,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": null,
+          "copied_previous_six_periods": null,
+          "jackpot_periods": null,
+          "label": "均匀基准",
+          "mean_actual_red_union": null,
+          "mean_joint_log_excess_vs_uniform": 0.0,
+          "mean_red_log_excess_vs_uniform": 0.0,
+          "model": "uniform",
+          "n": 30,
+          "single_six_red_periods": null
+        }
+      ],
+      "from": "26097",
+      "n": 30,
+      "to": "26126"
+    },
+    "recent60": {
+      "cells": [
+        {
+          "candidate_full_six_periods": 3,
+          "copied_previous_six_periods": 60,
+          "jackpot_periods": 0,
+          "label": "原乘积规则·归一化审计",
+          "mean_actual_red_union": 7.283333333333333,
+          "mean_joint_log_excess_vs_uniform": -0.08027022416501887,
+          "mean_red_log_excess_vs_uniform": -0.07447114919702671,
+          "model": "weighted_product_proxy",
+          "n": 60,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": 1,
+          "copied_previous_six_periods": 0,
+          "jackpot_periods": 0,
+          "label": "完整组合混合·研究",
+          "mean_actual_red_union": 8.233333333333333,
+          "mean_joint_log_excess_vs_uniform": -0.005799074967858749,
+          "mean_red_log_excess_vs_uniform": 1.334043986389588e-13,
+          "model": "joint_mixture",
+          "n": 60,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": null,
+          "copied_previous_six_periods": null,
+          "jackpot_periods": null,
+          "label": "均匀基准",
+          "mean_actual_red_union": null,
+          "mean_joint_log_excess_vs_uniform": 0.0,
+          "mean_red_log_excess_vs_uniform": 0.0,
+          "model": "uniform",
+          "n": 60,
+          "single_six_red_periods": null
+        }
+      ],
+      "from": "26067",
+      "n": 60,
+      "to": "26126"
+    },
+    "tracking": {
+      "cells": [
+        {
+          "candidate_full_six_periods": 0,
+          "copied_previous_six_periods": 11,
+          "jackpot_periods": 0,
+          "label": "原乘积规则·归一化审计",
+          "mean_actual_red_union": 7.090909090909091,
+          "mean_joint_log_excess_vs_uniform": -0.11145444852299838,
+          "mean_red_log_excess_vs_uniform": -0.12251828470096772,
+          "model": "weighted_product_proxy",
+          "n": 11,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": 0,
+          "copied_previous_six_periods": 0,
+          "jackpot_periods": 0,
+          "label": "完整组合混合·研究",
+          "mean_actual_red_union": 8.636363636363637,
+          "mean_joint_log_excess_vs_uniform": 0.01106383617861076,
+          "mean_red_log_excess_vs_uniform": 6.414263060088904e-13,
+          "model": "joint_mixture",
+          "n": 11,
+          "single_six_red_periods": 0
+        },
+        {
+          "candidate_full_six_periods": null,
+          "copied_previous_six_periods": null,
+          "jackpot_periods": null,
+          "label": "均匀基准",
+          "mean_actual_red_union": null,
+          "mean_joint_log_excess_vs_uniform": 0.0,
+          "mean_red_log_excess_vs_uniform": 0.0,
+          "model": "uniform",
+          "n": 11,
+          "single_six_red_periods": null
+        }
+      ],
+      "from": "26116",
+      "n": 11,
+      "to": "26126"
+    }
+  },
+  "forward_research_before_rollout": {
+    "n": 0,
+    "pending": 0,
+    "past_preview_not_counted": true
+  },
+  "research_policy_unchanged": {
+    "auto_promote": false,
+    "bets": 8,
+    "blue_count": 2,
+    "cost": 16,
+    "experts": "seven_original_causal_experts_plus_uniform",
+    "forced_expert_weight_floor": false,
+    "minimum_evaluation_fit_periods": 30,
+    "mixture": "equal_prior_bayesian_model_weights_from_pre_boundary_log_likelihood",
+    "note": "完整组合按全部C(33,6)种结果归一化，并用对数评分与均匀基准比较；新混合不强制给弱专家最低权重。仅研究，不替换当前原档，不宣称提高头奖。",
+    "objective": "proper_log_score_of_normalized_complete_six_red_sets",
+    "publication_allowed": false,
+    "red_limit": 16,
+    "red_sets": 4,
+    "required_prospective_periods": 156,
+    "score_meaning": "model_assumption_probability_not_verified_winning_probability",
+    "set_distribution": "product_of_positive_weights_divided_by_elementary_symmetric_polynomial_order6",
+    "training_freeze_before_issue": 25111,
+    "version": 1
+  },
+  "automatic_model_promotion": false,
+  "reference_original5": {
+    "baseline": {
+      "full_red": false,
+      "missed_reds": [
+        29
+      ],
+      "model": "weighted",
+      "red_count": 21,
+      "red_hits": 5,
+      "reds": [
+        4,
+        26,
+        27,
+        6,
+        10,
+        15,
+        8,
+        9,
+        32,
+        22,
+        30,
+        14,
+        20,
+        33,
+        11,
+        17,
+        24,
+        13,
+        2,
+        18,
+        31
+      ]
+    },
+    "best_ticket_red_hits": 2,
+    "blue_count": 5,
+    "blue_hit": true,
+    "blues": [
+      2,
+      4,
+      11,
+      12,
+      16
+    ],
+    "full_red": false,
+    "label": "参考代码 · 原始5注观察池",
+    "missed_reds": [
+      10,
+      29
+    ],
+    "model": "reference_original5",
+    "red_count": 21,
+    "red_hits": 4,
+    "reds": [
+      1,
+      2,
+      6,
+      7,
+      9,
+      12,
+      13,
+      14,
+      16,
+      17,
+      18,
+      20,
+      21,
+      22,
+      24,
+      25,
+      26,
+      27,
+      30,
+      31,
+      32
+    ],
+    "ticket_results": [
+      {
+        "blue": 11,
+        "blue_hit": false,
+        "red": [
+          12,
+          14,
+          16,
+          24,
+          26,
+          30
+        ],
+        "red_hits": 0
+      },
+      {
+        "blue": 12,
+        "blue_hit": true,
+        "red": [
+          6,
+          13,
+          14,
+          18,
+          22,
+          31
+        ],
+        "red_hits": 2
+      },
+      {
+        "blue": 4,
+        "blue_hit": false,
+        "red": [
+          9,
+          20,
+          21,
+          24,
+          25,
+          27
+        ],
+        "red_hits": 1
+      },
+      {
+        "blue": 16,
+        "blue_hit": false,
+        "red": [
+          2,
+          20,
+          24,
+          25,
+          27,
+          30
+        ],
+        "red_hits": 0
+      },
+      {
+        "blue": 2,
+        "blue_hit": false,
+        "red": [
+          1,
+          2,
+          7,
+          17,
+          26,
+          32
+        ],
+        "red_hits": 1
+      }
+    ],
+    "tickets": [
+      {
+        "blue": 11,
+        "red": [
+          12,
+          14,
+          16,
+          24,
+          26,
+          30
+        ]
+      },
+      {
+        "blue": 12,
+        "red": [
+          6,
+          13,
+          14,
+          18,
+          22,
+          31
+        ]
+      },
+      {
+        "blue": 4,
+        "red": [
+          9,
+          20,
+          21,
+          24,
+          25,
+          27
+        ]
+      },
+      {
+        "blue": 16,
+        "red": [
+          2,
+          20,
+          24,
+          25,
+          27,
+          30
+        ]
+      },
+      {
+        "blue": 2,
+        "red": [
+          1,
+          2,
+          7,
+          17,
+          26,
+          32
+        ]
+      }
+    ]
+  },
+  "reference_fusion16_summary": {
+    "all_ticket_reds": [],
+    "bets": 8,
+    "blue_coverage": 2,
+    "blue_coverage_excess": -0.125,
+    "blue_coverage_per_yuan": 0.125,
+    "blue_covered": false,
+    "blue_hit_bets": 0,
+    "cost": 16,
+    "covered_red_count": 4,
+    "covered_reds": [
+      9,
+      10,
+      13,
+      22
+    ],
+    "duplicate_tickets": 0,
+    "fixed_prize": 0,
+    "floating_prize_tickets": 0,
+    "max_blue_exposure": 4,
+    "max_red_exposure": 3,
+    "max_ticket_red_hits": 2,
+    "mean_ticket_red_hits": 1.5,
+    "minimum_union_bets": 3,
+    "missed_reds": [
+      29,
+      32
+    ],
+    "missed_reds_by_reason": {
+      "structural_unselected": 2
+    },
+    "prize_tickets": 0,
+    "red_coverage": 16,
+    "red_coverage_excess": 1.0909090909090908,
+    "red_coverage_per_yuan": 1.0,
+    "red_hit_histogram": {
+      "1": 4,
+      "2": 4
+    },
+    "repeated_blue_positions": 6,
+    "repeated_red_positions": 32,
+    "special_prize_candidates": 0,
+    "total_red_positions": 48,
+    "uniform_expected_blue_coverage": 0.125,
+    "uniform_expected_blue_hit_bets": 0.5,
+    "uniform_expected_red_hits": 2.909090909090909,
+    "uniform_expected_ticket_red_hits": 1.0909090909090908,
+    "unique_blues": [
+      9,
+      11
+    ],
+    "unique_reds": [
+      2,
+      4,
+      6,
+      9,
+      10,
+      13,
+      14,
+      15,
+      17,
+      20,
+      22,
+      24,
+      26,
+      27,
+      30,
+      31
+    ]
+  }
+}

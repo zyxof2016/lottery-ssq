@@ -143,7 +143,12 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
             report["publication"]=json!({"can_freeze":gate.publish,"target":gate.target,"deadline":gate.deadline_text,"reason":gate.reason});Ok(report)
         }),
         ("POST", "/api/reference-pools/freeze") => freeze_reference(app,body),
-        ("GET", "/api/jackpot/model-review") => load_csv(&app.data).and_then(|draws| crate::joint_red::report(&recommendation_dir(app),&draws)),
+        ("POST", "/api/jackpot/model-review/freeze") => freeze_joint_observation(app,body),
+        ("GET", path) if path.starts_with("/api/jackpot/model-review/archives/") => {
+            let result=load_csv(&app.data).and_then(|draws|crate::joint_observation::artifact(&recommendation_dir(app),&draws,&path["/api/jackpot/model-review/archives/".len()..]));
+            match result {Ok(bytes)=>return (200,"application/json",bytes),Err(e)=>Err(e)}
+        },
+        ("GET", "/api/jackpot/model-review") => load_csv(&app.data).and_then(|draws| crate::joint_observation::report(&recommendation_dir(app),&draws)),
         ("GET", "/api/jackpot") => load_csv(&app.data).and_then(|draws| {let mut v=crate::jackpot::report(&recommendation_dir(app),&draws)?;let last=draws.last().ok_or("没有开奖数据")?;let gate=decide(recommendations::now_unix(),last.issue,last.date,false);v["publication"]=json!({"can_freeze":gate.publish,"target":gate.target,"deadline":gate.deadline_text});Ok(v)}),
         ("GET", "/api/prize-coverage") => load_csv(&app.data).and_then(|draws| crate::prize_coverage::report(&recommendation_dir(app),&draws)),
         ("GET", "/api/blue") => load_csv(&app.data).and_then(|draws| {
@@ -1098,6 +1103,15 @@ fn freeze_reference(app:&App,body:&str)->Result<Value,String>{
     crate::reference::freeze(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix)
 }
 
+fn freeze_joint_observation(app:&App,body:&str)->Result<Value,String>{
+    let draws=load_csv(&app.data)?;let last=draws.last().ok_or("没有开奖数据")?;
+    let gate=decide(recommendations::now_unix(),last.issue,last.date,false);
+    let expected:Value=serde_json::from_str(body).map_err(|_|"研究观察封存请求无效")?;
+    if expected["data_sha256"]!=data_sha256(&draws)||expected["target"]!=gate.target{return Err("研究预览的数据或期号已变化，请刷新后封存".into());}
+    if !gate.publish{return Err(gate.reason);}
+    crate::joint_observation::freeze(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix)
+}
+
 fn freeze_small_red(app:&App,body:&str)->Result<Value,String>{
     let draws=load_csv(&app.data)?;let last=draws.last().ok_or("没有开奖数据")?;
     let gate=decide(recommendations::now_unix(),last.issue,last.date,false);
@@ -1664,6 +1678,10 @@ mod tests {
         assert_eq!(research["candidate"]["publication_allowed"], false);
         assert_eq!(research["adoption"]["replace_current_recommendation"], false);
         assert_eq!(research["current_health"]["status"], "pending");
+        assert_eq!(research["prospective"]["n"], 0);
+        assert_eq!(research["prospective"]["pending"], 0);
+        assert_eq!(route(&app,"POST","/api/jackpot/model-review/freeze","",r#"{"target":"26127","data_sha256":"stale"}"#).0,400);
+        assert_eq!(route(&app,"GET","/api/jackpot/model-review/archives/../26127","","").0,400);
         assert_eq!(research["candidate"]["plan"]["tickets"].as_array().unwrap().len(), 8);
         let after: Vec<_> = fs::read_dir(&dir).unwrap().map(|e|e.unwrap().path()).collect();
         assert_eq!(before, after);
