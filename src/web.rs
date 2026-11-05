@@ -149,6 +149,7 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
             let result=load_csv(&app.data).and_then(|draws|crate::joint_observation::artifact(&recommendation_dir(app),&draws,&path["/api/jackpot/model-review/archives/".len()..]));
             match result {Ok(bytes)=>return (200,"application/json",bytes),Err(e)=>Err(e)}
         },
+        ("GET", "/api/jackpot/score-v2") => load_csv(&app.data).and_then(|draws| crate::joint_score::report(&draws)),
         ("GET", "/api/jackpot/model-review") => load_csv(&app.data).and_then(|draws| crate::joint_observation::report(&recommendation_dir(app),&draws)),
         ("GET", "/api/jackpot") => load_csv(&app.data).and_then(|draws| {let mut v=crate::jackpot::report(&recommendation_dir(app),&draws)?;let last=draws.last().ok_or("没有开奖数据")?;let gate=decide(recommendations::now_unix(),last.issue,last.date,false);v["publication"]=json!({"can_freeze":gate.publish,"target":gate.target,"deadline":gate.deadline_text});Ok(v)}),
         ("GET", "/api/prize-coverage") => load_csv(&app.data).and_then(|draws| crate::prize_coverage::report(&recommendation_dir(app),&draws)),
