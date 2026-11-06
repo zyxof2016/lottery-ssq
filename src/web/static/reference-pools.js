@@ -14,6 +14,48 @@
   const ok = document.execCommand('copy'); input.remove();
   if (!ok) throw Error('复制未成功，请手动选择号码。');
  }
+ const shortIssue=value=>{const s=String(value??'');if(/^20\d{5}$/.test(s))return s.slice(2);if(/^\d{5}$/.test(s))return s;throw Error('报告期号不是有效的5位或7位期号');};
+ function sourceCandidates(file){if(file?.forecast_archive)return[file.forecast_archive];if(Array.isArray(file?.forecasts)&&file.forecasts.length)return file.forecasts;if(file?.tickets&&file?.source_period)return[file];throw Error('请选择源码的forecast_audit.json、较小的experiment_report.json或单条预测记录JSON');}
+ function ticketKeys(rows){if(!Array.isArray(rows)||rows.length!==5)throw Error('所选原报告必须有5注');const keys=rows.map(t=>{const r=t.red;if(!Array.isArray(r)||r.length!==6||new Set(r).size!==6||r.some(n=>!Number.isInteger(n)||n<1||n>33)||!Number.isInteger(t.blue)||t.blue<1||t.blue>16)throw Error('报告票面红蓝球无效');return r.slice().sort((a,b)=>a-b).join(',')+'+'+t.blue;});if(new Set(keys).size!==5)throw Error('报告的5注有重复整注');return keys;}
+ function planKey(p){if(!p)return null;const a=p.red_dan,b=p.red_tuo,c=p.blue??p.blues;if(![a,b,c].every(Array.isArray))throw Error('报告胆拖缺少胆、拖或蓝球');for(const[ns,high]of[[a,33],[b,33],[c,16]])if(new Set(ns).size!==ns.length||ns.some(n=>!Number.isInteger(n)||n<1||n>high))throw Error('报告胆拖号码重复或越界');if(a.length>5||b.length<6-a.length||!c.length||a.some(n=>b.includes(n)))throw Error('报告胆拖结构无效');let bets=1;for(let i=0;i<6-a.length;i++)bets=bets*(b.length-i)/(i+1);bets=Math.round(bets)*c.length;const unit=p.unit_price??2;if(unit!==2||(p.bet_count!=null&&p.bet_count!==bets)||((p.amount??p.cost)!=null&&(p.amount??p.cost)!==bets*2))throw Error('报告胆拖注数或金额与展开不一致');return JSON.stringify([a,b,c].map(ns=>ns.slice().sort((a,b)=>a-b)));}
+ function compareSource(site,file,index=0){const choices=sourceCandidates(file),f=choices[index];if(!f)throw Error('请选择一条原预测记录');const target=shortIssue(f.target_period),cutoff=shortIssue(f.source_period),own=ticketKeys(site.tickets),other=ticketKeys(f.tickets),plan=f.dantuo_plan??f.metadata?.dantuo_plan??null;
+  const differences=[],unknown=[];const add=(label,a,b)=>{if(a==null||b==null){unknown.push(label);return;}if(String(a)!==String(b))differences.push({label,site:String(a),source:String(b)});};
+  add('目标期',site.issue,target);add('输入截止',site.data_cutoff,cutoff);add('历史期数',site.history_count,file.data?.periods??f.data_version?.periods);
+  add('回测期数',site.profile?.backtest_periods,f.metadata?.forecast_publish_gate?.effective_backtest_periods??file.config_snapshot?.backtest?.periods);
+  add('运行档位',site.profile?.runtime_profile,file.config_snapshot?.runtime?.active_profile);
+  add('蒙特卡洛次数',site.profile?.monte_carlo_samples,file.config_snapshot?.generation?.monte_carlo_samples);
+  add('优化方法',site.profile?.optimizer_methods?.join('、'),file.config_snapshot?.optimizer?.methods?.join('、'));
+  add('随机种子',site.profile?.random_seed,file.run_manifest?.seed??file.config_snapshot?.project?.random_seed??file.run_metadata?.random_seed);
+  add('清洗后数据摘要',site.clean_frame_sha256,f.data_version?.clean_frame_sha256??file.data?.cleaning?.data_manifest?.clean_frame_sha256);
+  const packages=file.run_metadata?.packages??file.run_manifest?.package_versions;if(packages)for(const[name,version]of Object.entries(site.profile?.packages||{}))if(packages[name]!=null)add(name,version,packages[name]);
+  const ticketsEqual=JSON.stringify(own.slice().sort())===JSON.stringify(other.slice().sort()),orderEqual=JSON.stringify(own)===JSON.stringify(other),dantuoEqual=site.dantuo&&plan?planKey(site.dantuo)===planKey(plan):null;
+  return{status:target!==site.issue?'different_issue':ticketsEqual&&dantuoEqual!==false?'same_numbers':'different_numbers',source_issue:target,source_cutoff:cutoff,forecast_id:f.forecast_id??'',tickets_equal:ticketsEqual,ticket_order_equal:orderEqual,dantuo_equal:dantuoEqual,differences,unknown,record_count:choices.length};
+ }
+ const referenceProvenance={props:{issue:{type:String,required:true},snapshot:{type:Object,required:true}},setup(props){
+  const report=Vue.ref(null),error=Vue.ref(''),comparison=Vue.ref(null),fileError=Vue.ref(''),fileName=Vue.ref(''),selected=Vue.ref(0),choices=Vue.ref([]);let source=null,request=0;
+  const sourceUrl=path=>path?new URL(path,SSQApp.base).href:'';
+  async function load(){const id=++request;error.value='';try{const r=await fetch(SSQApp.url('api/reference-pools/provenance',{issue:props.issue})),v=await r.json();if(id!==request)return;if(!r.ok)throw Error(v.error||'来源核验失败');report.value=v;recheck();}catch(e){if(id===request){error.value=e.message;report.value=null;}}}
+  function recheck(){comparison.value=null;fileError.value='';if(!source||!report.value?.tickets)return;try{comparison.value=compareSource(report.value,source,Number(selected.value));}catch(e){fileError.value=e.message;}}
+  async function chooseFile(event){source=null;choices.value=[];comparison.value=null;fileError.value='';const f=event.target.files?.[0];fileName.value=f?.name||'';if(!f)return;if(f.size>16*1024*1024){fileError.value='文件超过16MB，请选择源码logs目录下较小的forecast_audit.json，包含同样的5注和原始胆拖。';return;}try{const parsed=JSON.parse(await f.text());choices.value=sourceCandidates(parsed).map((r,index)=>({index,label:String(r.target_period)+' · '+(r.forecast_scope||'原预测')+' · '+(r.created_at||r.forecast_id||index+1)}));source=parsed;const matches=choices.value.filter((_,i)=>shortIssue(sourceCandidates(parsed)[i].target_period)===props.issue);selected.value=matches.length?matches[matches.length-1].index:choices.value.length-1;recheck();}catch(e){source=null;fileError.value=e.message||'无法读取原报告';}}
+  Vue.onMounted(load);Vue.watch(()=>[props.issue,props.snapshot],()=>{report.value=null;comparison.value=null;load();});Vue.watch(selected,recheck);return{report,error,comparison,fileError,fileName,selected,choices,sourceUrl,chooseFile};
+ },template:`<section class="reference-provenance" data-reference-provenance aria-label="参考源码运行来源核验">
+  <p v-if="error" class="notice error" role="alert">{{error}}</p>
+  <template v-if="report?.profile"><p class="muted" data-source-profile>本站运行：目标{{report.issue}}期 · 档位{{report.profile.runtime_profile??'未记录'}} · 回测{{report.profile.backtest_periods??'未知'}}期 · 历史{{report.history_count}}期，截至{{report.data_cutoff}} · 种子{{report.profile.random_seed??'未知'}}。</p>
+   <details class="reference-union" data-source-details><summary>核对同次原报告／与本地源码结果比对</summary>
+    <p class="muted" data-source-verification>5注与同次原报告{{report.verification.five_matches_same_run_report===true?'一致':'尚不能核验'}}；原始胆拖{{report.verification.dantuo_matches_same_run_report===true?'一致':'尚不能核验'}}。此核验只对应参考引擎原始输出，融合方案按本站规则另行生成。</p>
+    <p v-if="report.profile.runtime_profile==='supplied_default'" class="notice" data-source-legacy>本档是旧入口直接运行默认配置的首次结果，未应用源码网页档位。后续新数据计算已改走源码网页默认standard档；本档保留原值。</p>
+    <p class="muted">Python {{report.profile.python??'未记录'}} · XGBoost {{report.profile.packages?.xgboost??'未记录'}} · scikit-learn {{report.profile.packages?.['scikit-learn']??'未记录'}}。</p>
+    <p v-if="report.date_policy" class="muted">本站保留输入的{{report.date_policy.source_exceptions?.length??0}}条早期例外日期，关闭源码重复的星期预检。直接运行源码时须对齐历史内容、日期策略、回测期数和依赖版本。</p>
+    <div class="row reference-actions"><a v-if="report.source_forecast_url" :href="sourceUrl(report.source_forecast_url)" :download="'reference-source-'+issue+'.json'">下载同次原预测JSON</a><a :href="sourceUrl(report.source_input_url)" :download="'Tsys-input-'+issue+'.csv'">下载本次源码格式输入CSV</a></div>
+    <label class="field">选择源码原报告在浏览器本地比对<input type="file" accept=".json,application/json" data-source-file @change="chooseFile"></label><p class="muted">文件不会上传。较大的experiment_report.json可改选logs/forecast_audit.json；多条记录可选择目标期与版本。</p>
+    <label v-if="choices.length>1" class="field">原报告记录<select v-model="selected" data-source-record><option v-for="c in choices" :key="c.index" :value="c.index">{{c.label}}</option></select></label>
+    <p v-if="fileError" class="notice error" role="alert">{{fileError}}</p>
+    <div v-if="comparison" data-source-comparison><p class="notice">{{comparison.status==='different_issue'?'目标期不同：所选报告是'+comparison.source_issue+'期，页面是'+issue+'期。':comparison.status==='same_numbers'?'所选报告与页面号码一致。':'同目标期出现号码差异，请结合下列运行条件核对。'}}</p><p class="muted">5注集合{{comparison.tickets_equal?'一致':'不同'}}<template v-if="comparison.tickets_equal&&!comparison.ticket_order_equal">（排列顺序不同）</template>；原始胆拖{{comparison.dantuo_equal==null?'原报告信息不足':comparison.dantuo_equal?'一致':'不同'}}。</p>
+     <div v-if="comparison.differences.length" class="scroll"><table><thead><tr><th>不同条件</th><th>本站</th><th>所选源码报告</th></tr></thead><tbody><tr v-for="d in comparison.differences" :key="d.label" data-source-difference><td>{{d.label}}</td><td>{{d.site}}</td><td>{{d.source}}</td></tr></tbody></table></div><p v-else class="muted">可从文件中核验的运行条件未发现差异。</p><p v-if="comparison.unknown.length" class="muted">所选记录未提供完整对照信息：{{comparison.unknown.join('、')}}。</p>
+    </div>
+   </details>
+  </template><p v-else-if="report" class="muted">{{report.reason}}</p>
+ </section>`};
  const dantuo = {
   props:{bundle:{type:Object,default:null},issue:{type:String,default:''},archived:{type:Boolean,default:false}},
   setup(props){
@@ -26,7 +68,7 @@
    return{plan,message,copy,pad,nullable,flag,time,fileUrl};
   },
   template:`<section class="reference-dantuo" data-reference-dantuo aria-label="参考原始预算方案">
-   <h4>参考预算方案 · 胆拖／复式</h4>
+   <h4>参考同次原始方案 · 胆拖／复式</h4>
    <template v-if="plan"><p class="muted">参考程序同次生成的原始方案，原样保留胆码、拖码和蓝球。原始5注与本方案可选择一种。</p>
     <p class="reference-buyable-budget"><strong>{{plan.bet_count}}注 · {{plan.cost}}元</strong><span>{{plan.red_dan.length?plan.red_dan.length+'胆＋'+plan.red_tuo.length+'拖':plan.red_tuo.length+'红复式'}}＋{{plan.blues.length}}蓝；每注2元。</span></p>
     <div v-if="plan.red_dan.length" class="reference-plan-row"><b>红胆</b><div class="balls"><span v-for="n in plan.red_dan" :key="n" class="ball selected red">{{pad(n)}}</span></div></div>
@@ -70,7 +112,7 @@
   </template><p v-if="message" class="muted" role="status">{{message}}</p>
  </section>`};
  const numbers = {
-  components:{ReferenceDantuo:dantuo,FusionDantuo:fusionDantuo},
+  components:{ReferenceDantuo:dantuo,FusionDantuo:fusionDantuo,ReferenceProvenance:referenceProvenance},
   props:{snapshot:{type:Object,required:true},ticketBundle:{type:Object,default:null},dantuoBundle:{type:Object,default:null},issue:{type:String,default:''},archived:{type:Boolean,default:false}},
   setup(props) {
    const count = Vue.ref(16), message = Vue.ref('');
@@ -93,7 +135,7 @@
   template:`<div class="reference-numbers">
    <div class="reference-grid">
     <article class="reference-box" data-reference-model="reference_original5">
-     <h3>参考代码 · 原始推荐</h3><h4>单式5注 · 10元</h4>
+     <h3>参考引擎 · 本站运行5注</h3><h4>单式5注 · 10元</h4><reference-provenance :issue="issue" :snapshot="snapshot"></reference-provenance>
      <p class="muted">5注合计覆盖 <b>{{ original.red_count }} 个不同红球</b>、{{ original.blue_count }} 个蓝球。</p>
      <ol class="reference-tickets" aria-label="参考代码原始5注票面">
       <li v-for="(ticket,index) in original.tickets" :key="index"><span class="reference-ticket-label">第{{ index+1 }}注</span><div class="balls"><span v-for="n in ticket.red" :key="'r'+n" class="ball selected red">{{ pad(n) }}</span><span class="reference-plus" aria-hidden="true">+</span><span class="ball selected blue">{{ pad(ticket.blue) }}</span></div><small v-if="scored" class="muted">中红 {{ nullable(original.ticket_results?.[index]?.red_hits) }}/6 · 中蓝 {{ flag(original.ticket_results?.[index]?.blue_hit) }}</small></li>
@@ -173,5 +215,6 @@
    </template>
   </section>`
  };
- global.SSQReferencePools={component,archive,numbers};
+ global.SSQReferencePools={component,archive,numbers,parity:{shortIssue,sourceCandidates,compareSource}};
+ if(typeof module!=='undefined'&&module.exports)module.exports=global.SSQReferencePools.parity;
 })(typeof window==='undefined'?globalThis:window);

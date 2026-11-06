@@ -12,6 +12,61 @@ spec.loader.exec_module(worker)
 
 
 class WorkerTest(unittest.TestCase):
+    def test_real_source_dashboard_applies_profile_beyond_periods(self):
+        # Execute the original dashboard function with only its expensive pipeline
+        # and log write replaced, rather than importing the full ML environment.
+        import ast
+        import copy
+        import logging
+        from typing import Any
+        import yaml
+        config_spec = importlib.util.spec_from_file_location("source_config_utils", worker.ROOT / "tsys/src/utils/config_utils.py")
+        utils = importlib.util.module_from_spec(config_spec)
+        config_spec.loader.exec_module(utils)
+        source = ast.parse((worker.ROOT / "tsys/main.py").read_text())
+        dashboard = next(node for node in source.body if isinstance(node, ast.FunctionDef) and node.name == "dashboard_run")
+        pipeline = mock.Mock(side_effect=lambda config, **_: {"config_snapshot": config})
+        namespace = {"Any": Any, "copy": copy, "logging": logging,
+                     "apply_runtime_profile": utils.apply_runtime_profile,
+                     "validate_config": mock.Mock(), "append_audit_log": mock.Mock(),
+                     "project_path": mock.Mock(), "run_pipeline": pipeline}
+        exec(compile(ast.Module(body=[dashboard], type_ignores=[]), "source-dashboard", "exec"), namespace)
+        config = yaml.safe_load((worker.ROOT / "tsys/config/config.yaml").read_text())
+        main = argparse.Namespace(dashboard_run=namespace["dashboard_run"])
+        for profile, periods, samples in [("standard", 100, 5000), ("research", 300, 10000)]:
+            result = worker.run_source_pipeline(main, config, profile)["config_snapshot"]
+            self.assertEqual(result["runtime"]["active_profile"], profile)
+            self.assertEqual(result["calibration"]["holdout_periods"], periods)
+            self.assertEqual(result["generation"]["monte_carlo_samples"], samples)
+            self.assertEqual("genetic" in result["optimizer"]["methods"], profile == "research")
+            self.assertEqual(pipeline.call_args.kwargs["periods"], periods)
+        self.assertNotIn("active_profile", config["runtime"])
+
+    def test_source_ui_profile_entrypoint_is_used_including_all_overrides(self):
+        main = mock.Mock()
+        config = {"backtest": {"periods": 100}}
+        sentinel = {"config_snapshot": {"backtest": {"periods": 300}}}
+        main.dashboard_run.return_value = sentinel
+        self.assertIs(worker.run_source_pipeline(main, config, "research"), sentinel)
+        main.dashboard_run.assert_called_once_with(config, {"runtime_profile": "research"})
+        main.run_pipeline.assert_not_called()
+        worker.run_source_pipeline(main, config, "supplied_default")
+        main.run_pipeline.assert_called_once_with(config)
+        self.assertEqual(worker.resolve_runtime_profile("source_default"), "standard")
+        with self.assertRaises(ValueError):
+            worker.resolve_runtime_profile("unknown")
+
+    def test_wrong_profile_cache_is_never_claimed_as_requested_run(self):
+        legacy = {"metadata": {"profile": "supplied_default", "backtest_periods": 100}}
+        state = worker.cache_profile(legacy, "standard", allow_legacy=True)
+        self.assertFalse(state["runtime_profile_applied"])
+        self.assertEqual(state["cached_runtime_profile"], "supplied_default")
+        with self.assertRaisesRegex(ValueError, "拒绝冒用或覆盖"):
+            worker.cache_profile(legacy, "research", allow_legacy=False)
+        self.assertTrue(worker.cache_profile({"metadata": {"runtime_profile": "research"}}, "research", allow_legacy=False)["runtime_profile_applied"])
+        with self.assertRaises(ValueError):
+            worker.cache_profile({"metadata": {"runtime_profile": "research"}}, "standard", allow_legacy=True)
+
     def test_source_manifest_and_sanitized_config(self):
         import yaml
         self.assertEqual(len(worker.engine_digest()), 64)
@@ -80,6 +135,13 @@ class WorkerTest(unittest.TestCase):
             self.assertEqual(result["freeze_status"], "not_frozen")
             self.assertEqual(json.loads((args.work_dir / "status.json").read_text())["status"], "cached")
             self.assertEqual(cache.read_bytes(), before)
+            args.runtime_profile = "research"
+            with mock.patch.object(worker.subprocess, "run") as process:
+                with self.assertRaisesRegex(ValueError, "拒绝冒用或覆盖"):
+                    worker.run(args)
+                process.assert_not_called()
+            self.assertEqual(cache.read_bytes(), before)
+            del args.runtime_profile
             value["engine_sha256"] = "different"
             worker.atomic_json(cache, value)
             with self.assertRaises(ValueError):

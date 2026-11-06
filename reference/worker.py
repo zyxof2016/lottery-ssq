@@ -104,6 +104,36 @@ def validate_cache(value: dict, data_sha: str, engine_sha: str) -> None:
         seen.add(identity)
 
 
+def resolve_runtime_profile(requested: str) -> str:
+    import yaml
+    config = yaml.safe_load((ROOT / "tsys/config/config.yaml").read_text())
+    profile = config.get("runtime", {}).get("default_profile", "standard") if requested == "source_default" else requested
+    if profile != "supplied_default" and profile not in config.get("runtime", {}).get("profiles", {}):
+        raise ValueError(f"参考源码未定义运行档位：{profile}")
+    return profile
+
+
+def cache_profile(value: dict, desired: str, *, allow_legacy: bool) -> dict:
+    metadata = value.get("metadata", {})
+    actual = metadata.get("runtime_profile", metadata.get("profile", "unknown_legacy"))
+    if actual == desired:
+        return {"requested_runtime_profile": desired, "cached_runtime_profile": actual,
+                "runtime_profile_applied": True}
+    if allow_legacy and actual in {"supplied_default", "unknown_legacy"}:
+        return {"requested_runtime_profile": desired, "cached_runtime_profile": actual,
+                "runtime_profile_applied": False,
+                "profile_note": "保留旧默认配置的首次缓存；新源码网页档位从新输入开始应用，未把旧缓存标成新计算。"}
+    raise ValueError(f"已有参考缓存档位为{actual}，请求为{desired}；拒绝冒用或覆盖。对照运行请使用独立cache-dir/work-dir且不传--ssq。")
+
+
+def run_source_pipeline(main, config: dict, profile: str) -> dict:
+    if profile == "supplied_default":
+        return main.run_pipeline(config)
+    # Use the actual source UI entrypoint: it applies all profile overrides,
+    # validates the effective config and synchronizes holdout/generation counts.
+    return main.dashboard_run(config, {"runtime_profile": profile})
+
+
 def atomic_json(path: Path, value: dict, *, first: bool = False) -> bool:
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, name = tempfile.mkstemp(dir=path.parent, prefix=".reference-")
@@ -232,6 +262,8 @@ def _run(args: argparse.Namespace) -> dict:
             return {"status": "already_running"}
         data, rows = input_snapshot(args.data)
         data_sha, engine_sha = sha(data), engine_digest()
+        requested_profile = getattr(args, "runtime_profile", "source_default")
+        runtime_profile = resolve_runtime_profile(requested_profile)
         cutoff = rows[-1]["issue"]
         target = f"{int(cutoff) + 1:05}"
         cache = args.cache_dir / f"{data_sha}.json"
@@ -241,9 +273,10 @@ def _run(args: argparse.Namespace) -> dict:
         if cache.exists():
             value = json.loads(cache.read_text())
             validate_cache(value, data_sha, engine_sha)
+            profile_state = cache_profile(value, runtime_profile, allow_legacy=requested_profile == "source_default")
             if value["data_cutoff"] != cutoff or value["target_issue"] != target:
                 raise ValueError("已有参考结果期号与当前历史不一致")
-            result = {**state, "status": "cached", "cache_file": str(cache)}
+            result = {**state, **profile_state, "status": "cached", "cache_file": str(cache)}
         else:
             atomic_json(status_path, {**state, "status": "running"})
             try:
@@ -258,7 +291,7 @@ def _run(args: argparse.Namespace) -> dict:
                     writer.writerow(["period", "date", "r1", "r2", "r3", "r4", "r5", "r6", "blue"])
                     for row in rows:
                         writer.writerow(["20" + row["issue"], row["date"], *[row[f"r{i}"] for i in range(1, 7)], row["blue"]])
-                request = {**state, "work": str(work), "engine": str(engine)}
+                request = {**state, "work": str(work), "engine": str(engine), "runtime_profile": runtime_profile}
                 (work / "request.json").write_text(json.dumps(request))
                 adapter_path = work / "adapter-worker.py"
                 shutil.copy2(ROOT / "worker.py", adapter_path)
@@ -275,13 +308,16 @@ def _run(args: argparse.Namespace) -> dict:
                                    check=True, timeout=args.timeout)
                 value = json.loads((work / "result.json").read_text())
                 validate_cache(value, data_sha, engine_sha)
+                profile_state = cache_profile(value, runtime_profile, allow_legacy=False)
                 # A changed input cannot be silently frozen as the current forecast.
                 current_data, _ = input_snapshot(args.data)
                 if sha(current_data) != data_sha:
                     raise ValueError("计算期间开奖历史已更新，旧结果未发布；下一周期重新计算")
                 if not atomic_json(cache, value, first=True):
-                    validate_cache(json.loads(cache.read_text()), data_sha, engine_sha)
-                result = {**state, "status": "ready", "cache_file": str(cache), "work": str(work)}
+                    value = json.loads(cache.read_text())
+                    validate_cache(value, data_sha, engine_sha)
+                    profile_state = cache_profile(value, runtime_profile, allow_legacy=False)
+                result = {**state, **profile_state, "status": "ready", "cache_file": str(cache), "work": str(work)}
             except Exception as error:
                 atomic_json(status_path, {**state, "status": "error", "error": str(error), "finished_at_unix": int(time.time())})
                 raise
@@ -323,19 +359,27 @@ def child(request_path: Path) -> None:
     # of replacing dates with a derived schedule or dropping historical rows.
     config["data"]["validate_source_dates"] = False
     main.configure_logging(config)
-    report = main.run_pipeline(config)
+    profile = request.get("runtime_profile", "supplied_default")
+    report = run_source_pipeline(main, config, profile)
+    actual_profile = report["config_snapshot"].get("runtime", {}).get("active_profile") if profile != "supplied_default" else "supplied_default"
+    if actual_profile != profile:
+        raise ValueError("源码报告未确认请求的运行档位，拒绝保存误标结果")
     forecast = report["forecast_archive"]
     if forecast["source_period"] != "20" + request["data_cutoff"] or forecast["target_period"] != "20" + request["target_issue"]:
         raise ValueError("参考报告期号与输入不一致")
     original = forecast["tickets"]
     tickets = [{"red": [int(n) for n in t["red"]], "blue": int(t["blue"])} for t in original]
     value = {"version": 1, **{key: request[key] for key in ["data_sha256", "data_cutoff", "target_issue", "engine_sha256"]},
-             "generated_at_unix": int(time.time()), "config_sha256": main.config_fingerprint(config),
+             "generated_at_unix": int(time.time()), "config_sha256": report["run_manifest"]["config_hash"],
              "tickets": tickets,
-             "metadata": {"implementation": "Tsys original run_pipeline", "profile": "supplied_default",
+             "metadata": {"implementation": "Tsys original dashboard_run" if profile != "supplied_default" else "Tsys original run_pipeline",
+                          "profile": profile, "runtime_profile": profile,
                           "adapter_sha256": ADAPTER_SHA256,
                           "runtime_packages": report["run_metadata"]["packages"],
-                          "backtest_periods": config["backtest"]["periods"], "random_seed": config["project"]["random_seed"],
+                          "backtest_periods": forecast["metadata"]["forecast_publish_gate"]["effective_backtest_periods"],
+                          "random_seed": report["run_manifest"]["seed"],
+                          "monte_carlo_samples": report["config_snapshot"]["generation"]["monte_carlo_samples"],
+                          "optimizer_methods": report["config_snapshot"]["optimizer"]["methods"],
                           "xgboost_distribution": "xgboost==3.0.2; official manylinux2014 CPU wheel",
                           "date_validation_adapter": {"reference_fixed_weekday_check": False,
                                                       "project_dates_preserved": True,
@@ -354,6 +398,8 @@ def cli() -> None:
     parser.add_argument("--cache-dir", type=Path)
     parser.add_argument("--work-dir", type=Path)
     parser.add_argument("--timeout", type=int, default=10800)
+    parser.add_argument("--runtime-profile", choices=["source_default", "supplied_default", "fast", "standard", "research"], default="source_default",
+                        help="source_default采用源码网页默认档；supplied_default仅复现旧适配器的直接run_pipeline入口")
     parser.add_argument("--ssq", type=Path)
     parser.add_argument("--publish-dir", type=Path)
     parser.add_argument("--child", type=Path, help=argparse.SUPPRESS)

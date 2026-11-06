@@ -38,3 +38,5 @@
 .blue-deep{min-width:0}.blue-deep .ball.red{background:#fff1f2;color:#be123c;border:1px solid #fda4af}.blue-deep .ball.blue,.blue-focus .blue-deep .ball.blue{background:#eff6ff;color:#1d4ed8;border:1px solid #93c5fd}.blue-deep .jackpot-table{min-width:660px}.blue-deep summary{cursor:pointer}.blue-deep>summary{font-weight:700}
 
 .reference-observation .fusion-dantuo .ball.red{background:#fff1f2;color:#be123c;border:1px solid #fda4af}.reference-observation .fusion-dantuo .ball.blue{background:#eff6ff;color:#1d4ed8;border:1px solid #93c5fd}
+
+.reference-provenance{min-width:0}.reference-provenance input[type=file],.reference-provenance select{width:100%;max-width:100%;min-width:0}.reference-provenance .scroll table{min-width:520px}.reference-provenance td{overflow-wrap:anywhere}

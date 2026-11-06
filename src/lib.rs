@@ -22,6 +22,7 @@ pub mod review;
 pub mod select;
 pub mod small_red;
 pub mod reference;
+pub mod reference_provenance;
 pub mod reference_tickets;
 pub mod fusion_dantuo;
 pub mod reference_dantuo;

@@ -138,6 +138,15 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
             report["publication"]=json!({"can_freeze":gate.publish,"target":gate.target,"deadline":gate.deadline_text,"reason":gate.reason});Ok(report)
         }),
         ("POST", "/api/small-red/freeze") => freeze_small_red(app,body),
+        ("GET", "/api/reference-pools/provenance") => load_csv(&app.data).and_then(|draws|crate::reference_provenance::report(&recommendation_dir(app),&draws,query_value(query,"issue").as_deref())),
+        ("GET", path) if path.starts_with("/api/reference-pools/provenance/forecast/") => {
+            let result=load_csv(&app.data).and_then(|draws|crate::reference_provenance::forecast(&recommendation_dir(app),&draws,&path["/api/reference-pools/provenance/forecast/".len()..]));
+            match result{Ok(bytes)=>return(200,"application/json",bytes),Err(e)=>Err(e)}
+        },
+        ("GET", path) if path.starts_with("/api/reference-pools/provenance/input/") => {
+            let result=load_csv(&app.data).and_then(|draws|crate::reference_provenance::input(&recommendation_dir(app),&draws,&path["/api/reference-pools/provenance/input/".len()..]));
+            match result{Ok(bytes)=>return(200,"text/csv; charset=utf-8",bytes),Err(e)=>Err(e)}
+        },
         ("GET", "/api/reference-pools") => load_csv(&app.data).and_then(|draws|{
             let mut report=crate::reference::report(&recommendation_dir(app),&draws)?;
             let last=draws.last().ok_or("没有开奖数据")?;let gate=decide(recommendations::now_unix(),last.issue,last.date,false);

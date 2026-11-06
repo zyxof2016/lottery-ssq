@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict');const{shortIssue,sourceCandidates,compareSource}=require('../src/web/static/reference-pools.js');
+const tickets=Array.from({length:5},(_,i)=>({red:[1,2,3,4,5,6+i],blue:i+1}));
+const plan={red_dan:[1,2],red_tuo:[3,4,5,6,7],blue:[1,2],bet_count:10,amount:20};
+const site={issue:'26128',data_cutoff:'26127',history_count:3524,profile:{runtime_profile:'supplied_default',backtest_periods:100,random_seed:2026,packages:{xgboost:'3.0.2'}},clean_frame_sha256:'same-data',tickets,dantuo:plan};
+const record={source_period:'2026127',target_period:'2026128',tickets,metadata:{dantuo_plan:plan,forecast_publish_gate:{effective_backtest_periods:100}},data_version:{periods:3524,clean_frame_sha256:'same-data'}};
+const report={forecast_archive:record,config_snapshot:{backtest:{periods:100},project:{random_seed:2026},notification:{password:'PRIVATE_NOT_EXPORTED'}},run_metadata:{packages:{xgboost:'3.0.2'}},data:{periods:3524}};
+let result=compareSource(site,report);assert.equal(result.status,'same_numbers');assert(result.tickets_equal&&result.dantuo_equal);assert.deepEqual(result.differences,[]);assert(!JSON.stringify(result).includes('PRIVATE_NOT_EXPORTED'));
+const old=structuredClone(report);old.forecast_archive.target_period='2026123';old.forecast_archive.source_period='2026122';old.forecast_archive.data_version.periods=3519;old.data.periods=3519;old.forecast_archive.metadata.forecast_publish_gate.effective_backtest_periods=300;old.run_metadata.packages.xgboost='3.2.0';result=compareSource(site,old);assert.equal(result.status,'different_issue');assert(result.differences.some(d=>d.label==='回测期数'&&d.source==='300'));assert(result.differences.some(d=>d.label==='xgboost'&&d.source==='3.2.0'));
+old.config_snapshot.runtime={active_profile:'research'};assert(compareSource(site,old).differences.some(d=>d.label==='运行档位'&&d.source==='research'));
+const reordered=structuredClone(record);reordered.tickets.reverse();reordered.tickets.forEach(t=>t.red.reverse());result=compareSource(site,reordered);assert(result.tickets_equal);assert.equal(result.ticket_order_equal,false);assert(result.dantuo_equal);
+const changed=structuredClone(record);changed.metadata.dantuo_plan.red_dan=[1,3];changed.metadata.dantuo_plan.red_tuo=[2,4,5,6,7];result=compareSource(site,changed);assert.equal(result.status,'different_numbers');assert(result.tickets_equal);assert.equal(result.dantuo_equal,false);
+const noPlan=structuredClone(record);delete noPlan.metadata.dantuo_plan;assert.equal(compareSource(site,noPlan).dantuo_equal,null);
+assert.equal(sourceCandidates({forecasts:[record,old.forecast_archive]}).length,2);assert.equal(compareSource(site,{forecasts:[old.forecast_archive,record]},1).status,'same_numbers');
+assert.equal(shortIssue('2026128'),'26128');assert.throws(()=>shortIssue('wrong'));assert.throws(()=>compareSource(site,{}));
+const duplicate=structuredClone(record);duplicate.tickets[1]=duplicate.tickets[0];assert.throws(()=>compareSource(site,duplicate),/重复/);
+const invalid=structuredClone(record);invalid.metadata.dantuo_plan.amount=200;assert.throws(()=>compareSource(site,invalid),/金额/);
+console.log('Reference parity: same-run numbers, issue and profile differences, order-only differences, banker roles, missing evidence, budget integrity and privacy verified');
