@@ -1,5 +1,7 @@
 # 现有生产部署
 
+2026-11-06完整概率校准增加 `recommendations/calibration/{issue}.json` 及 `recommendations/reviews/{issue}/calibration.json`，继续随recommendations备份。使用原cycle和timer，仅新增概率评分，不增加购票池；旧joint-red若全33红在原精度下同分，跳过新自动研究票面，已有原档继续按旧规则读取结算。新增GET `/api/jackpot/calibration`、POST同路径`/freeze`、GET同路径`/archives/{issue}`。发布先只读核对19个旧接口、全部原运行文件和参考环境，再正式启动当前下一期概率前瞻；不上传本地测试档案。模型v1单独冻结在calibration_model_v1.rs，后续模型改动须另建版本。详见 [26127深度复盘](deep-review-2026-11-06.md)。
+
 2026-11-05新增只读 `GET /api/jackpot/score-v2` 和头奖页完整组合评分v2对照。新评分代码独立，不修改旧策略、Protocol、封存或cycle，不新增运行目录。当前候选未过验证门槛，不输出v2推荐或开启新观察。发布核对18个原只读接口不变、全部运行原档字节保留、旧参考环境及两个timer正常；只读访问新接口不会创建推荐。数学、时间切分与限制见 [本次深度复盘](deep-score-review-2026-11-05.md)。
 
 入口为 <http://1.14.208.189/ssq/>，HTTPS 同路径也可访问。通过 `ssh ubuntu@1.14.208.189` 使用现有 SSH 密钥连接，管理服务可用 `sudo -n systemctl`。不要在仓库中保存密钥或其他凭据。

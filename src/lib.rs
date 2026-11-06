@@ -28,6 +28,8 @@ pub mod prize_coverage;
 pub mod jackpot;
 pub mod joint_red;
 pub mod joint_score;
+pub mod calibration_model_v1;
+pub mod calibration;
 pub mod joint_observation;
 pub mod small_archive;
 pub mod stats;
