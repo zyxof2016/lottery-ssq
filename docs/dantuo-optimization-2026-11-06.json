@@ -1,0 +1,227 @@
+{
+  "current": {
+    "blue_selection_changed": false,
+    "data_cutoff": "26127",
+    "data_sha256": "32e19143f96375282bde62db6fed8061a6ee4f66a4dd6aee8677ad219b39e672",
+    "evidence": {
+      "blue_uniform_weight": 0.9822017023168138,
+      "confirmation_exploratory": {
+        "joint_log_excess_vs_uniform": -0.0005592948814596866,
+        "n": 156
+      },
+      "promoted": false,
+      "reason": "完整概率模型尚未证明优于均匀；搜索提高的是给定模型评分，不能当成真实头奖概率提升。保留首次票面，不另建购票观察池。",
+      "red_uniform_weight": 0.9929192081550617,
+      "ticket_publication_enabled": false,
+      "tracking": {
+        "joint_log_excess_vs_uniform": 0.0064079911721712035,
+        "n": 12
+      },
+      "training_last_issue": "23100",
+      "validation": {
+        "joint_log_excess_vs_uniform": 0.0010832341765106741,
+        "n": 312
+      }
+    },
+    "issue": "26128",
+    "note": "在同一融合16红和原蓝球选择内，对全部合法胆拖结构比较完整展开票面的概率质量。未限定为排序前7或8红；不随机抽号、不按开奖号挑胆。最优性只针对给定模型与候选，未通过预测验证，不输出新购票票面或覆盖原档。",
+    "prefix_archive_sha256": "5becf87abe9b672768a38fd4dd486a920c3383c0c14b7750a497f652b0b482fb",
+    "prefix_plan_sealed": true,
+    "red_candidate_count": 16,
+    "reference_archive_sha256": "18eaf03623e83afc8b8f3ee7cecd7d1a8577791f5d1bf42939407f2d0592c65c",
+    "rows": [
+      {
+        "bankers_changed": true,
+        "bet_count": 10,
+        "certificate": {
+          "algorithm": "enumerate_all_7_red_unions_then_exclude_two_minimum_omission_weights",
+          "all_legal_red_plans": 240240,
+          "complete_six_scores": 8008,
+          "floating_point": "f64; deterministic; independent brute force tests",
+          "objectives_evaluated": 11440,
+          "red_pool_size": 16,
+          "scope": "同一候选池和给定完整六红评分下最优，不是全33红最优或真实中奖概率保证",
+          "unions_examined": 11440,
+          "within_pool_global_optimum": true
+        },
+        "cost": 20,
+        "dantuo_mass_fraction_of_unrestricted_singles": 0.959796437173955,
+        "exact_same_pool": {
+          "banker_retention_given_union": 0.7171923536759625,
+          "legal_complete_red_sets": 5,
+          "model_joint_mass": 6.245013819225563e-07,
+          "model_legal_six_red_mass": 4.71568745262108e-06,
+          "model_red_union_mass": 6.575205979889314e-06,
+          "ratio_to_uniform_ten_tickets": 1.1066843945171227,
+          "red_union_count": 7
+        },
+        "id": "2+5+2",
+        "model_mass_relative_gain": 0.039681386008571184,
+        "original_prefix": {
+          "banker_retention_given_union": 0.7140460988912775,
+          "legal_complete_red_sets": 5,
+          "model_joint_mass": 6.00666117838343e-07,
+          "model_legal_six_red_mass": 4.5357044149121695e-06,
+          "model_red_union_mass": 6.3521170719298155e-06,
+          "ratio_to_uniform_ten_tickets": 1.0644457132831644,
+          "red_union_count": 7
+        },
+        "same_blue_choices": true,
+        "top_ten_singles_same_pool_and_blues_mass": 6.506602418335198e-07,
+        "uniform": {
+          "banker_retention_given_union": 0.7142857142857143,
+          "joint_mass": 5.642994380480476e-07,
+          "legal_red_sets": 5,
+          "red_union_complete_sets": 7
+        },
+        "union_changed": true
+      },
+      {
+        "bankers_changed": true,
+        "bet_count": 10,
+        "certificate": {
+          "algorithm": "enumerate_all_8_red_unions_and_all_56_five_drag_cliques",
+          "all_legal_red_plans": 720720,
+          "complete_six_scores": 8008,
+          "floating_point": "f64; deterministic; independent brute force tests",
+          "objectives_evaluated": 720720,
+          "red_pool_size": 16,
+          "scope": "同一候选池和给定完整六红评分下最优，不是全33红最优或真实中奖概率保证",
+          "unions_examined": 12870,
+          "within_pool_global_optimum": true
+        },
+        "cost": 20,
+        "dantuo_mass_fraction_of_unrestricted_singles": 0.9903308061402434,
+        "exact_same_pool": {
+          "banker_retention_given_union": 0.36058156231767696,
+          "legal_complete_red_sets": 10,
+          "model_joint_mass": 6.443688818183953e-07,
+          "model_legal_six_red_mass": 9.389141749887115e-06,
+          "model_red_union_mass": 2.6038884765869314e-05,
+          "ratio_to_uniform_ten_tickets": 1.1418917659165382,
+          "red_union_count": 8
+        },
+        "id": "3+5+1",
+        "model_mass_relative_gain": 0.033978949435296446,
+        "original_prefix": {
+          "banker_retention_given_union": 0.3564343530243555,
+          "legal_complete_red_sets": 10,
+          "model_joint_mass": 6.231934239766823e-07,
+          "model_legal_six_red_mass": 9.080592748058322e-06,
+          "model_red_union_mass": 2.5476199673261674e-05,
+          "ratio_to_uniform_ten_tickets": 1.1043665507312097,
+          "red_union_count": 8
+        },
+        "same_blue_choices": true,
+        "top_ten_singles_same_pool_and_blues_mass": 6.506602418335198e-07,
+        "uniform": {
+          "banker_retention_given_union": 0.35714285714285715,
+          "joint_mass": 5.642994380480476e-07,
+          "legal_red_sets": 10,
+          "red_union_complete_sets": 28
+        },
+        "union_changed": true
+      }
+    ],
+    "same_fusion_parent": true,
+    "score_model": "frozen_complete_probability_calibration_v1",
+    "solver_source_sha256": "404c5b43cad95b32d733c8fba2a7eb5d89847384618609cec25dbef0688d2d97",
+    "status": "research_only",
+    "tickets_generated": false,
+    "uniform_outcomes": 17721088,
+    "version": 1,
+    "writes_archives": false
+  },
+  "historical_exploration": {
+    "data_sha256": "32e19143f96375282bde62db6fed8061a6ee4f66a4dd6aee8677ad219b39e672",
+    "pool_policy": "each_period_calibrated_marginal_top16; shared_by_both_selectors; not_reconstructed_reference_fusion",
+    "windows": {
+      "confirmation_exploratory": {
+        "cells": [
+          {
+            "exact_jackpot_periods": 0,
+            "exact_six_periods": 0,
+            "id": "2+5+2",
+            "mean_model_gain": 9.963539964584738e-18,
+            "original_jackpot_periods": 0,
+            "original_six_periods": 0
+          },
+          {
+            "exact_jackpot_periods": 0,
+            "exact_six_periods": 0,
+            "id": "3+5+1",
+            "mean_model_gain": 8.39784082729285e-17,
+            "original_jackpot_periods": 0,
+            "original_six_periods": 0
+          }
+        ],
+        "full_six_in_16": 1,
+        "n": 156,
+        "pool_boundary_tied_periods": 123
+      },
+      "tracking": {
+        "cells": [
+          {
+            "exact_jackpot_periods": 0,
+            "exact_six_periods": 0,
+            "id": "2+5+2",
+            "mean_model_gain": 0.0,
+            "original_jackpot_periods": 0,
+            "original_six_periods": 0
+          },
+          {
+            "exact_jackpot_periods": 0,
+            "exact_six_periods": 0,
+            "id": "3+5+1",
+            "mean_model_gain": 1.295260195396016e-16,
+            "original_jackpot_periods": 0,
+            "original_six_periods": 0
+          }
+        ],
+        "full_six_in_16": 0,
+        "n": 12,
+        "pool_boundary_tied_periods": 11
+      },
+      "validation": {
+        "cells": [
+          {
+            "exact_jackpot_periods": 0,
+            "exact_six_periods": 0,
+            "id": "2+5+2",
+            "mean_model_gain": 1.6368672798960642e-17,
+            "original_jackpot_periods": 0,
+            "original_six_periods": 0
+          },
+          {
+            "exact_jackpot_periods": 0,
+            "exact_six_periods": 0,
+            "id": "3+5+1",
+            "mean_model_gain": 7.472654973438554e-17,
+            "original_jackpot_periods": 0,
+            "original_six_periods": 0
+          }
+        ],
+        "full_six_in_16": 2,
+        "n": 312,
+        "pool_boundary_tied_periods": 246
+      }
+    },
+    "actual_recommendation": false
+  },
+  "actual_saved_fusion16": {
+    "baseline_model": "small_recent",
+    "excluded_missing_pair": 6,
+    "full_red_periods": 0,
+    "full_red_rate": 0.0,
+    "label": "参考融合16红",
+    "mean_missed_reds": 3.0,
+    "mean_red_count": 16.0,
+    "model": "reference_fused16",
+    "n": 4,
+    "paired_gains": 0,
+    "paired_losses": 0,
+    "pending": 1,
+    "red_count": 16
+  },
+  "causality_future_append_verified": true
+}

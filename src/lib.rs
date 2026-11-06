@@ -25,6 +25,8 @@ pub mod reference;
 pub mod reference_provenance;
 pub mod reference_tickets;
 pub mod fusion_dantuo;
+pub mod dantuo_search;
+pub mod dantuo_audit;
 pub mod reference_dantuo;
 pub mod prize_coverage;
 pub mod jackpot;

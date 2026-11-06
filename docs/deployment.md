@@ -1,5 +1,7 @@
 # 现有生产部署
 
+2026-11-06胆拖完整票面搜索优化：新增只读GET `/api/reference-pools/dantuo-audit?issue=26128`，在原融合胆拖折叠区展示同池精确搜索对照；不新增观察池、运行目录或自动封存，不改原概率模型、参考环境和已存票面。保留当前reference目录及两个timer，发布只读核对22个旧接口、全部原运行文件与新搜索结果。复盘及复现见 [胆拖深度优化](dantuo-deep-review-2026-11-06.md)。
+
 2026-11-06参考运行档位修复：新计算从源码dashboard_run入口应用完整档位，旧首次缓存保持真实supplied_default标记。部署时复制旧release的reference目录，再覆盖本次worker.py、test_worker.py、README.txt；tsys与manifest不变，保留原环境、工作报告和私有审计密钥。新增只读来源核验及单条预测/输入CSV下载，线上验收不触发模型重算。具体差异见 [参考一致性核对](reference-parity-2026-11-06.md)。
 
 2026-11-06融合推荐新增2胆5拖2蓝、3胆5拖1蓝，各10注20元。独立记录在 `recommendations/fusion-dantuo/{issue}.json`，复盘在 `recommendations/reviews/{issue}/fusion-dantuo.json`，随recommendations全目录备份。新增GET/POST封存/原档下载接口 `/api/reference-pools/fusion-dantuo`，沿用原cycle；不改原参考、融合8注或参考预算档。发布先只读核对20个旧接口及全部运行文件，再正式封存当前下一期两种方案。前端同一组件用于当前推荐及历史独立复盘，缺档不补造。规格和入口见 [融合胆拖说明](fusion-dantuo.md)。

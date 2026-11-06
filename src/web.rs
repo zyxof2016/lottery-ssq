@@ -152,6 +152,7 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
             let last=draws.last().ok_or("没有开奖数据")?;let gate=decide(recommendations::now_unix(),last.issue,last.date,false);
             report["publication"]=json!({"can_freeze":gate.publish,"target":gate.target,"deadline":gate.deadline_text,"reason":gate.reason});Ok(report)
         }),
+        ("GET", "/api/reference-pools/dantuo-audit") => load_csv(&app.data).and_then(|draws|crate::dantuo_audit::report(&recommendation_dir(app),&draws,query_value(query,"issue").as_deref())),
         ("GET", "/api/reference-pools/fusion-dantuo") => load_csv(&app.data).and_then(|draws|crate::fusion_dantuo::report(&recommendation_dir(app),&draws,query_value(query,"issue").as_deref())),
         ("POST", "/api/reference-pools/fusion-dantuo/freeze") => freeze_fusion_dantuo(app,body),
         ("GET", path) if path.starts_with("/api/reference-pools/fusion-dantuo/archives/") => {

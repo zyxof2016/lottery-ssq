@@ -84,7 +84,22 @@
    <p v-if="message" class="muted" role="status">{{message}}</p>
   </section>`
  };
- const fusionDantuo={props:{issue:{type:String,required:true},snapshot:{type:Object,required:true}},setup(props){
+ const dantuoAudit={props:{issue:{type:String,required:true}},setup(props){
+  const report=Vue.ref(null),error=Vue.ref(''),loading=Vue.ref(false),opened=Vue.ref(false);let request=0;
+  const score=n=>n==null?'—':Number(n).toFixed(4),gain=n=>n==null?'—':(Number(n)*100).toFixed(2)+'%';
+  async function load(){if(!opened.value||report.value||loading.value)return;const id=++request;loading.value=true;error.value='';try{const r=await fetch(SSQApp.url('api/reference-pools/dantuo-audit',{issue:props.issue})),v=await r.json();if(id!==request)return;if(!r.ok)throw Error(v.error||'胆拖优化核验失败');report.value=v;}catch(e){if(id===request)error.value=e.message;}finally{if(id===request)loading.value=false;}}
+  function toggle(e){opened.value=e.target.open;load();}Vue.watch(()=>props.issue,()=>{request++;report.value=null;error.value='';loading.value=false;load();});return{report,error,loading,toggle,load,score,gain};
+ },template:`<details class="reference-evidence dantuo-audit" data-dantuo-audit @toggle="toggle"><summary>胆拖深度核验 · 选胆与完整票面优化</summary>
+  <p v-if="loading" class="muted" role="status">正在比较同一16红内的全部合法胆拖结构…</p><p v-if="error" class="notice error" role="alert">{{error}} <button type="button" @click="load">重试</button></p>
+  <template v-if="report?.rows"><p class="muted">第{{report.issue}}期 · 同一融合16红、相同蓝球选择、每种10注20元。按完整展开票面的模型概率之和搜索，不以并集命中或单号曝光代替完整单注。</p><p class="muted" data-dantuo-audit-origin>{{report.prefix_plan_sealed?'前缀方案已有本期首次原档；这里仅作只读模型评分。':'本期缺少已封存的胆拖原档，前缀规则仅为历史算法回放，不算实际推荐。'}}</p>
+   <p class="notice" data-dantuo-audit-adoption>{{report.evidence.reason}}</p>
+   <div class="scroll"><table><thead><tr><th>规格</th><th>前缀规则评分</th><th>同池最优评分</th><th>模型分数变化</th><th>合法红球结构</th></tr></thead><tbody><tr v-for="r in report.rows" :key="r.id" :data-dantuo-audit-spec="r.id"><td>{{r.id}}</td><td>{{score(r.original_prefix.ratio_to_uniform_ten_tickets)}}</td><td>{{score(r.exact_same_pool.ratio_to_uniform_ten_tickets)}}</td><td>{{gain(r.model_mass_relative_gain)}}</td><td>{{r.certificate.all_legal_red_plans.toLocaleString('en-US')}}</td></tr></tbody></table></div>
+   <p class="muted">评分使用已冻结的完整组合校准模型。表中以均匀10注为1；分数上涨不代表实际中奖率上涨。模型在{{report.evidence.confirmation_exploratory.n}}期确认窗的6＋1平均对数评分差为{{report.evidence.confirmation_exploratory.joint_log_excess_vs_uniform==null?'—':Number(report.evidence.confirmation_exploratory.joint_log_excess_vs_uniform).toFixed(6)}}，0为均匀基准。</p>
+   <p class="muted">2+5+2：7红并集有7组六红，全部胆码入票后保留5组，再配2蓝。3+5+1：8红并集有28组六红，保留10组，再配1蓝。胆码错一个，两种均无法形成完整6红；两种各10个不同6＋1结果，公平头奖基准相同。</p>
+   <p class="muted">搜索比较所有合法候选结构，证明只限给定模型、同16红与固定蓝球。16红已漏开奖号时，组票优化无法补回；历史探索和当前模型评分均不计作首次留档成绩。</p>
+  </template><p v-else-if="report" class="muted">{{report.reason}}</p>
+ </details>`};
+ const fusionDantuo={components:{DantuoAudit:dantuoAudit},props:{issue:{type:String,required:true},snapshot:{type:Object,required:true}},setup(props){
   const report=Vue.ref(null),error=Vue.ref(''),message=Vue.ref(''),busy=Vue.ref(false),selected=Vue.ref('2+5+2');let request=0;
   const current=Vue.computed(()=>report.value?.current),plan=Vue.computed(()=>current.value?.plans?.find(p=>p.id===selected.value));
   const api='api/reference-pools/fusion-dantuo';
@@ -109,6 +124,7 @@
     <div class="row reference-actions"><button type="button" @click="copy(false)">复制融合胆拖方案</button><button type="button" @click="copy(true)">复制展开10注</button><button v-if="current.status!=='frozen'" type="button" :disabled="busy||!report.publication.can_freeze" @click="freeze">{{busy?'封存中…':'封存两种融合胆拖'}}</button></div>
     <details class="reference-union" data-fusion-dantuo-expanded><summary>查看{{selected}}展开10注与逐注对奖</summary><ol class="reference-tickets"><li v-for="(ticket,index) in plan.tickets" :key="index" data-fusion-dantuo-ticket><span class="reference-ticket-label">第{{index+1}}注</span><div class="balls"><span v-for="n in ticket.red" :key="n" class="ball selected red">{{pad(n)}}</span><span class="reference-plus">+</span><span class="ball selected blue">{{pad(ticket.blue)}}</span></div><small class="muted">中红{{nullable(plan.ticket_results?.[index]?.red_hits)}}/6 · 中蓝{{flag(plan.ticket_results?.[index]?.blue_hit)}}<template v-if="plan.ticket_results?.[index]?.red_hits!=null"> · {{plan.ticket_results[index].prize_level?plan.ticket_results[index].prize_level+'等奖':plan.ticket_results[index].special_prize_candidate?'福运奖待核实':'未中常规奖'}}</template></small></li></ol></details>
    </template><details v-if="report.actual" class="reference-evidence"><summary>融合胆拖 · 实际封存逐注统计</summary><p class="muted">{{report.actual.note}}</p><p v-if="report.actual.errors.length" class="notice error" role="alert">{{report.actual.errors.join('；')}}</p><div class="scroll"><table><thead><tr><th>规格</th><th>已开奖 / 待开奖</th><th>至少一注常规奖</th><th>平均最佳中红</th></tr></thead><tbody><tr v-for="r in report.actual.cells" :key="r.id"><td>{{r.id}} · 10注20元</td><td>{{r.n}} / {{r.pending}}</td><td>{{r.n?r.any_prize_periods+'/'+r.n:'—'}}</td><td>{{r.mean_best_red==null?'—':Number(r.mean_best_red).toFixed(2)}}</td></tr></tbody></table></div></details>
+   <dantuo-audit :issue="issue"></dantuo-audit>
   </template><p v-if="message" class="muted" role="status">{{message}}</p>
  </section>`};
  const numbers = {
