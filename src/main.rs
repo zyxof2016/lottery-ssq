@@ -181,7 +181,8 @@ fn run() -> Result<(), String> {
             let gate=ssq::cycle::decide(ssq::recommendations::now_unix(),last.issue,last.date,false);
             if !gate.publish{return Err(gate.reason);}
             let root=out.parent().unwrap_or_else(||std::path::Path::new(".")).join("recommendations");
-            let result=ssq::reference::freeze(&root,&draws,&gate.target,gate.deadline_unix)?;
+            let mut result=ssq::reference::freeze(&root,&draws,&gate.target,gate.deadline_unix)?;
+            result["fusion_dantuo_archive"]=ssq::fusion_dantuo::freeze(&root,&draws,&gate.target,gate.deadline_unix)?;
             println!("{}",serde_json::to_string(&result).map_err(|e|e.to_string())?);
         }
         Cmd::Verify {

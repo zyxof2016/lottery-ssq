@@ -143,6 +143,12 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
             let last=draws.last().ok_or("没有开奖数据")?;let gate=decide(recommendations::now_unix(),last.issue,last.date,false);
             report["publication"]=json!({"can_freeze":gate.publish,"target":gate.target,"deadline":gate.deadline_text,"reason":gate.reason});Ok(report)
         }),
+        ("GET", "/api/reference-pools/fusion-dantuo") => load_csv(&app.data).and_then(|draws|crate::fusion_dantuo::report(&recommendation_dir(app),&draws,query_value(query,"issue").as_deref())),
+        ("POST", "/api/reference-pools/fusion-dantuo/freeze") => freeze_fusion_dantuo(app,body),
+        ("GET", path) if path.starts_with("/api/reference-pools/fusion-dantuo/archives/") => {
+            let result=load_csv(&app.data).and_then(|draws|crate::fusion_dantuo::artifact(&recommendation_dir(app),&draws,&path["/api/reference-pools/fusion-dantuo/archives/".len()..]));
+            match result{Ok(bytes)=>return(200,"application/json",bytes),Err(e)=>Err(e)}
+        },
         ("POST", "/api/reference-pools/freeze") => freeze_reference(app,body),
         ("POST", "/api/jackpot/model-review/freeze") => freeze_joint_observation(app,body),
         ("GET", path) if path.starts_with("/api/jackpot/model-review/archives/") => {
@@ -1108,13 +1114,23 @@ fn recommendation_detail(app: &App, issue: &str, query: &str) -> Result<Value, S
         query_value(query, "archive").as_deref(), query_value(query, "strategy").as_deref())
 }
 
+fn freeze_fusion_dantuo(app:&App,body:&str)->Result<Value,String>{
+    let draws=load_csv(&app.data)?;let last=draws.last().ok_or("没有开奖数据")?;let gate=decide(recommendations::now_unix(),last.issue,last.date,false);
+    let expected:Value=serde_json::from_str(body).map_err(|_|"融合胆拖封存请求无效")?;
+    if expected["data_sha256"]!=data_sha256(&draws)||expected["target"]!=gate.target{return Err("融合胆拖数据或期号已变化，请刷新".into());}
+    if !gate.publish{return Err(gate.reason);}
+    crate::fusion_dantuo::freeze(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix)
+}
+
 fn freeze_reference(app:&App,body:&str)->Result<Value,String>{
     let draws=load_csv(&app.data)?;let last=draws.last().ok_or("没有开奖数据")?;
     let gate=decide(recommendations::now_unix(),last.issue,last.date,false);
     let expected:Value=serde_json::from_str(body).map_err(|_|"参考池封存请求无效")?;
     if expected["data_sha256"]!=data_sha256(&draws)||expected["target"]!=gate.target{return Err("参考池的数据或期号已变化，请刷新后封存".into());}
     if !gate.publish{return Err(gate.reason);}
-    crate::reference::freeze(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix)
+    let mut value=crate::reference::freeze(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix)?;
+    value["fusion_dantuo_archive"]=crate::fusion_dantuo::freeze(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix)?;
+    Ok(value)
 }
 
 fn freeze_blue_joint(app:&App,body:&str)->Result<Value,String>{
