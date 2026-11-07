@@ -127,11 +127,38 @@
    <dantuo-audit :issue="issue"></dantuo-audit>
   </template><p v-if="message" class="muted" role="status">{{message}}</p>
  </section>`};
+ const fusionV2={props:{issue:{type:String,required:true},snapshot:{type:Object,required:true}},setup(props){
+  const report=Vue.ref(null),error=Vue.ref(''),message=Vue.ref(''),loading=Vue.ref(false),busy=Vue.ref(false),mode=Vue.ref('single'),size=Vue.ref(16),shape=Vue.ref('2+5+2');let request=0;
+  const current=Vue.computed(()=>report.value?.current),bundle=Vue.computed(()=>current.value?.bundle),plan=Vue.computed(()=>mode.value==='single'?bundle.value?.singles?.find(p=>p.red_count===size.value):bundle.value?.dantuo?.find(p=>p.id===shape.value));
+  const rawUrl=Vue.computed(()=>current.value?.raw_url?new URL(current.value.raw_url,SSQApp.base).href:'');const reviewUrl=Vue.computed(()=>current.value?.review_url?new URL(current.value.review_url,SSQApp.base).href:'');
+  async function load(){const id=++request;loading.value=true;error.value='';try{const r=await fetch(SSQApp.url('api/reference-pools/fusion-v2',{issue:props.issue})),v=await r.json();if(id!==request)return;if(!r.ok)throw Error(v.error||'融合修正版读取失败');report.value=v;}catch(e){if(id===request){error.value=e.message;report.value=null;}}finally{if(id===request)loading.value=false;}}
+  async function freeze(){if(busy.value||!report.value)return;busy.value=true;message.value='';try{const r=await fetch(SSQApp.url('api/reference-pools/fusion-v2/freeze'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target:report.value.target,data_sha256:report.value.data_sha256})}),v=await r.json();if(!r.ok)throw Error(v.error||'融合修正版封存失败');message.value=v.status==='waiting'?v.reason:v.status==='already_frozen'?'已保留v2首次票面。':'v2单式与两种胆拖已独立封存。';await load();}catch(e){message.value=e.message;}finally{busy.value=false;}}
+  async function copy(compact){const p=plan.value;if(!p)return;let body=p.tickets.map((t,i)=>(i+1)+'. '+t.red.map(pad).join(' ')+' + '+pad(t.blue)).join('\n');if(compact&&p.mode==='dantuo')body='红胆：'+p.red_dan.map(pad).join(' ')+'\n红拖：'+p.red_tuo.map(pad).join(' ')+'\n蓝球：'+p.blues.map(pad).join(' ');try{await copyText('双色球 '+props.issue+'期 · '+p.title+'\n'+body+'\n'+p.bet_count+'注，共'+p.cost+'元（每注2元）\n'+(current.value.status==='frozen'?'来自修正版v2首次封存原档。':'修正版v2预览，尚未封存。'));message.value='修正版v2号码已复制。';}catch(e){message.value=e.message||'复制失败';}}
+  Vue.onMounted(load);Vue.watch(()=>[props.issue,props.snapshot],()=>{message.value='';report.value=null;load();});return{report,error,message,loading,busy,mode,size,shape,current,bundle,plan,rawUrl,reviewUrl,load,freeze,copy,pad,time,nullable,flag};
+ },template:`<section class="fusion-v2" data-fusion-v2 aria-label="融合修正版v2">
+  <p class="notice" data-fusion-v2-repair>修正版v2：已去除两层显式重号加分。保留参考支持、正常重号候选和原蓝球排序；旧版v1首次档可切换查看。</p>
+  <p v-if="loading&&!report" class="muted" role="status">正在读取融合修正版…</p><p v-if="error" class="notice error" role="alert">{{error}}</p>
+  <template v-if="report"><p v-if="!bundle" class="muted" data-fusion-v2-missing>{{current.reason}}</p>
+   <template v-if="bundle"><p class="muted">第{{issue}}期 · 单式四档与两种胆拖各为独立选项，按所选方案显示费用。</p>
+    <div class="small-red-sizes" aria-label="修正版买法"><button type="button" data-fusion-v2-mode="single" :aria-pressed="mode==='single'" :class="{selected:mode==='single'}" @click="mode='single'">8注单式 · 16元</button><button type="button" data-fusion-v2-mode="dantuo" :aria-pressed="mode==='dantuo'" :class="{selected:mode==='dantuo'}" @click="mode='dantuo'">胆拖 · 20元</button></div>
+    <div v-if="mode==='single'" class="small-red-sizes" aria-label="修正版候选红球数量"><button v-for="p in bundle.singles" :key="p.red_count" type="button" :data-fusion-v2-size="p.red_count" :aria-pressed="size===p.red_count" :class="{selected:size===p.red_count}" @click="size=p.red_count">{{p.red_count}}红</button></div>
+    <div v-else class="small-red-sizes" aria-label="修正版胆拖规格"><button v-for="p in bundle.dantuo" :key="p.id" type="button" :data-fusion-v2-shape="p.id" :aria-pressed="shape===p.id" :class="{selected:shape===p.id}" @click="shape=p.id">{{p.id}}</button></div>
+    <template v-if="plan"><p class="reference-buyable-budget" data-fusion-v2-budget><strong>{{plan.bet_count}}注 · {{plan.cost}}元</strong><span>{{plan.title}}</span></p>
+     <template v-if="mode==='dantuo'"><div class="reference-plan-row" data-v2-dan><b>红胆</b><div class="balls"><span v-for="n in plan.red_dan" :key="n" class="ball selected red">{{pad(n)}}</span></div></div><div class="reference-plan-row" data-v2-tuo><b>红拖</b><div class="balls"><span v-for="n in plan.red_tuo" :key="n" class="ball selected red">{{pad(n)}}</span></div></div><div class="reference-plan-row" data-v2-blue><b>蓝球</b><div class="balls"><span v-for="n in plan.blues" :key="n" class="ball selected blue">{{pad(n)}}</span></div></div><p class="muted">C(5,{{6-plan.red_dan.length}}) × {{plan.blues.length}} ＝ 10注；完整六红仍要求全部胆码命中。</p></template>
+     <p v-if="current.status==='frozen'" class="muted" data-fusion-v2-sealed>v2独立保存于{{time(current.published_at_unix)}}。<a :href="rawUrl">修正版v2原档JSON</a> <a v-if="reviewUrl" :href="reviewUrl">v2逐注复盘JSON</a></p><p v-else class="muted">当前为v2预览，尚未独立封存。</p>
+     <ol class="reference-tickets" aria-label="融合修正版完整票面"><li v-for="(t,i) in plan.tickets" :key="i" data-fusion-v2-ticket><span class="reference-ticket-label">第{{i+1}}注</span><div class="balls"><span v-for="n in t.red" :key="n" class="ball selected red">{{pad(n)}}</span><span class="reference-plus">+</span><span class="ball selected blue">{{pad(t.blue)}}</span></div><small class="muted">含上期{{plan.previous_overlap[i]}}红<template v-if="!current.pending&&current.status==='frozen'"> · 中红{{nullable(plan.ticket_results?.[i]?.red_hits)}}/6 · 中蓝{{flag(plan.ticket_results?.[i]?.blue_hit)}} · {{plan.ticket_results[i].prize_level?plan.ticket_results[i].prize_level+'等奖':plan.ticket_results[i].special_prize_candidate?'特别奖待核实':'未中常规奖'}}</template></small></li></ol>
+     <p v-if="plan.summary?.max_ticket_red_hits!=null" class="muted">最佳单注中{{plan.summary.max_ticket_red_hits}}红 · 常规中奖{{plan.summary.prize_tickets}}注 · 已知固定奖金{{plan.summary.fixed_prize}}元；浮动奖金及特别奖另核。</p>
+     <div class="row reference-actions"><button v-if="mode==='dantuo'" type="button" @click="copy(true)">复制v2胆拖方案</button><button type="button" @click="copy(false)">复制v2完整{{plan.bet_count}}注</button><button v-if="current.status!=='frozen'" type="button" :disabled="busy||!report.publication.can_freeze" @click="freeze">{{busy?'封存中…':'封存修正版v2'}}</button></div>
+     <details class="reference-evidence"><summary>查看v2评分修复与候选池</summary><p class="muted">原模型中显式重号专家的叠加权重约{{(bundle.evidence.legacy_explicit_repeat_weight*100).toFixed(2)}}%，v2为0；其余专家保留原相对权重，近期与参考支持继续参与。修复评分偏置尚未证明中奖率提升。</p><p class="reference-number-text">候选红球：{{plan.reds.slice().sort((a,b)=>a-b).map(pad).join(' ')}}</p><p class="muted">蓝球：{{plan.blues.map(pad).join(' ')}}。</p></details>
+    </template>
+   </template><p class="muted" data-fusion-v2-actual>v2独立留档：已开奖{{report.actual.n}}期 · 待开奖{{report.actual.pending}}期。{{report.actual.note}}</p><p v-if="report.actual.errors.length" class="notice error">{{report.actual.errors.join('；')}}</p>
+  </template><button type="button" @click="load" :disabled="loading">刷新修正版v2</button><p v-if="message" class="muted" role="status">{{message}}</p>
+ </section>`};
  const numbers = {
-  components:{ReferenceDantuo:dantuo,FusionDantuo:fusionDantuo,ReferenceProvenance:referenceProvenance},
-  props:{snapshot:{type:Object,required:true},ticketBundle:{type:Object,default:null},dantuoBundle:{type:Object,default:null},issue:{type:String,default:''},archived:{type:Boolean,default:false}},
+  components:{ReferenceDantuo:dantuo,FusionDantuo:fusionDantuo,ReferenceProvenance:referenceProvenance,FusionV2:fusionV2},
+  props:{snapshot:{type:Object,required:true},ticketBundle:{type:Object,default:null},dantuoBundle:{type:Object,default:null},issue:{type:String,default:''},archived:{type:Boolean,default:false},preferV2:{type:Boolean,default:false}},
   setup(props) {
-   const count = Vue.ref(16), message = Vue.ref('');
+   const count = Vue.ref(16), message = Vue.ref(''),fusionVersion=Vue.ref(props.preferV2?'v2':'v1');
    const original = Vue.computed(() => props.snapshot.reference);
    const pool = Vue.computed(() => props.snapshot.fusion.pools.find(p => p.red_count === count.value));
    const ticketPlan=Vue.computed(()=>props.ticketBundle?.plans?.find(p=>p.red_count===count.value));
@@ -146,7 +173,7 @@
     try{await copyText('双色球 '+props.issue+' 期 · '+title+'\n'+body+'\n'+note+'\n'+(sealed?'完整号码来自首次封存档。':'当前完整票面预览，尚未封存。'));message.value=title+'已复制。';}
     catch (e) { message.value = e.message || '复制未成功，请手动选择号码。'; }
    }
-   return {count, message, original, pool, ticketPlan, scored, copy, pad, sorted, nullable, flag};
+   return {count, message, original, pool, ticketPlan, scored, copy, pad, sorted, nullable, flag,fusionVersion};
   },
   template:`<div class="reference-numbers">
    <div class="reference-grid">
@@ -161,7 +188,8 @@
      <button type="button" @click="copy('reference')">复制原始5注</button><reference-dantuo :bundle="dantuoBundle" :issue="issue" :archived="archived"></reference-dantuo>
     </article>
     <article class="reference-box" data-reference-model="reference_fused16">
-     <h3>融合推荐 · 单式与胆拖</h3>
+     <h3>融合推荐 · 单式与胆拖</h3><div class="small-red-sizes" aria-label="融合推荐版本"><button type="button" data-fusion-version="v2" :aria-pressed="fusionVersion==='v2'" :class="{selected:fusionVersion==='v2'}" @click="fusionVersion='v2'">修正版v2</button><button type="button" data-fusion-version="v1" :aria-pressed="fusionVersion==='v1'" :class="{selected:fusionVersion==='v1'}" @click="fusionVersion='v1'">旧版v1原档</button></div>
+     <fusion-v2 v-if="fusionVersion==='v2'" :issue="issue" :snapshot="snapshot"></fusion-v2><template v-else><p class="notice">旧版v1首次结果，保留用于原档核对；当前融合推荐默认使用修正版v2。</p>
      <p class="muted">现有小池评分90%＋参考5注并集支持10%；并集内均匀分配，重复出现不加权，最多16红。</p>
      <p class="muted">历史对照尚未优于现有小池，独立观察中。</p>
      <div class="small-red-sizes" aria-label="参考融合红球数量"><button v-for="p in snapshot.fusion.pools" :key="p.red_count" type="button" :data-reference-size="p.red_count" :aria-pressed="count===p.red_count" :class="{selected:count===p.red_count}" @click="count=p.red_count">{{ p.red_count }}红{{ p.red_count===16?' · 上限':'' }}</button></div>
@@ -175,7 +203,7 @@
       <p v-else class="notice">旧档只保存了红球候选池，没有当时的完整融合票组；原始号码在下方保留。</p>
       <details class="reference-union"><summary>查看{{count}}红候选池、2蓝与原榜对照</summary><div class="balls reference-fused-balls" aria-label="参考融合红球号码"><span v-for="n in sorted(pool.reds)" :key="n" class="ball selected red">{{pad(n)}}</span></div><p class="muted">蓝球：{{snapshot.fusion.blues.map(pad).join(' ')}}</p><p v-if="scored" class="muted">池中红{{nullable(pool.red_hits)}}/6 · 全6红{{flag(pool.full_red)}}；漏红{{pool.missed_reds==null?'—':pool.missed_reds.map(pad).join(' ')||'无'}}。</p><p class="reference-number-text">同{{count}}红的现有小池：{{sorted(pool.baseline.reds).map(pad).join(' ')}}</p><p v-if="scored" class="muted">现有小池中红{{nullable(pool.baseline.red_hits)}}/6 · 全6红{{flag(pool.baseline.full_red)}}</p></details>
      </template>
-     <fusion-dantuo :issue="issue" :snapshot="snapshot"></fusion-dantuo>
+     <fusion-dantuo :issue="issue" :snapshot="snapshot"></fusion-dantuo></template>
     </article>
    </div><p v-if="message" class="muted reference-message" role="status">{{ message }}</p>
   </div>`
@@ -216,17 +244,17 @@
    <p v-if="error" class="notice error" role="alert">{{ error }}</p><p v-if="!report&&!error" class="muted" role="status">正在读取参考运行结果与首次观察原档…</p>
    <template v-if="report"><p class="muted">第 {{ report.target }} 期 · 依据截止 {{ report.data_cutoff }}</p>
     <p v-if="report.status==='error'" class="notice error" role="alert">{{ report.reason }}</p><p v-else-if="!report.next" class="notice" role="status">{{ report.reason || '参考代码正在准备本期结果，完成后显示原始5注和融合小池。' }}</p><p v-if="!report.next&&report.job?.started_at_unix" class="muted">本期运算开始于 {{ time(report.job.started_at_unix) }}。{{ report.job.status==='running'?'完成后刷新即可查看两个观察池。':report.job.error||'' }}</p>
-    <template v-if="report.next"><p v-if="archive" class="notice success reference-archive-status">参考原档已封存，保存于 {{ time(archive.published_at_unix) }}。<a :href="reviewUrl">查看原始号码与复盘</a></p><p v-if="report.fusion_tickets?.status==='frozen'" class="notice success">融合8注票组已独立封存，保存于{{time(report.fusion_tickets.published_at_unix)}}。</p><p v-else-if="!archive" class="notice reference-archive-status">当前为本期预览，尚未封存。完成截止前留档后，才计入后续实际观察。</p>
-     <reference-numbers :dantuo-bundle="report.dantuo" :ticket-bundle="report.fusion_tickets" :snapshot="report.next" :issue="report.target" :archived="!!archive"></reference-numbers>
+    <template v-if="report.next"><p v-if="archive" class="notice success reference-archive-status">参考原档已封存，保存于 {{ time(archive.published_at_unix) }}。<a :href="reviewUrl">查看原始号码与复盘</a></p><p v-if="report.fusion_tickets?.status==='frozen'" class="notice success">旧版v1融合8注已封存，保存于{{time(report.fusion_tickets.published_at_unix)}}。</p><p v-else-if="!archive" class="notice reference-archive-status">当前为本期预览，尚未封存。完成截止前留档后，才计入后续实际观察。</p>
+     <reference-numbers :dantuo-bundle="report.dantuo" :ticket-bundle="report.fusion_tickets" :snapshot="report.next" :issue="report.target" :archived="!!archive" prefer-v2></reference-numbers>
      <div class="row reference-actions"><template v-if="archive"><a :href="fileUrl(archive.raw_file)">参考原档JSON</a><a :href="reviewUrl">查看独立复盘</a></template><template v-if="report.fusion_tickets?.status==='frozen'"><a :href="fileUrl(report.fusion_tickets.raw_file)">融合8注票组原档JSON</a></template><template v-if="report.fusion_tickets?.status!=='frozen'"><button type="button" :disabled="busy||freezing||!report.publication?.can_freeze" @click="freeze">{{freezing?'正在封存…':archive?'封存融合8注票组':'封存原始5注与融合票组'}}</button><button type="button" @click="download">导出完整预览JSON</button></template><button v-if="report.dantuo?.status==='preview'" type="button" :disabled="busy||freezing||!report.publication?.can_freeze" @click="freeze">{{freezing?'正在封存…':'封存参考胆拖／复式方案'}}</button></div>
      <p v-if="!archive&&report.publication" class="muted">{{ report.publication.reason }}</p>
     </template><p v-if="message" class="reference-message muted" role="status">{{ message }}</p>
     <details v-if="report.dantuo_actual" class="reference-evidence"><summary>参考胆拖／复式 · 实际逐注对奖统计</summary><p class="muted">{{report.dantuo_actual.note}}</p><p class="muted">已开奖{{report.dantuo_actual.n}}期 · 待开奖{{report.dantuo_actual.pending}}期 · 缺档{{report.dantuo_actual.excluded_missing}}期；至少一注常规中奖{{report.dantuo_actual.n?report.dantuo_actual.any_prize_periods+'/'+report.dantuo_actual.n:'—'}}；平均最佳单注中红{{report.dantuo_actual.mean_best_red==null?'—':Number(report.dantuo_actual.mean_best_red).toFixed(2)}}。</p><p v-if="report.dantuo_actual.errors?.length" class="notice error">{{report.dantuo_actual.errors.join('；')}}</p></details>
-    <details v-if="report.ticket_actual" class="reference-evidence"><summary>融合8注 · 实际逐注对奖统计</summary><p class="muted">{{report.ticket_actual.note}}</p><div class="scroll"><table><thead><tr><th>规格</th><th>已开奖 / 待开奖</th><th>至少一注常规中奖</th><th>平均单注最好中红</th><th>已知固定奖金累计</th></tr></thead><tbody><tr v-for="r in report.ticket_actual.cells" :key="r.red_count"><td>{{r.red_count}}红候选 · 8注16元</td><td>{{r.n}} / {{r.pending}}</td><td>{{r.n?r.any_prize_periods+'/'+r.n:'—'}}</td><td>{{r.mean_best_red==null?'—':Number(r.mean_best_red).toFixed(2)}}</td><td>{{r.fixed_prize_total==null?'—':r.fixed_prize_total+'元'}}</td></tr></tbody></table></div></details>
+    <details v-if="report.ticket_actual" class="reference-evidence"><summary>旧版v1融合8注 · 实际逐注对奖统计</summary><p class="muted">{{report.ticket_actual.note}}</p><div class="scroll"><table><thead><tr><th>规格</th><th>已开奖 / 待开奖</th><th>至少一注常规中奖</th><th>平均单注最好中红</th><th>已知固定奖金累计</th></tr></thead><tbody><tr v-for="r in report.ticket_actual.cells" :key="r.red_count"><td>{{r.red_count}}红候选 · 8注16元</td><td>{{r.n}} / {{r.pending}}</td><td>{{r.n?r.any_prize_periods+'/'+r.n:'—'}}</td><td>{{r.mean_best_red==null?'—':Number(r.mean_best_red).toFixed(2)}}</td><td>{{r.fixed_prize_total==null?'—':r.fixed_prize_total+'元'}}</td></tr></tbody></table></div></details>
     <details class="reference-evidence"><summary>查看实际覆盖与同数量对照</summary><p class="muted">仅统计本系统截止前首次封存且已开奖的期数。待开奖和缺档不计入全包率；参考目录里的历史回放不混入实际成绩。</p>
      <p v-if="report.actual?.errors?.length" class="notice error">部分原档未计入：{{ report.actual.errors.join('；') }}</p>
-     <div class="scroll"><table class="reference-stat-table"><thead><tr><th>观察池</th><th>红球数量</th><th>全6红次数 / 比例</th><th>比同数量对照<br>补中 / 丢失</th><th>待开奖 / 缺档</th></tr></thead><tbody><tr v-for="r in cells" :key="r.model+'-'+r.red_count" :data-reference-actual="r.model+'-'+r.red_count"><td>{{ r.label }}</td><td>{{ r.red_count==null?(r.mean_red_count==null?'随原5注并集变化':'平均'+Number(r.mean_red_count).toFixed(1)+'红'):r.red_count+'红' }}</td><td>{{ r.n?r.full_red_periods+'/'+r.n+' · '+percent(r.full_red_rate):'暂无已开奖样本' }}</td><td>{{ r.n?r.paired_gains+' / '+r.paired_losses+'期':'—' }}</td><td>{{ r.pending }} / {{ r.excluded_missing_pair }}</td></tr></tbody></table></div>
-     <p class="muted">原始5注对照同数量原加权榜；融合池对照同数量现有小池。90%现有评分＋10%参考并集支持为固定试验，尚待实际样本验证。留档无独立可信时间戳证明。</p>
+     <div class="scroll"><table class="reference-stat-table"><thead><tr><th>观察池</th><th>红球数量</th><th>全6红次数 / 比例</th><th>比同数量对照<br>补中 / 丢失</th><th>待开奖 / 缺档</th></tr></thead><tbody><tr v-for="r in cells" :key="r.model+'-'+r.red_count" :data-reference-actual="r.model+'-'+r.red_count"><td>{{r.model==='reference_fused16'?'旧版v1 · '+r.label:r.label}}</td><td>{{ r.red_count==null?(r.mean_red_count==null?'随原5注并集变化':'平均'+Number(r.mean_red_count).toFixed(1)+'红'):r.red_count+'红' }}</td><td>{{ r.n?r.full_red_periods+'/'+r.n+' · '+percent(r.full_red_rate):'暂无已开奖样本' }}</td><td>{{ r.n?r.paired_gains+' / '+r.paired_losses+'期':'—' }}</td><td>{{ r.pending }} / {{ r.excluded_missing_pair }}</td></tr></tbody></table></div>
+     <p class="muted">原始5注对照同数量原加权榜；融合池对照同数量现有小池。旧版v1采用90%现有评分＋10%参考并集支持，修正版v2另行留档统计。留档无独立可信时间戳证明。</p>
     </details>
    </template>
   </section>`

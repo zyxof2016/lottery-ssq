@@ -1,5 +1,7 @@
 # 现有生产部署
 
+2026-11-07融合重号修复v2：默认融合推荐移除两层显式重号加分，旧版v1原档及原参考5注保持。新增 `recommendations/fusion-v2/{issue}.json` 与 `recommendations/reviews/{issue}/fusion-v2.json`，随recommendations完整备份；cycle和参考冻结回调沿用现有timer。部署复制原reference目录、不改Python环境，先只读验证23个旧接口和运行原档，再正式首次封存当前v2并核验线上默认票面及手动交集。说明见 [融合重号修复](fusion-repeat-fix-2026-11-07.md)。
+
 2026-11-06胆拖完整票面搜索优化：新增只读GET `/api/reference-pools/dantuo-audit?issue=26128`，在原融合胆拖折叠区展示同池精确搜索对照；不新增观察池、运行目录或自动封存，不改原概率模型、参考环境和已存票面。保留当前reference目录及两个timer，发布只读核对22个旧接口、全部原运行文件与新搜索结果。复盘及复现见 [胆拖深度优化](dantuo-deep-review-2026-11-06.md)。
 
 2026-11-06参考运行档位修复：新计算从源码dashboard_run入口应用完整档位，旧首次缓存保持真实supplied_default标记。部署时复制旧release的reference目录，再覆盖本次worker.py、test_worker.py、README.txt；tsys与manifest不变，保留原环境、工作报告和私有审计密钥。新增只读来源核验及单条预测/输入CSV下载，线上验收不触发模型重算。具体差异见 [参考一致性核对](reference-parity-2026-11-06.md)。
