@@ -127,7 +127,28 @@
    <dantuo-audit :issue="issue"></dantuo-audit>
   </template><p v-if="message" class="muted" role="status">{{message}}</p>
  </section>`};
- const fusionV2={props:{issue:{type:String,required:true},snapshot:{type:Object,required:true}},setup(props){
+ const fusionReview={props:{issue:{type:String,required:true}},setup(props){
+  const report=Vue.ref(null),error=Vue.ref(''),loading=Vue.ref(false),opened=Vue.ref(false);let request=0;
+  const url=path=>path?new URL(path,SSQApp.base).href:'',pct=n=>n==null?'—':(n*100).toFixed(4)+'%',gap=n=>n==null?'—':Number(n).toExponential(2);
+  async function load(){if(!opened.value||loading.value||report.value)return;const id=++request;loading.value=true;error.value='';try{const r=await fetch(SSQApp.url('api/reference-pools/fusion-review')),v=await r.json();if(id!==request)return;if(!r.ok)throw Error(v.error||'融合深度复盘读取失败');if(v.target_issue!==props.issue)throw Error('开奖数据已更新，请刷新当前融合推荐');report.value=v;}catch(e){if(id===request)error.value=e.message;}finally{if(id===request)loading.value=false;}}
+  function toggle(e){opened.value=e.target.open;load();}Vue.watch(()=>props.issue,()=>{request++;report.value=null;error.value='';loading.value=false;load();});return{report,error,loading,toggle,load,url,pct,gap,pad};
+ },template:`<details class="reference-evidence fusion-review" data-fusion-review @toggle="toggle"><summary>最新v2复盘 · 完整六红入池优化</summary>
+  <p v-if="loading" class="muted" role="status">正在核对首次票面并计算完整六红入池目标…</p><p v-if="error" class="notice error" role="alert">{{error}} <button type="button" @click="load">重试</button></p>
+  <template v-if="report"><template v-if="report.latest"><p class="muted" data-fusion-review-draw>第{{report.latest.issue}}期：{{report.latest.draw.red.map(pad).join(' ')}} ＋ {{pad(report.latest.draw.blue)}}。16红候选漏{{report.latest.global_sixteen_missed.map(pad).join('、')||'无'}}；蓝球原榜第{{report.latest.winning_blue_rank??'—'}}位。</p>
+   <p class="notice" data-fusion-review-loss>红池缺号时，重新组票无法补齐完整六红。错胆与蓝球截选另行核对；小奖与头奖分开看。</p>
+   <div class="row reference-actions"><a :href="url(report.latest.raw_url)">本期v2首次原档</a><a v-if="report.latest.review_url" :href="url(report.latest.review_url)">本期v2逐注复盘</a></div>
+   <details data-fusion-review-plans><summary>四档单式与两种胆拖 · 分层损失</summary><p class="muted">表格可横向滚动；全部使用首次保存的号码。</p><div class="scroll"><table><thead><tr><th>方案</th><th>候选中红</th><th>最佳单注红</th><th>错胆</th><th>蓝球入票</th><th>头奖</th></tr></thead><tbody><tr v-for="p in report.latest.plans" :key="p.id" :data-fusion-review-plan="p.id"><td>{{p.id}}</td><td>{{p.red_pool_hits}}/6</td><td>{{p.summary.max_ticket_red_hits}}/6</td><td>{{p.wrong_bankers.map(pad).join('、')||'无'}}</td><td>{{p.blue_selected?'是':'否'}}</td><td>{{p.jackpot?'中':'未中'}}</td></tr></tbody></table></div></details>
+   <details data-fusion-review-numbers><summary>6个开奖号 · 评分和参考支持的影响</summary><p class="muted">基础名次由首次分数按原公式分解，不是补造另一套历史推荐。</p><div class="scroll"><table><thead><tr><th>开奖号</th><th>无参考支持名次</th><th>v2最终名次</th><th>参考并集支持</th><th>入16红</th></tr></thead><tbody><tr v-for="r in report.latest.winning_numbers" :key="r.number" :data-fusion-review-number="r.number"><td>{{pad(r.number)}}</td><td>{{r.without_reference_rank}}</td><td>{{r.v2_rank}}</td><td>{{r.reference_supported?'有':'无'}}</td><td>{{r.in_sixteen?'是':'否'}}</td></tr></tbody></table></div></details>
+  </template><p v-else class="muted">最新开奖缺少v2首次原档，不补造历史推荐。</p>
+  <details data-fusion-review-search><summary>16红筛选优化 · 完整六红覆盖目标</summary><p class="muted">研究目标是全部六红同时入池，使用已冻结的完整分布模型；单号分数之和侧重平均中红，两者不等价。下表都在同一校准模型下评分。</p>
+   <p class="notice" data-fusion-review-adoption>{{report.adoption.reason}}v2已开奖真实样本{{report.adoption.v2_actual_drawn_periods}}期。</p>
+   <p class="muted">第{{report.current_search.issue}}期模型内全6入池质量：已封存v2池{{pct(report.current_search.sealed_v2_pool?.model_full_six_pool_mass)}}；校准单号边际池{{pct(report.current_search.marginal_pool.model_full_six_pool_mass)}}；完整入池搜索{{pct(report.current_search.model_full_six_pool_mass)}}。这些数值尚未验证为真实预测概率。</p>
+   <p class="muted" data-fusion-review-certificate>{{report.current_search.certificate.numerically_optimal?'已达到数值容差内最优。':'搜索尚未证明最优。'}}节点{{report.current_search.certificate.nodes}}/{{report.current_search.certificate.node_budget}}；剩余相对差距上界{{gap(report.current_search.certificate.relative_gap)}}。证明限于此模型的16红候选目标。</p>
+   <details data-fusion-review-research-pool><summary>查看研究候选及同分限制</summary><p class="reference-number-text">{{report.current_search.reds.map(pad).join(' ')}}</p><p class="muted">没有生成新购票票面或替换已封存v2。相同专家分布组内的成员选择不代表对某个号码更有把握；代表数字顺序不计作命中提升。</p></details>
+  </details><a :href="url('api/reference-pools/fusion-review')">核对完整复盘与搜索证据JSON</a>
+ </template>
+ </details>`};
+ const fusionV2={components:{FusionReview:fusionReview},props:{issue:{type:String,required:true},snapshot:{type:Object,required:true}},setup(props){
   const report=Vue.ref(null),error=Vue.ref(''),message=Vue.ref(''),loading=Vue.ref(false),busy=Vue.ref(false),mode=Vue.ref('single'),size=Vue.ref(16),shape=Vue.ref('2+5+2');let request=0;
   const current=Vue.computed(()=>report.value?.current),bundle=Vue.computed(()=>current.value?.bundle),plan=Vue.computed(()=>mode.value==='single'?bundle.value?.singles?.find(p=>p.red_count===size.value):bundle.value?.dantuo?.find(p=>p.id===shape.value));
   const rawUrl=Vue.computed(()=>current.value?.raw_url?new URL(current.value.raw_url,SSQApp.base).href:'');const reviewUrl=Vue.computed(()=>current.value?.review_url?new URL(current.value.review_url,SSQApp.base).href:'');
@@ -152,6 +173,7 @@
      <details class="reference-evidence"><summary>查看v2评分修复与候选池</summary><p class="muted">原模型中显式重号专家的叠加权重约{{(bundle.evidence.legacy_explicit_repeat_weight*100).toFixed(2)}}%，v2为0；其余专家保留原相对权重，近期与参考支持继续参与。修复评分偏置尚未证明中奖率提升。</p><p class="reference-number-text">候选红球：{{plan.reds.slice().sort((a,b)=>a-b).map(pad).join(' ')}}</p><p class="muted">蓝球：{{plan.blues.map(pad).join(' ')}}。</p></details>
     </template>
    </template><p class="muted" data-fusion-v2-actual>v2独立留档：已开奖{{report.actual.n}}期 · 待开奖{{report.actual.pending}}期。{{report.actual.note}}</p><p v-if="report.actual.errors.length" class="notice error">{{report.actual.errors.join('；')}}</p>
+   <fusion-review v-if="report.issue===report.target" :issue="issue"></fusion-review>
   </template><button type="button" @click="load" :disabled="loading">刷新修正版v2</button><p v-if="message" class="muted" role="status">{{message}}</p>
  </section>`};
  const numbers = {

@@ -27,6 +27,8 @@ pub mod reference_tickets;
 pub mod fusion_dantuo;
 pub mod fusion_model_v2;
 pub mod fusion_v2;
+pub mod pool_search;
+pub mod fusion_review;
 pub mod dantuo_search;
 pub mod dantuo_audit;
 pub mod reference_dantuo;
