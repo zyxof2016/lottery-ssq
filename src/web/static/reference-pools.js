@@ -129,9 +129,15 @@
  </section>`};
  const fusionReview={props:{issue:{type:String,required:true}},setup(props){
   const report=Vue.ref(null),error=Vue.ref(''),loading=Vue.ref(false),opened=Vue.ref(false);let request=0;
+  const ticketReport=Vue.ref(null),ticketError=Vue.ref(''),ticketLoading=Vue.ref(false),ticketOpened=Vue.ref(false);let ticketRequest=0;
+  const ticketLabels={sealed_original:'首次封存8注',red_grouping_same_blue_counts:'仅优化分组，保留每蓝注数',blue_only_same_red_sets:'仅换蓝，保留8组六红',joint_top_eight:'完整6＋1联合最优'};
+  const expertLabels={frequency:'历史频率',ewma:'近期加权',overdue:'遗漏',hot:'近期热度',anti_repeat:'蓝球反重号',markov:'蓝球转移'};
+  const latestBlue=Vue.computed(()=>ticketReport.value?.cases.filter(c=>!c.pending&&c.blue_attribution).at(-1)?.blue_attribution);
   const url=path=>path?new URL(path,SSQApp.base).href:'',pct=n=>n==null?'—':(n*100).toFixed(4)+'%',gap=n=>n==null?'—':Number(n).toExponential(2);
   async function load(){if(!opened.value||loading.value||report.value)return;const id=++request;loading.value=true;error.value='';try{const r=await fetch(SSQApp.url('api/reference-pools/fusion-review')),v=await r.json();if(id!==request)return;if(!r.ok)throw Error(v.error||'融合深度复盘读取失败');if(v.target_issue!==props.issue)throw Error('开奖数据已更新，请刷新当前融合推荐');report.value=v;}catch(e){if(id===request)error.value=e.message;}finally{if(id===request)loading.value=false;}}
-  function toggle(e){opened.value=e.target.open;load();}Vue.watch(()=>props.issue,()=>{request++;report.value=null;error.value='';loading.value=false;load();});return{report,error,loading,toggle,load,url,pct,gap,pad};
+  async function loadTickets(){if(!ticketOpened.value||ticketReport.value||ticketLoading.value)return;const id=++ticketRequest;ticketLoading.value=true;ticketError.value='';try{const r=await fetch(SSQApp.url('api/reference-pools/ticket-audit')),v=await r.json();if(id!==ticketRequest)return;if(!r.ok)throw Error(v.error||'完整票面核验失败');if(v.target_issue!==props.issue)throw Error('开奖数据已更新，请刷新当前融合推荐');ticketReport.value=v;}catch(e){if(id===ticketRequest)ticketError.value=e.message;}finally{if(id===ticketRequest)ticketLoading.value=false;}}
+  function toggleTickets(e){ticketOpened.value=e.target.open;loadTickets();}
+  function toggle(e){opened.value=e.target.open;load();}Vue.watch(()=>props.issue,()=>{request++;report.value=null;error.value='';loading.value=false;ticketRequest++;ticketReport.value=null;ticketError.value='';ticketLoading.value=false;load();loadTickets();});return{report,error,loading,toggle,load,url,pct,gap,pad,ticketReport,ticketError,ticketLoading,toggleTickets,loadTickets,ticketLabels,expertLabels,latestBlue};
  },template:`<details class="reference-evidence fusion-review" data-fusion-review @toggle="toggle"><summary>最新v2复盘 · 完整六红入池优化</summary>
   <p v-if="loading" class="muted" role="status">正在核对首次票面并计算完整六红入池目标…</p><p v-if="error" class="notice error" role="alert">{{error}} <button type="button" @click="load">重试</button></p>
   <template v-if="report"><template v-if="report.latest"><p class="muted" data-fusion-review-draw>第{{report.latest.issue}}期：{{report.latest.draw.red.map(pad).join(' ')}} ＋ {{pad(report.latest.draw.blue)}}。16红候选漏{{report.latest.global_sixteen_missed.map(pad).join('、')||'无'}}；蓝球原榜第{{report.latest.winning_blue_rank??'—'}}位。</p>
@@ -145,6 +151,19 @@
    <p class="muted">第{{report.current_search.issue}}期模型内全6入池质量：已封存v2池{{pct(report.current_search.sealed_v2_pool?.model_full_six_pool_mass)}}；校准单号边际池{{pct(report.current_search.marginal_pool.model_full_six_pool_mass)}}；完整入池搜索{{pct(report.current_search.model_full_six_pool_mass)}}。这些数值尚未验证为真实预测概率。</p>
    <p class="muted" data-fusion-review-certificate>{{report.current_search.certificate.numerically_optimal?'已达到数值容差内最优。':'搜索尚未证明最优。'}}节点{{report.current_search.certificate.nodes}}/{{report.current_search.certificate.node_budget}}；剩余相对差距上界{{gap(report.current_search.certificate.relative_gap)}}。证明限于此模型的16红候选目标。</p>
    <details data-fusion-review-research-pool><summary>查看研究候选及同分限制</summary><p class="reference-number-text">{{report.current_search.reds.map(pad).join(' ')}}</p><p class="muted">没有生成新购票票面或替换已封存v2。相同专家分布组内的成员选择不代表对某个号码更有把握；代表数字顺序不计作命中提升。</p></details>
+  </details>
+  <details data-ticket-audit @toggle="toggleTickets"><summary>同预算8注 · 完整6＋1组票核验</summary>
+   <p v-if="ticketLoading" class="muted" role="status">正在枚举同池全部六红组合及16蓝…</p><p v-if="ticketError" class="notice error" role="alert">{{ticketError}} <button type="button" @click="loadTickets">重试</button></p>
+   <template v-if="ticketReport"><p class="notice" data-ticket-adoption>{{ticketReport.reason}}</p><p class="muted">每行独立比较8注16元，使用相同原16红候选。优化后实际用红、用蓝数量见表；不要求候选16红全部入票。评分以均匀8个不同6＋1结果为1。全部研究对照都未发布新票面。</p>
+    <section v-for="c in ticketReport.cases" :key="c.issue" :data-ticket-case="c.issue"><h4>第{{c.issue}}期 · {{c.pending?'待开奖':'首次票面与研究对照'}}</h4>
+     <p v-if="!c.pending" class="muted">原16红漏{{c.red_pool_missed.map(pad).join('、')||'无'}}；蓝{{pad(c.draw.blue)}}原榜第{{c.blue_attribution.original_rank}}位，{{c.blue_attribution.selected?'已入票':'未入票'}}。同池重组仍受原候选限制。</p>
+     <div class="scroll"><table><thead><tr><th>同预算方案</th><th>模型评分</th><th>相对原票分数</th><th>用红／用蓝</th><th>完整六红组数</th><th>单注6＋1</th></tr></thead><tbody><tr v-for="r in c.comparison.rows" :key="r.id" :data-ticket-method="r.id"><td>{{ticketLabels[r.id]}}</td><td>{{r.ratio_to_uniform_eight.toFixed(6)}}</td><td>{{pct(r.model_gain_vs_original)}}</td><td>{{r.red_union_count}}／{{r.blue_count}}</td><td>{{r.distinct_red_sets}}</td><td>{{c.pending?'待开奖':r.complete_6_plus_1_hit?(r.actual_recommendation?'已中':'研究覆盖'):'未覆盖'}}</td></tr></tbody></table></div>
+     <p class="muted" data-ticket-compression>原16红×原蓝球共有{{c.comparison.original_blue_cartesian_outcomes.toLocaleString('en-US')}}个不同6＋1结果，原票仅覆盖8个；在这些结果内保留的模型质量为{{pct(c.comparison.original_ticket_retention_given_pool_and_original_blues)}}。入池和单注覆盖须分别核对。</p>
+     <p class="muted" data-ticket-certificate>精确枚举{{c.comparison.certificate.complete_outcomes_evaluated.toLocaleString('en-US')}}个完整结果；联合最优搜索差距为0。该结论限于给定模型和原候选池。</p><a :href="url(c.raw_url)">核对本期首次原档</a>
+    </section>
+    <details v-if="latestBlue" data-ticket-blue-attribution><summary>最新开奖蓝球 · 六个评分分量</summary><p class="muted">蓝{{pad(latestBlue.winning_blue)}}原榜第{{latestBlue.original_rank}}位；按首次输入前缀核对原公式。去掉单个分量的名次仅作归因，不是另一份历史推荐。</p><div class="scroll"><table><thead><tr><th>分量</th><th>原权重</th><th>该专家内名次</th><th>去掉该分量后名次</th></tr></thead><tbody><tr v-for="e in latestBlue.experts" :key="e.expert" :data-ticket-blue-expert="e.expert"><td>{{expertLabels[e.expert]}}</td><td>{{pct(e.weight)}}</td><td>{{e.winning_blue_expert_rank}}</td><td>{{e.winning_blue_rank_without_this_expert}}</td></tr></tbody></table></div></details>
+    <p class="muted">完整概率模型6＋1确认窗相对均匀的平均对数评分差为{{ticketReport.confirmation_joint_log_excess==null?'—':ticketReport.confirmation_joint_log_excess.toFixed(6)}}；模型内分数提高尚未证明真实头奖优势。当前已封存推荐保留。</p><a :href="url('api/reference-pools/ticket-audit')">核对完整票面搜索与蓝球归因JSON</a>
+   </template>
   </details><a :href="url('api/reference-pools/fusion-review')">核对完整复盘与搜索证据JSON</a>
  </template>
  </details>`};

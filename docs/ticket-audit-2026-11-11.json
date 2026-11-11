@@ -1,0 +1,574 @@
+{
+  "report": {
+    "cases": [
+      {
+        "archive_sha256": "3f836419ef74c46875c5685c146807c2d8d0bab2b53d78e7240ae46ea40aa849",
+        "blue_attribution": {
+          "experts": [
+            {
+              "expert": "frequency",
+              "weight": 0.3799075605440001,
+              "winning_blue_expert_rank": 5,
+              "winning_blue_rank_without_this_expert": 3,
+              "winning_blue_weighted_component": 0.02446862254351187
+            },
+            {
+              "expert": "ewma",
+              "weight": 0.083347610968,
+              "winning_blue_expert_rank": 3,
+              "winning_blue_rank_without_this_expert": 5,
+              "winning_blue_weighted_component": 0.010264117514065292
+            },
+            {
+              "expert": "overdue",
+              "weight": 0.083349163898,
+              "winning_blue_expert_rank": 15,
+              "winning_blue_rank_without_this_expert": 2,
+              "winning_blue_weighted_component": 0.0008773596199789473
+            },
+            {
+              "expert": "hot",
+              "weight": 0.083336800808,
+              "winning_blue_expert_rank": 2,
+              "winning_blue_rank_without_this_expert": 7,
+              "winning_blue_weighted_component": 0.011302347718444367
+            },
+            {
+              "expert": "anti_repeat",
+              "weight": 0.19345631958099999,
+              "winning_blue_expert_rank": 4,
+              "winning_blue_rank_without_this_expert": 3,
+              "winning_blue_weighted_component": 0.013098156158713584
+            },
+            {
+              "expert": "markov",
+              "weight": 0.176602544201,
+              "winning_blue_expert_rank": 13,
+              "winning_blue_rank_without_this_expert": 2,
+              "winning_blue_weighted_component": 0.009409151945135245
+            }
+          ],
+          "original_rank": 2,
+          "scope": "用首次原档输入前缀重算原蓝球公式，并核对原2蓝；删除单个专家的名次仅为归因，不是历史另发推荐或权重采用依据。",
+          "selected": true,
+          "selected_blues": [
+            12,
+            11
+          ],
+          "winning_blue": 11,
+          "winning_blue_original_score": 0.06941975549984929
+        },
+        "comparison": {
+          "certificate": {
+            "absolute_search_gap": 0.0,
+            "bets": 8,
+            "blue_candidates": 16,
+            "complete_outcomes_evaluated": 128128,
+            "conditional_blue_supported": true,
+            "cost": 16,
+            "method": "exhaustive_complete_outcomes_then_top_k_or_top_k_per_blue",
+            "same_original_red_pool": true,
+            "scope": "同原候选红池、8个不同6＋1结果、给定完整概率模型内的最优；不证明真实预测优势，不要求原16红全部出现在8注中",
+            "unrestricted_optimal": true
+          },
+          "joint_top_eight_uniform_numeric_tie_expected_hit": null,
+          "original_blue_cartesian_outcomes": 16016,
+          "original_blue_counts": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            4,
+            4,
+            0,
+            0,
+            0,
+            0
+          ],
+          "original_ticket_retention_given_pool_and_original_blues": 0.0004991711385968138,
+          "pool_all_six_mass": 0.007241858029608514,
+          "pool_and_original_blues_mass": 0.0009590437009695689,
+          "rank_absolute_numeric_tolerance": 5.642994380480476e-20,
+          "rows": [
+            {
+              "actual_recommendation": true,
+              "bets": 8,
+              "blue_count": 2,
+              "complete_6_plus_1_hit": false,
+              "cost": 16,
+              "distinct_red_sets": 8,
+              "fraction_of_pool_all_blues_mass": 6.61055400726989e-05,
+              "id": "sealed_original",
+              "model_gain_vs_original": 0.0,
+              "model_joint_mass": 4.787269361770819e-07,
+              "ratio_to_uniform_eight": 1.0604452704955565,
+              "red_union_count": 16
+            },
+            {
+              "actual_recommendation": false,
+              "bets": 8,
+              "blue_count": 2,
+              "complete_6_plus_1_hit": false,
+              "cost": 16,
+              "distinct_red_sets": 4,
+              "fraction_of_pool_all_blues_mass": 6.849489782605284e-05,
+              "id": "red_grouping_same_blue_counts",
+              "model_gain_vs_original": 0.036144591674559745,
+              "model_joint_mass": 4.960303258088156e-07,
+              "ratio_to_uniform_eight": 1.0987746317908365,
+              "red_union_count": 9
+            },
+            {
+              "actual_recommendation": false,
+              "bets": 8,
+              "blue_count": 1,
+              "complete_6_plus_1_hit": false,
+              "cost": 16,
+              "distinct_red_sets": 8,
+              "fraction_of_pool_all_blues_mass": 6.851404143273549e-05,
+              "id": "blue_only_same_red_sets",
+              "model_gain_vs_original": 0.036434183237711304,
+              "model_joint_mass": 4.961689610905859e-07,
+              "ratio_to_uniform_eight": 1.099081727794356,
+              "red_union_count": 16
+            },
+            {
+              "actual_recommendation": false,
+              "bets": 8,
+              "blue_count": 1,
+              "complete_6_plus_1_hit": false,
+              "cost": 16,
+              "distinct_red_sets": 8,
+              "fraction_of_pool_all_blues_mass": 7.092187751934338e-05,
+              "id": "joint_top_eight",
+              "model_gain_vs_original": 0.07285830266794235,
+              "model_joint_mass": 5.136061681883685e-07,
+              "ratio_to_uniform_eight": 1.1377075129761096,
+              "red_union_count": 13
+            }
+          ],
+          "ties_note": "数值同分区间只作诊断；期望为截断同分组内均匀选择的覆盖分数，不算实际中奖次数。",
+          "winning_result_rank_in_pool_all_blues": null
+        },
+        "data_cutoff": "26127",
+        "draw": {
+          "blue": 11,
+          "red": [
+            5,
+            6,
+            10,
+            25,
+            27,
+            30
+          ]
+        },
+        "input_history_sha256": "32e19143f96375282bde62db6fed8061a6ee4f66a4dd6aee8677ad219b39e672",
+        "issue": "26128",
+        "original_actual_recommendation": true,
+        "pending": false,
+        "raw_url": "api/reference-pools/fusion-v2/archives/26128",
+        "red_pool_missed": [
+          5,
+          6,
+          10
+        ]
+      },
+      {
+        "archive_sha256": "635a43bddd741efafda49f5acb53254276e39bdd5c545ff7441a30289da0a021",
+        "blue_attribution": {
+          "experts": [
+            {
+              "expert": "frequency",
+              "weight": 0.3799075605440001,
+              "winning_blue_expert_rank": 11,
+              "winning_blue_rank_without_this_expert": 15,
+              "winning_blue_weighted_component": 0.02349611854254053
+            },
+            {
+              "expert": "ewma",
+              "weight": 0.083347610968,
+              "winning_blue_expert_rank": 8,
+              "winning_blue_rank_without_this_expert": 13,
+              "winning_blue_weighted_component": 0.002612580491291856
+            },
+            {
+              "expert": "overdue",
+              "weight": 0.083349163898,
+              "winning_blue_expert_rank": 8,
+              "winning_blue_rank_without_this_expert": 13,
+              "winning_blue_weighted_component": 0.005034513255583893
+            },
+            {
+              "expert": "hot",
+              "weight": 0.083336800808,
+              "winning_blue_expert_rank": 9,
+              "winning_blue_rank_without_this_expert": 13,
+              "winning_blue_weighted_component": 0.001849008802495644
+            },
+            {
+              "expert": "anti_repeat",
+              "weight": 0.19345631958099999,
+              "winning_blue_expert_rank": 10,
+              "winning_blue_rank_without_this_expert": 15,
+              "winning_blue_weighted_component": 0.012574588999996732
+            },
+            {
+              "expert": "markov",
+              "weight": 0.176602544201,
+              "winning_blue_expert_rank": 12,
+              "winning_blue_rank_without_this_expert": 13,
+              "winning_blue_weighted_component": 0.009447872735032921
+            }
+          ],
+          "original_rank": 14,
+          "scope": "用首次原档输入前缀重算原蓝球公式，并核对原2蓝；删除单个专家的名次仅为归因，不是历史另发推荐或权重采用依据。",
+          "selected": false,
+          "selected_blues": [
+            11,
+            12
+          ],
+          "winning_blue": 5,
+          "winning_blue_original_score": 0.055014682826941566
+        },
+        "comparison": {
+          "certificate": {
+            "absolute_search_gap": 0.0,
+            "bets": 8,
+            "blue_candidates": 16,
+            "complete_outcomes_evaluated": 128128,
+            "conditional_blue_supported": true,
+            "cost": 16,
+            "method": "exhaustive_complete_outcomes_then_top_k_or_top_k_per_blue",
+            "same_original_red_pool": true,
+            "scope": "同原候选红池、8个不同6＋1结果、给定完整概率模型内的最优；不证明真实预测优势，不要求原16红全部出现在8注中",
+            "unrestricted_optimal": true
+          },
+          "joint_top_eight_uniform_numeric_tie_expected_hit": null,
+          "original_blue_cartesian_outcomes": 16016,
+          "original_blue_counts": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            4,
+            4,
+            0,
+            0,
+            0,
+            0
+          ],
+          "original_ticket_retention_given_pool_and_original_blues": 0.0004987980265627223,
+          "pool_all_six_mass": 0.007280139145157878,
+          "pool_and_original_blues_mass": 0.0009714424961639501,
+          "rank_absolute_numeric_tolerance": 5.642994380480476e-20,
+          "rows": [
+            {
+              "actual_recommendation": true,
+              "bets": 8,
+              "blue_count": 2,
+              "complete_6_plus_1_hit": false,
+              "cost": 16,
+              "distinct_red_sets": 8,
+              "fraction_of_pool_all_blues_mass": 6.655828828876529e-05,
+              "id": "sealed_original",
+              "model_gain_vs_original": 0.0,
+              "model_joint_mass": 4.845536000057433e-07,
+              "ratio_to_uniform_eight": 1.0733521233023222,
+              "red_union_count": 16
+            },
+            {
+              "actual_recommendation": false,
+              "bets": 8,
+              "blue_count": 2,
+              "complete_6_plus_1_hit": false,
+              "cost": 16,
+              "distinct_red_sets": 4,
+              "fraction_of_pool_all_blues_mass": 7.330789133314914e-05,
+              "id": "red_grouping_same_blue_counts",
+              "model_gain_vs_original": 0.10140890365299793,
+              "model_joint_mass": 5.33691649343439e-07,
+              "ratio_to_uniform_eight": 1.182199585360028,
+              "red_union_count": 9
+            },
+            {
+              "actual_recommendation": false,
+              "bets": 8,
+              "blue_count": 1,
+              "complete_6_plus_1_hit": false,
+              "cost": 16,
+              "distinct_red_sets": 8,
+              "fraction_of_pool_all_blues_mass": 6.833674353005666e-05,
+              "id": "blue_only_same_red_sets",
+              "model_gain_vs_original": 0.026720267107463558,
+              "model_joint_mass": 4.975010016257798e-07,
+              "ratio_to_uniform_eight": 1.1020323787373234,
+              "red_union_count": 16
+            },
+            {
+              "actual_recommendation": false,
+              "bets": 8,
+              "blue_count": 1,
+              "complete_6_plus_1_hit": false,
+              "cost": 16,
+              "distinct_red_sets": 8,
+              "fraction_of_pool_all_blues_mass": 7.509962897909253e-05,
+              "id": "joint_top_eight",
+              "model_gain_vs_original": 0.12832873125087518,
+              "model_joint_mass": 5.467357487175244e-07,
+              "ratio_to_uniform_eight": 1.2110940394711422,
+              "red_union_count": 10
+            }
+          ],
+          "ties_note": "数值同分区间只作诊断；期望为截断同分组内均匀选择的覆盖分数，不算实际中奖次数。",
+          "winning_result_rank_in_pool_all_blues": null
+        },
+        "data_cutoff": "26128",
+        "draw": {
+          "blue": 5,
+          "red": [
+            3,
+            9,
+            16,
+            20,
+            25,
+            30
+          ]
+        },
+        "input_history_sha256": "4dccf6c0fb23422ce77422c901efa0a5b82416bb784220c0988f11bf35f05947",
+        "issue": "26129",
+        "original_actual_recommendation": true,
+        "pending": false,
+        "raw_url": "api/reference-pools/fusion-v2/archives/26129",
+        "red_pool_missed": [
+          3,
+          9,
+          16
+        ]
+      },
+      {
+        "archive_sha256": "5e9d0b23a1995a6c054ebbc37b9960d9b22da6a2e39c46666eb8b0b0c8ab4220",
+        "comparison": {
+          "certificate": {
+            "absolute_search_gap": 0.0,
+            "bets": 8,
+            "blue_candidates": 16,
+            "complete_outcomes_evaluated": 128128,
+            "conditional_blue_supported": true,
+            "cost": 16,
+            "method": "exhaustive_complete_outcomes_then_top_k_or_top_k_per_blue",
+            "same_original_red_pool": true,
+            "scope": "同原候选红池、8个不同6＋1结果、给定完整概率模型内的最优；不证明真实预测优势，不要求原16红全部出现在8注中",
+            "unrestricted_optimal": true
+          },
+          "joint_top_eight_uniform_numeric_tie_expected_hit": null,
+          "original_blue_cartesian_outcomes": 16016,
+          "original_blue_counts": [
+            0,
+            0,
+            0,
+            0,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "original_ticket_retention_given_pool_and_original_blues": 0.0004994467825076366,
+          "pool_all_six_mass": 0.007420062167454294,
+          "pool_and_original_blues_mass": 0.0009845632640698772,
+          "rank_absolute_numeric_tolerance": 5.642994380480476e-20,
+          "rows": [
+            {
+              "actual_recommendation": true,
+              "bets": 8,
+              "blue_count": 2,
+              "complete_6_plus_1_hit": null,
+              "cost": 16,
+              "distinct_red_sets": 8,
+              "fraction_of_pool_all_blues_mass": 6.627127149577831e-05,
+              "id": "sealed_original",
+              "model_gain_vs_original": 0.0,
+              "model_joint_mass": 4.917369544149168e-07,
+              "ratio_to_uniform_eight": 1.089264230254841,
+              "red_union_count": 16
+            },
+            {
+              "actual_recommendation": false,
+              "bets": 8,
+              "blue_count": 2,
+              "complete_6_plus_1_hit": null,
+              "cost": 16,
+              "distinct_red_sets": 4,
+              "fraction_of_pool_all_blues_mass": 8.062130197666814e-05,
+              "id": "red_grouping_same_blue_counts",
+              "model_gain_vs_original": 0.21653470888670046,
+              "model_joint_mass": 5.982150726879834e-07,
+              "ratio_to_uniform_eight": 1.325127743253769,
+              "red_union_count": 7
+            },
+            {
+              "actual_recommendation": false,
+              "bets": 8,
+              "blue_count": 1,
+              "complete_6_plus_1_hit": null,
+              "cost": 16,
+              "distinct_red_sets": 8,
+              "fraction_of_pool_all_blues_mass": 6.795037162279502e-05,
+              "id": "blue_only_same_red_sets",
+              "model_gain_vs_original": 0.02533677246744359,
+              "model_joint_mass": 5.041959817427612e-07,
+              "ratio_to_uniform_eight": 1.116862670213733,
+              "red_union_count": 16
+            },
+            {
+              "actual_recommendation": false,
+              "bets": 8,
+              "blue_count": 1,
+              "complete_6_plus_1_hit": null,
+              "cost": 16,
+              "distinct_red_sets": 8,
+              "fraction_of_pool_all_blues_mass": 8.262922758894473e-05,
+              "id": "joint_top_eight",
+              "model_gain_vs_original": 0.2468332917712086,
+              "model_joint_mass": 6.131140055586994e-07,
+              "ratio_to_uniform_eight": 1.3581309058172752,
+              "red_union_count": 8
+            }
+          ],
+          "ties_note": "数值同分区间只作诊断；期望为截断同分组内均匀选择的覆盖分数，不算实际中奖次数。",
+          "winning_result_rank_in_pool_all_blues": null
+        },
+        "data_cutoff": "26129",
+        "input_history_sha256": "112c8622029ecc9854bb879a1704ef25b42b711d7d80baa36b8a5e1ae415177f",
+        "issue": "26130",
+        "original_actual_recommendation": true,
+        "pending": true,
+        "raw_url": "api/reference-pools/fusion-v2/archives/26130"
+      }
+    ],
+    "confirmation_joint_log_excess": -0.0005592948814596866,
+    "confirmation_n": 156,
+    "cutoff_issue": "26129",
+    "data_sha256": "112c8622029ecc9854bb879a1704ef25b42b711d7d80baa36b8a5e1ae415177f",
+    "kind": "same_budget_complete_ticket_audit",
+    "model": "frozen_overlap_stratified_calibration_v1",
+    "promoted": false,
+    "reason": "搜索可提高此模型内同预算完整票面的分数；完整概率模型的确认窗仍未优于均匀，研究对照不作为新购票推荐。保留各期首次票面。",
+    "scope": "最多最近12期实际v2及当前已封存v2；仅sealed_original行属于首次票面，其余均为相同输入的事后算法研究。不同方案独立比较，预算不合并。",
+    "source_sha256": "89d8a7560a2dafd326425f58f09be070660eaf51af09b7375d44c73b9cbbff9f",
+    "target_issue": "26130",
+    "tickets_published": false,
+    "training_last_issue": "23100",
+    "uniform_eight_ticket_mass": 4.514395504384381e-07,
+    "version": 1,
+    "writes_archives": false
+  },
+  "exploratory_replay_windows": {
+    "confirmation_exploratory": {
+      "methods": [
+        {
+          "id": "causal_balanced_baseline",
+          "mean_model_gain": 0.0,
+          "representative_jackpots": 0
+        },
+        {
+          "id": "red_grouping_same_blue_counts",
+          "mean_model_gain": 0.2686345198775191,
+          "representative_jackpots": 0
+        },
+        {
+          "id": "blue_only_same_red_sets",
+          "mean_model_gain": 0.02252381348934265,
+          "representative_jackpots": 0
+        },
+        {
+          "id": "joint_top_eight",
+          "mean_model_gain": 0.29372384685305036,
+          "representative_jackpots": 0
+        }
+      ],
+      "n": 156,
+      "pool_all_six_periods": 1,
+      "uniform_expected_jackpots": 7.042456986839634e-05
+    },
+    "tracking": {
+      "methods": [
+        {
+          "id": "causal_balanced_baseline",
+          "mean_model_gain": 0.0,
+          "representative_jackpots": 0
+        },
+        {
+          "id": "red_grouping_same_blue_counts",
+          "mean_model_gain": 0.23887566577940642,
+          "representative_jackpots": 0
+        },
+        {
+          "id": "blue_only_same_red_sets",
+          "mean_model_gain": 0.023239583776805066,
+          "representative_jackpots": 0
+        },
+        {
+          "id": "joint_top_eight",
+          "mean_model_gain": 0.26185609914527674,
+          "representative_jackpots": 0
+        }
+      ],
+      "n": 14,
+      "pool_all_six_periods": 0,
+      "uniform_expected_jackpots": 6.320153706138134e-06
+    },
+    "validation": {
+      "methods": [
+        {
+          "id": "causal_balanced_baseline",
+          "mean_model_gain": 0.0,
+          "representative_jackpots": 0
+        },
+        {
+          "id": "red_grouping_same_blue_counts",
+          "mean_model_gain": 0.2768475582926529,
+          "representative_jackpots": 0
+        },
+        {
+          "id": "blue_only_same_red_sets",
+          "mean_model_gain": 0.023089059476271157,
+          "representative_jackpots": 0
+        },
+        {
+          "id": "joint_top_eight",
+          "mean_model_gain": 0.2995689129692352,
+          "representative_jackpots": 0
+        }
+      ],
+      "n": 312,
+      "pool_all_six_periods": 2,
+      "uniform_expected_jackpots": 0.00014084913973679269
+    }
+  },
+  "replay_scope": "固定校准模型的边际16红和校准前2蓝作为两种组票的共同因果基线；不冒充历史融合ML、原v2号码或真正首次推荐。未利用当期开奖选号。零头奖在此预算下不能单独证明方法优劣。",
+  "causal_validation": {
+    "future_append_preserved_all_existing_model_scores_and_certificates": true,
+    "cases": 3,
+    "simulation_outside_runtime": true
+  }
+}

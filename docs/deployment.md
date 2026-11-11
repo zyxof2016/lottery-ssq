@@ -1,5 +1,7 @@
 # 现有生产部署
 
+2026-11-11完整票面核验：新增只读GET `/api/reference-pools/ticket-audit`，在现有v2复盘中折叠展示同16红、8注16元的完整6＋1枚举对照及最新蓝球分量。无新增运行目录、观察池、封存或timer，保留26130首次票面和全部冻结模型。复制原reference目录及原Python环境，核对29个原只读接口和133份运行文件。见 [26129复盘](ticket-audit-2026-11-11.md)。
+
 2026-11-09完整六红入池搜索：新增只读GET `/api/reference-pools/fusion-review`，在当前v2区域折叠展示最新首次票面归因与有差距证书的候选池研究。无新增运行目录、观察池、封存或timer，不修改已封存26128／26129及冻结v2模型。部署复制原reference目录并保留Python环境；核对26个旧只读接口和全部运行文件。见 [26128深度复盘](fusion-deep-review-2026-11-09.md)。
 
 2026-11-07融合重号修复v2：默认融合推荐移除两层显式重号加分，旧版v1原档及原参考5注保持。新增 `recommendations/fusion-v2/{issue}.json` 与 `recommendations/reviews/{issue}/fusion-v2.json`，随recommendations完整备份；cycle和参考冻结回调沿用现有timer。部署复制原reference目录、不改Python环境，先只读验证23个旧接口和运行原档，再正式首次封存当前v2并核验线上默认票面及手动交集。说明见 [融合重号修复](fusion-repeat-fix-2026-11-07.md)。

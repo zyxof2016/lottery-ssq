@@ -29,6 +29,8 @@ pub mod fusion_model_v2;
 pub mod fusion_v2;
 pub mod pool_search;
 pub mod fusion_review;
+pub mod ticket_search;
+pub mod ticket_audit;
 pub mod dantuo_search;
 pub mod dantuo_audit;
 pub mod reference_dantuo;
