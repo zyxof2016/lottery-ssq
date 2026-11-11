@@ -187,6 +187,12 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
         ("GET", "/api/jackpot/model-review") => load_csv(&app.data).and_then(|draws| crate::joint_observation::report(&recommendation_dir(app),&draws)),
         ("GET", "/api/jackpot") => load_csv(&app.data).and_then(|draws| {let mut v=crate::jackpot::report(&recommendation_dir(app),&draws)?;let last=draws.last().ok_or("没有开奖数据")?;let gate=decide(recommendations::now_unix(),last.issue,last.date,false);v["publication"]=json!({"can_freeze":gate.publish,"target":gate.target,"deadline":gate.deadline_text});Ok(v)}),
         ("GET", "/api/prize-coverage") => load_csv(&app.data).and_then(|draws| crate::prize_coverage::report(&recommendation_dir(app),&draws)),
+        ("GET", "/api/blue/score-v2") => load_csv(&app.data).and_then(|draws|crate::blue_v2::report(&recommendation_dir(app),&draws)),
+        ("POST", "/api/blue/score-v2/freeze") => freeze_blue_v2(app,body),
+        ("GET", path) if path.starts_with("/api/blue/score-v2/archives/") => {
+            let result=load_csv(&app.data).and_then(|draws|crate::blue_v2::artifact(&recommendation_dir(app),&draws,&path["/api/blue/score-v2/archives/".len()..]));
+            match result{Ok(bytes)=>return(200,"application/json",bytes),Err(e)=>Err(e)}
+        },
         ("GET", "/api/blue/deep") => load_csv(&app.data).and_then(|draws|crate::blue_joint_archive::report(&recommendation_dir(app),&draws)),
         ("POST", "/api/blue/deep/freeze") => freeze_blue_joint(app,body),
         ("GET", path) if path.starts_with("/api/blue/deep/archives/") => {
@@ -1162,6 +1168,14 @@ fn freeze_reference(app:&App,body:&str)->Result<Value,String>{
     value["fusion_dantuo_archive"]=crate::fusion_dantuo::freeze(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix)?;
     value["fusion_v2_archive"]=crate::fusion_v2::freeze(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix)?;
     Ok(value)
+}
+
+fn freeze_blue_v2(app:&App,body:&str)->Result<Value,String>{
+    let draws=load_csv(&app.data)?;let last=draws.last().ok_or("没有开奖数据")?;let gate=decide(recommendations::now_unix(),last.issue,last.date,false);
+    let expected:Value=serde_json::from_str(body).map_err(|_|"蓝球v2封存请求无效")?;
+    if expected["data_sha256"]!=data_sha256(&draws)||expected["target"]!=gate.target{return Err("蓝球v2输入或期号已变化，请刷新".into());}
+    if !gate.publish{return Err(gate.reason);}
+    crate::blue_v2::freeze(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix)
 }
 
 fn freeze_blue_joint(app:&App,body:&str)->Result<Value,String>{

@@ -1,0 +1,585 @@
+{
+  "automatic_promotion": false,
+  "current_observation": null,
+  "cutoff_issue": "26129",
+  "data_sha256": "112c8622029ecc9854bb879a1704ef25b42b711d7d80baa36b8a5e1ae415177f",
+  "kind": "deduplicated_blue_log_score_model",
+  "latest_exploratory": {
+    "actual_recommendation": false,
+    "contributions": [
+      {
+        "axis": "frequency",
+        "coefficient": -0.08678319408577721,
+        "winning_feature": -0.009251295277103555,
+        "winning_logit_component": 0.0008028569535777119
+      },
+      {
+        "axis": "ewma",
+        "coefficient": -0.013755615292043333,
+        "winning_feature": 0.03391977898881704,
+        "winning_logit_component": -0.0004665874305613018
+      },
+      {
+        "axis": "log_gap",
+        "coefficient": -0.02715494491635786,
+        "winning_feature": 0.36093249117945314,
+        "winning_logit_component": -0.00980110191650187
+      },
+      {
+        "axis": "previous_blue_correction",
+        "coefficient": -0.0510687276816731,
+        "winning_feature": 0.0866433975699929,
+        "winning_logit_component": -0.004424768075916904
+      },
+      {
+        "axis": "markov",
+        "coefficient": -0.009701019530538304,
+        "winning_feature": -0.13419942560828702,
+        "winning_logit_component": 0.0013018712488130145
+      }
+    ],
+    "issue": "26129",
+    "note": "同输入的事后模型研究，不补记历史成绩；该期结果没有参与拟合。",
+    "original_rank": 14,
+    "v2_rank": 12,
+    "winning_blue": 5
+  },
+  "note": "固定23100训练边界、固定正则40；五个独立方向联合拟合，零系数为均匀，允许负系数，不给弱专家强制席位。历史已被查看，不能充当新的独立验证；蓝球命中不等于完整6＋1或收益。",
+  "prediction": {
+    "coefficients": [
+      -0.08678319408577721,
+      -0.013755615292043333,
+      -0.02715494491635786,
+      -0.0510687276816731,
+      -0.009701019530538304
+    ],
+    "forecast_kind": "blue_score_only",
+    "model_source_sha256": "d1a346eedae44ed923e7228c7775dcaad47ff352a09019ba487bc059ff248831",
+    "original_probabilities": [
+      0.06395426536748623,
+      0.05427746051845466,
+      0.05878862718023167,
+      0.06583170138107021,
+      0.07987782784713868,
+      0.05475435962693058,
+      0.05888580937821174,
+      0.05439253682736635,
+      0.06623010078636647,
+      0.048299415759567595,
+      0.07986007054129238,
+      0.07596806944100797,
+      0.05805856729710534,
+      0.05773683126611436,
+      0.06625884312431991,
+      0.05682551365733571
+    ],
+    "original_ranking": [
+      5,
+      11,
+      12,
+      15,
+      9,
+      4,
+      1,
+      7,
+      3,
+      13,
+      14,
+      16,
+      6,
+      8,
+      2,
+      10
+    ],
+    "policy": {
+      "automatic_promotion": false,
+      "axes": [
+        "frequency",
+        "ewma",
+        "log_gap",
+        "previous_blue_correction",
+        "markov"
+      ],
+      "expert_warmup_rows": 30,
+      "features": "centred_log_frequency;centred_log_ewma;centred_half_log_overdue_over_hot;centred_log_anti_repeat_over_frequency;centred_log_markov",
+      "forced_expert_floor": false,
+      "negative_coefficients_allowed": true,
+      "normalized_gradient_tolerance": 1e-10,
+      "objective": "sum_log_normalized_blue_probability_minus_20_times_structured_coefficient_norm_squared",
+      "penalty": "(frequency-previous_correction)^2+previous_correction^2+ewma^2+log_gap^2/2+markov^2",
+      "per_number_coefficients": false,
+      "ridge": 40.0,
+      "ridge_or_feature_grid_searched": false,
+      "score_kind": "normalized_probability_model_not_verified_winning_probability",
+      "solver": "strictly_concave_newton_cholesky_armijo",
+      "tickets_generated": false,
+      "training_last_issue": 23100,
+      "uniform_at_zero": true,
+      "version": 2
+    },
+    "probabilities": [
+      0.060950126786505014,
+      0.06250643178838365,
+      0.06169618983927492,
+      0.06113977336698814,
+      0.07004746669743907,
+      0.06183349823618634,
+      0.0616503961448574,
+      0.062041699537282856,
+      0.06213334004120314,
+      0.06264115287686714,
+      0.0634679689333711,
+      0.06272195194855117,
+      0.06335563820853468,
+      0.06161718084719826,
+      0.06092193964655405,
+      0.061275245100803115
+    ],
+    "ranking": [
+      5,
+      11,
+      13,
+      12,
+      10,
+      2,
+      9,
+      8,
+      6,
+      3,
+      7,
+      14,
+      16,
+      4,
+      1,
+      15
+    ],
+    "solver": {
+      "iterations": 3,
+      "normalized_gradient": 6.828727992752675e-12,
+      "objective_gap_upper_bound": 2.041516818567595e-17,
+      "penalized_log_excess_objective": 1.7401470555080376
+    },
+    "tickets_generated": false,
+    "training_history_sha256": "6977b2ed7ffaa4246224855b0058f996e6abe20772e0a5941ead0771646d8fdb",
+    "training_n": 2864
+  },
+  "prospective": {
+    "errors": [],
+    "n": 0,
+    "note": "只计本模型首次封存后的真实开奖，缺档不算失败；分布观察不生成购票票面。",
+    "original_top2_hits": 0,
+    "pending": 0,
+    "periods": [],
+    "v2_top2_hits": 0
+  },
+  "publication": {
+    "can_observe": true,
+    "deadline": "2026-11-12 21:10",
+    "target": "26130"
+  },
+  "reason": "同2蓝回放较原榜改善，但确认窗的完整蓝球对数评分点估计仍低于均匀；先独立封存前瞻分布，不替换现有购票票面。",
+  "target_issue": "26130",
+  "version": 2,
+  "windows": {
+    "all_held_out_exploratory": {
+      "cells": [
+        {
+          "blue_count": 1,
+          "n": 482,
+          "original_hits": 33,
+          "paired_gains": 7,
+          "paired_hit_rate_difference": {
+            "descriptive_95_high": 0.01055028887800747,
+            "descriptive_95_low": -0.022998421658090455,
+            "mean": -0.006224066390041493,
+            "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+          },
+          "paired_losses": 10,
+          "tie_adjusted_expected_hits": [
+            33.0,
+            30.0
+          ],
+          "uniform_expected_hits": 30.125,
+          "v2_hits": 30
+        },
+        {
+          "blue_count": 2,
+          "n": 482,
+          "original_hits": 55,
+          "paired_gains": 32,
+          "paired_hit_rate_difference": {
+            "descriptive_95_high": 0.0647501891558136,
+            "descriptive_95_low": 0.009938607524684326,
+            "mean": 0.03734439834024896,
+            "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+          },
+          "paired_losses": 14,
+          "tie_adjusted_expected_hits": [
+            55.0,
+            73.0
+          ],
+          "uniform_expected_hits": 60.25,
+          "v2_hits": 73
+        },
+        {
+          "blue_count": 4,
+          "n": 482,
+          "original_hits": 126,
+          "paired_gains": 54,
+          "paired_hit_rate_difference": {
+            "descriptive_95_high": 0.05541140127294372,
+            "descriptive_95_low": -0.026365758119416747,
+            "mean": 0.014522821576763486,
+            "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+          },
+          "paired_losses": 47,
+          "tie_adjusted_expected_hits": [
+            126.0,
+            133.0
+          ],
+          "uniform_expected_hits": 120.5,
+          "v2_hits": 133
+        }
+      ],
+      "n": 482,
+      "original_log_excess_vs_uniform": {
+        "descriptive_95_high": 0.003656058536514048,
+        "descriptive_95_low": -0.01695020836031864,
+        "mean": -0.006647074911902297,
+        "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+      },
+      "paired_log_score_gain": {
+        "descriptive_95_high": 0.01612410101409673,
+        "descriptive_95_low": -0.0016850110754424372,
+        "mean": 0.007219544969327146,
+        "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+      },
+      "v2_log_excess_vs_uniform": {
+        "descriptive_95_high": 0.0034137882160714546,
+        "descriptive_95_low": -0.002268848101221755,
+        "mean": 0.0005724700574248498,
+        "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+      }
+    },
+    "confirmation_exploratory": {
+      "cells": [
+        {
+          "blue_count": 1,
+          "n": 156,
+          "original_hits": 9,
+          "paired_gains": 1,
+          "paired_hit_rate_difference": {
+            "descriptive_95_high": 0.015398156645804193,
+            "descriptive_95_low": -0.028218669466317015,
+            "mean": -0.00641025641025641,
+            "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+          },
+          "paired_losses": 2,
+          "tie_adjusted_expected_hits": [
+            9.0,
+            8.0
+          ],
+          "uniform_expected_hits": 9.75,
+          "v2_hits": 8
+        },
+        {
+          "blue_count": 2,
+          "n": 156,
+          "original_hits": 18,
+          "paired_gains": 10,
+          "paired_hit_rate_difference": {
+            "descriptive_95_high": 0.08523319614094169,
+            "descriptive_95_low": -0.008310119217864759,
+            "mean": 0.038461538461538464,
+            "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+          },
+          "paired_losses": 4,
+          "tie_adjusted_expected_hits": [
+            18.0,
+            24.0
+          ],
+          "uniform_expected_hits": 19.5,
+          "v2_hits": 24
+        },
+        {
+          "blue_count": 4,
+          "n": 156,
+          "original_hits": 35,
+          "paired_gains": 17,
+          "paired_hit_rate_difference": {
+            "descriptive_95_high": 0.10488321722349489,
+            "descriptive_95_low": -0.027960140300417963,
+            "mean": 0.038461538461538464,
+            "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+          },
+          "paired_losses": 11,
+          "tie_adjusted_expected_hits": [
+            35.0,
+            41.0
+          ],
+          "uniform_expected_hits": 39.0,
+          "v2_hits": 41
+        }
+      ],
+      "n": 156,
+      "original_log_excess_vs_uniform": {
+        "descriptive_95_high": 0.002376008791051416,
+        "descriptive_95_low": -0.03353320698854623,
+        "mean": -0.015578599098747406,
+        "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+      },
+      "paired_log_score_gain": {
+        "descriptive_95_high": 0.030661477969060727,
+        "descriptive_95_low": -0.0010925041115562254,
+        "mean": 0.01478448692875225,
+        "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+      },
+      "v2_log_excess_vs_uniform": {
+        "descriptive_95_high": 0.003936777326875315,
+        "descriptive_95_low": -0.005525001666865619,
+        "mean": -0.0007941121699951524,
+        "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+      }
+    },
+    "recent60": {
+      "cells": [
+        {
+          "blue_count": 1,
+          "n": 60,
+          "original_hits": 4,
+          "paired_gains": 0,
+          "paired_hit_rate_difference": {
+            "descriptive_95_high": 0.0,
+            "descriptive_95_low": 0.0,
+            "mean": 0.0,
+            "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+          },
+          "paired_losses": 0,
+          "tie_adjusted_expected_hits": [
+            4.0,
+            4.0
+          ],
+          "uniform_expected_hits": 3.75,
+          "v2_hits": 4
+        },
+        {
+          "blue_count": 2,
+          "n": 60,
+          "original_hits": 11,
+          "paired_gains": 4,
+          "paired_hit_rate_difference": {
+            "descriptive_95_high": 0.11357571568001121,
+            "descriptive_95_low": -0.046909049013344535,
+            "mean": 0.03333333333333333,
+            "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+          },
+          "paired_losses": 2,
+          "tie_adjusted_expected_hits": [
+            11.0,
+            13.0
+          ],
+          "uniform_expected_hits": 7.5,
+          "v2_hits": 13
+        },
+        {
+          "blue_count": 4,
+          "n": 60,
+          "original_hits": 16,
+          "paired_gains": 8,
+          "paired_hit_rate_difference": {
+            "descriptive_95_high": 0.20099930077511496,
+            "descriptive_95_low": -0.000999300775114953,
+            "mean": 0.1,
+            "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+          },
+          "paired_losses": 2,
+          "tie_adjusted_expected_hits": [
+            16.0,
+            22.0
+          ],
+          "uniform_expected_hits": 15.0,
+          "v2_hits": 22
+        }
+      ],
+      "n": 60,
+      "original_log_excess_vs_uniform": {
+        "descriptive_95_high": 0.03321998534194259,
+        "descriptive_95_low": -0.024687054156934396,
+        "mean": 0.004266465592504098,
+        "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+      },
+      "paired_log_score_gain": {
+        "descriptive_95_high": 0.02149791479943786,
+        "descriptive_95_low": -0.026155346034950008,
+        "mean": -0.0023287156177560727,
+        "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+      },
+      "v2_log_excess_vs_uniform": {
+        "descriptive_95_high": 0.01033288560825472,
+        "descriptive_95_low": -0.006457385658758663,
+        "mean": 0.0019377499747480285,
+        "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+      }
+    },
+    "tracking": {
+      "cells": [
+        {
+          "blue_count": 1,
+          "n": 14,
+          "original_hits": 1,
+          "paired_gains": 0,
+          "paired_hit_rate_difference": {
+            "descriptive_95_high": 0.0,
+            "descriptive_95_low": 0.0,
+            "mean": 0.0,
+            "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+          },
+          "paired_losses": 0,
+          "tie_adjusted_expected_hits": [
+            1.0,
+            1.0
+          ],
+          "uniform_expected_hits": 0.875,
+          "v2_hits": 1
+        },
+        {
+          "blue_count": 2,
+          "n": 14,
+          "original_hits": 3,
+          "paired_gains": 1,
+          "paired_hit_rate_difference": {
+            "descriptive_95_high": 0.2114285714285714,
+            "descriptive_95_low": -0.06857142857142856,
+            "mean": 0.07142857142857142,
+            "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+          },
+          "paired_losses": 0,
+          "tie_adjusted_expected_hits": [
+            3.0,
+            4.0
+          ],
+          "uniform_expected_hits": 1.75,
+          "v2_hits": 4
+        },
+        {
+          "blue_count": 4,
+          "n": 14,
+          "original_hits": 5,
+          "paired_gains": 0,
+          "paired_hit_rate_difference": {
+            "descriptive_95_high": 0.0,
+            "descriptive_95_low": 0.0,
+            "mean": 0.0,
+            "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+          },
+          "paired_losses": 0,
+          "tie_adjusted_expected_hits": [
+            5.0,
+            5.0
+          ],
+          "uniform_expected_hits": 3.5,
+          "v2_hits": 5
+        }
+      ],
+      "n": 14,
+      "original_log_excess_vs_uniform": {
+        "descriptive_95_high": 0.09220281958487508,
+        "descriptive_95_low": -0.03594472821311987,
+        "mean": 0.028129045685877603,
+        "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+      },
+      "paired_log_score_gain": {
+        "descriptive_95_high": 0.025667214625321146,
+        "descriptive_95_low": -0.07504133726014804,
+        "mean": -0.02468706131741345,
+        "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+      },
+      "v2_log_excess_vs_uniform": {
+        "descriptive_95_high": 0.02061834602886467,
+        "descriptive_95_low": -0.01373437729193637,
+        "mean": 0.0034419843684641497,
+        "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+      }
+    },
+    "validation": {
+      "cells": [
+        {
+          "blue_count": 1,
+          "n": 312,
+          "original_hits": 23,
+          "paired_gains": 6,
+          "paired_hit_rate_difference": {
+            "descriptive_95_high": 0.017122004438696742,
+            "descriptive_95_low": -0.02994251725920956,
+            "mean": -0.00641025641025641,
+            "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+          },
+          "paired_losses": 8,
+          "tie_adjusted_expected_hits": [
+            23.0,
+            21.0
+          ],
+          "uniform_expected_hits": 19.5,
+          "v2_hits": 21
+        },
+        {
+          "blue_count": 2,
+          "n": 312,
+          "original_hits": 34,
+          "paired_gains": 21,
+          "paired_hit_rate_difference": {
+            "descriptive_95_high": 0.07006975135938476,
+            "descriptive_95_low": 0.0004430691534357614,
+            "mean": 0.035256410256410256,
+            "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+          },
+          "paired_losses": 10,
+          "tie_adjusted_expected_hits": [
+            34.0,
+            45.0
+          ],
+          "uniform_expected_hits": 39.0,
+          "v2_hits": 45
+        },
+        {
+          "blue_count": 4,
+          "n": 312,
+          "original_hits": 86,
+          "paired_gains": 37,
+          "paired_hit_rate_difference": {
+            "descriptive_95_high": 0.05696404082199436,
+            "descriptive_95_low": -0.05055378441173795,
+            "mean": 0.003205128205128205,
+            "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+          },
+          "paired_losses": 36,
+          "tie_adjusted_expected_hits": [
+            86.0,
+            87.0
+          ],
+          "uniform_expected_hits": 78.0,
+          "v2_hits": 87
+        }
+      ],
+      "n": 312,
+      "original_log_excess_vs_uniform": {
+        "descriptive_95_high": 0.009077668691000627,
+        "descriptive_95_low": -0.016561228227760877,
+        "mean": -0.0037417797683801245,
+        "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+      },
+      "paired_log_score_gain": {
+        "descriptive_95_high": 0.015863968819605376,
+        "descriptive_95_low": -0.0061264074556687,
+        "mean": 0.004868780681968338,
+        "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+      },
+      "v2_log_excess_vs_uniform": {
+        "descriptive_95_high": 0.004751736693383765,
+        "descriptive_95_low": -0.0024977348662073334,
+        "mean": 0.0011270009135882155,
+        "scope": "普通配对均值标准误，仅为描述区间；未校正多重尝试和时间相关，也不是新独立前瞻"
+      }
+    }
+  }
+}

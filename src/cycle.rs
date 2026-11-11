@@ -88,6 +88,8 @@ pub fn run_cycle(data: &Path, audit: &Path, publish_dir: &Path, review_dir: &Pat
     if gate.publish {match crate::blue_joint_archive::freeze(&recommendation_dir,&draws,&gate.target,gate.deadline_unix){Ok(v)=>notes.push(format!("红蓝联合选票观察 {}",v["status"])),Err(e)=>notes.push(format!("红蓝联合选票未封存：{e}"))}}
     let joint_blue=crate::blue_joint_archive::settle(&recommendation_dir,&draws);notes.push(format!("红蓝联合选票复盘新增 {} 份",joint_blue.settled));notes.extend(joint_blue.errors);
     if gate.publish {match crate::calibration::freeze(&recommendation_dir,&draws,&gate.target,gate.deadline_unix){Ok(v)=>notes.push(format!("完整概率校准 {}",v["status"])),Err(e)=>notes.push(format!("完整概率校准未封存：{e}"))}}
+    if gate.publish {match crate::blue_v2::freeze(&recommendation_dir,&draws,&gate.target,gate.deadline_unix){Ok(v)=>notes.push(format!("蓝球v2 {}",v["status"])),Err(e)=>notes.push(format!("蓝球v2未封存：{e}"))}}
+    let blue_v2=crate::blue_v2::settle(&recommendation_dir,&draws);notes.push(format!("蓝球v2复盘新增 {} 份",blue_v2.settled));notes.extend(blue_v2.errors);
     let calibration=crate::calibration::settle(&recommendation_dir,&draws);notes.push(format!("完整概率校准复盘新增 {} 份",calibration.settled));notes.extend(calibration.errors);
     let settlement = recommendations::settle_archives(&recommendation_dir, &draws);
     notes.push(format!("实际推荐复盘新增 {} 份", settlement.settled));

@@ -1,5 +1,7 @@
 pub mod audit;
 pub mod blue;
+pub mod blue_model_v2;
+pub mod blue_v2;
 pub mod blue_deep;
 pub mod blue_joint_archive;
 pub mod cycle;
