@@ -1,5 +1,7 @@
 # 现有生产部署
 
+2026-11-12融合入口串版修复：只改内置reference-pools.js，统一26128起当前与复盘的默认v2、URL版本传递、旧v1复制／下载标识及逐方案上期重合提示；较早历史保留v1默认，缺v2档不补造。无算法或运行目录变更，无首次封存操作；只读核对32个旧接口和135份运行文件。沿用两个timer、原reference目录与Python环境。见 [融合版本入口修复](fusion-version-fix-2026-11-12.md)。
+
 2026-11-11蓝球评分v2：新增GET `/api/blue/score-v2`、POST同路径`/freeze`及GET `/api/blue/score-v2/archives/{issue}`。分布前瞻原档位于 `recommendations/blue-score-v2/{issue}.json`，对奖位于 `recommendations/reviews/{issue}/blue-score-v2.json`；继续随recommendations备份。沿用原cycle封存及对奖，不新增timer、不改原票组或Python环境。先只读核对30个原接口和133份原文件，再为当前26130首次启用一份蓝球分布前瞻，核对新增文件、时间、输入摘要及待开奖状态。见 [蓝球评分v2](blue-score-v2-2026-11-11.md)。
 
 2026-11-11完整票面核验：新增只读GET `/api/reference-pools/ticket-audit`，在现有v2复盘中折叠展示同16红、8注16元的完整6＋1枚举对照及最新蓝球分量。无新增运行目录、观察池、封存或timer，保留26130首次票面和全部冻结模型。复制原reference目录及原Python环境，核对29个原只读接口和133份运行文件。见 [26129复盘](ticket-audit-2026-11-11.md)。

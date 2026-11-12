@@ -1,0 +1,78 @@
+{
+  "issue": "26130",
+  "baseline_browser": {
+    "issue": "26130",
+    "current_default": "v2",
+    "review_default": "v1",
+    "current_first": [
+      "04",
+      "13",
+      "20",
+      "22",
+      "25",
+      "30"
+    ],
+    "review_first": [
+      "03",
+      "09",
+      "16",
+      "20",
+      "25",
+      "30"
+    ],
+    "review_first_is_entire_previous_reds": true,
+    "review_link_missing_version": true
+  },
+  "v2_archive_sha256": "5e9d0b23a1995a6c054ebbc37b9960d9b22da6a2e39c46666eb8b0b0c8ab4220",
+  "v1_ticket_archive_sha256": "f5de154e0da2f6b72543567c9beac52993b1606519e36358c0a798d10940948f",
+  "current_v2_first_ticket": {
+    "blue": 5,
+    "red": [
+      4,
+      13,
+      20,
+      22,
+      25,
+      30
+    ]
+  },
+  "previous_reds": [
+    3,
+    9,
+    16,
+    20,
+    25,
+    30
+  ],
+  "local_validation": {
+    "scope": "isolated_production_snapshot",
+    "issue": "26130",
+    "old_review_version_switch_reproduced": true,
+    "current_and_review_default_v2": true,
+    "version_preserved_in_review_links_and_url": true,
+    "explicit_legacy_v1_preserved_and_labelled": true,
+    "all_four_single_and_both_dantuo_copies_match_originals": true,
+    "repeat_summary_recomputed_from_saved_numbers": true,
+    "current_v2_first_overlap": 3,
+    "old_v1_entire_previous_reds_preserved": true,
+    "old_history_missing_v2_not_fabricated": true,
+    "wrong_issue_response_rejected": true,
+    "archive_bytes_unchanged": true,
+    "widths": [
+      320,
+      390,
+      768,
+      1440
+    ],
+    "console_errors": [],
+    "vue_warnings": [],
+    "write_requests": []
+  },
+  "compatibility": {
+    "all_32_original_apis_preserved": true,
+    "runtime_files_byte_preserved": 135,
+    "new_archives_created": false,
+    "algorithm_and_frozen_tickets_changed": false,
+    "only_reference_ui_asset_changed": true
+  }
+}
