@@ -325,10 +325,10 @@ fn frozen_pools(root: &Path, issue: &str, draw: Option<&Draw>) -> Result<Value, 
     let mut items = Vec::new();
     if let Some(pools) = payload.get("number_pools") {
         collect_models(pools, "tier", &mut items, draw)?;
-        if let Some(models) = pools["small_red_pools"]["models"].as_array() {
-            for model in models {
-                collect_model_pools(model, "small", &mut items, draw)?;
-            }
+    }
+    if let Some(models) = payload["small_red_pools"]["models"].as_array() {
+        for model in models {
+            collect_model_pools(model, "small", &mut items, draw)?;
         }
     }
     if let Some(strategies) = payload["strategies"].as_object() {
@@ -390,7 +390,10 @@ fn collect_model_pools(model: &Value, kind: &str, items: &mut Vec<Value>, draw: 
         } else {
             Vec::new()
         };
-        let label = format!("{} · {}红", model_label(name), reds.len());
+        let label = match model["label"].as_str() {
+            Some(text) => format!("{text} · {}红", reds.len()),
+            None => format!("{} · {}红", model_label(name), reds.len()),
+        };
         items.push(pool_item(kind, name, &label, reds, blues, draw));
     }
     Ok(())
@@ -503,7 +506,7 @@ mod tests {
         let draw = draws.last().unwrap();
         let mut reds: Vec<u8> = draw.red.to_vec();
         reds.extend((1..=33).filter(|n| !draw.red.contains(n)).take(10));
-        let payload = json!({"number_pools":{"pools":[{"model":"weighted","group":"observation","red_count":16,"blue_count":2,"reds":reds,"blues":[draw.blue, if draw.blue==1 {2} else {1}]}],"comparison_models":[],"coverage_model":null},"strategies":{"frozen":{"title":"测试方案","tickets":[{"red":draw.red.to_vec(),"blue":draw.blue}]}}});
+        let payload = json!({"number_pools":{"pools":[{"model":"weighted","group":"observation","red_count":16,"blue_count":2,"reds":reds,"blues":[draw.blue, if draw.blue==1 {2} else {1}]}],"comparison_models":[],"coverage_model":null},"small_red_pools":{"models":[{"model":"small_recent","label":"小池近况融合 · 试验","pools":[{"model":"small_recent","red_count":16,"reds":draw.red.to_vec()}]}]},"strategies":{"frozen":{"title":"测试方案","tickets":[{"red":draw.red.to_vec(),"blue":draw.blue}]}}});
         let raw = serde_json::to_vec(&payload).unwrap();
         let dir = std::env::temp_dir().join(format!("ssq-rank-pools-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
@@ -515,10 +518,12 @@ mod tests {
         let view = issue(&dir, &draws, &fmt_issue(draw.issue)).unwrap();
         assert_eq!(fs::read(&path).unwrap(), bytes);
         let items = view["pools"]["items"].as_array().unwrap();
-        assert_eq!(items.len(), 2);
+        assert_eq!(items.len(), 3);
         assert_eq!(items[0]["red_hits"], 6);
         assert_eq!(items[0]["blue_hit"], true);
-        assert_eq!(items[1]["kind"], "strategy");
+        assert_eq!(items[1]["kind"], "small");
+        assert_eq!(items[1]["label"], "小池近况融合 · 试验 · 6红");
+        assert_eq!(items[2]["kind"], "strategy");
         assert_eq!(items[1]["covers_all_red"], true);
         let _ = fs::remove_dir_all(&dir);
     }
