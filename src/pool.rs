@@ -307,7 +307,7 @@ pub fn saved_current(prepared:&Prepared,draws:&[Draw])->Value {
     value
 }
 
-fn uniform_ranking(issue: &str) -> Vec<u8> {
+pub(crate) fn uniform_ranking(issue: &str) -> Vec<u8> {
     let hash = crate::hash::sha256_hex(format!("ssq-pool-comparison-v1:{}:{issue}:red", Protocol::SEED).as_bytes());
     let mut rng = Rng::new(u64::from_str_radix(&hash[..16], 16).expect("sha256 prefix"));
     let mut numbers: Vec<_> = (1..=33).collect();

@@ -25,7 +25,7 @@ const PAGE: &str = include_str!("web/index.html");
 const REVIEWS_PAGE: &str = include_str!("web/reviews.html");
 const POOLS_PAGE: &str = include_str!("web/pools.html");
 const RESEARCH_PAGE: &str = include_str!("web/research.html");
-const STATIC_ASSETS: [(&str, &str, &[u8]); 12] = [
+const STATIC_ASSETS: [(&str, &str, &[u8]); 13] = [
     ("app.css", "text/css", include_bytes!("web/static/app.css")),
     ("shell.js", "application/javascript", include_bytes!("web/static/shell.js")),
     ("main.js", "application/javascript", include_bytes!("web/static/main.js")),
@@ -37,6 +37,7 @@ const STATIC_ASSETS: [(&str, &str, &[u8]); 12] = [
     ("blue-deep.js", "application/javascript", include_bytes!("web/static/blue-deep.js")),
     ("jackpot.js", "application/javascript", include_bytes!("web/static/jackpot.js")),
     ("pool-compression.js", "application/javascript", include_bytes!("web/static/pool-compression.js")),
+    ("rank-board.js", "application/javascript", include_bytes!("web/static/rank-board.js")),
     ("vendor/vue-3.5.24.js", "application/javascript", include_bytes!("web/static/vendor/vue-3.5.24.js")),
 ];
 
@@ -205,6 +206,11 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
             report["actual"]=recommendations::blue_observations(&recommendation_dir(app),&draws)?;
             Ok(report)
         }),
+        ("GET", "/api/rank-board") => load_csv(&app.data).and_then(|draws| crate::rank_board::overview(&draws)),
+        ("GET", path) if path.starts_with("/api/rank-board/") => {
+            let issue = &path["/api/rank-board/".len()..];
+            load_csv(&app.data).and_then(|draws| crate::rank_board::issue(&recommendation_dir(app), &draws, issue))
+        }
         ("GET", "/api/pools") => load_csv(&app.data).and_then(|draws| pool::analyze(&draws)),
         ("GET", "/api/pool-algorithms") => load_csv(&app.data).and_then(|draws| crate::pool_algorithms::cached_analyze(&draws)),
         ("GET", "/api/full6") => load_csv(&app.data).and_then(|draws| crate::conditional::analyze(&draws)),
