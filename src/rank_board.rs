@@ -164,7 +164,7 @@ fn rank_all(
         name: "uniform",
         label: "均匀红球对照",
         role: "baseline",
-        red: crate::pool::uniform_ranking(issue),
+        red: uniform_red(issue),
         blue: shared_blue,
         blue_source: "协议加权蓝球",
     });
@@ -187,6 +187,18 @@ fn algo(
         blue: blue.to_vec(),
         blue_source,
     }
+}
+
+fn uniform_red(issue: &str) -> Vec<u8> {
+    let hash = crate::hash::sha256_hex(
+        format!("ssq-pool-comparison-v1:{}:{issue}:red", Protocol::SEED).as_bytes(),
+    );
+    let mut rng = crate::stats::Rng::new(u64::from_str_radix(&hash[..16], 16).expect("sha256 prefix"));
+    let mut numbers: Vec<u8> = (1..=33).collect();
+    for i in (1..numbers.len()).rev() {
+        numbers.swap(i, rng.gen_range(i + 1));
+    }
+    numbers
 }
 
 fn order16(score: &[f64; 16]) -> Vec<u8> {
