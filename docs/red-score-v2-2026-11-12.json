@@ -1,0 +1,345 @@
+{
+  "adoption": {
+    "promoted": false,
+    "published_fusion_changed": false,
+    "reason": "确认窗完整六红对数评分没有高于均匀。去掉重复方向后的红球模型不替换已封存融合v2，也不生成新票面。",
+    "tickets_generated": false
+  },
+  "blue_decision": {
+    "adopted": false,
+    "archive_sha256": "4276c847c1020e6de3301840c92402ffb5406ff8b513620b15dd2d8fd24af2d6",
+    "assignments": {
+      "all_eight_tickets_on_highest_probability": {
+        "distinct_blues": [
+          5
+        ],
+        "id": "all_eight_on_highest",
+        "includes_winning_blue": false,
+        "probability_winning_blue_is_used": 0.07004746669743907,
+        "sum_of_ticket_probabilities": 0.5603797335795125,
+        "tickets": [
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5
+        ]
+      },
+      "eight_distinct_highest": {
+        "distinct_blues": [
+          2,
+          5,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "id": "eight_distinct",
+        "includes_winning_blue": true,
+        "probability_winning_blue_is_used": 0.5089156500316327,
+        "sum_of_ticket_probabilities": 0.5089156500316327,
+        "tickets": [
+          5,
+          11,
+          13,
+          12,
+          10,
+          2,
+          9,
+          8
+        ]
+      },
+      "sealed_v2_16_red_8_tickets": null
+    },
+    "log_excess_vs_uniform": 0.00010290331941023315,
+    "objective_note": "8注各配一个蓝球时，单注概率之和的模型最优是8注都用概率最高的蓝球；至少覆盖一次开奖蓝的模型最优是按概率取8个不同蓝球。当前4注加4注不是这两个目标中的任何一个。8个不同蓝球覆盖一半蓝球空间，覆盖到开奖蓝不等于模型把它识别出来。",
+    "rank2_probability": 0.0634679689333711,
+    "source": "sealed_blue_score_v2_distribution",
+    "top2": [
+      5,
+      11
+    ],
+    "top2_probability_mass": 0.13351543563081017,
+    "uniform_probability": 0.0625,
+    "uniform_top2_probability_mass": 0.125,
+    "v2_probability": 0.06250643178838365,
+    "v2_rank": 6,
+    "winning_blue": 2
+  },
+  "cutoff_issue": "26130",
+  "data_sha256": "d9e3425aae7b14596d67baed2fcaf9e8450640b3b9d1151257bc04ccf3f82abf",
+  "kind": "deduplicated_red_set_log_score_review",
+  "latest": {
+    "draw": {
+      "blue": 2,
+      "red": [
+        1,
+        2,
+        6,
+        16,
+        20,
+        28
+      ]
+    },
+    "full_six_inside_model_top16": false,
+    "fusion_v2_archive_sha256": null,
+    "issue": "26130",
+    "log_excess_vs_uniform": 0.002203184911012457,
+    "numbers": [
+      {
+        "fusion_v2_rank": null,
+        "fusion_v2_score": null,
+        "fusion_v2_score_ratio_to_rank16": null,
+        "in_fusion_v2_top16": null,
+        "in_model_top16": true,
+        "model_inclusion": 0.18431701072250045,
+        "model_inclusion_ratio_to_rank16": 1.0114021331924197,
+        "model_rank": 2,
+        "number": 1,
+        "previous_red": false
+      },
+      {
+        "fusion_v2_rank": null,
+        "fusion_v2_score": null,
+        "fusion_v2_score_ratio_to_rank16": null,
+        "in_fusion_v2_top16": null,
+        "in_model_top16": true,
+        "model_inclusion": 0.18309899198417842,
+        "model_inclusion_ratio_to_rank16": 1.0047185029329102,
+        "model_rank": 9,
+        "number": 2,
+        "previous_red": false
+      },
+      {
+        "fusion_v2_rank": null,
+        "fusion_v2_score": null,
+        "fusion_v2_score_ratio_to_rank16": null,
+        "in_fusion_v2_top16": null,
+        "in_model_top16": true,
+        "model_inclusion": 0.1838819484043997,
+        "model_inclusion_ratio_to_rank16": 1.0090148171499453,
+        "model_rank": 3,
+        "number": 6,
+        "previous_red": false
+      },
+      {
+        "fusion_v2_rank": null,
+        "fusion_v2_score": null,
+        "fusion_v2_score_ratio_to_rank16": null,
+        "in_fusion_v2_top16": null,
+        "in_model_top16": false,
+        "model_inclusion": 0.17965674375856439,
+        "model_inclusion_ratio_to_rank16": 0.9858298654451557,
+        "model_rank": 30,
+        "number": 16,
+        "previous_red": false
+      },
+      {
+        "fusion_v2_rank": null,
+        "fusion_v2_score": null,
+        "fusion_v2_score_ratio_to_rank16": null,
+        "in_fusion_v2_top16": null,
+        "in_model_top16": false,
+        "model_inclusion": 0.17940360468062408,
+        "model_inclusion_ratio_to_rank16": 0.9844408162064576,
+        "model_rank": 31,
+        "number": 20,
+        "previous_red": false
+      },
+      {
+        "fusion_v2_rank": null,
+        "fusion_v2_score": null,
+        "fusion_v2_score_ratio_to_rank16": null,
+        "in_fusion_v2_top16": null,
+        "in_model_top16": false,
+        "model_inclusion": 0.1809503937092494,
+        "model_inclusion_ratio_to_rank16": 0.9929285066101698,
+        "model_rank": 23,
+        "number": 28,
+        "previous_red": false
+      }
+    ],
+    "reds_inside_model_top16": 3
+  },
+  "next": {
+    "actual_recommendation": false,
+    "inclusion": [
+      0.18152160933029435,
+      0.18063465852101032,
+      0.18381408757956438,
+      0.18038788253273025,
+      0.18228652387105115,
+      0.1799814483899567,
+      0.18378774545972365,
+      0.18624420594855168,
+      0.18376412932876107,
+      0.18255631285468832,
+      0.18153417370094246,
+      0.18242392179203742,
+      0.18147661688904695,
+      0.18314522838523048,
+      0.18293612273687848,
+      0.17877781801348963,
+      0.1833281955958342,
+      0.18327812198586485,
+      0.18275200007721806,
+      0.17892821428466024,
+      0.18204213237491712,
+      0.1819728613414286,
+      0.18097072757168262,
+      0.18033475877385371,
+      0.1815133942991819,
+      0.18225582809026222,
+      0.18232858546748176,
+      0.17863760622729052,
+      0.18014986940293212,
+      0.1810719294162762,
+      0.1805989190809589,
+      0.1831360848035244,
+      0.18142828587267518
+    ],
+    "issue": "26131",
+    "ranking": [
+      8,
+      3,
+      7,
+      9,
+      17,
+      18,
+      14,
+      32,
+      15,
+      19,
+      10,
+      12,
+      27,
+      5,
+      26,
+      21,
+      22,
+      11,
+      1,
+      25,
+      13,
+      33,
+      30,
+      23,
+      2,
+      31,
+      4,
+      24,
+      29,
+      6,
+      20,
+      16,
+      28
+    ],
+    "tickets_generated": false,
+    "top16": [
+      8,
+      3,
+      7,
+      9,
+      17,
+      18,
+      14,
+      32,
+      15,
+      19,
+      10,
+      12,
+      27,
+      5,
+      26,
+      21
+    ]
+  },
+  "note": "已封存融合排序仍是专家混合分，遗漏和热度分开加权，近期项还会在融合之外再加一次。本模型把它们收成每个方向一个系数，并用完整六红概率计分。名次只用于和16红截线对照。",
+  "policy": {
+    "automatic_promotion": false,
+    "axes": [
+      "frequency",
+      "ewma",
+      "log_gap",
+      "cooccur",
+      "zone",
+      "repeat"
+    ],
+    "expert_warmup_rows": 30,
+    "features": "centred_log_frequency;centred_log_ewma;centred_half_log_overdue_over_hot;centred_log_cooccur;centred_log_zone;centred_log_repeat",
+    "forced_expert_floor": false,
+    "likelihood": "product_of_positive_weights_over_elementary_symmetric_polynomial_degree_6",
+    "negative_coefficients_allowed": true,
+    "normalized_gradient_tolerance": 1e-10,
+    "note": "遗漏与热度在对数上方向相反，只保留一个间隔系数；近期和重号各只用一次。这是完整六红似然，不是把单号分数相加，也不替换已封存融合v2。",
+    "objective": "sum_log_complete_six_red_probability_minus_20_times_structured_coefficient_norm_squared",
+    "penalty": "frequency^2+ewma^2+log_gap^2/2+cooccur^2+zone^2+repeat^2",
+    "per_number_coefficients": false,
+    "published_fusion_formula_changed": false,
+    "ridge": 40.0,
+    "ridge_or_feature_grid_searched": false,
+    "score_kind": "complete_six_probability_not_verified_winning_probability",
+    "solver": "strictly_concave_newton_cholesky_armijo",
+    "tickets_generated": false,
+    "training_last_issue": 23100,
+    "uniform_at_zero": true,
+    "version": 2
+  },
+  "target_issue": "26131",
+  "training": {
+    "coefficients": [
+      0.12116041565432217,
+      -0.018569907898018784,
+      -0.008922947295615977,
+      -0.004687616879962245,
+      0.018028860254979885,
+      -0.009171981262080778
+    ],
+    "iterations": 3,
+    "n": 2864,
+    "normalized_gradient": 7.968098558369446e-17,
+    "objective_gap_upper_bound": 1.5634798537122294e-27,
+    "training_history_sha256": "6977b2ed7ffaa4246224855b0058f996e6abe20772e0a5941ead0771646d8fdb"
+  },
+  "version": 2,
+  "windows": {
+    "all_after_training": {
+      "full_six_inside_top16": 5,
+      "mean_log_excess_vs_uniform": -0.000633442098698102,
+      "mean_reds_inside_top16": 2.9130434782608696,
+      "n": 483,
+      "top16_meaning": "按该期模型的单号入选概率取前16。这是期望中红目标，不等于全部六红同时入池。",
+      "uniform_expected_reds_inside_top16": 2.909090909090909
+    },
+    "confirmation_exploratory_25111_26115": {
+      "full_six_inside_top16": 2,
+      "mean_log_excess_vs_uniform": -0.0033565885302141354,
+      "mean_reds_inside_top16": 2.7371794871794872,
+      "n": 156,
+      "top16_meaning": "按该期模型的单号入选概率取前16。这是期望中红目标，不等于全部六红同时入池。",
+      "uniform_expected_reds_inside_top16": 2.909090909090909
+    },
+    "tracking_after_26115": {
+      "full_six_inside_top16": 0,
+      "mean_log_excess_vs_uniform": -0.0019523531675766036,
+      "mean_reds_inside_top16": 2.933333333333333,
+      "n": 15,
+      "top16_meaning": "按该期模型的单号入选概率取前16。这是期望中红目标，不等于全部六红同时入池。",
+      "uniform_expected_reds_inside_top16": 2.909090909090909
+    },
+    "validation_23101_25110": {
+      "full_six_inside_top16": 3,
+      "mean_log_excess_vs_uniform": 0.0007915403030636889,
+      "mean_reds_inside_top16": 3.0,
+      "n": 312,
+      "top16_meaning": "按该期模型的单号入选概率取前16。这是期望中红目标，不等于全部六红同时入池。",
+      "uniform_expected_reds_inside_top16": 2.909090909090909
+    }
+  },
+  "writes_archives": false
+}

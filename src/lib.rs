@@ -18,6 +18,8 @@ pub mod pool;
 pub mod pool_algorithms;
 pub mod protocol;
 pub mod ranking;
+pub mod red_model_v2;
+pub mod red_score_v2;
 pub mod recommendations;
 pub mod report;
 pub mod review;

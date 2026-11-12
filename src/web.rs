@@ -158,6 +158,7 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
         },
         ("GET", "/api/reference-pools/ticket-audit") => load_csv(&app.data).and_then(|draws|crate::ticket_audit::report(&recommendation_dir(app),&draws)),
         ("GET", "/api/reference-pools/fusion-review") => load_csv(&app.data).and_then(|draws|crate::fusion_review::report(&recommendation_dir(app),&draws)),
+        ("GET", "/api/reference-pools/red-score-v2") => load_csv(&app.data).and_then(|draws|crate::red_score_v2::report(&recommendation_dir(app),&draws)),
         ("GET", "/api/reference-pools/fusion-v2") => load_csv(&app.data).and_then(|draws|crate::fusion_v2::report(&recommendation_dir(app),&draws,query_value(query,"issue").as_deref())),
         ("POST", "/api/reference-pools/fusion-v2/freeze") => freeze_fusion_v2(app,body),
         ("GET", path) if path.starts_with("/api/reference-pools/fusion-v2/archives/") => {
