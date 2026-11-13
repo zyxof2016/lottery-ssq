@@ -8,12 +8,10 @@
       const loading = Vue.ref(false);
       const issue = Vue.ref('');
       const windowName = Vue.ref('confirmation_25111_26115');
-      const prefix = Vue.ref(16);
       const sort = Vue.ref('cover');
       const poolSort = Vue.ref('hits');
       const poolKind = Vue.ref('all');
       const numberAlgo = Vue.ref('weighted');
-      const layout = Vue.ref('rank');
       const openedKey = Vue.ref('');
       const pad = (n) => String(n).padStart(2, '0');
       const decimal = (n) => (n == null || Number.isNaN(Number(n)) ? '—' : Number(n).toFixed(2));
@@ -51,34 +49,16 @@
       const selectedAlgo = Vue.computed(() => (detail.value?.algorithms || []).find((row) => row.name === numberAlgo.value) || detail.value?.algorithms?.[0] || null);
       function rankedBalls(ranking, winners) {
         const drawn = new Set(winners || []);
-        const rows = ranking.map((number, index) => ({number, rank: index + 1, hit: drawn.has(number)}));
-        return layout.value === 'number' ? rows.slice().sort((a, b) => a.number - b.number) : rows;
+        return ranking.map((number, index) => ({number, rank: index + 1, hit: drawn.has(number)}));
       }
       const redBalls = Vue.computed(() => selectedAlgo.value ? rankedBalls(selectedAlgo.value.red_ranking, detail.value?.draw?.red) : []);
       const blueBalls = Vue.computed(() => selectedAlgo.value ? rankedBalls(selectedAlgo.value.blue_ranking, detail.value?.draw ? [detail.value.draw.blue] : []) : []);
       const openedPool = Vue.computed(() => (detail.value?.pools?.items || []).find((pool) => poolKey(pool) === openedKey.value) || null);
-      const prefixHits = Vue.computed(() => {
-        if (!selectedAlgo.value || !detail.value?.settled) return null;
-        return selectedAlgo.value.red_ranking.slice(0, prefix.value).filter((number) => detail.value.draw.red.includes(number)).length;
-      });
-      function tileClass(ball, limit) {
-        if (ball.hit && ball.rank <= limit) return 'hit';
-        if (ball.hit) return 'miss';
-        return ball.rank <= limit ? 'in' : 'out';
+      function cellClass(ranking, number) {
+        return (detail.value?.draw?.red || []).includes(number) ? 'hit' : '';
       }
-      function cellClass(ranking, number, index) {
-        const drawn = detail.value?.draw?.red || [];
-        const winner = drawn.includes(number);
-        if (winner && index < prefix.value) return 'hit';
-        if (winner) return 'miss';
-        if (index < prefix.value) return 'inside';
-        return '';
-      }
-      function blueClass(ranking, number, index) {
-        if (!detail.value?.settled) return index < 2 ? 'inside' : '';
-        if (number === detail.value.draw.blue && index < 2) return 'hit';
-        if (number === detail.value.draw.blue) return 'miss';
-        return index < 2 ? 'inside' : '';
+      function blueClass(ranking, number) {
+        return detail.value?.settled && number === detail.value.draw.blue ? 'hit' : '';
       }
       async function loadIssue() {
         if (!issue.value) return;
@@ -101,9 +81,9 @@
         }
       }
       return {
-        overview, detail, error, loading, issue, windowName, prefix, sort, poolSort, poolKind,
+        overview, detail, error, loading, issue, windowName, sort, poolSort, poolKind,
         windows, selectedWindow, algorithms, pools, pad, decimal, roleName, kindName, cellClass, blueClass, loadIssue,
-        numberAlgo, layout, openedKey, selectedAlgo, redBalls, blueBalls, openedPool, prefixHits, poolKey, tileClass
+        numberAlgo, openedKey, selectedAlgo, redBalls, blueBalls, openedPool, poolKey
       };
     },
     async mounted() {
@@ -137,9 +117,6 @@
         <div class="toolbar">
           <label for="rank-issue">期号</label>
           <select id="rank-issue" v-model="issue" @change="loadIssue"><option v-for="row in overview.issues" :key="row.issue" :value="row.issue">{{ row.issue }}{{ row.settled?'':' · 待开奖' }}</option></select>
-          <label for="rank-prefix">前缀</label>
-          <input id="rank-prefix" v-model.number="prefix" type="range" min="6" max="33">
-          <span>{{ prefix }} 名</span>
           <label for="rank-sort">算法排序</label>
           <select id="rank-sort" v-model="sort"><option value="cover">按盖住6红的名次</option><option value="top16">按前16命中</option><option value="name">按名称</option></select>
         </div>
@@ -151,15 +128,10 @@
           <div class="toolbar">
             <label for="number-algo">排序</label>
             <select id="number-algo" v-model="numberAlgo"><option v-for="row in detail.algorithms" :key="row.name" :value="row.name">{{ row.label }}</option></select>
-            <label for="number-layout">排列</label>
-            <select id="number-layout" v-model="layout"><option value="rank">按名次</option><option value="number">按号码</option></select>
-            <span v-if="detail.settled" class="muted">前 {{ prefix }} 名包含开奖红球 {{ prefixHits }} / 6</span>
           </div>
-          <p class="muted">前 {{ prefix }} 个红球按名次从左到右排列。下面的方块上方是号码，下方是名次；红底是落在前缀内的开奖号，橙色是前缀外的开奖号。</p>
-          <div class="balls" aria-label="前缀红球"><span v-for="(n,i) in selectedAlgo.red_ranking.slice(0, prefix)" :key="'prefix-'+n" class="ball" :class="{hit:detail.draw && detail.draw.red.includes(n)}" :title="'第'+(i+1)+'名'">{{ pad(n) }}</span></div>
-          <div class="balls" aria-label="前两名蓝球"><span v-for="(n,i) in selectedAlgo.blue_ranking.slice(0, 2)" :key="'prefix-blue-'+n" class="ball blue" :class="{hit:detail.draw && n===detail.draw.blue}" :title="'蓝球第'+(i+1)+'名'">{{ pad(n) }}</span></div>
-          <div class="number-grid" id="red-number-grid" :aria-label="selectedAlgo.label+'全部红球'"><span v-for="ball in redBalls" :key="'red-'+ball.number" class="number-tile" :class="tileClass(ball, prefix)" :title="'红球 '+pad(ball.number)+' · 第'+ball.rank+'名'">{{ pad(ball.number) }}<small>第{{ ball.rank }}</small></span></div>
-          <div class="number-grid blue" id="blue-number-grid" :aria-label="selectedAlgo.label+'全部蓝球'"><span v-for="ball in blueBalls" :key="'blue-'+ball.number" class="number-tile" :class="tileClass(ball, 2)" :title="'蓝球 '+pad(ball.number)+' · 第'+ball.rank+'名'">{{ pad(ball.number) }}<small>第{{ ball.rank }}</small></span></div>
+          <p class="muted">从左到右按名次排列。方块上方是号码，下方是名次；红底或蓝底是开奖号码。</p>
+          <div class="number-grid" id="red-number-grid" :aria-label="selectedAlgo.label+'红球排序'"><span v-for="ball in redBalls" :key="'red-'+ball.number" class="number-tile" :class="{hit:ball.hit}" :title="'红球 '+pad(ball.number)+' · 第'+ball.rank+'名'">{{ pad(ball.number) }}<small>第{{ ball.rank }}</small></span></div>
+          <div class="number-grid blue" id="blue-number-grid" :aria-label="selectedAlgo.label+'蓝球排序'"><span v-for="ball in blueBalls" :key="'blue-'+ball.number" class="number-tile" :class="{hit:ball.hit}" :title="'蓝球 '+pad(ball.number)+' · 第'+ball.rank+'名'">{{ pad(ball.number) }}<small>第{{ ball.rank }}</small></span></div>
           <h3>选中的号码池</h3>
           <p v-if="!detail.pools?.available" class="muted">{{ detail.pools?.note }}</p>
           <template v-else>
