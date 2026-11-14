@@ -347,8 +347,6 @@ fn score_pool(beta: &[f64; 6], x: &Features, mask: u64) -> Result<(f64, u8, bool
     Ok((log_excess(&w, mask)?, hits, hits == 6, pi))
 }
 
-pub const OBSERVATION_RED_COUNT: usize = 16;
-
 pub fn fit_causal(rows: &[crate::model::Row]) -> Result<Fit, String> {
     if !rows.iter().any(|row| row.issue == TRAIN_END) {
         return Err("红球v2需要完整23100训练边界，不能用部分历史冒充冻结模型".into());
@@ -362,17 +360,13 @@ pub fn fit_causal(rows: &[crate::model::Row]) -> Result<Fit, String> {
     fit(&training)
 }
 
-pub fn observation_reds(beta: &[f64; 6], expert: &[[f64; 33]; 7]) -> Result<Vec<u8>, String> {
+pub fn observation_order(beta: &[f64; 6], expert: &[[f64; 33]; 7]) -> Result<Vec<u8>, String> {
     let pi = inclusion(&weights(beta, &features(expert)?)?)?;
-    let mut reds: Vec<u8> = rank_desc(&pi)[..OBSERVATION_RED_COUNT]
-        .iter()
-        .map(|index| *index as u8 + 1)
-        .collect();
-    reds.sort_unstable();
-    if reds.len() != OBSERVATION_RED_COUNT || reds.windows(2).any(|pair| pair[0] == pair[1]) {
-        return Err("红球v2观察池无效".into());
+    let order: Vec<u8> = rank_desc(&pi).iter().map(|index| *index as u8 + 1).collect();
+    if order.len() != 33 || order.iter().any(|number| !(1..=33).contains(number)) {
+        return Err("红球v2排序无效".into());
     }
-    Ok(reds)
+    Ok(order)
 }
 
 pub fn study(draws: &[Draw]) -> Result<Study, String> {

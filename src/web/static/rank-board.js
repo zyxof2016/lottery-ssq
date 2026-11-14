@@ -167,6 +167,7 @@
         </div>
 
         <template v-if="panel==='rank' && detail">
+          <p v-if="overview.historical_fit" class="notice" id="historical-fit-note">{{ overview.historical_fit.note }}</p>
           <div class="toolbar">
             <label for="rank-sort">排序方式<select id="rank-sort" v-model="sort"><option value="group">按算法分组</option><template v-if="detail.settled"><option value="cover">本期盖住6红从少到多</option><option value="top16">本期前16名命中从多到少</option></template><option value="history">历史平均盖住名次从少到多</option></select></label>
             <label for="rank-span">红球显示<select id="rank-span" v-model.number="rankSpan"><option :value="16">前16名</option><option :value="22">前22名</option><option :value="33">全部33名</option></select></label>
@@ -220,12 +221,6 @@
         </template>
 
         <template v-if="panel==='pools'">
-          <section v-if="detail?.fitted_pool" class="inner-card" id="fitted-pool">
-            <h3>{{ detail.fitted_pool.label }}</h3>
-            <p v-if="overview.fitted_pool" class="notice">{{ overview.fitted_pool.note }}</p>
-            <p class="muted">{{ detail.fitted_pool.note }}<template v-if="detail.settled"> 本期覆盖开奖红球 {{ detail.fitted_pool.red_hits }} / 6。</template><template v-else> 本期尚未开奖，命中数在开奖后显示。</template></p>
-            <div class="pool-balls" id="fitted-pool-balls" aria-label="历史拟合观察池红球"><span v-for="n in detail.fitted_pool.reds" :key="'fit-'+n" class="pool-ball" :class="{hit:detail.draw && detail.draw.red.includes(n)}">{{ pad(n) }}</span></div>
-          </section>
           <section class="inner-card" id="frozen-pools">
             <h3>本期实际冻结号码池</h3>
             <p v-if="!detail" class="muted">正在读取本期档案…</p>
