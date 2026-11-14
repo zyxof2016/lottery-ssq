@@ -220,6 +220,12 @@
         </template>
 
         <template v-if="panel==='pools'">
+          <section v-if="detail?.fitted_pool" class="inner-card" id="fitted-pool">
+            <h3>{{ detail.fitted_pool.label }}</h3>
+            <p v-if="overview.fitted_pool" class="notice">{{ overview.fitted_pool.note }}</p>
+            <p class="muted">{{ detail.fitted_pool.note }}<template v-if="detail.settled"> 本期覆盖开奖红球 {{ detail.fitted_pool.red_hits }} / 6。</template><template v-else> 本期尚未开奖，命中数在开奖后显示。</template></p>
+            <div class="pool-balls" id="fitted-pool-balls" aria-label="历史拟合观察池红球"><span v-for="n in detail.fitted_pool.reds" :key="'fit-'+n" class="pool-ball" :class="{hit:detail.draw && detail.draw.red.includes(n)}">{{ pad(n) }}</span></div>
+          </section>
           <section class="inner-card" id="frozen-pools">
             <h3>本期实际冻结号码池</h3>
             <p v-if="!detail" class="muted">正在读取本期档案…</p>

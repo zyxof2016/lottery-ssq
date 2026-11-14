@@ -31,6 +31,7 @@ struct Settled {
     red: [u8; 6],
     blue: u8,
     algos: Vec<Algo>,
+    fitted_red: Vec<u8>,
 }
 
 struct Board {
@@ -38,7 +39,9 @@ struct Board {
     settled: Vec<Settled>,
     next_issue: u32,
     next_algos: Vec<Algo>,
+    next_fitted_red: Vec<u8>,
     cover: crate::cover_rank::Fit,
+    red_fit: crate::red_model_v2::Fit,
 }
 
 pub fn overview(draws: &[Draw]) -> Result<Value, String> {
@@ -56,6 +59,7 @@ pub fn issue(root: &Path, draws: &[Draw], issue: &str) -> Result<Value, String> 
     if parsed == board.next_issue {
         let mut value = algorithms_value(issue, false, None, &board.next_algos);
         value["pools"] = frozen_pools(root, issue, None)?;
+        value["fitted_pool"] = fitted_issue(&board.next_fitted_red, None);
         return Ok(value);
     }
     let row = board
@@ -68,6 +72,7 @@ pub fn issue(root: &Path, draws: &[Draw], issue: &str) -> Result<Value, String> 
     let draw = draws.iter().find(|d| d.issue == parsed);
     let mut value = algorithms_value(issue, true, Some((row.date, &row.red, row.blue)), &row.algos);
     value["pools"] = frozen_pools(root, issue, draw)?;
+    value["fitted_pool"] = fitted_issue(&row.fitted_red, Some(&row.red));
     Ok(value)
 }
 
@@ -88,6 +93,7 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
     let prepared = prepare_forecast(draws)?;
     let snap = roll_all(draws)?;
     let cover = crate::cover_rank::fit_rows(&snap.rows)?;
+    let red_fit = crate::red_model_v2::fit_causal(&snap.rows)?;
     let weights = prepared.weights;
     let blue_weights = prepared.blue_weights;
     let index: HashMap<u32, usize> = draws.iter().enumerate().map(|(i, d)| (d.issue, i)).collect();
@@ -116,6 +122,7 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
             red: draw.red,
             blue: draw.blue,
             algos,
+            fitted_red: crate::red_model_v2::observation_reds(&red_fit.beta, &row.expert_p)?,
         });
     }
     let last = draws.last().ok_or("没有开奖数据")?;
@@ -128,12 +135,15 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
         &fmt_issue(last.issue + 1),
         &cover.beta,
     )?;
+    let next_fitted_red = crate::red_model_v2::observation_reds(&red_fit.beta, &snap.next_red)?;
     Ok(Board {
         sha: data_sha256(draws),
         settled,
         next_issue: last.issue + 1,
         next_algos,
+        next_fitted_red,
         cover,
+        red_fit,
     })
 }
 
@@ -311,6 +321,25 @@ fn overview_value(board: &Board) -> Value {
         "automatic_promotion": false,
         "note": cover_note(confirm.len(), cover_mean, weighted_mean, gain_weighted, gain_uniform, clears)
     });
+    let tracking: Vec<_> = board.settled.iter().filter(|row| row.issue > CONFIRM_END).collect();
+    let fitted_confirmation = fitted_summary(&confirm);
+    let fitted_tracking = fitted_summary(&tracking);
+    let fitted_all = fitted_summary(&board.settled.iter().collect::<Vec<_>>());
+    let fitted_pool = json!({
+        "model": "red_score_v2",
+        "label": "历史拟合观察池 · 16红",
+        "red_count": crate::red_model_v2::OBSERVATION_RED_COUNT,
+        "training_last_issue": fmt_issue(crate::red_model_v2::TRAIN_END),
+        "training_rows": board.red_fit.n,
+        "writes_archives": false,
+        "actual_recommendation": false,
+        "automatic_promotion": false,
+        "uniform_expected_hits": EXPECTED_TOP16,
+        "confirmation": fitted_confirmation,
+        "tracking": fitted_tracking,
+        "all_from_25111": fitted_all,
+        "note": fitted_note(&fitted_confirmation)
+    });
     let mut issues: Vec<_> = board
         .settled
         .iter()
@@ -333,9 +362,58 @@ fn overview_value(board: &Board) -> Value {
             "all_from_25111":window(Protocol::CONFIRM_START_ISSUE, u32::MAX)
         },
         "cover_rank":cover_rank,
+        "fitted_pool":fitted_pool,
         "issues":issues,
         "next_issue":fmt_issue(board.next_issue),
         "note":"名次只用目标期以前的专家特征和25111前冻结的融合权重。盖住6个红球的名次是这6个号码里最靠后的名次；均匀随机顺序的期望是6×34/7。前16名期望命中16×6/33个，蓝球期望名次是8.5。这些对照不是中奖概率，也不替换已封存号码池。"
+    })
+}
+
+fn fitted_hits(pool: &[u8], reds: &[u8; 6]) -> usize {
+    reds.iter().filter(|number| pool.contains(number)).count()
+}
+
+fn fitted_summary(rows: &[&Settled]) -> Value {
+    if rows.is_empty() {
+        return json!({"n": 0, "mean_hits": Value::Null, "covers_all_six": 0});
+    }
+    let mut hits = 0.0;
+    let mut full = 0usize;
+    for row in rows {
+        let count = fitted_hits(&row.fitted_red, &row.red);
+        hits += count as f64;
+        full += usize::from(count == 6);
+    }
+    json!({"n": rows.len(), "mean_hits": hits / rows.len() as f64, "covers_all_six": full})
+}
+
+fn fitted_note(confirmation: &Value) -> String {
+    match confirmation["mean_hits"].as_f64() {
+        Some(mean) => format!(
+            "确认窗{}期，历史拟合观察池平均盖住{mean:.2}个开奖红球，均匀抽取16个红球的期望是{EXPECTED_TOP16:.2}。号码来自23100前拟合的完整六红似然，之后只更新开奖前特征。这个池子用来观察拟合效果，不写入每日档案，推荐和冻结号码池保持原样。",
+            confirmation["n"]
+        ),
+        None => "历史拟合观察池缺少确认窗样本。".into(),
+    }
+}
+
+fn fitted_issue(reds: &[u8], draw: Option<&[u8; 6]>) -> Value {
+    let (hits, covers) = if let Some(draw) = draw {
+        let hits = fitted_hits(reds, draw);
+        (json!(hits), json!(hits == 6))
+    } else {
+        (Value::Null, Value::Null)
+    };
+    json!({
+        "model": "red_score_v2",
+        "label": "历史拟合观察池 · 16红",
+        "red_count": reds.len(),
+        "reds": reds,
+        "red_hits": hits,
+        "covers_all_red": covers,
+        "writes_archives": false,
+        "actual_recommendation": false,
+        "note": "这16个红球是完整六红似然在开奖前的入选概率前16名，页面按从小到大排列。系数只拟合到23100。它不在冻结档案里。"
     })
 }
 
@@ -597,6 +675,17 @@ mod tests {
         assert_eq!(pending["settled"], false);
         assert!(pending["algorithms"][0]["cover_all_six_rank"].is_null());
         assert_eq!(pending["pools"]["available"], false);
+        assert_eq!(view["fitted_pool"]["writes_archives"], false);
+        assert_eq!(view["fitted_pool"]["actual_recommendation"], false);
+        assert_eq!(view["fitted_pool"]["red_count"], 16);
+        let fitted_reds = view["fitted_pool"]["reds"].as_array().unwrap();
+        assert!(fitted_reds.windows(2).all(|pair| pair[0].as_u64().unwrap() < pair[1].as_u64().unwrap()));
+        assert!(view["fitted_pool"]["red_hits"].as_u64().unwrap() <= 6);
+        assert!(pending["fitted_pool"]["red_hits"].is_null());
+        assert_eq!(report["fitted_pool"]["automatic_promotion"], false);
+        assert_eq!(report["fitted_pool"]["confirmation"]["n"], 156);
+        let mean_hits = report["fitted_pool"]["confirmation"]["mean_hits"].as_f64().unwrap();
+        assert!((0.0..=6.0).contains(&mean_hits));
         let mut earlier = draws.clone();
         let newest = earlier.pop().unwrap();
         let replay = issue(&dir, &earlier, &fmt_issue(newest.issue)).unwrap();
@@ -608,6 +697,8 @@ mod tests {
             assert!(left["cover_all_six_rank"].is_null());
         }
         assert_eq!(kept["algorithms"], full_prior["algorithms"]);
+        assert_eq!(replay["fitted_pool"]["reds"], view["fitted_pool"]["reds"]);
+        assert_eq!(kept["fitted_pool"]["reds"], full_prior["fitted_pool"]["reds"]);
         let _ = fs::remove_dir_all(&dir);
     }
 
