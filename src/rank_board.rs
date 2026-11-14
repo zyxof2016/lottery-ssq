@@ -89,7 +89,7 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
     let snap = roll_all(draws)?;
     let cover = crate::cover_rank::fit_rows(&snap.rows)?;
     let red_fit = crate::red_model_v2::fit_causal(&snap.rows)?;
-    let blue_fit = crate::blue_model_v2::fit_causal(&snap.rows)?;
+    let blue_fit = fit_blue(&snap.rows)?;
     let weights = prepared.weights;
     let blue_weights = prepared.blue_weights;
     let index: HashMap<u32, usize> = draws.iter().enumerate().map(|(i, d)| (d.issue, i)).collect();
@@ -161,7 +161,7 @@ fn rank_all(
     let equal_blue = order16(&fuse6(blue_p, &[1.0 / 6.0; 6]));
     let cover_score = crate::cover_rank::signal(cover_beta, expert)?;
     let fitted_red = crate::red_model_v2::observation_order(red_beta, expert)?;
-    let fitted_blue = crate::blue_model_v2::ranking(blue_beta, blue_p)?;
+    let fitted_blue = blue_order(blue_beta, blue_p)?;
     let mut algos = vec![
         algo("weighted", "协议加权融合", "main", &rank_desc(&weighted), &shared_blue, "协议加权蓝球"),
         algo("equal", "等权融合", "main", &rank_desc(&equal), &equal_blue, "等权蓝球"),
@@ -202,6 +202,32 @@ fn rank_all(
         blue_source: "协议加权蓝球",
     });
     Ok(algos)
+}
+
+fn fit_blue(rows: &[crate::model::Row]) -> Result<crate::blue_model_v2::Fit, String> {
+    if !rows.iter().any(|row| row.issue == crate::blue_model_v2::TRAIN_END) {
+        return Err("蓝球v2需要完整23100训练边界，不能用部分历史冒充冻结模型".into());
+    }
+    let training = rows
+        .iter()
+        .skip(30)
+        .filter(|row| row.issue <= crate::blue_model_v2::TRAIN_END)
+        .map(|row| {
+            Ok(crate::blue_model_v2::Sample {
+                x: crate::blue_model_v2::features(&row.blue_p)?,
+                winner: row.blue as usize,
+            })
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+    crate::blue_model_v2::fit(&training)
+}
+
+fn blue_order(beta: &[f64; 5], expert: &[[f64; 16]; 6]) -> Result<Vec<u8>, String> {
+    let score = crate::blue_model_v2::distribution(beta, &crate::blue_model_v2::features(expert)?);
+    if score.iter().any(|value| !value.is_finite() || *value < 0.) {
+        return Err("蓝球v2分布无效".into());
+    }
+    Ok(rank_desc(&score).iter().map(|index| *index as u8 + 1).collect())
 }
 
 fn algo(

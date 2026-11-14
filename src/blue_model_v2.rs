@@ -3,7 +3,7 @@
 use crate::{
     draw::{data_sha256, Draw},
     model::roll_all,
-    select::{fuse6, rank_desc, softmax_shrink},
+    select::{fuse6, softmax_shrink},
 };
 use serde_json::{json, Value};
 pub const TRAIN_END: u32 = 23100;
@@ -200,35 +200,24 @@ pub struct Study {
     pub old_next: [f64; 16],
     pub training_sha: String,
 }
-pub fn fit_causal(rows: &[crate::model::Row]) -> Result<Fit, String> {
-    if !rows.iter().any(|row| row.issue == TRAIN_END) {
+pub fn study(draws: &[Draw]) -> Result<Study, String> {
+    if !draws.iter().any(|d| d.issue == TRAIN_END) {
         return Err("蓝球v2需要完整23100训练边界，不能用部分历史冒充冻结模型".into());
     }
-    let training = rows
+    let snap = roll_all(draws)?;
+    let training: Vec<_> = snap
+        .rows
         .iter()
         .skip(30)
-        .filter(|row| row.issue <= TRAIN_END)
-        .map(|row| {
+        .filter(|r| r.issue <= TRAIN_END)
+        .map(|r| {
             Ok(Sample {
-                x: features(&row.blue_p)?,
-                winner: row.blue as usize,
+                x: features(&r.blue_p)?,
+                winner: r.blue as usize,
             })
         })
-        .collect::<Result<Vec<_>, String>>()?;
-    fit(&training)
-}
-
-pub fn ranking(beta: &[f64; 5], expert: &[[f64; 16]; 6]) -> Result<Vec<u8>, String> {
-    let score = distribution(beta, &features(expert)?);
-    if score.iter().any(|value| !value.is_finite() || *value < 0.) {
-        return Err("蓝球v2分布无效".into());
-    }
-    Ok(rank_desc(&score).iter().map(|index| *index as u8 + 1).collect())
-}
-
-pub fn study(draws: &[Draw]) -> Result<Study, String> {
-    let snap = roll_all(draws)?;
-    let fit = fit_causal(&snap.rows)?;
+        .collect::<Result<_, String>>()?;
+    let fit = fit(&training)?;
     let (mut sums, mut n) = ([0.; 6], 0usize);
     let mut records = Vec::new();
     for row in &snap.rows {
