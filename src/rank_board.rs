@@ -671,7 +671,6 @@ mod tests {
         assert_eq!(report["historical_fit"]["writes_archives"], false);
         assert_eq!(report["historical_fit"]["automatic_promotion"], false);
         assert!(report["historical_fit"]["confirmation_mean_cover_rank"].as_f64().unwrap() >= 6.0);
-        std::fs::write("/tmp/ssq-historical-fit.json", serde_json::to_vec_pretty(&report["historical_fit"]).unwrap()).unwrap();
         let mut earlier = draws.clone();
         let newest = earlier.pop().unwrap();
         let replay = issue(&dir, &earlier, &fmt_issue(newest.issue)).unwrap();
