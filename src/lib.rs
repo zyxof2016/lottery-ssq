@@ -6,6 +6,7 @@ pub mod blue_deep;
 pub mod blue_joint_archive;
 pub mod cycle;
 pub mod coverage;
+pub mod cover_rank;
 pub mod conditional;
 pub mod draw;
 pub mod efficiency;

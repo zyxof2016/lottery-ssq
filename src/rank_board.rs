@@ -38,6 +38,7 @@ struct Board {
     settled: Vec<Settled>,
     next_issue: u32,
     next_algos: Vec<Algo>,
+    cover: crate::cover_rank::Fit,
 }
 
 pub fn overview(draws: &[Draw]) -> Result<Value, String> {
@@ -86,6 +87,7 @@ fn cached(draws: &[Draw]) -> Result<std::sync::MutexGuard<'static, Option<(Strin
 fn build(draws: &[Draw]) -> Result<Board, String> {
     let prepared = prepare_forecast(draws)?;
     let snap = roll_all(draws)?;
+    let cover = crate::cover_rank::fit_rows(&snap.rows)?;
     let weights = prepared.weights;
     let blue_weights = prepared.blue_weights;
     let index: HashMap<u32, usize> = draws.iter().enumerate().map(|(i, d)| (d.issue, i)).collect();
@@ -106,7 +108,8 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
             &blue_weights,
             draws[pos - 1].red_mask,
             &fmt_issue(row.issue),
-        );
+            &cover.beta,
+        )?;
         settled.push(Settled {
             issue: row.issue,
             date: draw.date,
@@ -123,12 +126,14 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
         &blue_weights,
         last.red_mask,
         &fmt_issue(last.issue + 1),
-    );
+        &cover.beta,
+    )?;
     Ok(Board {
         sha: data_sha256(draws),
         settled,
         next_issue: last.issue + 1,
         next_algos,
+        cover,
     })
 }
 
@@ -139,12 +144,14 @@ fn rank_all(
     blue_weights: &[f64; 6],
     previous: u64,
     issue: &str,
-) -> Vec<Algo> {
+    cover_beta: &[f64; 6],
+) -> Result<Vec<Algo>, String> {
     let weighted = fuse7(expert, weights);
     let equal = fuse7(expert, &equal7());
     let calibrated = crate::ranking::scores(&weighted, previous);
     let shared_blue = order16(&fuse6(blue_p, blue_weights));
     let equal_blue = order16(&fuse6(blue_p, &[1.0 / 6.0; 6]));
+    let cover_score = crate::cover_rank::signal(cover_beta, expert)?;
     let mut algos = vec![
         algo("weighted", "协议加权融合", "main", &rank_desc(&weighted), &shared_blue, "协议加权蓝球"),
         algo("equal", "等权融合", "main", &rank_desc(&equal), &equal_blue, "等权蓝球"),
@@ -160,6 +167,14 @@ fn rank_all(
         &shared_blue,
         "协议加权蓝球",
     ));
+    algos.push(algo(
+        "cover_rank",
+        "全覆盖排序 · 试验",
+        "trial",
+        &rank_desc(&cover_score),
+        &shared_blue,
+        "协议加权蓝球",
+    ));
     algos.push(Algo {
         name: "uniform",
         label: "均匀红球对照",
@@ -168,7 +183,7 @@ fn rank_all(
         blue: shared_blue,
         blue_source: "协议加权蓝球",
     });
-    algos
+    Ok(algos)
 }
 
 fn algo(
@@ -254,6 +269,48 @@ fn overview_value(board: &Board) -> Value {
             .collect();
         json!({"n":rows.len(),"algorithms":algorithms})
     };
+    let confirm: Vec<_> = board
+        .settled
+        .iter()
+        .filter(|row| row.issue >= Protocol::CONFIRM_START_ISSUE && row.issue <= CONFIRM_END)
+        .collect();
+    let mid = confirm.len() / 2;
+    let cover_mean = mean_cover(&confirm, "cover_rank");
+    let weighted_mean = mean_cover(&confirm, "weighted");
+    let gain_weighted = cover_mean.zip(weighted_mean).map(|(cover, weighted)| weighted - cover);
+    let gain_uniform = cover_mean.map(|cover| EXPECTED_COVER - cover);
+    let clears = gain_weighted.is_some_and(|gain| gain >= crate::cover_rank::REQUIRED_MEAN_GAIN)
+        && gain_uniform.is_some_and(|gain| gain >= crate::cover_rank::REQUIRED_MEAN_GAIN);
+    let cover_rank = json!({
+        "name": "cover_rank",
+        "label": "全覆盖排序 · 试验",
+        "policy": crate::cover_rank::policy(),
+        "training_rows": board.cover.n,
+        "iterations": board.cover.iterations,
+        "gradient": board.cover.gradient,
+        "objective": board.cover.objective,
+        "coefficients": {
+            "frequency": board.cover.beta[0],
+            "ewma": board.cover.beta[1],
+            "log_gap": board.cover.beta[2],
+            "cooccur": board.cover.beta[3],
+            "zone": board.cover.beta[4],
+            "repeat": board.cover.beta[5]
+        },
+        "confirmation_n": confirm.len(),
+        "confirmation_mean_cover_rank": num(cover_mean),
+        "weighted_confirmation_mean_cover_rank": num(weighted_mean),
+        "gain_vs_weighted": num(gain_weighted),
+        "gain_vs_uniform": num(gain_uniform),
+        "first_half_gain_vs_weighted": num(mean_cover(&confirm[..mid], "weighted").zip(mean_cover(&confirm[..mid], "cover_rank")).map(|(weighted, cover)| weighted - cover)),
+        "second_half_gain_vs_weighted": num(mean_cover(&confirm[mid..], "weighted").zip(mean_cover(&confirm[mid..], "cover_rank")).map(|(weighted, cover)| weighted - cover)),
+        "required_mean_gain": crate::cover_rank::REQUIRED_MEAN_GAIN,
+        "clears_predeclared_mean_gate": clears,
+        "replaces_weighted": false,
+        "rewrites_archives": false,
+        "automatic_promotion": false,
+        "note": cover_note(confirm.len(), cover_mean, weighted_mean, gain_weighted, gain_uniform, clears)
+    });
     let mut issues: Vec<_> = board
         .settled
         .iter()
@@ -275,10 +332,46 @@ fn overview_value(board: &Board) -> Value {
             "tracking_after_26115":window(CONFIRM_END+1, u32::MAX),
             "all_from_25111":window(Protocol::CONFIRM_START_ISSUE, u32::MAX)
         },
+        "cover_rank":cover_rank,
         "issues":issues,
         "next_issue":fmt_issue(board.next_issue),
         "note":"名次只用目标期以前的专家特征和25111前冻结的融合权重。盖住6个红球的名次是这6个号码里最靠后的名次；均匀随机顺序的期望是6×34/7。前16名期望命中16×6/33个，蓝球期望名次是8.5。这些对照不是中奖概率，也不替换已封存号码池。"
     })
+}
+
+fn mean_cover(rows: &[&Settled], name: &str) -> Option<f64> {
+    if rows.is_empty() {
+        return None;
+    }
+    let mut sum = 0.0;
+    for row in rows {
+        let algo = row.algos.iter().find(|algo| algo.name == name)?;
+        sum += cover(&algo.red, &row.red).0 as f64;
+    }
+    Some(sum / rows.len() as f64)
+}
+
+fn num(value: Option<f64>) -> Value {
+    value.map_or(Value::Null, |value| json!(value))
+}
+
+fn cover_note(
+    n: usize,
+    cover_mean: Option<f64>,
+    weighted_mean: Option<f64>,
+    gain_weighted: Option<f64>,
+    gain_uniform: Option<f64>,
+    clears: bool,
+) -> String {
+    match (cover_mean, weighted_mean, gain_weighted, gain_uniform) {
+        (Some(cover), Some(weighted), Some(_gain_weighted), Some(_gain_uniform)) if clears => format!(
+            "确认窗{n}期里，全覆盖排序平均第{cover:.2}名盖住6个红球，协议加权融合是第{weighted:.2}名，均匀期望是{EXPECTED_COVER:.2}。相对两者都至少少1个名次。这条排序只供对照，已封存方案保持原样。"
+        ),
+        (Some(cover), Some(weighted), Some(gain_weighted), Some(gain_uniform)) => format!(
+            "确认窗{n}期里，全覆盖排序平均第{cover:.2}名盖住6个红球，协议加权融合是第{weighted:.2}名，均匀期望是{EXPECTED_COVER:.2}。正数表示全覆盖更靠前：相对融合{gain_weighted:.2}，相对均匀期望{gain_uniform:.2}。预先要求这两项都至少为1。推荐排序仍是协议加权融合，冻结号码池保持原样。"
+        ),
+        _ => "全覆盖排序缺少确认窗样本。".into(),
+    }
 }
 
 fn algorithms_value(issue: &str, settled: bool, outcome: Option<(i32, &[u8; 6], u8)>, algos: &[Algo]) -> Value {
@@ -480,7 +573,25 @@ mod tests {
         let pending = issue(&dir, &draws, &fmt_issue(latest.issue + 1)).unwrap();
         assert_eq!(before, fs::read_dir(&dir).unwrap().count());
         assert_eq!(report["writes_archives"], false);
-        assert_eq!(view["algorithms"].as_array().unwrap().len(), 11);
+        assert_eq!(view["algorithms"].as_array().unwrap().len(), 12);
+        let trial = view["algorithms"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|row| row["name"] == "cover_rank")
+            .unwrap();
+        assert_eq!(trial["role"], "trial");
+        assert_eq!(trial["red_ranking"].as_array().unwrap().len(), 33);
+        let adoption = &report["cover_rank"];
+        assert_eq!(adoption["rewrites_archives"], false);
+        assert_eq!(adoption["replaces_weighted"], false);
+        assert_eq!(adoption["automatic_promotion"], false);
+        let gain_w = adoption["gain_vs_weighted"].as_f64().unwrap();
+        let gain_u = adoption["gain_vs_uniform"].as_f64().unwrap();
+        assert_eq!(
+            adoption["clears_predeclared_mean_gate"],
+            json!(gain_w >= crate::cover_rank::REQUIRED_MEAN_GAIN && gain_u >= crate::cover_rank::REQUIRED_MEAN_GAIN)
+        );
         assert_eq!(view["algorithms"][0]["red_ranking"].as_array().unwrap().len(), 33);
         assert!(view["algorithms"][0]["cover_all_six_rank"].as_u64().unwrap() >= 6);
         assert_eq!(pending["settled"], false);

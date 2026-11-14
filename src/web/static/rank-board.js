@@ -83,7 +83,7 @@
         return ['rank-num', hit ? 'hit' : '', color === 'blue' ? 'blue' : '', index > 0 && index % 10 === 0 ? 'decade' : ''].filter(Boolean).join(' ');
       }
       function lineClass(row) {
-        return row.name === numberAlgo.value ? 'selected' : '';
+        return [row.name === numberAlgo.value ? 'selected' : '', row.role === 'trial' ? 'trial' : ''].filter(Boolean).join(' ');
       }
       function issueAt(offset) {
         const items = overview.value?.issues || [];
@@ -151,6 +151,7 @@
       <p v-if="error" class="notice error" role="alert">{{ error }}</p>
       <p v-if="!overview&&!error" class="muted" role="status">正在按冻结权重回放确认窗之后的排序…</p>
       <template v-if="overview">
+        <p v-if="overview.cover_rank" class="notice" id="cover-rank-note">{{ overview.cover_rank.note }}</p>
         <div class="toolbar" id="issue-picker">
           <label for="rank-issue">期号<select id="rank-issue" v-model="issue" @change="loadIssue" :disabled="loading"><option v-for="row in overview.issues" :key="row.issue" :value="row.issue">{{ row.issue }}{{ row.settled?'':' · 待开奖' }}</option></select></label>
           <button type="button" @click="step(1)" :disabled="loading||!issueAt(1)">上一期</button>
