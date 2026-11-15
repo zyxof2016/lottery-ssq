@@ -186,6 +186,7 @@
         </div>
 
         <template v-if="panel==='rank' && detail">
+          <p v-if="overview.equal_rank" class="notice" id="equal-rank-note">{{ overview.equal_rank.note }}</p>
           <p v-if="overview.historical_fit" class="notice" id="historical-fit-note">{{ overview.historical_fit.note }}</p>
           <div class="toolbar">
             <label for="rank-sort">排序方式<select id="rank-sort" v-model="sort"><option value="group">按算法分组</option><template v-if="detail.settled"><option value="cover">本期盖住6红从少到多</option><option value="top16">本期前16名命中从多到少</option></template><option value="history">历史平均盖住名次从少到多</option></select></label>

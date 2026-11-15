@@ -9,7 +9,7 @@ use crate::draw::{data_sha256, fmt_date, fmt_issue, Draw};
 use crate::eval::prepare_forecast;
 use crate::model::roll_all;
 use crate::protocol::Protocol;
-use crate::select::{equal7, fuse6, fuse7, quantize_simplex, rank_desc};
+use crate::select::{equal7, fuse6, fuse7, quantize_simplex, rank_desc, score_key};
 
 const CONFIRM_END: u32 = 26115;
 const EXPECTED_COVER: f64 = 6.0 * 34.0 / 7.0;
@@ -36,6 +36,7 @@ struct Settled {
     issue: u32,
     date: i32,
     red: [u8; 6],
+    previous_red: [u8; 6],
     blue: u8,
     algos: Vec<Algo>,
     blues: Vec<BlueAlgo>,
@@ -130,6 +131,7 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
             issue: row.issue,
             date: draw.date,
             red: draw.red,
+            previous_red: draws[pos - 1].red,
             blue: draw.blue,
             algos,
             blues: blue_rankings(&row.blue_p, &blue_weights, &hit_weights, &blue_fit.beta)?,
@@ -170,6 +172,7 @@ fn rank_all(
 ) -> Result<Vec<Algo>, String> {
     let weighted = fuse7(expert, weights);
     let equal = fuse7(expert, &equal7());
+    let equal_rank_red = equal_midrank(expert);
     let calibrated = crate::ranking::scores(&weighted, previous);
     let shared_blue = order16(&fuse6(blue_p, blue_weights));
     let equal_blue = order16(&fuse6(blue_p, &[1.0 / 6.0; 6]));
@@ -179,6 +182,7 @@ fn rank_all(
     let mut algos = vec![
         algo("weighted", "协议加权融合", "main", &rank_desc(&weighted), &shared_blue, "协议加权蓝球"),
         algo("equal", "等权融合", "main", &rank_desc(&equal), &equal_blue, "等权蓝球"),
+        algo("equal_rank", "名次等权", "trial", &rank_desc(&equal_rank_red), &equal_blue, "等权蓝球"),
         Algo {
             name: "historical_fit",
             label: "历史拟合",
@@ -339,6 +343,40 @@ fn order16(score: &[f64; 16]) -> Vec<u8> {
     rank_desc(score).iter().map(|n| *n as u8 + 1).collect()
 }
 
+/// 并列中位名次转成高分优先。分数差距不再影响名次，只保留专家内部的先后。
+fn midrank_better<const N: usize>(scores: &[f64; N]) -> [f64; N] {
+    let order = rank_desc(scores);
+    let mut out = [0.0; N];
+    let mut start = 0;
+    while start < N {
+        let mut end = start + 1;
+        while end < N && score_key(scores[order[end]]) == score_key(scores[order[start]]) {
+            end += 1;
+        }
+        let better = (N + 1) as f64 - (start + 1 + end) as f64 / 2.0;
+        for &index in &order[start..end] {
+            out[index] = better;
+        }
+        start = end;
+    }
+    out
+}
+
+fn equal_midrank<const N: usize, const K: usize>(rows: &[[f64; N]; K]) -> [f64; N] {
+    let mut score = [0.0; N];
+    for row in rows {
+        let mid = midrank_better(row);
+        for i in 0..N {
+            score[i] += mid[i];
+        }
+    }
+    score
+}
+
+fn previous_in_top6(order: &[u8], previous: &[u8; 6]) -> usize {
+    order.iter().take(6).filter(|n| previous.contains(*n)).count()
+}
+
 fn cover(order: &[u8], reds: &[u8; 6]) -> (usize, usize) {
     let mut worst = 0usize;
     let mut top16 = 0usize;
@@ -445,6 +483,7 @@ fn overview_value(board: &Board) -> Value {
         "confirmation_mean_blue_rank": num(fitted.map(|row| row.2)),
         "note": historical_note(confirm.len(), fitted)
     });
+    let equal_rank = equal_rank_report(&confirm, board.settled.last());
     let blue_confirmation = blue_study(&confirm);
     let blue_tracking = blue_study(&board.settled.iter().filter(|row| row.issue > CONFIRM_END).collect::<Vec<_>>());
     let blue_all = blue_study(&board.settled.iter().collect::<Vec<_>>());
@@ -483,6 +522,7 @@ fn overview_value(board: &Board) -> Value {
         },
         "cover_rank":cover_rank,
         "historical_fit":historical_fit,
+        "equal_rank":equal_rank,
         "blue_study":blue_study,
         "issues":issues,
         "next_issue":fmt_issue(board.next_issue),
@@ -559,6 +599,75 @@ fn fitted_means(rows: &[&Settled]) -> Option<(f64, f64, f64)> {
     }
     let n = rows.len() as f64;
     Some((cover_sum / n, top_sum / n, blue_sum / n))
+}
+
+fn equal_rank_report(confirm: &[&Settled], latest: Option<&Settled>) -> Value {
+    let equal = rank_means(confirm, "equal");
+    let ordinal = rank_means(confirm, "equal_rank");
+    json!({
+        "name": "equal_rank",
+        "label": "名次等权",
+        "method": "tie_aware_midrank_then_equal_mean",
+        "writes_archives": false,
+        "actual_recommendation": false,
+        "automatic_promotion": false,
+        "replaces_equal": false,
+        "confirmation_n": confirm.len(),
+        "confirmation_mean_cover_rank": num(ordinal.map(|row| row.0)),
+        "equal_confirmation_mean_cover_rank": num(equal.map(|row| row.0)),
+        "confirmation_mean_previous_in_top6": num(ordinal.map(|row| row.1)),
+        "equal_confirmation_mean_previous_in_top6": num(equal.map(|row| row.1)),
+        "blue_scope": "equal_blue",
+        "note": equal_rank_note(confirm.len(), equal, ordinal, latest)
+    })
+}
+
+fn rank_means(rows: &[&Settled], name: &str) -> Option<(f64, f64, f64)> {
+    if rows.is_empty() {
+        return None;
+    }
+    let mut cover_sum = 0.0;
+    let mut head_sum = 0.0;
+    let mut blue_sum = 0.0;
+    for row in rows {
+        let algo = row.algos.iter().find(|algo| algo.name == name)?;
+        cover_sum += cover(&algo.red, &row.red).0 as f64;
+        head_sum += previous_in_top6(&algo.red, &row.previous_red) as f64;
+        blue_sum += blue_rank(&algo.blue, row.blue) as f64;
+    }
+    let n = rows.len() as f64;
+    Some((cover_sum / n, head_sum / n, blue_sum / n))
+}
+
+fn equal_rank_note(
+    n: usize,
+    equal: Option<(f64, f64, f64)>,
+    ordinal: Option<(f64, f64, f64)>,
+    latest: Option<&Settled>,
+) -> String {
+    let (Some((equal_cover, equal_head, _)), Some((rank_cover, rank_head, _))) = (equal, ordinal) else {
+        return "名次等权缺少确认窗样本。".into();
+    };
+    let mut note = format!(
+        "等权融合把七个专家的概率各乘1/7。上期重号的分数跨度大，前6名经常被上期红球占住。名次等权先把每个专家收成并列中位名次再平均，七个专家对名次的发言权相同。确认窗{n}期，等权融合前6名平均有{equal_head:.2}个上期红球，名次等权是{rank_head:.2}个；盖住6个开奖红球的平均名次分别是{equal_cover:.2}和{rank_cover:.2}，均匀期望是{EXPECTED_COVER:.2}。蓝球仍用等权蓝球。"
+    );
+    if let Some(row) = latest {
+        if let (Some(equal_algo), Some(rank_algo)) = (
+            row.algos.iter().find(|algo| algo.name == "equal"),
+            row.algos.iter().find(|algo| algo.name == "equal_rank"),
+        ) {
+            note.push_str(&format!(
+                "最近一期{}，等权前6名含{}个上期红球、全覆盖第{}名，名次等权前6名含{}个上期红球、全覆盖第{}名。",
+                fmt_issue(row.issue),
+                previous_in_top6(&equal_algo.red, &row.previous_red),
+                cover(&equal_algo.red, &row.red).0,
+                previous_in_top6(&rank_algo.red, &row.previous_red),
+                cover(&rank_algo.red, &row.red).0
+            ));
+        }
+    }
+    note.push_str("名次等权不替换等权融合，也不改已封存号码池。");
+    note
 }
 
 fn historical_note(n: usize, means: Option<(f64, f64, f64)>) -> String {
@@ -783,6 +892,21 @@ mod tests {
     use std::fs;
 
     #[test]
+    fn equal_probability_follows_a_sharp_expert_and_midrank_follows_the_majority() {
+        let mut expert = [[1.0; 33]; 7];
+        for ball in 0..6 {
+            expert[0][ball] = 1000.0;
+        }
+        for row in expert.iter_mut().skip(1) {
+            row[10] = 1.01;
+        }
+        let probability = rank_desc(&fuse7(&expert, &equal7()));
+        let ordinal = rank_desc(&equal_midrank(&expert));
+        assert!(probability[0] < 6);
+        assert_eq!(ordinal[0], 10);
+    }
+
+    #[test]
     fn cover_uses_the_worst_winning_rank() {
         let order: Vec<u8> = (1..=33).collect();
         assert_eq!(cover(&order, &[1, 2, 3, 4, 5, 33]), (33, 5));
@@ -804,7 +928,7 @@ mod tests {
         let pending = issue(&dir, &draws, &fmt_issue(latest.issue + 1)).unwrap();
         assert_eq!(before, fs::read_dir(&dir).unwrap().count());
         assert_eq!(report["writes_archives"], false);
-        assert_eq!(view["algorithms"].as_array().unwrap().len(), 13);
+        assert_eq!(view["algorithms"].as_array().unwrap().len(), 14);
         let trial = view["algorithms"]
             .as_array()
             .unwrap()
@@ -841,6 +965,16 @@ mod tests {
         assert_eq!(report["historical_fit"]["writes_archives"], false);
         assert_eq!(report["historical_fit"]["automatic_promotion"], false);
         assert!(report["historical_fit"]["confirmation_mean_cover_rank"].as_f64().unwrap() >= 6.0);
+        let ordinal = view["algorithms"].as_array().unwrap().iter().find(|row| row["name"] == "equal_rank").unwrap();
+        assert_eq!(ordinal["role"], "trial");
+        assert_eq!(ordinal["red_ranking"].as_array().unwrap().len(), 33);
+        assert_eq!(ordinal["blue_ranking"].as_array().unwrap().len(), 16);
+        assert_eq!(ordinal["blue_source"], "等权蓝球");
+        assert_eq!(ordinal["blue_ranking"], view["algorithms"][1]["blue_ranking"]);
+        assert_eq!(report["equal_rank"]["replaces_equal"], false);
+        assert_eq!(report["equal_rank"]["automatic_promotion"], false);
+        assert_eq!(report["equal_rank"]["confirmation_n"], 156);
+        assert!(report["equal_rank"]["note"].as_str().unwrap().contains("名次等权"));
         let blues = view["blue_rankings"].as_array().unwrap();
         assert_eq!(blues.len(), 10);
         assert_eq!(blues[0]["name"], "blue_weighted");
