@@ -15,6 +15,8 @@
       const poolKind = Vue.ref('all');
       const poolSearch = Vue.ref('');
       const numberAlgo = Vue.ref('weighted');
+      const blueAlgo = Vue.ref('blue_weighted');
+      const blueSort = Vue.ref('group');
       const openedKey = Vue.ref('');
       const pad = (n) => String(n).padStart(2, '0');
       const decimal = (n) => (n == null || Number.isNaN(Number(n)) ? '—' : Number(n).toFixed(2));
@@ -85,6 +87,23 @@
       function lineClass(row) {
         return [row.name === numberAlgo.value ? 'selected' : '', row.role === 'trial' ? 'trial' : ''].filter(Boolean).join(' ');
       }
+      function blueLineClass(row) {
+        return [row.name === blueAlgo.value ? 'selected' : '', row.role === 'trial' ? 'trial' : ''].filter(Boolean).join(' ');
+      }
+      function historyBlue(name) {
+        const row = (overview.value?.blue_study?.confirmation?.algorithms || []).find((item) => item.name === name);
+        return row ? row.mean_rank : Number.POSITIVE_INFINITY;
+      }
+      function blueHistory(name, field) {
+        const row = (overview.value?.blue_study?.confirmation?.algorithms || []).find((item) => item.name === name);
+        return row ? row[field] + '/' + row.n : '—';
+      }
+      const blueRows = Vue.computed(() => {
+        const rows = (detail.value?.blue_rankings || []).slice();
+        if (blueSort.value === 'rank' && detail.value?.settled) rows.sort((a, b) => (a.blue_rank ?? 99) - (b.blue_rank ?? 99));
+        else if (blueSort.value === 'history') rows.sort((a, b) => historyBlue(a.name) - historyBlue(b.name));
+        return rows;
+      });
       function issueAt(offset) {
         const items = overview.value?.issues || [];
         const index = items.findIndex((row) => row.issue === issue.value);
@@ -125,8 +144,8 @@
       return {
         overview, detail, error, loading, issue, panel, windowName, sort, rankSpan, poolSort, poolKind, poolSearch,
         windows, selectedWindow, algorithms, pools, pad, decimal, roleName, kindName, loadIssue, step, issueAt,
-        numberAlgo, openedKey, selectedAlgo, redBalls, blueBalls, openedPool, poolKey, redRanks, hitStyle, head,
-        scaleLabel, rankClass, lineClass, historyMean
+        numberAlgo, blueAlgo, blueSort, blueRows, openedKey, selectedAlgo, redBalls, blueBalls, openedPool, poolKey, redRanks, hitStyle, head,
+        scaleLabel, rankClass, lineClass, blueLineClass, historyBlue, blueHistory, historyMean
       };
     },
     async mounted() {
@@ -192,15 +211,26 @@
                 <span class="rank-nums"><span v-for="(n,i) in head(row.red_ranking)" :key="row.name+'-'+n" :class="rankClass(i,n,'red')">{{ pad(n) }}</span></span>
               </button>
             </div>
-            <h3>各排序后的蓝球</h3>
-            <p class="muted">从左到右是第1名到第16名。已开奖时蓝色为开奖蓝球。</p>
-            <div class="rank-board">
+            <h3>各算法的蓝球</h3>
+            <p v-if="overview.blue_study" class="notice" id="blue-rank-note">{{ overview.blue_study.note }}</p>
+            <p class="muted">每条是一套独立的16个蓝球名次，从左到右是第1名起。已开奖时蓝色为开奖蓝球。前2、前4表示开奖蓝球是否落在这个范围内。</p>
+            <div class="toolbar">
+              <label for="blue-sort">蓝球排序<select id="blue-sort" v-model="blueSort"><option value="group">按算法分组</option><option v-if="detail.settled" value="rank">本期名次从少到多</option><option value="history">确认窗平均名次从少到多</option></select></label>
+            </div>
+            <div class="rank-board" id="blue-rankings">
               <div class="rank-line rank-scale" aria-hidden="true"><span class="rank-name"></span><span class="rank-nums"><span v-for="i in 16" :key="'bscale-'+i" class="rank-num">{{ i===1||i===8||i===16?i:'' }}</span></span></div>
-              <button type="button" v-for="row in algorithms" :key="'blue-'+row.name" class="rank-line" :class="lineClass(row)" @click="numberAlgo=row.name" :title="row.label+' · '+row.blue_source">
+              <button type="button" v-for="row in blueRows" :key="'blue-'+row.name" class="rank-line" :class="blueLineClass(row)" @click="blueAlgo=row.name" :title="row.label">
                 <span class="rank-name">{{ row.label }}</span>
                 <span class="rank-nums"><span v-for="(n,i) in row.blue_ranking" :key="row.name+'-b'+n" :class="rankClass(i,n,'blue')">{{ pad(n) }}</span></span>
               </button>
             </div>
+            <div class="scroll"><table id="blue-coverage">
+              <thead><tr><th>蓝球排序</th><th>角色</th><th v-if="detail.settled">本期名次</th><th v-if="detail.settled">前2</th><th v-if="detail.settled">前4</th><th>确认窗平均名次</th><th>确认窗前2</th><th>确认窗前4</th></tr></thead>
+              <tbody>
+                <tr v-for="row in blueRows" :key="'bcov-'+row.name" :class="{selected:row.name===blueAlgo}" @click="blueAlgo=row.name"><td>{{ row.label }}</td><td>{{ roleName(row.role) }}</td><td v-if="detail.settled" class="num">第{{ row.blue_rank }}名</td><td v-if="detail.settled">{{ row.top2_hit?'是':'否' }}</td><td v-if="detail.settled">{{ row.top4_hit?'是':'否' }}</td><td class="num">{{ decimal(historyBlue(row.name)) }}</td><td class="num">{{ blueHistory(row.name,'top2') }}</td><td class="num">{{ blueHistory(row.name,'top4') }}</td></tr>
+                <tr class="muted"><td>均匀理论期望</td><td></td><td v-if="detail.settled" class="num">8.50</td><td v-if="detail.settled">12.5%</td><td v-if="detail.settled">25%</td><td class="num">8.50</td><td class="num">{{ decimal((overview.blue_study?.confirmation?.n||0)*2/16) }}</td><td class="num">{{ decimal((overview.blue_study?.confirmation?.n||0)*4/16) }}</td></tr>
+              </tbody>
+            </table></div>
           </section>
           <details v-if="selectedAlgo" class="inner-card" id="ranking-detail">
             <summary>查看{{ selectedAlgo.label }}的33个红球和16个蓝球</summary>

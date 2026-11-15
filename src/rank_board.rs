@@ -9,7 +9,7 @@ use crate::draw::{data_sha256, fmt_date, fmt_issue, Draw};
 use crate::eval::prepare_forecast;
 use crate::model::roll_all;
 use crate::protocol::Protocol;
-use crate::select::{equal7, fuse6, fuse7, rank_desc};
+use crate::select::{equal7, fuse6, fuse7, quantize_simplex, rank_desc};
 
 const CONFIRM_END: u32 = 26115;
 const EXPECTED_COVER: f64 = 6.0 * 34.0 / 7.0;
@@ -25,12 +25,20 @@ struct Algo {
     blue_source: &'static str,
 }
 
+struct BlueAlgo {
+    name: &'static str,
+    label: &'static str,
+    role: &'static str,
+    order: Vec<u8>,
+}
+
 struct Settled {
     issue: u32,
     date: i32,
     red: [u8; 6],
     blue: u8,
     algos: Vec<Algo>,
+    blues: Vec<BlueAlgo>,
 }
 
 struct Board {
@@ -38,6 +46,7 @@ struct Board {
     settled: Vec<Settled>,
     next_issue: u32,
     next_algos: Vec<Algo>,
+    next_blues: Vec<BlueAlgo>,
     cover: crate::cover_rank::Fit,
 }
 
@@ -56,6 +65,7 @@ pub fn issue(root: &Path, draws: &[Draw], issue: &str) -> Result<Value, String> 
     if parsed == board.next_issue {
         let mut value = algorithms_value(issue, false, None, &board.next_algos);
         value["pools"] = frozen_pools(root, issue, None)?;
+        value["blue_rankings"] = blue_value(&board.next_blues, None);
         return Ok(value);
     }
     let row = board
@@ -68,6 +78,7 @@ pub fn issue(root: &Path, draws: &[Draw], issue: &str) -> Result<Value, String> 
     let draw = draws.iter().find(|d| d.issue == parsed);
     let mut value = algorithms_value(issue, true, Some((row.date, &row.red, row.blue)), &row.algos);
     value["pools"] = frozen_pools(root, issue, draw)?;
+    value["blue_rankings"] = blue_value(&row.blues, Some(row.blue));
     Ok(value)
 }
 
@@ -90,6 +101,7 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
     let cover = crate::cover_rank::fit_rows(&snap.rows)?;
     let red_fit = crate::red_model_v2::fit_causal(&snap.rows)?;
     let blue_fit = fit_blue(&snap.rows)?;
+    let hit_weights = blue_hit_weights(&snap.rows)?;
     let weights = prepared.weights;
     let blue_weights = prepared.blue_weights;
     let index: HashMap<u32, usize> = draws.iter().enumerate().map(|(i, d)| (d.issue, i)).collect();
@@ -120,6 +132,7 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
             red: draw.red,
             blue: draw.blue,
             algos,
+            blues: blue_rankings(&row.blue_p, &blue_weights, &hit_weights, &blue_fit.beta)?,
         });
     }
     let last = draws.last().ok_or("没有开奖数据")?;
@@ -139,6 +152,7 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
         settled,
         next_issue: last.issue + 1,
         next_algos,
+        next_blues: blue_rankings(&snap.next_blue, &blue_weights, &hit_weights, &blue_fit.beta)?,
         cover,
     })
 }
@@ -228,6 +242,67 @@ fn blue_order(beta: &[f64; 5], expert: &[[f64; 16]; 6]) -> Result<Vec<u8>, Strin
         return Err("蓝球v2分布无效".into());
     }
     Ok(rank_desc(&score).iter().map(|index| *index as u8 + 1).collect())
+}
+
+fn blue_hit_weights(rows: &[crate::model::Row]) -> Result<[f64; 6], String> {
+    let mut hits = [0usize; 6];
+    let mut n = 0usize;
+    for row in rows {
+        if row.issue >= Protocol::CONFIRM_START_ISSUE {
+            continue;
+        }
+        for (expert, scores) in row.blue_p.iter().enumerate() {
+            hits[expert] += usize::from(rank_desc(scores)[..2].contains(&(row.blue as usize)));
+        }
+        n += 1;
+    }
+    if n < 30 {
+        return Err("命中目标蓝球至少需要30条确认窗前记录".into());
+    }
+    let peak = hits.iter().copied().max().unwrap_or(0) as f64;
+    let exp = hits.map(|hit| ((hit as f64 - peak) * 16.0 / n as f64).exp());
+    let total = exp.iter().sum::<f64>();
+    Ok(quantize_simplex(exp.map(|value| value / total)))
+}
+
+fn blue_rankings(
+    blue_p: &[[f64; 16]; 6],
+    weighted: &[f64; 6],
+    hit_weights: &[f64; 6],
+    v2_beta: &[f64; 5],
+) -> Result<Vec<BlueAlgo>, String> {
+    let mut rows = vec![
+        BlueAlgo { name: "blue_weighted", label: "协议加权蓝球", role: "main", order: order16(&fuse6(blue_p, weighted)) },
+        BlueAlgo { name: "blue_equal", label: "等权蓝球", role: "main", order: order16(&fuse6(blue_p, &[1.0 / 6.0; 6])) },
+        BlueAlgo { name: "blue_v2", label: "历史拟合蓝球", role: "trial", order: blue_order(v2_beta, blue_p)? },
+        BlueAlgo { name: "blue_hit", label: "命中目标蓝球", role: "trial", order: order16(&fuse6(blue_p, hit_weights)) },
+    ];
+    for (index, label) in Protocol::BLUES_ZH.iter().enumerate() {
+        rows.push(BlueAlgo {
+            name: Protocol::BLUES[index],
+            label,
+            role: "expert",
+            order: order16(&blue_p[index]),
+        });
+    }
+    Ok(rows)
+}
+
+fn blue_value(rows: &[BlueAlgo], winner: Option<u8>) -> Value {
+    let algorithms: Vec<_> = rows
+        .iter()
+        .map(|row| {
+            let (rank, top2, top4) = if let Some(winner) = winner {
+                let rank = blue_rank(&row.order, winner);
+                (json!(rank), json!(rank <= 2), json!(rank <= 4))
+            } else {
+                (Value::Null, Value::Null, Value::Null)
+            };
+            json!({"name":row.name,"label":row.label,"role":row.role,"blue_ranking":row.order,
+                "blue_rank":rank,"top2_hit":top2,"top4_hit":top4})
+        })
+        .collect();
+    json!(algorithms)
 }
 
 fn algo(
@@ -370,6 +445,21 @@ fn overview_value(board: &Board) -> Value {
         "confirmation_mean_blue_rank": num(fitted.map(|row| row.2)),
         "note": historical_note(confirm.len(), fitted)
     });
+    let blue_confirmation = blue_study(&confirm);
+    let blue_tracking = blue_study(&board.settled.iter().filter(|row| row.issue > CONFIRM_END).collect::<Vec<_>>());
+    let blue_all = blue_study(&board.settled.iter().collect::<Vec<_>>());
+    let blue_study = json!({
+        "writes_archives": false,
+        "actual_recommendation": false,
+        "automatic_promotion": false,
+        "uniform_expected_rank": EXPECTED_BLUE,
+        "uniform_top2_rate": 2.0 / 16.0,
+        "uniform_top4_rate": 4.0 / 16.0,
+        "confirmation": blue_confirmation,
+        "tracking": blue_tracking,
+        "all_from_25111": blue_all,
+        "note": blue_note(&blue_confirmation)
+    });
     let mut issues: Vec<_> = board
         .settled
         .iter()
@@ -393,10 +483,64 @@ fn overview_value(board: &Board) -> Value {
         },
         "cover_rank":cover_rank,
         "historical_fit":historical_fit,
+        "blue_study":blue_study,
         "issues":issues,
         "next_issue":fmt_issue(board.next_issue),
         "note":"名次只用目标期以前的专家特征和25111前冻结的融合权重。盖住6个红球的名次是这6个号码里最靠后的名次；均匀随机顺序的期望是6×34/7。前16名期望命中16×6/33个，蓝球期望名次是8.5。这些对照不是中奖概率，也不替换已封存号码池。"
     })
+}
+
+fn blue_study(rows: &[&Settled]) -> Value {
+    if rows.is_empty() {
+        return json!({"n": 0, "algorithms": []});
+    }
+    let algorithms: Vec<_> = (0..rows[0].blues.len())
+        .map(|index| {
+            let sample = &rows[0].blues[index];
+            let mut rank_sum = 0.0;
+            let mut top2 = 0usize;
+            let mut top4 = 0usize;
+            for row in rows {
+                let rank = blue_rank(&row.blues[index].order, row.blue);
+                rank_sum += rank as f64;
+                top2 += usize::from(rank <= 2);
+                top4 += usize::from(rank <= 4);
+            }
+            let n = rows.len();
+            json!({"name":sample.name,"label":sample.label,"role":sample.role,"n":n,
+                "mean_rank":rank_sum / n as f64,"top2":top2,"top4":top4})
+        })
+        .collect();
+    json!({"n": rows.len(), "algorithms": algorithms})
+}
+
+fn blue_field(summary: &Value, name: &str, field: &str) -> Option<f64> {
+    summary["algorithms"]
+        .as_array()?
+        .iter()
+        .find(|row| row["name"] == name)?
+        .get(field)?
+        .as_f64()
+}
+
+fn blue_note(summary: &Value) -> String {
+    let Some(n) = summary["n"].as_u64() else {
+        return "蓝球排序缺少确认窗样本。".into();
+    };
+    match (
+        blue_field(summary, "blue_weighted", "mean_rank"),
+        blue_field(summary, "blue_weighted", "top2"),
+        blue_field(summary, "blue_v2", "mean_rank"),
+        blue_field(summary, "blue_v2", "top2"),
+        blue_field(summary, "blue_hit", "mean_rank"),
+        blue_field(summary, "blue_hit", "top2"),
+    ) {
+        (Some(weighted), Some(weighted_top2), Some(fitted), Some(fitted_top2), Some(hit), Some(hit_top2)) => format!(
+            "蓝球按各自冻结算法分开排列。确认窗{n}期，协议加权平均第{weighted:.2}名、前2命中{weighted_top2:.0}期，历史拟合平均第{fitted:.2}名、前2命中{fitted_top2:.0}期，命中目标平均第{hit:.2}名、前2命中{hit_top2:.0}期。均匀期望是第8.50名、前2命中{:.1}期。平均名次仍靠近16个蓝球的中位，这些对照用来看选号位置，不替换已封存蓝球。",
+            n as f64 * 2.0 / 16.0
+        ),
+        _ => "蓝球排序缺少确认窗样本。".into(),
+    }
 }
 
 fn fitted_means(rows: &[&Settled]) -> Option<(f64, f64, f64)> {
@@ -697,6 +841,18 @@ mod tests {
         assert_eq!(report["historical_fit"]["writes_archives"], false);
         assert_eq!(report["historical_fit"]["automatic_promotion"], false);
         assert!(report["historical_fit"]["confirmation_mean_cover_rank"].as_f64().unwrap() >= 6.0);
+        let blues = view["blue_rankings"].as_array().unwrap();
+        assert_eq!(blues.len(), 10);
+        assert_eq!(blues[0]["name"], "blue_weighted");
+        assert_eq!(blues[2]["name"], "blue_v2");
+        let mut numbers: Vec<_> = blues[0]["blue_ranking"].as_array().unwrap().iter().map(|n| n.as_u64().unwrap()).collect();
+        numbers.sort_unstable();
+        assert_eq!(numbers, (1..=16).collect::<Vec<_>>());
+        assert!(blues[0]["blue_rank"].as_u64().unwrap() <= 16);
+        assert!(pending["blue_rankings"][0]["blue_rank"].is_null());
+        assert_eq!(report["blue_study"]["writes_archives"], false);
+        assert_eq!(report["blue_study"]["automatic_promotion"], false);
+        assert_eq!(report["blue_study"]["confirmation"]["n"], 156);
         let mut earlier = draws.clone();
         let newest = earlier.pop().unwrap();
         let replay = issue(&dir, &earlier, &fmt_issue(newest.issue)).unwrap();
@@ -708,6 +864,11 @@ mod tests {
             assert!(left["cover_all_six_rank"].is_null());
         }
         assert_eq!(kept["algorithms"], full_prior["algorithms"]);
+        assert_eq!(kept["blue_rankings"], full_prior["blue_rankings"]);
+        for (left, right) in replay["blue_rankings"].as_array().unwrap().iter().zip(view["blue_rankings"].as_array().unwrap()) {
+            assert_eq!(left["blue_ranking"], right["blue_ranking"]);
+            assert!(left["blue_rank"].is_null());
+        }
         let _ = fs::remove_dir_all(&dir);
     }
 
