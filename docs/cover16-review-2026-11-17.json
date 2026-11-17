@@ -1,0 +1,889 @@
+{
+  "pulled_commit": "336a431952708f7457cd325aa8c574c791109a9b",
+  "data_cutoff": "26131",
+  "target_issue": "26132",
+  "data_sha256": "c27df02ea62ba3a73ef2dcfc5927160317c27ada7739b6fa653c36a32ed85189",
+  "fusion_first_archive_review": {
+    "actual_recommendation": true,
+    "archive_sha256": "fe5af5f52d7f0809d7280764e99d7e77b6b01abf1a331e24a794496320290f08",
+    "draw": {
+      "blue": 15,
+      "red": [
+        1,
+        10,
+        19,
+        26,
+        31,
+        33
+      ]
+    },
+    "global_sixteen_missed": [
+      10,
+      19,
+      26,
+      33
+    ],
+    "input_history_sha256": "d9e3425aae7b14596d67baed2fcaf9e8450640b3b9d1151257bc04ccf3f82abf",
+    "issue": "26131",
+    "note": "仅核对首次v2原档；去掉参考支持的名次是保存分数的公式分解，不是当时另存的推荐。",
+    "plans": [
+      {
+        "bets": 8,
+        "blue_choices": [
+          2,
+          11
+        ],
+        "blue_selected": false,
+        "cost": 16,
+        "id": "fusion_v2_red12",
+        "jackpot": false,
+        "mode": "balanced",
+        "pairing_miss": false,
+        "primary_loss": "global_red_pool_miss",
+        "red_pool_hits": 1,
+        "red_pool_missed": [
+          10,
+          19,
+          26,
+          31,
+          33
+        ],
+        "single_full_six": false,
+        "summary": {
+          "all_ticket_reds": [],
+          "bets": 8,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.125,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_count": 1,
+          "covered_reds": [
+            1
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 4,
+          "max_red_exposure": 4,
+          "max_ticket_red_hits": 1,
+          "mean_ticket_red_hits": 0.5,
+          "minimum_union_bets": 2,
+          "missed_reds": [
+            10,
+            19,
+            26,
+            31,
+            33
+          ],
+          "missed_reds_by_reason": {
+            "structural_unselected": 5
+          },
+          "prize_tickets": 0,
+          "red_coverage": 12,
+          "red_coverage_excess": -1.1818181818181817,
+          "red_coverage_per_yuan": 0.75,
+          "red_hit_histogram": {
+            "0": 4,
+            "1": 4
+          },
+          "repeated_blue_positions": 6,
+          "repeated_red_positions": 36,
+          "special_prize_candidates": 0,
+          "total_red_positions": 48,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.5,
+          "uniform_expected_red_hits": 2.1818181818181817,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            2,
+            11
+          ],
+          "unique_reds": [
+            1,
+            2,
+            4,
+            6,
+            13,
+            14,
+            16,
+            20,
+            22,
+            25,
+            27,
+            30
+          ]
+        },
+        "title": "融合修正版v2 · 12红8注",
+        "winning_reds_dropped_from_global16": [
+          31
+        ],
+        "wrong_bankers": []
+      },
+      {
+        "bets": 8,
+        "blue_choices": [
+          2,
+          11
+        ],
+        "blue_selected": false,
+        "cost": 16,
+        "id": "fusion_v2_red14",
+        "jackpot": false,
+        "mode": "balanced",
+        "pairing_miss": false,
+        "primary_loss": "global_red_pool_miss",
+        "red_pool_hits": 1,
+        "red_pool_missed": [
+          10,
+          19,
+          26,
+          31,
+          33
+        ],
+        "single_full_six": false,
+        "summary": {
+          "all_ticket_reds": [],
+          "bets": 8,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.125,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_count": 1,
+          "covered_reds": [
+            1
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 4,
+          "max_red_exposure": 4,
+          "max_ticket_red_hits": 1,
+          "mean_ticket_red_hits": 0.375,
+          "minimum_union_bets": 3,
+          "missed_reds": [
+            10,
+            19,
+            26,
+            31,
+            33
+          ],
+          "missed_reds_by_reason": {
+            "structural_unselected": 5
+          },
+          "prize_tickets": 0,
+          "red_coverage": 14,
+          "red_coverage_excess": -1.5454545454545454,
+          "red_coverage_per_yuan": 0.875,
+          "red_hit_histogram": {
+            "0": 5,
+            "1": 3
+          },
+          "repeated_blue_positions": 6,
+          "repeated_red_positions": 34,
+          "special_prize_candidates": 0,
+          "total_red_positions": 48,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.5,
+          "uniform_expected_red_hits": 2.5454545454545454,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            2,
+            11
+          ],
+          "unique_reds": [
+            1,
+            2,
+            4,
+            6,
+            13,
+            14,
+            16,
+            20,
+            22,
+            24,
+            25,
+            27,
+            28,
+            30
+          ]
+        },
+        "title": "融合修正版v2 · 14红8注",
+        "winning_reds_dropped_from_global16": [
+          31
+        ],
+        "wrong_bankers": []
+      },
+      {
+        "bets": 8,
+        "blue_choices": [
+          2,
+          11
+        ],
+        "blue_selected": false,
+        "cost": 16,
+        "id": "fusion_v2_red15",
+        "jackpot": false,
+        "mode": "balanced",
+        "pairing_miss": false,
+        "primary_loss": "global_red_pool_miss",
+        "red_pool_hits": 1,
+        "red_pool_missed": [
+          10,
+          19,
+          26,
+          31,
+          33
+        ],
+        "single_full_six": false,
+        "summary": {
+          "all_ticket_reds": [],
+          "bets": 8,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.125,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_count": 1,
+          "covered_reds": [
+            1
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 4,
+          "max_red_exposure": 4,
+          "max_ticket_red_hits": 1,
+          "mean_ticket_red_hits": 0.375,
+          "minimum_union_bets": 3,
+          "missed_reds": [
+            10,
+            19,
+            26,
+            31,
+            33
+          ],
+          "missed_reds_by_reason": {
+            "structural_unselected": 5
+          },
+          "prize_tickets": 0,
+          "red_coverage": 15,
+          "red_coverage_excess": -1.727272727272727,
+          "red_coverage_per_yuan": 0.9375,
+          "red_hit_histogram": {
+            "0": 5,
+            "1": 3
+          },
+          "repeated_blue_positions": 6,
+          "repeated_red_positions": 33,
+          "special_prize_candidates": 0,
+          "total_red_positions": 48,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.5,
+          "uniform_expected_red_hits": 2.727272727272727,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            2,
+            11
+          ],
+          "unique_reds": [
+            1,
+            2,
+            4,
+            6,
+            9,
+            13,
+            14,
+            16,
+            20,
+            22,
+            24,
+            25,
+            27,
+            28,
+            30
+          ]
+        },
+        "title": "融合修正版v2 · 15红8注",
+        "winning_reds_dropped_from_global16": [
+          31
+        ],
+        "wrong_bankers": []
+      },
+      {
+        "bets": 8,
+        "blue_choices": [
+          2,
+          11
+        ],
+        "blue_selected": false,
+        "cost": 16,
+        "id": "fusion_v2_red16",
+        "jackpot": false,
+        "mode": "balanced",
+        "pairing_miss": false,
+        "primary_loss": "global_red_pool_miss",
+        "red_pool_hits": 2,
+        "red_pool_missed": [
+          10,
+          19,
+          26,
+          33
+        ],
+        "single_full_six": false,
+        "summary": {
+          "all_ticket_reds": [],
+          "bets": 8,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.125,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 16,
+          "covered_red_count": 2,
+          "covered_reds": [
+            1,
+            31
+          ],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 4,
+          "max_red_exposure": 3,
+          "max_ticket_red_hits": 2,
+          "mean_ticket_red_hits": 0.75,
+          "minimum_union_bets": 3,
+          "missed_reds": [
+            10,
+            19,
+            26,
+            33
+          ],
+          "missed_reds_by_reason": {
+            "structural_unselected": 4
+          },
+          "prize_tickets": 0,
+          "red_coverage": 16,
+          "red_coverage_excess": -0.9090909090909092,
+          "red_coverage_per_yuan": 1.0,
+          "red_hit_histogram": {
+            "0": 3,
+            "1": 4,
+            "2": 1
+          },
+          "repeated_blue_positions": 6,
+          "repeated_red_positions": 32,
+          "special_prize_candidates": 0,
+          "total_red_positions": 48,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.5,
+          "uniform_expected_red_hits": 2.909090909090909,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            2,
+            11
+          ],
+          "unique_reds": [
+            1,
+            2,
+            4,
+            6,
+            9,
+            13,
+            14,
+            16,
+            20,
+            22,
+            24,
+            25,
+            27,
+            28,
+            30,
+            31
+          ]
+        },
+        "title": "融合修正版v2 · 16红8注",
+        "winning_reds_dropped_from_global16": [],
+        "wrong_bankers": []
+      },
+      {
+        "bets": 10,
+        "blue_choices": [
+          2,
+          11
+        ],
+        "blue_selected": false,
+        "cost": 20,
+        "id": "2+5+2",
+        "jackpot": false,
+        "mode": "dantuo",
+        "pairing_miss": false,
+        "primary_loss": "global_red_pool_miss",
+        "red_pool_hits": 0,
+        "red_pool_missed": [
+          1,
+          10,
+          19,
+          26,
+          31,
+          33
+        ],
+        "single_full_six": false,
+        "summary": {
+          "all_ticket_reds": [
+            20,
+            30
+          ],
+          "bets": 10,
+          "blue_coverage": 2,
+          "blue_coverage_excess": -0.125,
+          "blue_coverage_per_yuan": 0.1,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 20,
+          "covered_red_count": 0,
+          "covered_reds": [],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 5,
+          "max_red_exposure": 10,
+          "max_ticket_red_hits": 0,
+          "mean_ticket_red_hits": 0.0,
+          "minimum_union_bets": 2,
+          "missed_reds": [
+            1,
+            10,
+            19,
+            26,
+            31,
+            33
+          ],
+          "missed_reds_by_reason": {
+            "structural_unselected": 6
+          },
+          "prize_tickets": 0,
+          "red_coverage": 7,
+          "red_coverage_excess": -1.2727272727272727,
+          "red_coverage_per_yuan": 0.35,
+          "red_hit_histogram": {
+            "0": 10
+          },
+          "repeated_blue_positions": 8,
+          "repeated_red_positions": 53,
+          "special_prize_candidates": 0,
+          "total_red_positions": 60,
+          "uniform_expected_blue_coverage": 0.125,
+          "uniform_expected_blue_hit_bets": 0.625,
+          "uniform_expected_red_hits": 1.2727272727272727,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            2,
+            11
+          ],
+          "unique_reds": [
+            4,
+            6,
+            16,
+            20,
+            22,
+            25,
+            30
+          ]
+        },
+        "title": "融合修正版v2 · 2+5+2",
+        "winning_reds_dropped_from_global16": [
+          1,
+          31
+        ],
+        "wrong_bankers": [
+          20,
+          30
+        ]
+      },
+      {
+        "bets": 10,
+        "blue_choices": [
+          2
+        ],
+        "blue_selected": false,
+        "cost": 20,
+        "id": "3+5+1",
+        "jackpot": false,
+        "mode": "dantuo",
+        "pairing_miss": false,
+        "primary_loss": "global_red_pool_miss",
+        "red_pool_hits": 0,
+        "red_pool_missed": [
+          1,
+          10,
+          19,
+          26,
+          31,
+          33
+        ],
+        "single_full_six": false,
+        "summary": {
+          "all_ticket_reds": [
+            6,
+            20,
+            30
+          ],
+          "bets": 10,
+          "blue_coverage": 1,
+          "blue_coverage_excess": -0.0625,
+          "blue_coverage_per_yuan": 0.05,
+          "blue_covered": false,
+          "blue_hit_bets": 0,
+          "cost": 20,
+          "covered_red_count": 0,
+          "covered_reds": [],
+          "duplicate_tickets": 0,
+          "fixed_prize": 0,
+          "floating_prize_tickets": 0,
+          "max_blue_exposure": 10,
+          "max_red_exposure": 10,
+          "max_ticket_red_hits": 0,
+          "mean_ticket_red_hits": 0.0,
+          "minimum_union_bets": 2,
+          "missed_reds": [
+            1,
+            10,
+            19,
+            26,
+            31,
+            33
+          ],
+          "missed_reds_by_reason": {
+            "structural_unselected": 6
+          },
+          "prize_tickets": 0,
+          "red_coverage": 8,
+          "red_coverage_excess": -1.4545454545454546,
+          "red_coverage_per_yuan": 0.4,
+          "red_hit_histogram": {
+            "0": 10
+          },
+          "repeated_blue_positions": 9,
+          "repeated_red_positions": 52,
+          "special_prize_candidates": 0,
+          "total_red_positions": 60,
+          "uniform_expected_blue_coverage": 0.0625,
+          "uniform_expected_blue_hit_bets": 0.625,
+          "uniform_expected_red_hits": 1.4545454545454546,
+          "uniform_expected_ticket_red_hits": 1.0909090909090908,
+          "unique_blues": [
+            2
+          ],
+          "unique_reds": [
+            4,
+            6,
+            13,
+            16,
+            20,
+            22,
+            25,
+            30
+          ]
+        },
+        "title": "融合修正版v2 · 3+5+1",
+        "winning_reds_dropped_from_global16": [
+          1,
+          31
+        ],
+        "wrong_bankers": [
+          6,
+          20,
+          30
+        ]
+      }
+    ],
+    "published_at_unix": 1794495052,
+    "raw_url": "api/reference-pools/fusion-v2/archives/26131",
+    "review_url": "api/reference-pools/fusion-v2/reviews/26131",
+    "winning_blue_rank": 10,
+    "winning_numbers": [
+      {
+        "base_without_reference": 0.031005422188689263,
+        "in_sixteen": true,
+        "number": 1,
+        "reference_score_component": 0.004347826086956522,
+        "reference_supported": true,
+        "v2_rank": 12,
+        "v2_score": 0.03225270605677686,
+        "without_reference_rank": 16
+      },
+      {
+        "base_without_reference": 0.031228135937811832,
+        "in_sixteen": false,
+        "number": 10,
+        "reference_score_component": 0.0,
+        "reference_supported": false,
+        "v2_rank": 21,
+        "v2_score": 0.02810532234403065,
+        "without_reference_rank": 13
+      },
+      {
+        "base_without_reference": 0.026866032172493854,
+        "in_sixteen": false,
+        "number": 19,
+        "reference_score_component": 0.004347826086956522,
+        "reference_supported": true,
+        "v2_rank": 17,
+        "v2_score": 0.02852725504220099,
+        "without_reference_rank": 23
+      },
+      {
+        "base_without_reference": 0.03133594260721259,
+        "in_sixteen": false,
+        "number": 26,
+        "reference_score_component": 0.0,
+        "reference_supported": false,
+        "v2_rank": 20,
+        "v2_score": 0.028202348346491334,
+        "without_reference_rank": 12
+      },
+      {
+        "base_without_reference": 0.02725778863536149,
+        "in_sixteen": true,
+        "number": 31,
+        "reference_score_component": 0.004347826086956522,
+        "reference_supported": true,
+        "v2_rank": 16,
+        "v2_score": 0.028879835858781865,
+        "without_reference_rank": 22
+      },
+      {
+        "base_without_reference": 0.024362994434924033,
+        "in_sixteen": false,
+        "number": 33,
+        "reference_score_component": 0.0,
+        "reference_supported": false,
+        "v2_rank": 32,
+        "v2_score": 0.02192669499143163,
+        "without_reference_rank": 31
+      }
+    ]
+  },
+  "blue_score_v2_actual": {
+    "n": 2,
+    "pending": 1,
+    "original_top2_hits": 0,
+    "v2_top2_hits": 0,
+    "periods": [
+      {
+        "issue": "26130",
+        "archive_sha256": "4276c847c1020e6de3301840c92402ffb5406ff8b513620b15dd2d8fd24af2d6",
+        "data_cutoff": "26129",
+        "result": {
+          "original_log_excess_vs_uniform": -0.141057507718057,
+          "original_rank": 15,
+          "original_top2_hit": false,
+          "score_only": true,
+          "v2_log_excess_vs_uniform": 0.00010290331941023315,
+          "v2_rank": 6,
+          "v2_top2_hit": false,
+          "winning_blue": 2
+        }
+      },
+      {
+        "issue": "26131",
+        "archive_sha256": "3ce8bc6f3234c78e4ea11fed2f64ec230880f73976803e23b95a81c5f04d5ace",
+        "data_cutoff": "26130",
+        "result": {
+          "original_log_excess_vs_uniform": -0.04495206260981428,
+          "original_rank": 10,
+          "original_top2_hit": false,
+          "score_only": true,
+          "v2_log_excess_vs_uniform": -0.021322269855119282,
+          "v2_rank": 15,
+          "v2_top2_hit": false,
+          "winning_blue": 15
+        }
+      },
+      {
+        "issue": "26132",
+        "archive_sha256": "993655e058fcc1fb27a99988589530462551c211cfe2af79900dfc1de6d09cc8",
+        "data_cutoff": "26131",
+        "result": null
+      }
+    ]
+  },
+  "daily_source": {
+    "archive_sha256": "a402984397c859c8ddb0a7b44773624e76fe6ea7f485df6f2f610edecd187e61",
+    "data_cutoff": "26130",
+    "independent_timestamp_verified": false,
+    "input_history_sha256": "d9e3425aae7b14596d67baed2fcaf9e8450640b3b9d1151257bc04ccf3f82abf",
+    "issue": "26131",
+    "kind": "validated_daily_first_archive",
+    "published_at_unix": 1794490204,
+    "raw_file": "daily/26131.json"
+  },
+  "strategy_funnel": {
+    "full_union_without_single_jackpot": 0,
+    "note": "这里只数同一期已保存的方案选项，不把26个方案当作26期，不合并购买预算。",
+    "red_union_full_six_strategies": 2,
+    "single_jackpot_strategies": 0,
+    "single_six_red_strategies": 0,
+    "strategy_count": 26
+  },
+  "union_full_six_strategies": [
+    {
+      "model": "disjoint5",
+      "red_count": 30,
+      "blue_count": 2,
+      "ticket_audit": {
+        "bets": 5,
+        "cost": 10,
+        "duplicate_tickets": 0,
+        "full_red_and_blue_union": false,
+        "losses": [
+          "blue_selection_miss",
+          "complete_red_set_miss"
+        ],
+        "max_ticket_red_hits": 2,
+        "record_kind": "real_single_tickets",
+        "scope": "按首次保存的每张6红1蓝核对；号码并集全中不记作单注头奖，各方案不是独立开奖样本。",
+        "single_jackpot": false,
+        "single_six_red": false
+      }
+    },
+    {
+      "model": "efficiency:model:5",
+      "red_count": 30,
+      "blue_count": 2,
+      "ticket_audit": {
+        "bets": 5,
+        "cost": 10,
+        "duplicate_tickets": 0,
+        "full_red_and_blue_union": false,
+        "losses": [
+          "blue_selection_miss",
+          "complete_red_set_miss"
+        ],
+        "max_ticket_red_hits": 2,
+        "record_kind": "real_single_tickets",
+        "scope": "按首次保存的每张6红1蓝核对；号码并集全中不记作单注头奖，各方案不是独立开奖样本。",
+        "single_jackpot": false,
+        "single_six_red": false
+      }
+    }
+  ],
+  "direct_cover16_research": {
+    "actual_recommendation": false,
+    "automatic_promotion": false,
+    "current": {
+      "evaluations": 274,
+      "globally_optimal_within_tolerance": true,
+      "identified": true,
+      "mass": 0.007562055426504496,
+      "one_swap_optimal": true,
+      "ranking": [
+        8,
+        12,
+        18,
+        7,
+        24,
+        21,
+        11,
+        17,
+        23,
+        4,
+        15,
+        22,
+        13,
+        14,
+        29,
+        32,
+        5,
+        27,
+        3,
+        9,
+        25,
+        30,
+        2,
+        6,
+        16,
+        20,
+        28,
+        1,
+        10,
+        19,
+        26,
+        31,
+        33
+      ],
+      "scope": "分量最优值加权和是上界；单交换搜索只证明已查邻域，差距未闭合时不冒充全局最优。模型内最优不证明真实覆盖优势。",
+      "upper": 0.007562055426504496
+    },
+    "cutoff_issue": "26131",
+    "data_sha256": "c27df02ea62ba3a73ef2dcfc5927160317c27ada7739b6fa653c36a32ed85189",
+    "fit_gap": 0.0,
+    "fit_iterations": 16,
+    "kind": "complete_six_in_sixteen_research",
+    "policy": {
+      "automatic_promotion": false,
+      "candidate_budget": 512,
+      "fit": "convex_complete_six_log_likelihood_plus_40_log_uniform_weight",
+      "kind": "latent_16_pool_complete_outcome_mixture",
+      "latent_pool_size": 16,
+      "outcome_red_count": 6,
+      "selection_objective": "all_six_simultaneously_inside_16",
+      "tickets_generated": false,
+      "training_last_issue": 23100
+    },
+    "reason": "直接覆盖目标也需要完整六红评分和独立前瞻检验；保留现有推荐，研究结果不生成新票面。历史探索不充当新的前瞻成绩。",
+    "source_sha256": "93807db155cfe39673bfe7d5f5573142197b088efee76b142fa32a0977153ad4",
+    "target_issue": "26132",
+    "tickets_generated": false,
+    "weights": [
+      0.0,
+      0.0,
+      0.005897187415943805,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.9941028125840562
+    ],
+    "windows": {
+      "confirmation_exploratory": {
+        "marginal_full_six": 1,
+        "marginal_tie_expected": 1.5,
+        "mean_log_excess": -0.000905860585914054,
+        "n": 156,
+        "search_full_six": 1,
+        "search_tie_expected": 1.5
+      },
+      "tracking": {
+        "marginal_full_six": 0,
+        "marginal_tie_expected": 0.0,
+        "mean_log_excess": -0.0010735003367729136,
+        "n": 16,
+        "search_full_six": 0,
+        "search_tie_expected": 0.0
+      },
+      "validation": {
+        "marginal_full_six": 1,
+        "marginal_tie_expected": 1.1666666666666667,
+        "mean_log_excess": -0.0009306973603486687,
+        "n": 312,
+        "search_full_six": 1,
+        "search_tie_expected": 1.1666666666666667
+      }
+    },
+    "writes_archives": false
+  },
+  "verification": {
+    "rust_tests_passed": 206,
+    "unchanged_original_api_results": 41,
+    "protected_files_unchanged": 180,
+    "new_tickets": 0,
+    "new_archives": 0,
+    "new_timers": 0
+  }
+}

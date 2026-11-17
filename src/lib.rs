@@ -51,3 +51,5 @@ pub mod small_archive;
 pub mod stats;
 pub mod tail;
 pub mod web;
+pub mod cover16;
+pub mod rank_pool_audit;

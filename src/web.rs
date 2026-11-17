@@ -206,6 +206,7 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
             report["actual"]=recommendations::blue_observations(&recommendation_dir(app),&draws)?;
             Ok(report)
         }),
+        ("GET", "/api/rank-board/coverage16") => load_csv(&app.data).and_then(|draws| crate::cover16::report(&draws)),
         ("GET", "/api/rank-board") => load_csv(&app.data).and_then(|draws| crate::rank_board::overview(&draws)),
         ("GET", path) if path.starts_with("/api/rank-board/") => {
             let issue = &path["/api/rank-board/".len()..];

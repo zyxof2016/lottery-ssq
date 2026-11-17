@@ -18,6 +18,12 @@
       const blueAlgo = Vue.ref('blue_weighted');
       const blueSort = Vue.ref('group');
       const openedKey = Vue.ref('');
+      const cover16 = Vue.ref(null), cover16Error = Vue.ref(''), cover16Loading = Vue.ref(false);
+      let issueRequest = 0;
+      const lossNames = {red_pool_miss:'红并集缺号',blue_selection_miss:'蓝球未入票',complete_red_set_miss:'六红未在同一注',blue_pairing_miss:'正确六红未配中奖蓝球'};
+      const yes = value => value == null ? '待开奖' : value ? '是' : '否';
+      const cover16Url = SSQApp.url('api/rank-board/coverage16');
+      const sourceUrl = Vue.computed(() => detail.value?.pools?.source?.raw_file ? SSQApp.url('api/recommendations/files',{path:detail.value.pools.source.raw_file}) : '');
       const pad = (n) => String(n).padStart(2, '0');
       const decimal = (n) => (n == null || Number.isNaN(Number(n)) ? '—' : Number(n).toFixed(2));
       const roleName = (role) => ({main: '主排序', expert: '单项专家', trial: '试验', baseline: '均匀对照'}[role] || role);
@@ -117,23 +123,34 @@
       }
       async function loadIssue() {
         if (!issue.value) return;
-        loading.value = true;
+        const id = ++issueRequest, wanted = issue.value;
+        loading.value = true; detail.value = null;
         error.value = '';
         try {
-          const response = await fetch(SSQApp.url('api/rank-board/' + issue.value));
+          const response = await fetch(SSQApp.url('api/rank-board/' + wanted));
           const data = await response.json();
+          if (id !== issueRequest || wanted !== issue.value) return;
           if (!response.ok) throw Error(data.error || '本期排序读取失败');
+          if (data.issue !== wanted) throw Error('返回排序期号与所选期号不一致，请刷新');
           detail.value = data;
           openedKey.value = '';
           if (!data.settled && ['cover', 'top16'].includes(sort.value)) sort.value = 'group';
           if (!(data.algorithms || []).some((row) => row.name === numberAlgo.value)) numberAlgo.value = 'weighted';
           rememberIssue();
         } catch (e) {
-          detail.value = null;
-          error.value = e.message;
+          if (id === issueRequest) { detail.value = null; error.value = e.message; }
         } finally {
-          loading.value = false;
+          if (id === issueRequest) loading.value = false;
         }
+      }
+      async function loadCover16(event) {
+        if (!event.target.open || cover16.value || cover16Loading.value) return;
+        cover16Loading.value = true; cover16Error.value = '';
+        try { const r = await fetch(cover16Url), v = await r.json();
+          if (!r.ok) throw Error(v.error || '16红目标核验失败');
+          if (v.data_sha256 !== overview.value.data_sha256) throw Error('开奖数据已更新，请刷新号码排序页');
+          cover16.value = v;
+        } catch(e) {cover16Error.value = e.message;} finally {cover16Loading.value = false;}
       }
       function step(offset) {
         const next = issueAt(offset);
@@ -143,6 +160,7 @@
       }
       return {
         overview, detail, error, loading, issue, panel, windowName, sort, rankSpan, poolSort, poolKind, poolSearch,
+        cover16, cover16Error, cover16Loading, loadCover16, cover16Url, lossNames, yes, sourceUrl,
         windows, selectedWindow, algorithms, pools, pad, decimal, roleName, kindName, loadIssue, step, issueAt,
         numberAlgo, blueAlgo, blueSort, blueRows, openedKey, selectedAlgo, redBalls, blueBalls, openedPool, poolKey, redRanks, hitStyle, head,
         scaleLabel, rankClass, lineClass, blueLineClass, historyBlue, blueHistory, historyMean
@@ -257,6 +275,8 @@
             <p v-if="!detail" class="muted">正在读取本期档案…</p>
             <p v-else-if="!detail.pools?.available" class="notice">{{ detail.pools?.note }}</p>
             <template v-else>
+              <p v-if="detail.pools.source" class="muted" id="pool-source">首次每日原档：{{detail.pools.source.issue}}期，输入截至{{detail.pools.source.data_cutoff}}。<a :href="sourceUrl">核对首次原档JSON</a></p>
+              <p v-if="detail.pools.strategy_funnel" class="muted" id="pool-ticket-funnel">本期{{detail.pools.strategy_funnel.strategy_count}}个方案选项<template v-if="detail.settled">：红并集盖住六红{{detail.pools.strategy_funnel.red_union_full_six_strategies}}种，真实单注六红{{detail.pools.strategy_funnel.single_six_red_strategies}}种，真实单注6＋1头奖{{detail.pools.strategy_funnel.single_jackpot_strategies}}种</template><template v-else>，待开奖</template>。同一期方案不合并为多期成绩。</p>
               <div class="toolbar">
                 <label for="pool-kind">类型<select id="pool-kind" v-model="poolKind"><option value="all">全部</option><option value="tier">分档池</option><option value="small">小池</option><option value="strategy">方案并集</option></select></label>
                 <label for="pool-search">筛选<input id="pool-search" v-model="poolSearch" type="search" placeholder="方案名"></label>
@@ -264,14 +284,16 @@
               </div>
               <p class="muted">共 {{ pools.length }} 个号码池。点选一行查看号码，红球按从小到大排列。</p>
               <div class="scroll"><table id="pool-list">
-                <thead><tr><th>类型</th><th>方案</th><th>红球</th><th>蓝球</th><th v-if="detail.settled">覆盖红球</th><th v-if="detail.settled">蓝球命中</th></tr></thead>
-                <tbody><tr v-for="pool in pools" :key="poolKey(pool)" :class="{selected:openedPool && poolKey(openedPool)===poolKey(pool)}" @click="openedKey=poolKey(pool)"><td>{{ kindName(pool.kind) }}</td><td>{{ pool.label }}</td><td class="num">{{ pool.red_count }}</td><td class="num">{{ pool.blue_count||'—' }}</td><td v-if="detail.settled" class="num">{{ pool.red_hits }} / 6</td><td v-if="detail.settled">{{ pool.blue_hit==null?'—':pool.blue_hit?'是':'否' }}</td></tr></tbody>
+                <thead><tr><th>类型</th><th>方案</th><th>红球</th><th>蓝球</th><th v-if="detail.settled">红并集中红</th><th v-if="detail.settled">蓝并集命中</th><th v-if="detail.settled">最佳单注红</th><th v-if="detail.settled">单注6＋1</th></tr></thead>
+                <tbody><tr v-for="pool in pools" :data-pool-model="pool.model" :key="poolKey(pool)" :class="{selected:openedPool && poolKey(openedPool)===poolKey(pool)}" @click="openedKey=poolKey(pool)"><td>{{ kindName(pool.kind) }}</td><td>{{ pool.label }}</td><td class="num">{{ pool.red_count }}</td><td class="num">{{ pool.blue_count||'—' }}</td><td v-if="detail.settled" class="num">{{ pool.red_hits }} / 6</td><td v-if="detail.settled">{{ pool.blue_hit==null?'—':pool.blue_hit?'是':'否' }}</td><td v-if="detail.settled">{{pool.ticket_audit?pool.ticket_audit.max_ticket_red_hits+' / 6':'仅候选池'}}</td><td v-if="detail.settled">{{pool.ticket_audit?yes(pool.ticket_audit.single_jackpot):'—'}}</td></tr></tbody>
               </table></div>
               <article v-if="openedPool" class="opened-pool" id="opened-pool">
                 <h3>{{ openedPool.label }}</h3>
                 <p class="muted">{{ kindName(openedPool.kind) }} · {{ openedPool.red_count }} 个红球<template v-if="openedPool.blue_count"> · {{ openedPool.blue_count }} 个蓝球</template><template v-if="detail.settled"> · 覆盖开奖红球 <strong>{{ openedPool.red_hits }}</strong> / 6</template></p>
                 <div class="pool-balls" aria-label="号码池红球"><span v-for="n in openedPool.reds" :key="'pool-red-'+n" class="pool-ball" :class="{hit:detail.draw && detail.draw.red.includes(n)}">{{ pad(n) }}</span></div>
                 <div v-if="openedPool.blues.length" class="pool-balls" aria-label="号码池蓝球"><span v-for="n in openedPool.blues" :key="'pool-blue-'+n" class="pool-ball blue" :class="{hit:detail.draw && n===detail.draw.blue}">{{ pad(n) }}</span></div>
+                <div v-if="openedPool.ticket_audit" id="opened-ticket-audit"><p>首次保存{{openedPool.ticket_audit.bets}}注，共{{openedPool.ticket_audit.cost}}元。单注最多中红{{openedPool.ticket_audit.max_ticket_red_hits==null?'待开奖':openedPool.ticket_audit.max_ticket_red_hits+' / 6'}}；单注完整六红：{{yes(openedPool.ticket_audit.single_six_red)}}；同一注6＋1头奖：{{yes(openedPool.ticket_audit.single_jackpot)}}。</p><p v-if="detail.settled&&openedPool.ticket_audit.losses.length" class="muted">漏因：{{openedPool.ticket_audit.losses.map(k=>lossNames[k]||k).join('；')}}。</p></div>
+                <p v-else class="muted" id="candidate-only">本行只提供候选号码池，没有已保存的单注票面；并集覆盖不记作单注命中。</p>
               </article>
             </template>
           </section>
@@ -280,6 +302,13 @@
         <template v-if="panel==='study'">
           <section class="inner-card" id="history-summary">
             <h3>历史汇总</h3>
+            <details id="direct-cover16" @toggle="loadCover16"><summary>16红全六覆盖 · 直接目标核验</summary>
+             <p v-if="cover16Loading" class="muted" role="status">正在核对完整六红分布和16红覆盖目标…</p><p v-if="cover16Error" class="notice error" role="alert">{{cover16Error}}</p>
+             <template v-if="cover16"><p class="notice">{{cover16.reason}}</p><p class="muted">验证截至{{cover16.cutoff_issue}}，只用23100及以前拟合。先在全部33红上建立16红潜在池，再在池内选六红，完整结果精确归一化；筛选直接计算全部六红同时入16红的模型质量。均匀分量{{(cover16.weights[7]*100).toFixed(4)}}%。</p>
+              <div class="scroll"><table id="cover16-validation"><thead><tr><th>探索窗口</th><th>期数</th><th>完整六红对数评分差</th><th>边际16红全六次数</th><th>直接目标全六次数</th><th>组内同分期望</th></tr></thead><tbody><tr v-for="(r,k) in cover16.windows" :key="k"><td>{{({validation:'预留',confirmation_exploratory:'确认探索',tracking:'跟踪'})[k]}}</td><td>{{r.n}}</td><td>{{r.mean_log_excess==null?'—':r.mean_log_excess.toFixed(6)}}</td><td>{{r.marginal_full_six}}</td><td>{{r.search_full_six}}</td><td>{{r.search_tie_expected.toFixed(3)}}</td></tr></tbody></table></div>
+              <p class="muted">同分期望是等价组内均匀选择的覆盖分数，不是中奖次数；这些回放不是历史融合ML首次票面。没有发布新号码池、票面或新前瞻。</p><p class="muted" id="cover16-certificate">当前模型搜索{{cover16.current.evaluations}}次／{{cover16.policy.candidate_budget}}次预算；{{cover16.current.globally_optimal_within_tolerance?'模型内上界差距已闭合':'只报告单交换搜索及剩余上界，不宣称全局最优'}}。训练权重对偶差距{{cover16.fit_gap.toExponential(2)}}。求解正确不代表真实预测有效。</p><a :href="cover16Url">核对完整目标与搜索证书JSON</a>
+             </template>
+            </details>
             <div class="toolbar">
               <label for="rank-window">历史窗口<select id="rank-window" v-model="windowName"><option v-for="item in windows" :key="item[0]" :value="item[0]">{{ item[1] }}</option></select></label>
               <span class="muted">{{ selectedWindow?.n || 0 }} 期</span>

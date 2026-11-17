@@ -65,7 +65,7 @@ pub fn issue(root: &Path, draws: &[Draw], issue: &str) -> Result<Value, String> 
     let parsed: u32 = issue.parse().map_err(|_| "期号需要 5 位数字")?;
     if parsed == board.next_issue {
         let mut value = algorithms_value(issue, false, None, &board.next_algos);
-        value["pools"] = frozen_pools(root, issue, None)?;
+        value["pools"] = frozen_pools(root, draws, issue, None)?;
         value["blue_rankings"] = blue_value(&board.next_blues, None);
         return Ok(value);
     }
@@ -78,7 +78,7 @@ pub fn issue(root: &Path, draws: &[Draw], issue: &str) -> Result<Value, String> 
         })?;
     let draw = draws.iter().find(|d| d.issue == parsed);
     let mut value = algorithms_value(issue, true, Some((row.date, &row.red, row.blue)), &row.algos);
-    value["pools"] = frozen_pools(root, issue, draw)?;
+    value["pools"] = frozen_pools(root, draws, issue, draw)?;
     value["blue_rankings"] = blue_value(&row.blues, Some(row.blue));
     Ok(value)
 }
@@ -748,12 +748,12 @@ fn algorithms_value(issue: &str, settled: bool, outcome: Option<(i32, &[u8; 6], 
     value
 }
 
-fn frozen_pools(root: &Path, issue: &str, draw: Option<&Draw>) -> Result<Value, String> {
+fn frozen_pools(root: &Path, draws: &[Draw], issue: &str, draw: Option<&Draw>) -> Result<Value, String> {
     let path = root.join("daily").join(format!("{issue}.json"));
     if !path.is_file() {
         return Ok(json!({"available":false,"items":[],"note":"本期没有每日冻结档案，页面不补造号码池。"}));
     }
-    let doc = crate::recommendations::read_checked(&path)?;
+    let doc = crate::rank_pool_audit::daily(root, draws, issue)?.ok_or("每日原档缺失")?;
     let payload = &doc["payload"];
     let mut items = Vec::new();
     if let Some(pools) = payload.get("number_pools") {
@@ -786,9 +786,12 @@ fn frozen_pools(root: &Path, issue: &str, draw: Option<&Draw>) -> Result<Value, 
                 blues.into_iter().collect(),
                 draw,
             ));
+            items.last_mut().unwrap()["ticket_audit"] = crate::rank_pool_audit::strategy(strategy, draw)?;
         }
     }
-    Ok(json!({"available":true,"items":items,"note":"号码池来自该期首次冻结的每日档案。分档池保留当时的2个蓝球；方案行是该方案全部单注的号码并集。"}))
+    let source = crate::rank_pool_audit::source(&doc);
+    let funnel = crate::rank_pool_audit::funnel(&items, draw.is_some());
+    Ok(json!({"available":true,"source":source,"strategy_funnel":funnel,"items":items,"note":"号码池来自该期首次冻结的每日档案。分档池保留当时的2个蓝球；方案行是该方案全部单注的号码并集。"}))
 }
 
 fn collect_models(root: &Value, kind: &str, items: &mut Vec<Value>, draw: Option<&Draw>) -> Result<(), String> {
@@ -1008,29 +1011,25 @@ mod tests {
 
     #[test]
     fn frozen_daily_pools_are_counted_without_rewriting_the_archive() {
-        let draws = crate::draw::load_csv(Path::new("data/ssq.csv")).unwrap();
-        let draw = draws.last().unwrap();
-        let mut reds: Vec<u8> = draw.red.to_vec();
-        reds.extend((1..=33).filter(|n| !draw.red.contains(n)).take(10));
-        let payload = json!({"number_pools":{"pools":[{"model":"weighted","group":"observation","red_count":16,"blue_count":2,"reds":reds,"blues":[draw.blue, if draw.blue==1 {2} else {1}]}],"comparison_models":[],"coverage_model":null},"small_red_pools":{"models":[{"model":"small_recent","label":"小池近况融合 · 试验","pools":[{"model":"small_recent","red_count":16,"reds":draw.red.to_vec()}]}]},"strategies":{"frozen":{"title":"测试方案","tickets":[{"red":draw.red.to_vec(),"blue":draw.blue}]}}});
-        let raw = serde_json::to_vec(&payload).unwrap();
         let dir = std::env::temp_dir().join(format!("ssq-rank-pools-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
-        let path = dir.join("daily").join(format!("{}.json", fmt_issue(draw.issue)));
-        fs::create_dir_all(path.parent().unwrap()).unwrap();
-        let envelope = json!({"sha256": crate::hash::sha256_hex(&raw), "payload": payload});
-        fs::write(&path, serde_json::to_vec(&envelope).unwrap()).unwrap();
+        let draws = crate::rank_pool_audit::fixture(&dir);
+        let path = dir.join("daily/26131.json");
         let bytes = fs::read(&path).unwrap();
-        let view = issue(&dir, &draws, &fmt_issue(draw.issue)).unwrap();
+        let view = issue(&dir, &draws, "26131").unwrap();
         assert_eq!(fs::read(&path).unwrap(), bytes);
         let items = view["pools"]["items"].as_array().unwrap();
-        assert_eq!(items.len(), 3);
+        assert_eq!(items.len(), 2);
         assert_eq!(items[0]["red_hits"], 6);
         assert_eq!(items[0]["blue_hit"], true);
-        assert_eq!(items[1]["kind"], "small");
-        assert_eq!(items[1]["label"], "小池近况融合 · 试验 · 6红");
-        assert_eq!(items[2]["kind"], "strategy");
-        assert_eq!(items[1]["covers_all_red"], true);
+        assert_eq!(items[1]["kind"], "strategy");
+        assert_eq!(items[1]["ticket_audit"]["single_jackpot"], true);
+        assert_eq!(view["pools"]["source"]["issue"], "26131");
+        let small = json!({"model":"small_recent","label":"小池近况融合 · 试验","pools":[{"model":"small_recent","reds":[1,2,3,4,5,6]}]});
+        let mut mapped = Vec::new();
+        collect_model_pools(&small, "small", &mut mapped, draws.last()).unwrap();
+        assert_eq!(mapped[0]["label"], "小池近况融合 · 试验 · 6红");
+        assert_eq!(mapped[0]["covers_all_red"], true);
         let _ = fs::remove_dir_all(&dir);
     }
 }
