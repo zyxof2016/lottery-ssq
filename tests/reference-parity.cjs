@@ -15,3 +15,4 @@ assert.equal(shortIssue('2026128'),'26128');assert.throws(()=>shortIssue('wrong'
 const duplicate=structuredClone(record);duplicate.tickets[1]=duplicate.tickets[0];assert.throws(()=>compareSource(site,duplicate),/重复/);
 const invalid=structuredClone(record);invalid.metadata.dantuo_plan.amount=200;assert.throws(()=>compareSource(site,invalid),/金额/);
 console.log('Reference parity: same-run numbers, issue and profile differences, order-only differences, banker roles, missing evidence, budget integrity and privacy verified');
+const {preferredFusionVersion}=require('../src/web/static/reference-pools.js');assert.equal(preferredFusionVersion('?fusion=v3','26132'),'v3');assert.equal(preferredFusionVersion('?fusion=v2','26132'),'v2');assert.equal(preferredFusionVersion('','26132'),'v2');assert.equal(preferredFusionVersion('','26127'),'v1');

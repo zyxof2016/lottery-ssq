@@ -160,6 +160,16 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
         ("GET", "/api/reference-pools/ticket-audit") => load_csv(&app.data).and_then(|draws|crate::ticket_audit::report(&recommendation_dir(app),&draws)),
         ("GET", "/api/reference-pools/fusion-review") => load_csv(&app.data).and_then(|draws|crate::fusion_review::report(&recommendation_dir(app),&draws)),
         ("GET", "/api/reference-pools/red-score-v2") => load_csv(&app.data).and_then(|draws|crate::red_score_v2::report(&recommendation_dir(app),&draws)),
+        ("GET", "/api/reference-pools/fusion-v3") => load_csv(&app.data).and_then(|draws|crate::fusion_v3::report(&recommendation_dir(app),&draws,query_value(query,"issue").as_deref())),
+        ("POST", "/api/reference-pools/fusion-v3/freeze") => freeze_fusion_v3(app,body),
+        ("GET", path) if path.starts_with("/api/reference-pools/fusion-v3/archives/") => {
+            let result=load_csv(&app.data).and_then(|draws|crate::fusion_v3::artifact(&recommendation_dir(app),&draws,&path["/api/reference-pools/fusion-v3/archives/".len()..]));
+            match result{Ok(bytes)=>return(200,"application/json",bytes),Err(e)=>Err(e)}
+        },
+        ("GET", path) if path.starts_with("/api/reference-pools/fusion-v3/reviews/") => {
+            let result=load_csv(&app.data).and_then(|draws|crate::fusion_v3::review_artifact(&recommendation_dir(app),&draws,&path["/api/reference-pools/fusion-v3/reviews/".len()..]));
+            match result{Ok(bytes)=>return(200,"application/json",bytes),Err(e)=>Err(e)}
+        },
         ("GET", "/api/reference-pools/fusion-v2") => load_csv(&app.data).and_then(|draws|crate::fusion_v2::report(&recommendation_dir(app),&draws,query_value(query,"issue").as_deref())),
         ("POST", "/api/reference-pools/fusion-v2/freeze") => freeze_fusion_v2(app,body),
         ("GET", path) if path.starts_with("/api/reference-pools/fusion-v2/archives/") => {
@@ -1148,6 +1158,16 @@ fn recommendation_detail(app: &App, issue: &str, query: &str) -> Result<Value, S
     let draws = load_csv(&app.data)?;
     recommendations::issue_detail(&recommendation_dir(app), &draws, &saved_records(app, &draws)?, issue,
         query_value(query, "archive").as_deref(), query_value(query, "strategy").as_deref())
+}
+
+fn freeze_fusion_v3(app:&App,body:&str)->Result<Value,String>{
+    let draws=load_csv(&app.data)?;let last=draws.last().ok_or("没有开奖数据")?;let gate=cycle::decide(recommendations::now_unix(),last.issue,last.date,false);
+    let expected:Value=serde_json::from_str(body).map_err(|_|"联合优化v3封存请求无效")?;
+    if expected["data_sha256"]!=data_sha256(&draws)||expected["target"]!=gate.target{return Err("联合优化v3数据或期号已变化，请刷新".into());}
+    if !gate.publish{return Err(gate.reason);}
+    let snapshot=crate::fusion_v3::report(&recommendation_dir(app),&draws,Some(&gate.target))?;
+    if !expected["bundle_sha256"].is_string()||!expected["model_source_sha256"].is_string()||expected["bundle_sha256"]!=snapshot["current"]["bundle_sha256"]||expected["model_source_sha256"]!=snapshot["current"]["model_source_sha256"]{return Err("联合优化v3显示的票面或模型已变化，请刷新后留档".into());}
+    crate::fusion_v3::freeze(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix)
 }
 
 fn freeze_fusion_v2(app:&App,body:&str)->Result<Value,String>{

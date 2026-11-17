@@ -184,6 +184,7 @@ fn run() -> Result<(), String> {
             let mut result=ssq::reference::freeze(&root,&draws,&gate.target,gate.deadline_unix)?;
             result["fusion_dantuo_archive"]=ssq::fusion_dantuo::freeze(&root,&draws,&gate.target,gate.deadline_unix)?;
             result["fusion_v2_archive"]=ssq::fusion_v2::freeze(&root,&draws,&gate.target,gate.deadline_unix)?;
+            if ssq::fusion_v3::enabled(&root){result["fusion_v3_archive"]=ssq::fusion_v3::freeze(&root,&draws,&gate.target,gate.deadline_unix)?;}
             println!("{}",serde_json::to_string(&result).map_err(|e|e.to_string())?);
         }
         Cmd::Verify {

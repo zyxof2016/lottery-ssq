@@ -9,7 +9,7 @@
  const fileUrl = path => SSQApp.url('api/recommendations/files', {path});
  // v2 was first published for 26128. Earlier archives retain their original
  // version; an explicit URL choice always wins and is carried into reviews.
- const preferredFusionVersion=(search,issue)=>{const v=new URLSearchParams(search||'').get('fusion');return v==='v1'||v==='v2'?v:issue&&String(issue)<'26128'?'v1':'v2';};
+ const preferredFusionVersion=(search,issue)=>{const v=new URLSearchParams(search||'').get('fusion');return ['v1','v2','v3'].includes(v)?v:issue&&String(issue)<'26128'?'v1':'v2';};
  async function copyText(text) {
   if (navigator.clipboard) return navigator.clipboard.writeText(text);
   const input = document.createElement('textarea');
@@ -221,13 +221,40 @@
    <fusion-review v-if="report.issue===report.target" :issue="issue"></fusion-review>
   </template><button type="button" @click="load" :disabled="loading">刷新修正版v2</button><p v-if="message" class="muted" role="status">{{message}}</p>
  </section>`};
+ const fusionV3={props:{issue:{type:String,required:true}},setup(props){
+  const report=Vue.ref(null),error=Vue.ref(''),loading=Vue.ref(false),busy=Vue.ref(false),message=Vue.ref(''),selected=Vue.ref('joint8');let request=0;
+  const current=Vue.computed(()=>report.value?.current),bundle=Vue.computed(()=>current.value?.bundle),plan=Vue.computed(()=>bundle.value?.plans?.find(p=>p.id===selected.value));
+  const rawUrl=Vue.computed(()=>current.value?.raw_url?new URL(current.value.raw_url,SSQApp.base).href:''),reviewUrl=Vue.computed(()=>current.value?.review_url?new URL(current.value.review_url,SSQApp.base).href:'');
+  const blueRows=Vue.computed(()=>bundle.value?.blue_ranking?.map((n,i)=>({n,rank:i+1,p:bundle.value.blue_probabilities[n-1],used:plan.value?.blues.includes(n)}))||[]);
+  async function load(){const id=++request,wanted=props.issue;loading.value=true;error.value='';report.value=null;try{const r=await fetch(SSQApp.url('api/reference-pools/fusion-v3',{issue:wanted})),v=await r.json();if(id!==request||wanted!==props.issue)return;if(!r.ok)throw Error(v.error||'联合优化v3读取失败');if(v.issue!==wanted)throw Error('联合优化v3期号与页面不一致，请刷新');report.value=v;}catch(e){if(id===request)error.value=e.message;}finally{if(id===request)loading.value=false;}}
+  async function freeze(){if(busy.value||!report.value||!current.value?.bundle_sha256)return;const wanted=props.issue,rpt=report.value;busy.value=true;message.value='';try{const r=await fetch(SSQApp.url('api/reference-pools/fusion-v3/freeze'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target:wanted,data_sha256:rpt.data_sha256,bundle_sha256:rpt.current.bundle_sha256,model_source_sha256:rpt.current.model_source_sha256})}),v=await r.json();if(wanted!==props.issue)return;if(!r.ok)throw Error(v.error||'联合优化v3留档失败');message.value=v.status==='waiting'?v.reason:'已保留v3首次试验票面，后续由原周期继续留档与对奖。';await load();}catch(e){if(wanted===props.issue)message.value=e.message;}finally{busy.value=false;}}
+  async function copy(compact){const p=plan.value,c=current.value;if(!p)return;const body=compact&&p.red_dan.length?'红胆：'+p.red_dan.map(pad).join(' ')+'\n红拖：'+p.red_tuo.map(pad).join(' ')+'\n蓝球：'+p.blues.map(pad).join(' '):p.tickets.map((t,i)=>(i+1)+'. '+t.red.map(pad).join(' ')+' + '+pad(t.blue)).join('\n');try{await copyText('双色球 '+props.issue+'期 · '+p.title+'\n'+body+'\n'+p.bet_count+'注，共'+p.cost+'元\n联合优化试验，未证明真实预测优势。'+(c.status==='frozen'?'来自v3首次原档。':'当前为未封存预览。'));message.value='v3试验票面已复制。';}catch(e){message.value=e.message;}}
+  Vue.onMounted(load);Vue.watch(()=>props.issue,()=>{message.value='';load();});return{report,current,bundle,plan,selected,error,loading,busy,message,rawUrl,reviewUrl,blueRows,load,freeze,copy,pad,time,flag,nullable,percent};
+ },template:`<section class="fusion-v3" data-fusion-v3 aria-label="联合优化试验v3">
+  <p class="notice" data-v3-experiment>联合优化试验v3：按完整6红1蓝的模型质量选票。当前尚未证明真实预测优势，独立留档观察；v2首次票面继续保留。</p>
+  <p v-if="loading" class="muted" role="status">正在核对联合评分与完整票面…</p><p v-if="error" class="notice error" role="alert">{{error}}</p>
+  <template v-if="report"><p v-if="!bundle" class="muted" data-v3-missing>{{current.reason}}</p><template v-if="bundle">
+   <div class="small-red-sizes" aria-label="v3买法"><button v-for="p in bundle.plans" :key="p.id" type="button" :data-v3-plan="p.id" :aria-pressed="selected===p.id" :class="{selected:selected===p.id}" @click="selected=p.id">{{p.id==='joint8'?'联合8注 · 16元':p.id+' · 20元'}}</button></div>
+   <template v-if="plan"><p class="reference-buyable-budget" data-v3-budget><strong>{{plan.bet_count}}注 · {{plan.cost}}元</strong><span>实际用{{plan.red_count}}红、{{plan.blues.length}}蓝；三种方案独立选择。</span></p>
+    <p class="muted" data-v3-method>{{plan.mode==='joint'?'在全部33红、16蓝的完整结果上确定性联选8注；实际蓝球可能集中到1个。':'本模型按完整胆拖展开质量选胆、选拖和蓝球；所有胆码仍须命中。'}}不把蓝球号码出现次数当作开奖蓝被选中的概率。</p>
+    <template v-if="plan.mode==='dantuo'"><p data-v3-dan>红胆：{{plan.red_dan.map(pad).join(' ')}}</p><p data-v3-tuo>红拖：{{plan.red_tuo.map(pad).join(' ')}}</p><p data-v3-blue>蓝球：{{plan.blues.map(pad).join(' ')}}</p></template>
+    <p v-if="current.status==='frozen'" class="muted" data-v3-sealed>第{{issue}}期首次试验保存于{{time(current.published_at_unix)}}。<a :href="rawUrl">v3首次原档JSON</a> <a v-if="reviewUrl" :href="reviewUrl">v3逐注复盘JSON</a></p><p v-else class="muted" data-v3-preview>第{{issue}}期预览，尚未留档，不计入真实试验成绩。</p>
+    <ol class="reference-tickets" aria-label="v3完整票面"><li v-for="(t,i) in plan.tickets" :key="i" data-v3-ticket><span class="reference-ticket-label">第{{i+1}}注</span><div class="balls"><span v-for="n in t.red" :key="n" class="ball selected red">{{pad(n)}}</span><span class="reference-plus">+</span><span class="ball selected blue">{{pad(t.blue)}}</span></div><small class="muted">中红{{nullable(plan.ticket_results[i].red_hits)}}/6 · 中蓝{{flag(plan.ticket_results[i].blue_hit)}}</small></li></ol>
+    <p v-if="plan.single_jackpot!=null" class="muted" data-v3-result>最佳单注{{plan.summary.max_ticket_red_hits}}红；同一注6＋1：{{flag(plan.single_jackpot)}}；已知固定奖金{{plan.summary.fixed_prize}}元。</p>
+    <div class="row reference-actions"><button type="button" @click="copy(false)">复制v3完整{{plan.bet_count}}注</button><button v-if="plan.mode==='dantuo'" type="button" @click="copy(true)">复制v3胆拖</button><button v-if="current.status!=='frozen'" type="button" :disabled="busy||!report.publication.can_freeze" @click="freeze">{{busy?'留档中…':'启用v3独立前瞻留档'}}</button></div>
+    <details data-v3-blue-details><summary>16蓝排序、概率与本方案入选</summary><p class="muted">蓝球改用23100及以前拟合的去重评分；红蓝按可分解模型联选，未学习红蓝条件关联。头奖目标允许集中蓝球，不宣称提高至少中一次蓝的概率。</p><div class="scroll"><table><thead><tr><th>名次</th><th>蓝球</th><th>模型概率</th><th>本方案入选</th></tr></thead><tbody><tr v-for="b in blueRows" :key="b.n" :data-v3-blue-rank="b.n"><td>{{b.rank}}</td><td>{{pad(b.n)}}</td><td>{{percent(b.p)}}</td><td>{{b.used?'是':'否'}}</td></tr></tbody></table></div></details>
+    <details data-v3-evidence><summary>同预算对照、求解证据与验证限制</summary><p class="muted">本方案模型评分{{plan.ratio_to_uniform_budget.toFixed(6)}}（均匀同注数为1）；相对v2同预算首次票面模型质量变化{{percent(plan.same_budget_v2_comparison.relative_model_gain)}}。仅比较给定模型评分，不是实际中奖率提升。</p><p class="muted">{{plan.certificate.global_model_optimum?'此可分解模型内全局最优，搜索差距0。':''}}评价{{plan.certificate.evaluations}}个候选；单式用单调最优前沿，胆拖用权重交换证明。原始参考5注另为5注10元对照，不加未经验证的10%并集奖励。</p><div class="scroll"><table data-v3-validation><thead><tr><th>探索窗口</th><th>期数</th><th>完整6＋1对数评分差</th><th>蓝前2命中</th></tr></thead><tbody><tr v-for="(w,k) in bundle.windows" :key="k"><td>{{({validation:'预留',confirmation_exploratory:'确认探索',tracking:'跟踪'})[k]}}</td><td>{{w.n}}</td><td>{{w.mean_joint_log_excess_vs_uniform==null?'—':w.mean_joint_log_excess_vs_uniform.toFixed(6)}}</td><td>{{w.blue_top2_hits}}</td></tr></tbody></table></div><p class="muted">{{bundle.note}}</p></details>
+   </template>
+  </template><p class="muted" data-v3-actual>v3首次试验：已开奖{{report.actual.n}}期，待开奖{{report.actual.pending}}期。{{report.actual.note}}</p><p v-if="report.actual.errors.length" class="notice error">{{report.actual.errors.join('；')}}</p></template>
+  <p v-if="message" role="status" class="muted">{{message}}</p><button type="button" :disabled="loading" @click="load">刷新联合优化v3</button>
+ </section>`};
  const numbers = {
-  components:{ReferenceDantuo:dantuo,FusionDantuo:fusionDantuo,ReferenceProvenance:referenceProvenance,FusionV2:fusionV2},
+  components:{ReferenceDantuo:dantuo,FusionDantuo:fusionDantuo,ReferenceProvenance:referenceProvenance,FusionV2:fusionV2,FusionV3:fusionV3},
   props:{snapshot:{type:Object,required:true},ticketBundle:{type:Object,default:null},dantuoBundle:{type:Object,default:null},issue:{type:String,default:''},archived:{type:Boolean,default:false}},
   emits:['fusion-version-change'],
   setup(props,{emit}) {
    const count = Vue.ref(16), message = Vue.ref(''),fusionVersion=Vue.ref(preferredFusionVersion(global.location?.search,props.issue));
-   function chooseFusionVersion(version){if(version!=='v1'&&version!=='v2')return;fusionVersion.value=version;message.value='';try{const url=new URL(global.location.href);url.searchParams.set('fusion',version);global.history.replaceState(global.history.state,'',url.href);}catch(_){}}
+   function chooseFusionVersion(version){if(!['v1','v2','v3'].includes(version))return;fusionVersion.value=version;message.value='';try{const url=new URL(global.location.href);url.searchParams.set('fusion',version);global.history.replaceState(global.history.state,'',url.href);}catch(_){}}
    Vue.watch(fusionVersion,version=>emit('fusion-version-change',version),{immediate:true});
    Vue.watch(()=>props.issue,()=>{message.value='';fusionVersion.value=preferredFusionVersion(global.location?.search,props.issue);});
    const original = Vue.computed(() => props.snapshot.reference);
@@ -259,8 +286,8 @@
      <button type="button" @click="copy('reference')">复制原始5注</button><reference-dantuo :bundle="dantuoBundle" :issue="issue" :archived="archived"></reference-dantuo>
     </article>
     <article class="reference-box" data-reference-model="reference_fused16">
-     <h3>融合推荐 · 单式与胆拖</h3><div class="small-red-sizes" aria-label="融合推荐版本"><button type="button" data-fusion-version="v2" :aria-pressed="fusionVersion==='v2'" :class="{selected:fusionVersion==='v2'}" @click="chooseFusionVersion('v2')">修正版v2</button><button type="button" data-fusion-version="v1" :aria-pressed="fusionVersion==='v1'" :class="{selected:fusionVersion==='v1'}" @click="chooseFusionVersion('v1')">旧版v1原档</button></div>
-     <fusion-v2 v-if="fusionVersion==='v2'" :issue="issue" :snapshot="snapshot"></fusion-v2><template v-else><p class="notice">这是旧版v1首次原档，旧算法可能整组复用上期六红；当前默认推荐为v2。查看、复制本区内容均为旧v1，不会替换已保存号码。</p>
+     <h3>融合推荐 · 单式与胆拖</h3><div class="small-red-sizes" aria-label="融合推荐版本"><button type="button" data-fusion-version="v3" :aria-pressed="fusionVersion==='v3'" :class="{selected:fusionVersion==='v3'}" @click="chooseFusionVersion('v3')">联合优化试验v3</button><button type="button" data-fusion-version="v2" :aria-pressed="fusionVersion==='v2'" :class="{selected:fusionVersion==='v2'}" @click="chooseFusionVersion('v2')">修正版v2</button><button type="button" data-fusion-version="v1" :aria-pressed="fusionVersion==='v1'" :class="{selected:fusionVersion==='v1'}" @click="chooseFusionVersion('v1')">旧版v1原档</button></div>
+     <fusion-v3 v-if="fusionVersion==='v3'" :issue="issue"></fusion-v3><fusion-v2 v-else-if="fusionVersion==='v2'" :issue="issue" :snapshot="snapshot"></fusion-v2><template v-else><p class="notice">这是旧版v1首次原档，旧算法可能整组复用上期六红；当前默认推荐为v2。查看、复制本区内容均为旧v1，不会替换已保存号码。</p>
      <p class="muted">现有小池评分90%＋参考5注并集支持10%；并集内均匀分配，重复出现不加权，最多16红。</p>
      <p class="muted">历史对照尚未优于现有小池，独立观察中。</p>
      <div class="small-red-sizes" aria-label="参考融合红球数量"><button v-for="p in snapshot.fusion.pools" :key="p.red_count" type="button" :data-reference-size="p.red_count" :aria-pressed="count===p.red_count" :class="{selected:count===p.red_count}" @click="count=p.red_count">{{ p.red_count }}红{{ p.red_count===16?' · 上限':'' }}</button></div>
