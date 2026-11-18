@@ -2,11 +2,30 @@
 //! rewritten. The existing cycle continues this trial after its first opt-in.
 use crate::{
     draw::{data_sha256, fmt_issue, Draw},
-    fusion_model_v3 as model, recommendations as rec,
+    fusion_model_v3 as model, fusion_v3_comparison, recommendations as rec,
 };
 use serde_json::{json, Value};
-use std::{fs, path::Path};
+use std::{
+    collections::VecDeque,
+    fs,
+    path::Path,
+    sync::{Arc, Mutex},
+};
 const KIND: &str = "fusion_complete_ticket_trial_v3";
+const BUNDLE_CACHE_CAPACITY: usize = 16;
+
+#[derive(PartialEq)]
+struct BundleKey {
+    history: String,
+    reference: String,
+    v2: String,
+}
+
+struct ValidatedArchive {
+    envelope: Value,
+    v2: Value,
+}
+
 fn valid(i: &str) -> bool {
     i.len() == 5 && i.bytes().all(|b| b.is_ascii_digit())
 }
@@ -29,14 +48,41 @@ fn parents(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<(Value, Va
     let Some(parent) = crate::reference::original(root, draws, issue)? else {
         return Ok(None);
     };
-    if !root.join(format!("fusion-v2/{issue}.json")).is_file() {
+    let Some(legacy) = crate::fusion_v2::checked_with_reference(root, draws, issue, Some(&parent))?
+    else {
         return Ok(None);
-    }
-    let legacy: Value = serde_json::from_slice(&crate::fusion_v2::artifact(root, draws, issue)?)
-        .map_err(|_| "v2父档无效")?;
+    };
     Ok(Some((parent, legacy)))
 }
-fn checked(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<Value>, String> {
+
+fn reconstructed_bundle(draws: &[Draw], parent: &Value, v2: &Value) -> Result<Arc<Value>, String> {
+    // Cache only the deterministic model result. Always re-read and validate the
+    // envelopes, parent chain, timeline, and observed draw outside this cache.
+    static CACHE: Mutex<VecDeque<(BundleKey, Arc<Value>)>> = Mutex::new(VecDeque::new());
+    let key = BundleKey {
+        history: data_sha256(draws),
+        reference: parent["sha256"].as_str().ok_or("参考父档缺少摘要")?.into(),
+        v2: v2["sha256"].as_str().ok_or("v2父档缺少摘要")?.into(),
+    };
+    {
+        let mut cache = CACHE.lock().map_err(|_| "联合票面缓存异常")?;
+        if let Some(index) = cache.iter().position(|(k, _)| *k == key) {
+            let entry = cache.remove(index).unwrap();
+            let bundle = Arc::clone(&entry.1);
+            cache.push_front(entry);
+            return Ok(bundle);
+        }
+    }
+    let bundle = Arc::new(model::build(draws, parent, &v2["payload"])?);
+    let mut cache = CACHE.lock().map_err(|_| "联合票面缓存异常")?;
+    if !cache.iter().any(|(k, _)| *k == key) {
+        cache.push_front((key, Arc::clone(&bundle)));
+        cache.truncate(BUNDLE_CACHE_CAPACITY);
+    }
+    Ok(bundle)
+}
+
+fn checked(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<ValidatedArchive>, String> {
     if !valid(issue) {
         return Err("联合优化v3期号须为5位数字".into());
     }
@@ -75,29 +121,58 @@ fn checked(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<Value>, St
             < legacy["payload"]["published_at_unix"]
                 .as_u64()
                 .ok_or("v2父档缺少保存时间")?
-        || p["bundle"] != model::build(&prefix, &parent, &legacy["payload"])?
         || rec::saved_after_draw(Some(at), draws.iter().find(|d| fmt_issue(d.issue) == issue))
+        || &p["bundle"] != reconstructed_bundle(&prefix, &parent, &legacy)?.as_ref()
     {
         return Err("联合优化v3与模型、父档、票面或开奖前边界不一致".into());
     }
-    Ok(Some(e))
+    Ok(Some(ValidatedArchive {
+        envelope: e,
+        v2: legacy,
+    }))
 }
+fn bundle_sha256(bundle: &Value) -> String {
+    crate::hash::sha256_hex(&serde_json::to_vec(bundle).unwrap())
+}
+
 fn metadata(e: &Value) -> Value {
     let p = &e["payload"];
-    json!({"version":3,"experimental":true,"actual_recommendation":true,"model_source_sha256":p["model_source_sha256"],"bundle_sha256":crate::hash::sha256_hex(&serde_json::to_vec(&p["bundle"]).unwrap()),"issue":p["issue"],"archive_sha256":e["sha256"],"reference_archive_sha256":p["reference_archive_sha256"],"v2_archive_sha256":p["v2_archive_sha256"],"input_history_sha256":p["input_history_sha256"],"data_cutoff":p["data_cutoff"],"published_at_unix":p["published_at_unix"],"independent_timestamp_verified":false,"raw_url":format!("api/reference-pools/fusion-v3/archives/{}",p["issue"].as_str().unwrap())})
+    json!({"version":3,"experimental":true,"actual_recommendation":true,"model_source_sha256":p["model_source_sha256"],"bundle_sha256":bundle_sha256(&p["bundle"]),"issue":p["issue"],"archive_sha256":e["sha256"],"reference_archive_sha256":p["reference_archive_sha256"],"v2_archive_sha256":p["v2_archive_sha256"],"input_history_sha256":p["input_history_sha256"],"data_cutoff":p["data_cutoff"],"published_at_unix":p["published_at_unix"],"independent_timestamp_verified":false,"raw_url":format!("api/reference-pools/fusion-v3/archives/{}",p["issue"].as_str().unwrap())})
 }
 pub fn freeze(root: &Path, draws: &[Draw], issue: &str, deadline: u64) -> Result<Value, String> {
-    freeze_with_clock(root, draws, issue, deadline, rec::now_unix)
+    freeze_with_clock(root, draws, issue, deadline, None, rec::now_unix)
+}
+pub(crate) fn freeze_confirmed(
+    root: &Path,
+    draws: &[Draw],
+    issue: &str,
+    deadline: u64,
+    expected: &Value,
+) -> Result<Value, String> {
+    freeze_with_clock(root, draws, issue, deadline, Some(expected), rec::now_unix)
+}
+
+fn validate_confirmation(expected: Option<&Value>, bundle: Option<&Value>) -> Result<(), String> {
+    if let Some(expected) = expected {
+        if expected["model_source_sha256"] != source()
+            || !bundle.is_some_and(|bundle| expected["bundle_sha256"] == bundle_sha256(bundle))
+        {
+            return Err("联合优化v3显示的票面或模型已变化，请刷新后留档".into());
+        }
+    }
+    Ok(())
 }
 fn freeze_with_clock(
     root: &Path,
     draws: &[Draw],
     issue: &str,
     deadline: u64,
+    expected: Option<&Value>,
     clock: impl Fn() -> u64,
 ) -> Result<Value, String> {
-    if let Some(e) = checked(root, draws, issue)? {
-        let mut v = metadata(&e);
+    if let Some(archive) = checked(root, draws, issue)? {
+        validate_confirmation(expected, Some(&archive.envelope["payload"]["bundle"]))?;
+        let mut v = metadata(&archive.envelope);
         v["status"] = json!("already_frozen");
         return Ok(v);
     }
@@ -113,6 +188,7 @@ fn freeze_with_clock(
         return Err("联合优化v3数据、期号或截止已变化".into());
     }
     let Some((parent, legacy)) = parents(root, draws, issue)? else {
+        validate_confirmation(expected, None)?;
         return Ok(json!({"status":"waiting","reason":"等待本期首次参考5注及融合v2对照封存"}));
     };
     if legacy["payload"]["published_at_unix"]
@@ -121,12 +197,13 @@ fn freeze_with_clock(
     {
         return Err("联合优化v3时钟早于父档".into());
     }
-    let bundle = model::build(draws, &parent, &legacy["payload"])?;
+    let bundle = reconstructed_bundle(draws, &parent, &legacy)?;
+    validate_confirmation(expected, Some(bundle.as_ref()))?;
     let completed = clock();
     if completed < started || completed >= deadline {
         return Err("联合优化v3计算越过截止或时钟倒退".into());
     }
-    let p = json!({"schema_version":1,"kind":KIND,"issue":issue,"data_cutoff":fmt_issue(last.issue),"input_history_sha256":data_sha256(draws),"published_at_unix":completed,"operational_cutoff_unix":deadline,"known_outcome_at_generation":false,"actual_recommendation":true,"experimental":true,"model_source_sha256":source(),"reference_archive_sha256":parent["sha256"],"v2_archive_sha256":legacy["sha256"],"bundle":bundle});
+    let p = json!({"schema_version":1,"kind":KIND,"issue":issue,"data_cutoff":fmt_issue(last.issue),"input_history_sha256":data_sha256(draws),"published_at_unix":completed,"operational_cutoff_unix":deadline,"known_outcome_at_generation":false,"actual_recommendation":true,"experimental":true,"model_source_sha256":source(),"reference_archive_sha256":parent["sha256"],"v2_archive_sha256":legacy["sha256"],"bundle":bundle.as_ref()});
     let previous_clock = std::cell::Cell::new(completed);
     let monotone_clock = || {
         let at = clock();
@@ -143,8 +220,9 @@ fn freeze_with_clock(
         Some(deadline),
         monotone_clock,
     )?;
-    let e = checked(root, draws, issue)?.ok_or("联合优化v3写入后缺档")?;
-    let mut v = metadata(&e);
+    let archive = checked(root, draws, issue)?.ok_or("联合优化v3写入后缺档")?;
+    validate_confirmation(expected, Some(&archive.envelope["payload"]["bundle"]))?;
+    let mut v = metadata(&archive.envelope);
     v["status"] = json!(if created { "frozen" } else { "already_frozen" });
     Ok(v)
 }
@@ -187,20 +265,25 @@ fn review_saved(root: &Path, e: &Value, draw: Option<&Draw>) -> Result<Option<Va
     Ok(Some(r))
 }
 fn view(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<Value>, String> {
-    let Some(e) = checked(root, draws, issue)? else {
-        return Ok(None);
-    };
     let draw = draws.iter().find(|d| fmt_issue(d.issue) == issue);
-    let saved = review_saved(root, &e, draw)?;
-    let mut v = metadata(&e);
+    checked(root, draws, issue)?
+        .map(|archive| archive_view(root, &archive.envelope, draw))
+        .transpose()
+}
+fn archive_view(root: &Path, e: &Value, draw: Option<&Draw>) -> Result<Value, String> {
+    let issue = e["payload"]["issue"].as_str().ok_or("v3缺期号")?;
+    let saved = review_saved(root, e, draw)?;
+    let mut v = metadata(e);
     v["status"] = json!("frozen");
     v["pending"] = json!(draw.is_none());
-    v["bundle"] = model::reviewed(&e["payload"]["bundle"], draw)?;
     v["review_persisted"] = json!(saved.is_some());
-    if saved.is_some() {
+    if let Some(review) = saved {
+        v["bundle"] = review["payload"]["bundle"].clone();
         v["review_url"] = json!(format!("api/reference-pools/fusion-v3/reviews/{issue}"));
+    } else {
+        v["bundle"] = model::reviewed(&e["payload"]["bundle"], draw)?;
     }
-    Ok(Some(v))
+    Ok(v)
 }
 pub fn settle(root: &Path, draws: &[Draw]) -> rec::Settlement {
     let mut result = rec::Settlement {
@@ -212,7 +295,8 @@ pub fn settle(root: &Path, draws: &[Draw]) -> rec::Settlement {
             continue;
         };
         let saved = (|| -> Result<usize, String> {
-            let e = checked(root, draws, &issue)?.ok_or("v3缺少原档")?;
+            let archive = checked(root, draws, &issue)?.ok_or("v3缺少原档")?;
+            let e = archive.envelope;
             if review_saved(root, &e, Some(draw))?.is_some() {
                 return Ok(0);
             }
@@ -241,23 +325,38 @@ pub fn report(root: &Path, draws: &[Draw], requested: Option<&str>) -> Result<Va
         return Err("联合优化v3期号无效".into());
     }
     let gate = crate::cycle::decide(rec::now_unix(), last.issue, last.date, false);
-    let current = if let Some(v) = view(root, draws, issue)? {
-        v
+    let (current, comparison) = if let Some(archive) = checked(root, draws, issue)? {
+        let draw = draws.iter().find(|d| fmt_issue(d.issue) == issue);
+        let view = archive_view(root, &archive.envelope, draw)?;
+        let comparison = fusion_v3_comparison::compare(&view["bundle"], &archive.v2, draw)?;
+        (view, comparison)
     } else if issue == target && gate.publish && gate.target == issue {
         if let Some((parent, legacy)) = parents(root, draws, issue)? {
-            {
-                let bundle = model::build(draws, &parent, &legacy["payload"])?;
-                json!({"status":"preview","issue":issue,"pending":true,"actual_recommendation":false,"model_source_sha256":source(),"bundle_sha256":crate::hash::sha256_hex(&serde_json::to_vec(&bundle).unwrap()),"bundle":model::reviewed(&bundle,None)?})
-            }
+            let bundle = reconstructed_bundle(draws, &parent, &legacy)?;
+            let comparison = fusion_v3_comparison::compare(&bundle, &legacy, None)?;
+            (
+                json!({"status":"preview","issue":issue,"pending":true,"actual_recommendation":false,"model_source_sha256":source(),"bundle_sha256":bundle_sha256(&bundle),"bundle":model::reviewed(&bundle,None)?}),
+                comparison,
+            )
         } else {
-            json!({"status":"waiting","reason":"等待本期首次参考5注及v2对照档案"})
+            (
+                json!({"status":"waiting","reason":"等待本期首次参考5注及v2对照档案"}),
+                Value::Null,
+            )
         }
     } else {
-        json!({"status":"missing","reason":"本期未封存联合优化v3，不补造历史或截止后的票面"})
+        (
+            json!({"status":"missing","reason":"本期未封存联合优化v3，不补造历史或截止后的票面"}),
+            Value::Null,
+        )
     };
     let mut periods = Vec::new();
     let mut errors = Vec::new();
     for i in issues(root) {
+        if i == issue && current["status"] == "frozen" {
+            periods.push(current.clone());
+            continue;
+        }
         match view(root, draws, &i) {
             Ok(Some(v)) => periods.push(v),
             Ok(None) => {}
@@ -266,7 +365,7 @@ pub fn report(root: &Path, draws: &[Draw], requested: Option<&str>) -> Result<Va
     }
     let actual = json!({"n":periods.iter().filter(|p|p["pending"]==false).count(),"pending":periods.iter().filter(|p|p["pending"]==true).count(),"periods":periods,"errors":errors,"note":"仅统计本版本首次真实留档，历史研究回放不计入。各买法独立比较，预算不合并。"});
     Ok(
-        json!({"version":3,"experimental":true,"issue":issue,"target":target,"data_sha256":data_sha256(draws),"current":current,"actual":actual,"policy":model::policy(),"publication":{"can_freeze":issue==target&&gate.publish&&gate.target==issue,"deadline":gate.deadline_text},"automatic_continuation":enabled(root),"automatic_promotion":false}),
+        json!({"version":3,"experimental":true,"issue":issue,"target":target,"data_sha256":data_sha256(draws),"current":current,"same_budget_comparison":comparison,"actual":actual,"policy":model::policy(),"publication":{"can_freeze":issue==target&&gate.publish&&gate.target==issue,"deadline":gate.deadline_text},"automatic_continuation":enabled(root),"automatic_promotion":false}),
     )
 }
 pub fn artifact(root: &Path, draws: &[Draw], issue: &str) -> Result<Vec<u8>, String> {
@@ -274,9 +373,13 @@ pub fn artifact(root: &Path, draws: &[Draw], issue: &str) -> Result<Vec<u8>, Str
     fs::read(root.join(format!("fusion-v3/{issue}.json"))).map_err(|e| e.to_string())
 }
 pub fn review_artifact(root: &Path, draws: &[Draw], issue: &str) -> Result<Vec<u8>, String> {
-    let e = checked(root, draws, issue)?.ok_or("联合优化v3原档不存在")?;
-    review_saved(root, &e, draws.iter().find(|d| fmt_issue(d.issue) == issue))?
-        .ok_or("联合优化v3复盘不存在")?;
+    let archive = checked(root, draws, issue)?.ok_or("联合优化v3原档不存在")?;
+    review_saved(
+        root,
+        &archive.envelope,
+        draws.iter().find(|d| fmt_issue(d.issue) == issue),
+    )?
+    .ok_or("联合优化v3复盘不存在")?;
     fs::read(root.join(format!("reviews/{issue}/fusion-v3.json"))).map_err(|e| e.to_string())
 }
 
@@ -356,15 +459,22 @@ mod tests {
             &serde_json::from_slice::<Value>(&legacy).unwrap()["payload"],
         )
         .unwrap();
+        let confirmed =
+            json!({"model_source_sha256":source(),"bundle_sha256":bundle_sha256(&original)});
+        let mut stale = confirmed.clone();
+        stale["bundle_sha256"] = json!("obsolete");
+        assert!(freeze_with_clock(&root, &draws, "26132", deadline, Some(&stale), || NOW).is_err());
         assert!(!root.join("fusion-v3").exists());
         assert_eq!(
-            freeze_with_clock(&root, &draws, "26132", deadline, || NOW).unwrap()["status"],
+            freeze_with_clock(&root, &draws, "26132", deadline, Some(&confirmed), || NOW).unwrap()
+                ["status"],
             "frozen"
         );
         assert!(enabled(&root));
         let bytes = artifact(&root, &draws, "26132").unwrap();
         assert_eq!(
-            freeze_with_clock(&root, &draws, "26132", deadline, || deadline + 1).unwrap()["status"],
+            freeze_with_clock(&root, &draws, "26132", deadline, None, || deadline + 1).unwrap()
+                ["status"],
             "already_frozen"
         );
         let envelope: Value = serde_json::from_slice(&bytes).unwrap();
@@ -372,6 +482,13 @@ mod tests {
         let v = view(&root, &draws, "26132").unwrap().unwrap();
         assert!(v["bundle"]["plans"][0]["single_jackpot"].is_null());
         assert!(v["bundle"]["plans"][0]["summary"]["max_ticket_red_hits"].is_null());
+        let pending = report(&root, &draws, Some("26132")).unwrap();
+        let comparison = &pending["same_budget_comparison"];
+        assert_eq!(comparison["v2_archive_sha256"], v["v2_archive_sha256"]);
+        assert_eq!(comparison["plans"][0]["v3"]["uniform_jackpot_outcomes"], 8);
+        assert_eq!(comparison["plans"][0]["v2"]["uniform_jackpot_outcomes"], 8);
+        assert!(comparison["plans"][0]["v2"]["actual"].is_null());
+        assert_eq!(pending["actual"]["periods"][0], pending["current"]);
         assert_eq!(
             v["bundle"]["plans"][0]["tickets"].as_array().unwrap().len(),
             8
@@ -391,6 +508,12 @@ mod tests {
         let review = review_artifact(&root, &draws, "26132").unwrap();
         assert_eq!(settle(&root, &draws).settled, 0);
         assert_eq!(review_artifact(&root, &draws, "26132").unwrap(), review);
+        let settled = report(&root, &draws, Some("26132")).unwrap();
+        assert_eq!(
+            settled["same_budget_comparison"]["plans"][0]["v3"]["actual"]["single_jackpot"],
+            true
+        );
+        assert_eq!(settled["actual"]["n"], 1);
         assert_eq!(
             view(&root, &draws, "26132").unwrap().unwrap()["bundle"]["plans"][0]["single_jackpot"],
             true
@@ -402,33 +525,37 @@ mod tests {
     #[test]
     fn deadline_clock_reversal_stale_issue_and_rehashed_tampering_are_rejected() {
         let (root, draws, deadline) = fixture();
-        assert!(freeze_with_clock(&root, &draws, "26133", deadline, || NOW).is_err());
+        assert!(freeze_with_clock(&root, &draws, "26133", deadline, None, || NOW).is_err());
         let tick = std::cell::Cell::new(0);
-        assert!(freeze_with_clock(&root, &draws, "26132", deadline, || {
-            let n = tick.get();
-            tick.set(n + 1);
-            if n == 0 {
-                NOW
-            } else {
-                NOW - 1
-            }
-        })
-        .is_err());
-        assert!(freeze_with_clock(&root, &draws, "26132", deadline, || deadline).is_err());
+        assert!(
+            freeze_with_clock(&root, &draws, "26132", deadline, None, || {
+                let n = tick.get();
+                tick.set(n + 1);
+                if n == 0 {
+                    NOW
+                } else {
+                    NOW - 1
+                }
+            })
+            .is_err()
+        );
+        assert!(freeze_with_clock(&root, &draws, "26132", deadline, None, || deadline).is_err());
         assert!(!root.join("fusion-v3/26132.json").exists());
         let writes = std::cell::Cell::new(0);
-        assert!(freeze_with_clock(&root, &draws, "26132", deadline, || {
-            let n = writes.get();
-            writes.set(n + 1);
-            if n < 2 {
-                NOW
-            } else {
-                NOW - 1
-            }
-        })
-        .is_err());
+        assert!(
+            freeze_with_clock(&root, &draws, "26132", deadline, None, || {
+                let n = writes.get();
+                writes.set(n + 1);
+                if n < 2 {
+                    NOW
+                } else {
+                    NOW - 1
+                }
+            })
+            .is_err()
+        );
         assert!(!root.join("fusion-v3/26132.json").exists());
-        freeze_with_clock(&root, &draws, "26132", deadline, || NOW).unwrap();
+        freeze_with_clock(&root, &draws, "26132", deadline, None, || NOW).unwrap();
         let path = root.join("fusion-v3/26132.json");
         let original: Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
         for field in ["issue", "reference_archive_sha256", "model_source_sha256"] {

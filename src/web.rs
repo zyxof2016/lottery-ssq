@@ -1165,9 +1165,7 @@ fn freeze_fusion_v3(app:&App,body:&str)->Result<Value,String>{
     let expected:Value=serde_json::from_str(body).map_err(|_|"联合优化v3封存请求无效")?;
     if expected["data_sha256"]!=data_sha256(&draws)||expected["target"]!=gate.target{return Err("联合优化v3数据或期号已变化，请刷新".into());}
     if !gate.publish{return Err(gate.reason);}
-    let snapshot=crate::fusion_v3::report(&recommendation_dir(app),&draws,Some(&gate.target))?;
-    if !expected["bundle_sha256"].is_string()||!expected["model_source_sha256"].is_string()||expected["bundle_sha256"]!=snapshot["current"]["bundle_sha256"]||expected["model_source_sha256"]!=snapshot["current"]["model_source_sha256"]{return Err("联合优化v3显示的票面或模型已变化，请刷新后留档".into());}
-    crate::fusion_v3::freeze(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix)
+    crate::fusion_v3::freeze_confirmed(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix,&expected)
 }
 
 fn freeze_fusion_v2(app:&App,body:&str)->Result<Value,String>{

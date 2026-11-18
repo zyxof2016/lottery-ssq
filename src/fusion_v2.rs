@@ -27,6 +27,14 @@ fn source() -> String {
     )
 }
 fn checked(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<Value>, String> {
+    checked_with_reference(root, draws, issue, None)
+}
+pub(crate) fn checked_with_reference(
+    root: &Path,
+    draws: &[Draw],
+    issue: &str,
+    verified_reference: Option<&Value>,
+) -> Result<Option<Value>, String> {
     if !valid(issue) {
         return Err("融合v2期号须为5位数字".into());
     }
@@ -37,7 +45,14 @@ fn checked(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<Value>, St
     let e = rec::read_checked(&path)?;
     let p = &e["payload"];
     rec::validate_archive(p, issue, draws)?;
-    let parent = crate::reference::original(root, draws, issue)?.ok_or("融合v2缺少参考父档")?;
+    let loaded;
+    let parent = match verified_reference {
+        Some(parent) => parent,
+        None => {
+            loaded = crate::reference::original(root, draws, issue)?.ok_or("融合v2缺少参考父档")?;
+            &loaded
+        }
+    };
     let cutoff = parent["payload"]["data_cutoff"]
         .as_str()
         .ok_or("参考父档缺少截止期")?;
@@ -64,7 +79,7 @@ fn checked(root: &Path, draws: &[Draw], issue: &str) -> Result<Option<Value>, St
                 .as_u64()
                 .ok_or("缺少参考保存时间")?
         || p["known_outcome_at_generation"] != false
-        || p["bundle"] != model::build(&prepare_forecast(&prefix)?, &parent, last)?
+        || p["bundle"] != model::build(&prepare_forecast(&prefix)?, parent, last)?
         || rec::saved_after_draw(Some(at), draws.iter().find(|d| fmt_issue(d.issue) == issue))
     {
         return Err("融合v2原档与算法、父档、票面或封存边界不一致".into());
