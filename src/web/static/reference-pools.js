@@ -9,7 +9,7 @@
  const fileUrl = path => SSQApp.url('api/recommendations/files', {path});
  // v2 was first published for 26128. Earlier archives retain their original
  // version; an explicit URL choice always wins and is carried into reviews.
- const preferredFusionVersion=(search,issue)=>{const v=new URLSearchParams(search||'').get('fusion');return ['v1','v2','v3','v4'].includes(v)?v:issue&&String(issue)<'26128'?'v1':'v2';};
+ const preferredFusionVersion=(search,issue)=>{const v=new URLSearchParams(search||'').get('fusion');return ['v1','v2','v3','v4','v5'].includes(v)?v:issue&&String(issue)<'26128'?'v1':'v2';};
  async function copyText(text) {
   if (navigator.clipboard) return navigator.clipboard.writeText(text);
   const input = document.createElement('textarea');
@@ -269,67 +269,71 @@
   </template><p class="muted" data-v3-actual>v3首次试验：已开奖{{report.actual.n}}期，待开奖{{report.actual.pending}}期。{{report.actual.note}}</p><p v-if="report.actual.errors.length" class="notice error">{{report.actual.errors.join('；')}}</p></template>
   <p v-if="message" role="status" class="muted">{{message}}</p><button type="button" :disabled="loading" @click="load">刷新联合优化v3</button>
  </section>`};
- const fusionV4={props:{issue:{type:String,required:true}},setup(props){
+ const makeFusionCoverage=ver=>({props:{issue:{type:String,required:true}},setup(props){
   const report=Vue.ref(null),error=Vue.ref(''),loading=Vue.ref(false),busy=Vue.ref(false),message=Vue.ref('');let request=0;
   const current=Vue.computed(()=>report.value?.current),bundle=Vue.computed(()=>current.value?.bundle),plan=Vue.computed(()=>bundle.value?.plans?.[0]);
   const comparison=Vue.computed(()=>report.value?.same_budget_comparison?.plans?.[0]);
   const rawUrl=Vue.computed(()=>current.value?.raw_url?new URL(current.value.raw_url,SSQApp.base).href:''),reviewUrl=Vue.computed(()=>current.value?.review_url?new URL(current.value.review_url,SSQApp.base).href:'');
   const blueRows=Vue.computed(()=>bundle.value?.blue_ranking?.map((n,i)=>({n,rank:i+1,p:bundle.value.blue_probabilities[n-1],used:plan.value?.blues.includes(n)}))||[]);
   const redRows=Vue.computed(()=>bundle.value?.ranking?.slice(0,16).map((n,i)=>({n,rank:i+1,score:bundle.value.scores[n-1],previous:bundle.value.previous_reds.includes(n)}))||[]);
-  async function load(){const id=++request,wanted=props.issue;loading.value=true;error.value='';report.value=null;try{const r=await fetch(SSQApp.url('api/reference-pools/fusion-v4',{issue:wanted})),v=await r.json();if(id!==request||wanted!==props.issue)return;if(!r.ok)throw Error(v.error||'融合覆盖v4读取失败');if(v.issue!==wanted)throw Error('融合覆盖v4期号与页面不一致，请刷新');report.value=v;}catch(e){if(id===request)error.value=e.message;}finally{if(id===request)loading.value=false;}}
-  async function freeze(){if(busy.value||!report.value||!current.value?.bundle_sha256)return;const wanted=props.issue,rpt=report.value;busy.value=true;message.value='';try{const r=await fetch(SSQApp.url('api/reference-pools/fusion-v4/freeze'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target:wanted,data_sha256:rpt.data_sha256,bundle_sha256:rpt.current.bundle_sha256,model_source_sha256:rpt.current.model_source_sha256})}),v=await r.json();if(wanted!==props.issue)return;if(!r.ok)throw Error(v.error||'融合覆盖v4留档失败');message.value=v.status==='waiting'?v.reason:'已保留v4首次试验票面，后续由原周期继续留档与对奖。';await load();}catch(e){if(wanted===props.issue)message.value=e.message;}finally{busy.value=false;}}
-  async function copy(){const p=plan.value,c=current.value;if(!p)return;const body=p.tickets.map((t,i)=>(i+1)+'. '+t.red.map(pad).join(' ')+' + '+pad(t.blue)).join('\n');try{await copyText('双色球 '+props.issue+'期 · '+p.title+'\n'+body+'\n'+p.bet_count+'注，共'+p.cost+'元\n融合覆盖试验，未证明真实预测优势。'+(c.status==='frozen'?'来自v4首次原档。':'当前为未封存预览。'));message.value='v4试验票面已复制。';}catch(e){message.value=e.message;}}
-  Vue.onMounted(load);Vue.watch(()=>props.issue,()=>{message.value='';load();});return{report,current,bundle,plan,comparison,error,loading,busy,message,rawUrl,reviewUrl,blueRows,redRows,load,freeze,copy,pad,time,flag,nullable,percent};
- },template:`<section class="fusion-v4" data-fusion-v4 aria-label="融合覆盖试验v4">
-  <p class="notice" data-v4-experiment>融合覆盖试验v4：红球评分去掉v2额外的EWMA二次加权（EWMA只计一次），8注在16红池内每红恰出现3次，配8个不同蓝球。均匀常规奖覆盖结构性高于v2同预算票组，但模型本身仍未证明优于均匀；独立留档观察，不替换v2默认。</p>
+  async function load(){const id=++request,wanted=props.issue;loading.value=true;error.value='';report.value=null;try{const r=await fetch(SSQApp.url('api/reference-pools/fusion-v'+ver,{issue:wanted})),v=await r.json();if(id!==request||wanted!==props.issue)return;if(!r.ok)throw Error(v.error||('融合覆盖v'+ver+'读取失败'));if(v.issue!==wanted)throw Error('融合覆盖v'+ver+'期号与页面不一致，请刷新');report.value=v;}catch(e){if(id===request)error.value=e.message;}finally{if(id===request)loading.value=false;}}
+  async function freeze(){if(busy.value||!report.value||!current.value?.bundle_sha256)return;const wanted=props.issue,rpt=report.value;busy.value=true;message.value='';try{const r=await fetch(SSQApp.url('api/reference-pools/fusion-v'+ver+'/freeze'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target:wanted,data_sha256:rpt.data_sha256,bundle_sha256:rpt.current.bundle_sha256,model_source_sha256:rpt.current.model_source_sha256})}),v=await r.json();if(wanted!==props.issue)return;if(!r.ok)throw Error(v.error||('融合覆盖v'+ver+'留档失败'));message.value=v.status==='waiting'?v.reason:('已保留v'+ver+'首次试验票面，后续由原周期继续留档与对奖。');await load();}catch(e){if(wanted===props.issue)message.value=e.message;}finally{busy.value=false;}}
+  async function copy(){const p=plan.value,c=current.value;if(!p)return;const body=p.tickets.map((t,i)=>(i+1)+'. '+t.red.map(pad).join(' ')+' + '+pad(t.blue)).join('\n');try{await copyText('双色球 '+props.issue+'期 · '+p.title+'\n'+body+'\n'+p.bet_count+'注，共'+p.cost+'元\n融合覆盖试验，未证明真实预测优势。'+(c.status==='frozen'?('来自v'+ver+'首次原档。'):'当前为未封存预览。'));message.value='v'+ver+'试验票面已复制。';}catch(e){message.value=e.message;}}
+  Vue.onMounted(load);Vue.watch(()=>props.issue,()=>{message.value='';load();});return{ver,report,current,bundle,plan,comparison,error,loading,busy,message,rawUrl,reviewUrl,blueRows,redRows,load,freeze,copy,pad,time,flag,nullable,percent};
+ },template:`<section class="fusion-v${ver}" :data-fusion-v${ver}="''" aria-label="融合覆盖试验v${ver}">
+  <p v-if="ver==='4'" class="notice" :data-v${ver}-experiment="''">融合覆盖试验v4：红球评分去掉v2额外的EWMA二次加权（EWMA只计一次），8注在16红池内每红恰出现3次，配8个不同蓝球。均匀常规奖覆盖结构性高于v2同预算票组，但模型本身仍未证明优于均匀；独立留档观察，不替换v2默认。</p>
+  <p v-else class="notice" :data-v${ver}-experiment="''">融合最小覆盖池试验v5：限定16红，排序目标是最小化盖住全部6个开奖红球所需的最靠后名次；正则0.005事先写定、只在23100及以前拟合。票面沿用v4均衡16红8注与8个不同蓝球。盖住名次是排序证据不是概率；预声明门槛未过不替换任何默认。</p>
   <p v-if="loading" class="muted" role="status">正在核对覆盖约束票面…</p><p v-if="error" class="notice error" role="alert">{{error}}</p>
-  <template v-if="report"><p v-if="!bundle" class="muted" data-v4-missing>{{current.reason}}</p><template v-if="bundle&&plan">
-   <p class="reference-buyable-budget" data-v4-budget><strong>{{plan.bet_count}}注 · {{plan.cost}}元</strong><span>实际用{{plan.red_count}}红、{{plan.blues.length}}蓝；每红恰3次，每蓝恰1注。</span></p>
-   <p class="muted" data-v4-method>红球取v4评分前16，在全部C(16,6)个组合的均衡可行起点上做确定性成对交换，单调提高模型质量；蓝球取23100前冻结去重v2分布的前8，按概率与红球质量同序配对。8个不同蓝球无条件覆盖8×C(33,6)个完整开奖结果。</p>
-   <p v-if="current.status==='frozen'" class="muted" data-v4-sealed>第{{issue}}期首次试验保存于{{time(current.published_at_unix)}}。<a :href="rawUrl">v4首次原档JSON</a> <a v-if="reviewUrl" :href="reviewUrl">v4逐注复盘JSON</a></p><p v-else class="muted" data-v4-preview>第{{issue}}期预览，尚未留档，不计入真实试验成绩。</p>
-   <ol class="reference-tickets" aria-label="v4完整票面"><li v-for="(t,i) in plan.tickets" :key="i" data-v4-ticket><span class="reference-ticket-label">第{{i+1}}注</span><div class="balls"><span v-for="n in t.red" :key="n" class="ball selected red">{{pad(n)}}</span><span class="reference-plus">+</span><span class="ball selected blue">{{pad(t.blue)}}</span></div><small class="muted">中红{{nullable(plan.ticket_results?.[i]?.red_hits)}}/6 · 中蓝{{flag(plan.ticket_results?.[i]?.blue_hit)}}</small></li></ol>
-   <p v-if="plan.single_jackpot!=null" class="muted" data-v4-result>最佳单注{{plan.summary.max_ticket_red_hits}}红；同一注6＋1：{{flag(plan.single_jackpot)}}；常规中奖{{plan.summary.prize_tickets}}注，已知固定奖金{{plan.summary.fixed_prize}}元。</p>
-   <details v-if="comparison" data-v4-comparison>
-    <summary>同预算 v4／v2 票面对照</summary>
+  <template v-if="report"><p v-if="!bundle" class="muted" :data-v${ver}-missing="''">{{current.reason}}</p><template v-if="bundle&&plan">
+   <p class="reference-buyable-budget" :data-v${ver}-budget="''"><strong>{{plan.bet_count}}注 · {{plan.cost}}元</strong><span>实际用{{plan.red_count}}红、{{plan.blues.length}}蓝；每红恰3次，每蓝恰1注。</span></p>
+   <p class="muted" :data-v${ver}-method="''">红球取v${ver}评分前16，在全部C(16,6)个组合的均衡可行起点上做确定性成对交换，单调提高模型质量；蓝球取23100前冻结去重v2分布的前8，按概率与红球质量同序配对。8个不同蓝球无条件覆盖8×C(33,6)个完整开奖结果。</p>
+   <p v-if="current.status==='frozen'" class="muted" :data-v${ver}-sealed="''">第{{issue}}期首次试验保存于{{time(current.published_at_unix)}}。<a :href="rawUrl">v${ver}首次原档JSON</a> <a v-if="reviewUrl" :href="reviewUrl">v${ver}逐注复盘JSON</a></p><p v-else class="muted" :data-v${ver}-preview="''">第{{issue}}期预览，尚未留档，不计入真实试验成绩。</p>
+   <ol class="reference-tickets" aria-label="v${ver}完整票面"><li v-for="(t,i) in plan.tickets" :key="i" :data-v${ver}-ticket="''"><span class="reference-ticket-label">第{{i+1}}注</span><div class="balls"><span v-for="n in t.red" :key="n" class="ball selected red">{{pad(n)}}</span><span class="reference-plus">+</span><span class="ball selected blue">{{pad(t.blue)}}</span></div><small class="muted">中红{{nullable(plan.ticket_results?.[i]?.red_hits)}}/6 · 中蓝{{flag(plan.ticket_results?.[i]?.blue_hit)}}</small></li></ol>
+   <p v-if="plan.single_jackpot!=null" class="muted" :data-v${ver}-result="''">最佳单注{{plan.summary.max_ticket_red_hits}}红；同一注6＋1：{{flag(plan.single_jackpot)}}；常规中奖{{plan.summary.prize_tickets}}注，已知固定奖金{{plan.summary.fixed_prize}}元。<template v-if="plan.full_six_in_pool!=null">全6红入16池：{{flag(plan.full_six_in_pool)}}。</template></p>
+   <details v-if="comparison" :data-v${ver}-comparison="''">
+    <summary>同预算 v${ver}／v2 票面对照</summary>
     <p class="muted">按 {{report.same_budget_comparison.uniform_outcomes.toLocaleString('zh-CN')}} 个等可能的完整开奖结果计算。同一结果在同一票组只计一次，常规奖覆盖不含特别奖。</p>
     <div class="scroll"><table>
-     <thead><tr><th scope="col">票面</th><th scope="col">v4 本方案</th><th scope="col">v2 首次票面</th></tr></thead>
+     <thead><tr><th scope="col">票面</th><th scope="col">v${ver} 本方案</th><th scope="col">v2 首次票面</th></tr></thead>
      <tbody>
-      <tr><th scope="row">实际用号</th><td v-for="side in ['v4','v2']" :key="side">{{comparison[side].used_reds.length}} 红 · 蓝 {{comparison[side].used_blues.map(pad).join(' ')}}</td></tr>
-      <tr><th scope="row">一等奖覆盖结果数</th><td v-for="side in ['v4','v2']" :key="side">{{comparison[side].uniform_jackpot_outcomes}}</td></tr>
-      <tr><th scope="row">至少中 1 注常规奖</th><td v-for="side in ['v4','v2']" :key="side">{{percent(comparison[side].uniform_any_prize_outcomes / report.same_budget_comparison.uniform_outcomes)}}</td></tr>
-      <template v-if="comparison.v4.actual">
-       <tr><th scope="row">并集漏红</th><td v-for="side in ['v4','v2']" :key="side">{{comparison[side].actual.missed_reds.map(pad).join(' ') || '无'}}</td></tr>
-       <tr><th scope="row">单注最多中红</th><td v-for="side in ['v4','v2']" :key="side">{{comparison[side].actual.best_ticket_red_hits}} 红</td></tr>
-       <tr><th scope="row">蓝球命中</th><td v-for="side in ['v4','v2']" :key="side">{{flag(comparison[side].actual.blue_covered)}}</td></tr>
-       <tr><th scope="row">常规中奖／固定奖金</th><td v-for="side in ['v4','v2']" :key="side">{{comparison[side].actual.prize_tickets}} 注／{{comparison[side].actual.fixed_prize}} 元</td></tr>
+      <tr><th scope="row">实际用号</th><td v-for="side in ['v'+ver,'v2']" :key="side">{{comparison[side].used_reds.length}} 红 · 蓝 {{comparison[side].used_blues.map(pad).join(' ')}}</td></tr>
+      <tr><th scope="row">一等奖覆盖结果数</th><td v-for="side in ['v'+ver,'v2']" :key="side">{{comparison[side].uniform_jackpot_outcomes}}</td></tr>
+      <tr><th scope="row">至少中 1 注常规奖</th><td v-for="side in ['v'+ver,'v2']" :key="side">{{percent(comparison[side].uniform_any_prize_outcomes / report.same_budget_comparison.uniform_outcomes)}}</td></tr>
+      <template v-if="comparison['v'+ver].actual">
+       <tr><th scope="row">并集漏红</th><td v-for="side in ['v'+ver,'v2']" :key="side">{{comparison[side].actual.missed_reds.map(pad).join(' ') || '无'}}</td></tr>
+       <tr><th scope="row">单注最多中红</th><td v-for="side in ['v'+ver,'v2']" :key="side">{{comparison[side].actual.best_ticket_red_hits}} 红</td></tr>
+       <tr><th scope="row">蓝球命中</th><td v-for="side in ['v'+ver,'v2']" :key="side">{{flag(comparison[side].actual.blue_covered)}}</td></tr>
+       <tr><th scope="row">常规中奖／固定奖金</th><td v-for="side in ['v'+ver,'v2']" :key="side">{{comparison[side].actual.prize_tickets}} 注／{{comparison[side].actual.fixed_prize}} 元</td></tr>
       </template>
      </tbody>
     </table></div>
-    <p v-if="comparison.v4.actual" class="muted">特别奖待核：v4 {{comparison.v4.actual.special_prize_candidates}} 注，v2 {{comparison.v2.actual.special_prize_candidates}} 注。</p>
+    <p v-if="comparison['v'+ver].actual" class="muted">特别奖待核：v${ver} {{comparison['v'+ver].actual.special_prize_candidates}} 注，v2 {{comparison.v2.actual.special_prize_candidates}} 注。</p>
     <p v-else class="muted">本期等待开奖。</p>
    </details>
-   <div class="row reference-actions"><button type="button" @click="copy">复制v4完整{{plan.bet_count}}注</button><button v-if="current.status!=='frozen'" type="button" :disabled="busy||!report.publication.can_freeze" @click="freeze">{{busy?'留档中…':'启用v4独立前瞻留档'}}</button></div>
-   <details data-v4-certificate><summary>求解证书、评分修复与验证限制</summary>
+   <div class="row reference-actions"><button type="button" @click="copy">复制v${ver}完整{{plan.bet_count}}注</button><button v-if="current.status!=='frozen'" type="button" :disabled="busy||!report.publication.can_freeze" @click="freeze">{{busy?'留档中…':('启用v'+ver+'独立前瞻留档')}}</button></div>
+   <details :data-v${ver}-certificate="''"><summary>求解证书、评分修复与验证限制</summary>
     <p class="muted">本方案模型评分{{plan.ratio_to_uniform_budget.toFixed(6)}}（均匀同注数为1）；相对v2同预算首次票面模型质量变化{{percent(plan.same_budget_v2_comparison.relative_model_gain)}}。仅比较给定模型评分，不是实际中奖率提升。</p>
-    <p class="muted">评价{{plan.certificate.evaluations}}个候选；16红每红恰3次。池内无约束质量上界{{plan.certificate.pool_unconstrained_upper_bound_mass.toExponential(4)}}，实际红球质量{{plan.certificate.achieved_red_mass.toExponential(4)}}，差距{{plan.certificate.absolute_red_mass_gap.toExponential(4)}}；全33红16蓝无约束联合最优参考{{plan.certificate.global_unconstrained_joint_mass.toExponential(4)}}。{{plan.certificate.scope}}</p>
-    <p class="muted">v2额外EWMA权重0.30已移除（v4为0），显式重号权重保持0；10%参考并集支持作为v2遗留投票保留，仍未校准。蓝球改用23100前冻结的去重v2分布。</p>
-    <div class="scroll"><table data-v4-validation><thead><tr><th>探索窗口</th><th>期数</th><th>完整6＋1对数评分差</th><th>全6红入16</th><th>蓝前8命中</th></tr></thead><tbody><tr v-for="(w,k) in bundle.windows" :key="k"><td>{{({development:'展开权重',confirmation_exploratory:'确认探索',tracking:'跟踪'})[k]}}</td><td>{{w.n}}</td><td>{{w.mean_joint_log_excess_vs_uniform==null?'—':w.mean_joint_log_excess_vs_uniform.toFixed(6)}}</td><td>{{w.full_six_inside_16}}</td><td>{{w.blue_top8_hits}}</td></tr></tbody></table></div>
+    <p class="muted">评价{{plan.certificate.evaluations}}个候选；16红每红恰3次。池内无约束质量上界{{plan.certificate.pool_unconstrained_upper_bound_mass.toExponential(4)}}，实际红球质量{{plan.certificate.achieved_red_mass.toExponential(4)}}，差距{{plan.certificate.absolute_red_mass_gap.toExponential(4)}}。{{plan.certificate.scope}}</p>
+    <p v-if="ver==='4'" class="muted">v2额外EWMA权重0.30已移除（v4为0），显式重号权重保持0；10%参考并集支持作为v2遗留投票保留，仍未校准。蓝球改用23100前冻结的去重v2分布。</p>
+    <p v-else class="muted">覆盖信号系数绝对值与正则0.005随原档保存；v1正则0.05的只读试验仍保留在号码池与排序页。信号不是概率，exp(signal)只用于票面质量目标。</p>
+    <div class="scroll"><table :data-v${ver}-validation="''"><thead><tr><th>探索窗口</th><th>期数</th><th v-if="ver==='5'">v5平均盖住名次</th><th v-if="ver==='5'">加权平均盖住名次</th><th>完整6＋1对数评分差</th><th>全6红入16</th><th>蓝前8命中</th></tr></thead><tbody><tr v-for="(w,k) in bundle.windows" :key="k"><td>{{({development:'展开权重',confirmation_exploratory:'确认探索',tracking:'跟踪'})[k]}}</td><td>{{w.n}}</td><td v-if="ver==='5'">{{w.mean_minimum_full_cover_prefix==null?'—':w.mean_minimum_full_cover_prefix.toFixed(2)}}</td><td v-if="ver==='5'">{{w.mean_weighted_full_cover_prefix==null?'—':w.mean_weighted_full_cover_prefix.toFixed(2)}}</td><td>{{w.mean_joint_log_excess_vs_uniform==null?'—':w.mean_joint_log_excess_vs_uniform.toFixed(6)}}</td><td>{{w.full_six_inside_16}}</td><td>{{w.blue_top8_hits}}</td></tr></tbody></table></div>
+    <p v-if="bundle.gate" class="muted" :data-v${ver}-gate="''">预声明门槛：确认窗平均盖住名次相对协议加权与均匀期望（{{bundle.gate.uniform_mean_cover_rank.toFixed(2)}}）都至少少{{bundle.gate.required_mean_gain}}个名次。本期回放增益：加权{{bundle.gate.confirmation_gain_vs_weighted==null?'—':bundle.gate.confirmation_gain_vs_weighted.toFixed(2)}}、均匀{{bundle.gate.confirmation_gain_vs_uniform==null?'—':bundle.gate.confirmation_gain_vs_uniform.toFixed(2)}}；门槛{{bundle.gate.clears_predeclared_mean_gate?'通过':'未通过'}}，不替换加权默认、不改写任何原档。</p>
     <p class="muted">{{bundle.note}}</p>
    </details>
-   <details data-v4-red-details><summary>16红池、v4评分与上期重号</summary><div class="scroll"><table><thead><tr><th>名次</th><th>红球</th><th>v4评分</th><th>上期红</th></tr></thead><tbody><tr v-for="r in redRows" :key="r.n" :data-v4-red-rank="r.n"><td>{{r.rank}}</td><td>{{pad(r.n)}}</td><td>{{r.score.toFixed(6)}}</td><td>{{r.previous?'是':'否'}}</td></tr></tbody></table></div></details>
-   <details data-v4-blue-details><summary>16蓝排序、概率与本方案入选</summary><p class="muted">8个不同蓝球使「至少用到一次开奖蓝」的机会为8/16；这不等于奖金或回本能力提高，每蓝只有1注。</p><div class="scroll"><table><thead><tr><th>名次</th><th>蓝球</th><th>模型概率</th><th>本方案入选</th></tr></thead><tbody><tr v-for="b in blueRows" :key="b.n" :data-v4-blue-rank="b.n"><td>{{b.rank}}</td><td>{{pad(b.n)}}</td><td>{{percent(b.p)}}</td><td>{{b.used?'是':'否'}}</td></tr></tbody></table></div></details>
+   <details :data-v${ver}-red-details="''"><summary>16红池、v${ver}评分与上期重号</summary><div class="scroll"><table><thead><tr><th>名次</th><th>红球</th><th>v${ver}评分</th><th>上期红</th></tr></thead><tbody><tr v-for="r in redRows" :key="r.n" :data-v${ver}-red-rank="r.n"><td>{{r.rank}}</td><td>{{pad(r.n)}}</td><td>{{r.score.toFixed(6)}}</td><td>{{r.previous?'是':'否'}}</td></tr></tbody></table></div></details>
+   <details :data-v${ver}-blue-details="''"><summary>16蓝排序、概率与本方案入选</summary><p class="muted">8个不同蓝球使「至少用到一次开奖蓝」的机会为8/16；这不等于奖金或回本能力提高，每蓝只有1注。</p><div class="scroll"><table><thead><tr><th>名次</th><th>蓝球</th><th>模型概率</th><th>本方案入选</th></tr></thead><tbody><tr v-for="b in blueRows" :key="b.n" :data-v${ver}-blue-rank="b.n"><td>{{b.rank}}</td><td>{{pad(b.n)}}</td><td>{{percent(b.p)}}</td><td>{{b.used?'是':'否'}}</td></tr></tbody></table></div></details>
   </template>
-  <p class="muted" data-v4-actual>v4首次试验：已开奖{{report.actual.n}}期，待开奖{{report.actual.pending}}期。{{report.actual.note}}</p><p v-if="report.actual.errors.length" class="notice error">{{report.actual.errors.join('；')}}</p></template>
-  <p v-if="message" role="status" class="muted">{{message}}</p><button type="button" :disabled="loading" @click="load">刷新融合覆盖v4</button>
- </section>`};
+  <p class="muted" :data-v${ver}-actual="''">v${ver}首次试验：已开奖{{report.actual.n}}期，待开奖{{report.actual.pending}}期。{{report.actual.note}}</p><p v-if="report.actual.errors.length" class="notice error">{{report.actual.errors.join('；')}}</p></template>
+  <p v-if="message" role="status" class="muted">{{message}}</p><button type="button" :disabled="loading" @click="load">刷新融合覆盖v${ver}</button>
+ </section>`});
+ const fusionV4=makeFusionCoverage('4'),fusionV5=makeFusionCoverage('5');
  const numbers = {
-  components:{ReferenceDantuo:dantuo,FusionDantuo:fusionDantuo,ReferenceProvenance:referenceProvenance,FusionV2:fusionV2,FusionV3:fusionV3,FusionV4:fusionV4},
+  components:{ReferenceDantuo:dantuo,FusionDantuo:fusionDantuo,ReferenceProvenance:referenceProvenance,FusionV2:fusionV2,FusionV3:fusionV3,FusionV4:fusionV4,FusionV5:fusionV5},
   props:{snapshot:{type:Object,required:true},ticketBundle:{type:Object,default:null},dantuoBundle:{type:Object,default:null},issue:{type:String,default:''},archived:{type:Boolean,default:false}},
   emits:['fusion-version-change'],
   setup(props,{emit}) {
    const count = Vue.ref(16), message = Vue.ref(''),fusionVersion=Vue.ref(preferredFusionVersion(global.location?.search,props.issue));
-   function chooseFusionVersion(version){if(!['v1','v2','v3','v4'].includes(version))return;fusionVersion.value=version;message.value='';try{const url=new URL(global.location.href);url.searchParams.set('fusion',version);global.history.replaceState(global.history.state,'',url.href);}catch(_){}}
+   function chooseFusionVersion(version){if(!['v1','v2','v3','v4','v5'].includes(version))return;fusionVersion.value=version;message.value='';try{const url=new URL(global.location.href);url.searchParams.set('fusion',version);global.history.replaceState(global.history.state,'',url.href);}catch(_){}}
    Vue.watch(fusionVersion,version=>emit('fusion-version-change',version),{immediate:true});
    Vue.watch(()=>props.issue,()=>{message.value='';fusionVersion.value=preferredFusionVersion(global.location?.search,props.issue);});
    const original = Vue.computed(() => props.snapshot.reference);
@@ -361,8 +365,8 @@
      <button type="button" @click="copy('reference')">复制原始5注</button><reference-dantuo :bundle="dantuoBundle" :issue="issue" :archived="archived"></reference-dantuo>
     </article>
     <article class="reference-box" data-reference-model="reference_fused16">
-     <h3>融合推荐 · 单式与胆拖</h3><div class="small-red-sizes" aria-label="融合推荐版本"><button type="button" data-fusion-version="v4" :aria-pressed="fusionVersion==='v4'" :class="{selected:fusionVersion==='v4'}" @click="chooseFusionVersion('v4')">融合覆盖试验v4</button><button type="button" data-fusion-version="v3" :aria-pressed="fusionVersion==='v3'" :class="{selected:fusionVersion==='v3'}" @click="chooseFusionVersion('v3')">联合优化试验v3</button><button type="button" data-fusion-version="v2" :aria-pressed="fusionVersion==='v2'" :class="{selected:fusionVersion==='v2'}" @click="chooseFusionVersion('v2')">修正版v2</button><button type="button" data-fusion-version="v1" :aria-pressed="fusionVersion==='v1'" :class="{selected:fusionVersion==='v1'}" @click="chooseFusionVersion('v1')">旧版v1原档</button></div>
-     <fusion-v4 v-if="fusionVersion==='v4'" :issue="issue"></fusion-v4><fusion-v3 v-else-if="fusionVersion==='v3'" :issue="issue"></fusion-v3><fusion-v2 v-else-if="fusionVersion==='v2'" :issue="issue" :snapshot="snapshot"></fusion-v2><template v-else><p class="notice">这是旧版v1首次原档，旧算法可能整组复用上期六红；当前默认推荐为v2。查看、复制本区内容均为旧v1，不会替换已保存号码。</p>
+     <h3>融合推荐 · 单式与胆拖</h3><div class="small-red-sizes" aria-label="融合推荐版本"><button type="button" data-fusion-version="v5" :aria-pressed="fusionVersion==='v5'" :class="{selected:fusionVersion==='v5'}" @click="chooseFusionVersion('v5')">最小覆盖池试验v5</button><button type="button" data-fusion-version="v4" :aria-pressed="fusionVersion==='v4'" :class="{selected:fusionVersion==='v4'}" @click="chooseFusionVersion('v4')">融合覆盖试验v4</button><button type="button" data-fusion-version="v3" :aria-pressed="fusionVersion==='v3'" :class="{selected:fusionVersion==='v3'}" @click="chooseFusionVersion('v3')">联合优化试验v3</button><button type="button" data-fusion-version="v2" :aria-pressed="fusionVersion==='v2'" :class="{selected:fusionVersion==='v2'}" @click="chooseFusionVersion('v2')">修正版v2</button><button type="button" data-fusion-version="v1" :aria-pressed="fusionVersion==='v1'" :class="{selected:fusionVersion==='v1'}" @click="chooseFusionVersion('v1')">旧版v1原档</button></div>
+     <fusion-v5 v-if="fusionVersion==='v5'" :issue="issue"></fusion-v5><fusion-v4 v-else-if="fusionVersion==='v4'" :issue="issue"></fusion-v4><fusion-v3 v-else-if="fusionVersion==='v3'" :issue="issue"></fusion-v3><fusion-v2 v-else-if="fusionVersion==='v2'" :issue="issue" :snapshot="snapshot"></fusion-v2><template v-else><p class="notice">这是旧版v1首次原档，旧算法可能整组复用上期六红；当前默认推荐为v2。查看、复制本区内容均为旧v1，不会替换已保存号码。</p>
      <p class="muted">现有小池评分90%＋参考5注并集支持10%；并集内均匀分配，重复出现不加权，最多16红。</p>
      <p class="muted">历史对照尚未优于现有小池，独立观察中。</p>
      <div class="small-red-sizes" aria-label="参考融合红球数量"><button v-for="p in snapshot.fusion.pools" :key="p.red_count" type="button" :data-reference-size="p.red_count" :aria-pressed="count===p.red_count" :class="{selected:count===p.red_count}" @click="count=p.red_count">{{ p.red_count }}红{{ p.red_count===16?' · 上限':'' }}</button></div>

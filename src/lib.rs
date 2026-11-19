@@ -58,3 +58,5 @@ pub mod fusion_v3;
 pub mod fusion_v3_comparison;
 pub mod fusion_model_v4;
 pub mod fusion_v4;
+pub mod fusion_model_v5;
+pub mod fusion_v5;

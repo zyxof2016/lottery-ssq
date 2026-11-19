@@ -13,10 +13,11 @@
 use serde_json::{json, Value};
 use ssq::{
     blue_model_v2 as blue,
+    cover_rank,
     coverage::balanced_tickets,
     draw::{data_sha256, fmt_issue, load_csv, write_csv},
     eval::prepare_forecast,
-    fusion_model_v2, fusion_model_v3, fusion_model_v4,
+    fusion_model_v2, fusion_model_v3, fusion_model_v4, fusion_model_v5,
     fusion_v3_comparison::red_prize_outcomes,
     model::roll_all,
     protocol::Protocol,
@@ -34,7 +35,7 @@ fn sets_blues(tickets: &[([u8; 6], u8)]) -> (BTreeSet<[u8; 6]>, BTreeSet<u8>) {
         tickets.iter().map(|(_, b)| *b).collect(),
     )
 }
-fn measure(tickets: &[([u8; 6], u8)], row: &ssq::model::Row) -> Result<Value, String> {
+fn measure(tickets: &[([u8; 6], u8)], row: &ssq::model::Row, prefix: usize) -> Result<Value, String> {
     let (sets, blues) = sets_blues(tickets);
     let r = red_prize_outcomes(&sets)?;
     let b = blues.len() as u64;
@@ -47,6 +48,7 @@ fn measure(tickets: &[([u8; 6], u8)], row: &ssq::model::Row) -> Result<Value, St
         "blue_covered": blues.contains(&(row.blue + 1)),
         "used_reds": union.count_ones(),
         "used_blues": b,
+        "cover_prefix": prefix,
     }))
 }
 fn summarize(rows: &[Value]) -> Value {
@@ -63,13 +65,14 @@ fn summarize(rows: &[Value]) -> Value {
         };
         json!({
             "mean_uniform_any_prize_rate": mean("uniform_any_prize_rate"),
+            "mean_cover_prefix": mean("cover_prefix"),
             "full_six_periods": rows.iter().filter(|r| r[name]["full_six_in_union"] == true).count(),
             "blue_covered_periods": rows.iter().filter(|r| r[name]["blue_covered"] == true).count(),
             "mean_used_reds": mean("used_reds"),
             "mean_used_blues": mean("used_blues"),
         })
     };
-    json!({"n":n,"from":rows[0]["issue"],"to":rows[n-1]["issue"],"v4":variant("v4"),"v2":variant("v2"),"v3":variant("v3")})
+    json!({"n":n,"from":rows[0]["issue"],"to":rows[n-1]["issue"],"v5":variant("v5"),"v4":variant("v4"),"v2":variant("v2"),"v3":variant("v3")})
 }
 
 fn replay(csv: &Path) -> Result<Value, String> {
@@ -90,6 +93,19 @@ fn replay(csv: &Path) -> Result<Value, String> {
         })
         .collect::<Result<Vec<_>, String>>()?;
     let blue_fit = blue::fit(&blue_samples)?;
+    let cover_samples = snap
+        .rows
+        .iter()
+        .skip(cover_rank::WARMUP_ROWS)
+        .filter(|r| r.issue <= red::TRAIN_END)
+        .map(|r| {
+            Ok(red::Sample {
+                x: red::features(&r.expert_p)?,
+                mask: r.red_mask,
+            })
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+    let cover_fit = cover_rank::fit_with(&cover_samples, fusion_model_v5::RIDGE)?;
     let neutral = [1. / 33.; 33];
     let (mut red_sum, mut blue_sum, mut nfit) = ([0.0; 7], [0.0; 6], 0usize);
     let mut rows = Vec::new();
@@ -133,11 +149,21 @@ fn replay(csv: &Path) -> Result<Value, String> {
             let rw = red::weights(&red_fit.beta, &red::features(&row.expert_p)?)?;
             let d3 = fusion_model_v3::Distribution::new(&rw, &q)?;
             let t3 = d3.top(8)?.tickets;
+            let s5 = cover_rank::signal(&cover_fit.beta, &row.expert_p)?;
+            let o5 = rank_desc(&s5);
+            let ranking5: Vec<u8> = o5.iter().map(|i| (i + 1) as u8).collect();
+            let w5: Vec<f64> = s5.iter().map(|v| v.exp()).collect();
+            let d5 = fusion_model_v3::Distribution::new(&w5, &q)?;
+            let sel5 = fusion_model_v4::select_tickets(&d5, &ranking5)?;
+            let blues5 = d5.blue_order()[..8].to_vec();
+            let t5: Vec<([u8; 6], u8)> =
+                sel5.sets.iter().zip(&blues5).map(|(r, b)| (*r, *b)).collect();
             rows.push(json!({
                 "issue": fmt_issue(row.issue),
-                "v2": measure(&t2, row)?,
-                "v4": measure(&t4, row)?,
-                "v3": measure(&t3, row)?,
+                "v2": measure(&t2, row, fusion_model_v5::cover_prefix(&o2, row.red_mask))?,
+                "v4": measure(&t4, row, fusion_model_v5::cover_prefix(&o4, row.red_mask))?,
+                "v3": measure(&t3, row, fusion_model_v5::cover_prefix(&rank_desc(&rw), row.red_mask))?,
+                "v5": measure(&t5, row, fusion_model_v5::cover_prefix(&o5, row.red_mask))?,
             }));
         }
         if !frozen {
@@ -178,9 +204,10 @@ fn replay(csv: &Path) -> Result<Value, String> {
         "latest_replay": rows.last(),
         "notes": [
             "逐期只用此前数据；25111前权重按协议展开拟合，之后冻结。参考支持在回放中取中性均匀，实际封存票面使用同期参考父档支持。",
-            "v2、v4红球各取自身评分前16并均衡8注；v2配协议蓝榜前2，v4配冻结蓝v2前8；v3为全33红16蓝无约束质量最优8注。",
+            "v2、v4、v5红球各取自身评分前16并均衡8注；v2配协议蓝榜前2，v4、v5配冻结蓝v2前8；v3为全33红16蓝无约束质量最优8注。v5排序为预声明正则0.005的最小盖住名次信号。",
+            "cover_prefix为盖住全部6个开奖红球所需的最靠后名次；均匀随机顺序期望为6*34/7≈29.14。",
             "均匀常规奖覆盖按全部C(33,6)×16个等可能结果精确枚举去重；这是覆盖结构差异，不是已验证的预测优势。",
-            "本回放是事后探索材料，不计入v4实际首次留档样本；多候选已被查看，近期改善不能视作独立确认。",
+            "本回放是事后探索材料，不计入v4、v5实际首次留档样本；多候选已被查看，近期改善不能视作独立确认。",
         ],
     }))
 }
@@ -210,6 +237,7 @@ fn fixture(csv: &Path, dir: &Path) -> Result<(), String> {
     let reference = ssq::reference::freeze(&root, &draws, &target, gate.deadline_unix)?;
     let v2 = ssq::fusion_v2::freeze(&root, &draws, &target, gate.deadline_unix)?;
     let v4 = ssq::fusion_v4::freeze(&root, &draws, &target, gate.deadline_unix)?;
+    let v5 = ssq::fusion_v5::freeze(&root, &draws, &target, gate.deadline_unix)?;
     println!(
         "{}",
         serde_json::to_string_pretty(&json!({
@@ -218,6 +246,7 @@ fn fixture(csv: &Path, dir: &Path) -> Result<(), String> {
             "reference_status": reference["status"],
             "v2_status": v2["status"],
             "v4_status": v4["status"],
+            "v5_status": v5["status"],
             "serve": format!("cargo run --release -- serve --data {} --audit {}/audit/log.jsonl --out {} --bind 127.0.0.1:6791", dir.join("data/ssq.csv").display(), dir.display(), dir.join("publish").display()),
         }))
         .map_err(|e| e.to_string())?

@@ -61,6 +61,14 @@ pub fn signal(beta: &[f64; 6], expert: &[[f64; 33]; 7]) -> Result<[f64; 33], Str
 }
 
 pub fn fit(samples: &[Sample]) -> Result<Fit, String> {
+    fit_with(samples, RIDGE)
+}
+
+/// Ridge-parameterized solver for later frozen versions; v1 keeps RIDGE.
+pub fn fit_with(samples: &[Sample], ridge: f64) -> Result<Fit, String> {
+    if !ridge.is_finite() || ridge <= 0. {
+        return Err("全覆盖正则必须为正有限数".into());
+    }
     if samples.is_empty()
         || samples.iter().any(|sample| {
             sample.mask.count_ones() != 6 || sample.x.iter().flatten().any(|value| !value.is_finite())
@@ -70,7 +78,7 @@ pub fn fit(samples: &[Sample]) -> Result<Fit, String> {
     }
     let mut beta = [0.; 6];
     for iterations in 0..60 {
-        let (loss, grad, hess) = derivatives(samples, &beta)?;
+        let (loss, grad, hess) = derivatives(samples, &beta, ridge)?;
         let gradient = grad.iter().copied().map(f64::abs).fold(0., f64::max);
         if gradient <= 1e-8 {
             return Ok(Fit { beta, iterations, gradient, objective: loss, n: samples.len() });
@@ -84,7 +92,7 @@ pub fn fit(samples: &[Sample]) -> Result<Fit, String> {
         for k in 0..40 {
             let scale = 2f64.powi(-k);
             let next = std::array::from_fn(|axis| beta[axis] - scale * step[axis]);
-            let next_loss = objective(samples, &next)?;
+            let next_loss = objective(samples, &next, ridge)?;
             let roundoff = 32. * f64::EPSILON * (1. + loss.abs());
             if next_loss <= loss - 1e-4 * scale * descent + roundoff {
                 beta = next;
@@ -99,19 +107,19 @@ pub fn fit(samples: &[Sample]) -> Result<Fit, String> {
     Err("全覆盖牛顿未收敛".into())
 }
 
-fn objective(samples: &[Sample], beta: &[f64; 6]) -> Result<f64, String> {
+fn objective(samples: &[Sample], beta: &[f64; 6], ridge: f64) -> Result<f64, String> {
     let mut total = 0.;
     for sample in samples {
         total += period(beta, &sample.x, sample.mask)?.0;
     }
-    let mean = total / samples.len() as f64 + 0.5 * RIDGE * beta.iter().map(|value| value * value).sum::<f64>();
+    let mean = total / samples.len() as f64 + 0.5 * ridge * beta.iter().map(|value| value * value).sum::<f64>();
     if !mean.is_finite() {
         return Err("全覆盖损失无效".into());
     }
     Ok(mean)
 }
 
-fn derivatives(samples: &[Sample], beta: &[f64; 6]) -> Result<(f64, [f64; 6], [[f64; 6]; 6]), String> {
+fn derivatives(samples: &[Sample], beta: &[f64; 6], ridge: f64) -> Result<(f64, [f64; 6], [[f64; 6]; 6]), String> {
     let mut loss = 0.;
     let mut grad = [0.; 6];
     let mut hess = [[0.; 6]; 6];
@@ -126,13 +134,13 @@ fn derivatives(samples: &[Sample], beta: &[f64; 6]) -> Result<(f64, [f64; 6], [[
         }
     }
     let n = samples.len() as f64;
-    loss = loss / n + 0.5 * RIDGE * beta.iter().map(|value| value * value).sum::<f64>();
+    loss = loss / n + 0.5 * ridge * beta.iter().map(|value| value * value).sum::<f64>();
     for a in 0..6 {
-        grad[a] = grad[a] / n + RIDGE * beta[a];
+        grad[a] = grad[a] / n + ridge * beta[a];
         for c in 0..6 {
             hess[a][c] /= n;
         }
-        hess[a][a] += RIDGE;
+        hess[a][a] += ridge;
     }
     if !loss.is_finite() || grad.iter().any(|value| !value.is_finite()) || hess.iter().flatten().any(|value| !value.is_finite()) {
         return Err("全覆盖导数无效".into());
@@ -278,7 +286,7 @@ mod tests {
     #[test]
     fn zero_coefficients_match_the_closed_form() {
         let sample = separated();
-        let loss = objective(&[sample], &[0.; 6]).unwrap();
+        let loss = objective(&[sample], &[0.; 6], RIDGE).unwrap();
         assert!((loss - (2f64.ln() + 6f64.ln())).abs() < 1e-12);
     }
 
@@ -298,24 +306,36 @@ mod tests {
         }
         let sample = Sample { x, mask: (1 << 0) | (1 << 4) | (1 << 9) | (1 << 15) | (1 << 22) | (1 << 30) };
         let beta = [0.2, -0.1, 0.05, 0.3, -0.2, 0.15];
-        let (_, grad, hess) = derivatives(std::slice::from_ref(&sample), &beta).unwrap();
+        let (_, grad, hess) = derivatives(std::slice::from_ref(&sample), &beta, RIDGE).unwrap();
         let eps = 1e-5;
         for axis in 0..6 {
             let mut up = beta;
             let mut down = beta;
             up[axis] += eps;
             down[axis] -= eps;
-            let finite = (objective(std::slice::from_ref(&sample), &up).unwrap()
-                - objective(std::slice::from_ref(&sample), &down).unwrap())
+            let finite = (objective(std::slice::from_ref(&sample), &up, RIDGE).unwrap()
+                - objective(std::slice::from_ref(&sample), &down, RIDGE).unwrap())
                 / (2. * eps);
             assert!((finite - grad[axis]).abs() < 1e-6, "梯度 {axis}: {finite} {}", grad[axis]);
-            let (_, up_grad, _) = derivatives(std::slice::from_ref(&sample), &up).unwrap();
-            let (_, down_grad, _) = derivatives(std::slice::from_ref(&sample), &down).unwrap();
+            let (_, up_grad, _) = derivatives(std::slice::from_ref(&sample), &up, RIDGE).unwrap();
+            let (_, down_grad, _) = derivatives(std::slice::from_ref(&sample), &down, RIDGE).unwrap();
             for other in 0..6 {
                 let finite_h = (up_grad[other] - down_grad[other]) / (2. * eps);
                 assert!((finite_h - hess[other][axis]).abs() < 2e-5, "海森 {other},{axis}: {finite_h} {}", hess[other][axis]);
             }
         }
+    }
+
+    #[test]
+    fn parameterized_solver_reproduces_v1_at_the_v1_ridge() {
+        let sample = separated();
+        let samples = vec![sample; 40];
+        let a = fit(&samples).unwrap();
+        let b = fit_with(&samples, RIDGE).unwrap();
+        assert_eq!(a.beta, b.beta);
+        assert!(fit_with(&samples, 0.).is_err());
+        let weaker = fit_with(&samples, RIDGE / 10.).unwrap();
+        assert!(weaker.beta[0] > a.beta[0]);
     }
 
     #[test]
