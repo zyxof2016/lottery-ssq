@@ -304,6 +304,8 @@ pub fn saved_current(prepared:&Prepared,draws:&[Draw])->Value {
     value["coverage_model"]=crate::conditional::saved(prepared,draws);
     value["algorithm_models"]=json!(crate::pool_algorithms::saved_all(prepared,draws));
     value["algorithm_models_version"]=json!(crate::pool_algorithms::COLLECTION_VERSION);
+    value["fusion_v4_model"]=crate::fusion_rank_v4::saved(prepared);
+    value["fusion_v4_model_version"]=json!(crate::fusion_rank_v4::VERSION);
     value
 }
 
@@ -346,6 +348,7 @@ pub fn reviewed_models(reviewed: &Value) -> Vec<Value> {
     }
     if reviewed["version"]==RANKED_VERSION && !reviewed["coverage_model"].is_null() {models.push(reviewed["coverage_model"].clone());}
     if reviewed["version"]==RANKED_VERSION { models.extend(reviewed["algorithm_models"].as_array().into_iter().flatten().cloned()); }
+    if reviewed["version"]==RANKED_VERSION && !reviewed["fusion_v4_model"].is_null() {models.push(reviewed["fusion_v4_model"].clone());}
     models
 }
 
@@ -418,12 +421,26 @@ pub fn review(saved: &Value, draw: Option<&Draw>) -> Result<Value, String> {
             }
             result["algorithm_models"]=json!(reviewed);
         } else {result.as_object_mut().unwrap().remove("algorithm_models");}
+        if version==4 && !saved["fusion_v4_model"].is_null() {
+            let model=&saved["fusion_v4_model"];
+            if model["model"]!=crate::fusion_rank_v4::MODEL || model["version"]!=crate::fusion_rank_v4::VERSION
+                || model["policy"]!=crate::fusion_rank_v4::policy() || model["target_issue"]!=saved["target_issue"] {
+                return Err("融合v4口径规则或目标期号无效".into());
+            }
+            let order=ranking(model,"red_ranking",33)?.ok_or("融合v4口径缺少完整排名")?;
+            let scores:[f64;33]=serde_json::from_value::<Vec<f64>>(model["red_scores"].clone()).map_err(|_|"融合v4口径分数无效")?.try_into().map_err(|_|"融合v4口径分数须33项")?;
+            if scores.iter().any(|v|!v.is_finite()||*v<0.) || order!=rank_desc(&scores).iter().map(|n|*n as u8+1).collect::<Vec<_>>() {
+                return Err("融合v4口径分数与保存排名不一致".into());
+            }
+            result["fusion_v4_model"]=review_set(model,draw,&TIER_RED_SIZES,Some(&order),blue_order.as_deref(),crate::fusion_rank_v4::MODEL,true)?;
+        } else {result.as_object_mut().unwrap().remove("fusion_v4_model");}
     } else {
         // A v1/v2 archive never gains a model it did not save.
         result.as_object_mut().unwrap().remove("comparison_models");
         result.as_object_mut().unwrap().remove("comparison_policy");
         result.as_object_mut().unwrap().remove("coverage_model");
         result.as_object_mut().unwrap().remove("algorithm_models");
+        result.as_object_mut().unwrap().remove("fusion_v4_model");
     }
     Ok(result)
 }
@@ -616,8 +633,8 @@ mod tests {
         let current=saved_current(&p,&draws);
         let mut old=current.clone();old.as_object_mut().unwrap().remove("algorithm_models");old.as_object_mut().unwrap().remove("algorithm_models_version");
         let bytes=serde_json::to_vec(&old).unwrap();
-        assert_eq!(reviewed_models(&review(&old,None).unwrap()).len(),5);
-        assert_eq!(reviewed_models(&review(&current,None).unwrap()).len(),9);
+        assert_eq!(reviewed_models(&review(&old,None).unwrap()).len(),6);
+        assert_eq!(reviewed_models(&review(&current,None).unwrap()).len(),10);
         assert_eq!(serde_json::to_vec(&old).unwrap(),bytes);
         let mut bad=current.clone();bad["algorithm_models"][0]["pools"][0]["reds"][0]=bad["algorithm_models"][0]["red_ranking"][32].clone();
         assert!(review(&bad,None).is_err());
@@ -631,7 +648,7 @@ mod tests {
     fn legacy_three_algorithm_collection_is_preserved_and_new_collection_is_strict() {
         let draws=crate::draw::synth_draws(220,9);let p=prepare_forecast(&draws).unwrap();let current=saved_current(&p,&draws);
         let mut old=current.clone();old.as_object_mut().unwrap().remove("algorithm_models_version");old["algorithm_models"].as_array_mut().unwrap().truncate(3);
-        let bytes=serde_json::to_vec(&old).unwrap();assert_eq!(reviewed_models(&review(&old,None).unwrap()).len(),8);
+        let bytes=serde_json::to_vec(&old).unwrap();assert_eq!(reviewed_models(&review(&old,None).unwrap()).len(),9);
         crate::pool_algorithms::validate_history(old["algorithm_models"].as_array().unwrap(),&draws).unwrap();
         assert_eq!(serde_json::to_vec(&old).unwrap(),bytes);
         let mut bad=current.clone();bad.as_object_mut().unwrap().remove("algorithm_models_version");assert!(review(&bad,None).is_err());
@@ -645,7 +662,7 @@ mod tests {
         let old=saved_ranked(&p,draws.last().unwrap().red_mask);
         assert_eq!(reviewed_models(&review(&old,None).unwrap()).len(),4);
         let saved=saved_current(&p,&draws);
-        assert_eq!(reviewed_models(&review(&saved,None).unwrap()).len(),9);
+        assert_eq!(reviewed_models(&review(&saved,None).unwrap()).len(),10);
         assert_eq!(old["comparison_models"],saved["comparison_models"]);
         let mut bad=saved.clone();bad["coverage_model"]["pools"][0]["blues"]=json!([saved["blue_ranking"][15]]);
         assert!(review(&bad,None).is_err());

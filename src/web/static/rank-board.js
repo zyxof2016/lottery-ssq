@@ -14,7 +14,7 @@
       const poolSort = Vue.ref('size');
       const poolKind = Vue.ref('all');
       const poolSearch = Vue.ref('');
-      const numberAlgo = Vue.ref('weighted');
+      const numberAlgo = Vue.ref('fusion_v4');
       const blueAlgo = Vue.ref('blue_weighted');
       const blueSort = Vue.ref('group');
       const openedKey = Vue.ref('');

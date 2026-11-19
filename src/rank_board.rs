@@ -180,6 +180,7 @@ fn rank_all(
     let fitted_red = crate::red_model_v2::observation_order(red_beta, expert)?;
     let fitted_blue = blue_order(blue_beta, blue_p)?;
     let mut algos = vec![
+        algo(crate::fusion_rank_v4::MODEL, crate::fusion_rank_v4::LABEL, "main", &crate::fusion_rank_v4::order(expert, weights)?, &shared_blue, "协议加权蓝球"),
         algo("weighted", "协议加权融合", "main", &rank_desc(&weighted), &shared_blue, "协议加权蓝球"),
         algo("equal", "等权融合", "main", &rank_desc(&equal), &equal_blue, "等权蓝球"),
         algo("equal_rank", "名次等权", "trial", &rank_desc(&equal_rank_red), &equal_blue, "等权蓝球"),
@@ -931,7 +932,7 @@ mod tests {
         let pending = issue(&dir, &draws, &fmt_issue(latest.issue + 1)).unwrap();
         assert_eq!(before, fs::read_dir(&dir).unwrap().count());
         assert_eq!(report["writes_archives"], false);
-        assert_eq!(view["algorithms"].as_array().unwrap().len(), 14);
+        assert_eq!(view["algorithms"].as_array().unwrap().len(), 15);
         let trial = view["algorithms"]
             .as_array()
             .unwrap()
@@ -973,7 +974,7 @@ mod tests {
         assert_eq!(ordinal["red_ranking"].as_array().unwrap().len(), 33);
         assert_eq!(ordinal["blue_ranking"].as_array().unwrap().len(), 16);
         assert_eq!(ordinal["blue_source"], "等权蓝球");
-        assert_eq!(ordinal["blue_ranking"], view["algorithms"][1]["blue_ranking"]);
+        assert_eq!(ordinal["blue_ranking"], view["algorithms"].as_array().unwrap().iter().find(|row| row["name"] == "equal").unwrap()["blue_ranking"]);
         assert_eq!(report["equal_rank"]["replaces_equal"], false);
         assert_eq!(report["equal_rank"]["automatic_promotion"], false);
         assert_eq!(report["equal_rank"]["confirmation_n"], 156);

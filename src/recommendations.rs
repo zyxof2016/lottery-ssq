@@ -426,6 +426,7 @@ fn comparison_pool_count(saved: &Value) -> usize {
     saved["comparison_models"].as_array().into_iter().flatten()
         .map(|m| m["pools"].as_array().map_or(0, Vec::len)).sum::<usize>() + saved["coverage_model"]["pools"].as_array().map_or(0,Vec::len)
         + saved["algorithm_models"].as_array().into_iter().flatten().map(|m|m["pools"].as_array().map_or(0,Vec::len)).sum::<usize>()
+        + saved["fusion_v4_model"]["pools"].as_array().map_or(0,Vec::len)
 }
 
 pub fn archive_plan(
@@ -528,6 +529,10 @@ pub(crate) fn validate_archive(payload: &Value, issue: &str, draws: &[Draw]) -> 
         if let Some(models)=payload["number_pools"]["algorithm_models"].as_array() {
             let prefix:Vec<_>=draws.iter().filter(|d|d.issue<=previous.issue).cloned().collect();
             crate::pool_algorithms::validate_history(models,&prefix)?;
+        }
+        if let Some(model)=payload["number_pools"].get("fusion_v4_model").filter(|v|!v.is_null()) {
+            let prefix:Vec<_>=draws.iter().filter(|d|d.issue<=previous.issue).cloned().collect();
+            crate::fusion_rank_v4::validate_history(model,&prefix)?;
         }
     }
     if let Some(small)=payload.get("small_red_pools") {
@@ -668,15 +673,17 @@ pub fn pool_observations(root: &Path, draws: &[Draw]) -> Result<Value, String> {
     let mut comparison_cells = Vec::new();
     let mut paired_cells = Vec::new();
     let mut ranking_paired_cells = Vec::new();
+    let mut fusion_v4_paired_cells = Vec::new();
     let mut conditional_paired_cells = Vec::new();
     let mut algorithm_paired_cells = Vec::new();
     let mut first_algorithm_issues = serde_json::Map::new();
     let conditional_records:Vec<_>=records.iter().filter(|r|observation_pool(r,crate::conditional::MODEL,14,1).is_some()).cloned().collect();
     let ranking_records: Vec<_> = records.iter().filter(|r| observation_pool(r, crate::ranking::MODEL, 14, 1).is_some()).cloned().collect();
+    let fusion_v4_records: Vec<_> = records.iter().filter(|r| observation_pool(r, crate::fusion_rank_v4::MODEL, 14, 1).is_some()).cloned().collect();
     for red_count in pool::TIER_RED_SIZES {
         for blue_count in pool::BLUE_SIZES {
             cells.push(observation_cell(&records, "weighted", red_count, blue_count, false));
-            for model in pool::OBSERVATION_MODELS.into_iter().chain([crate::conditional::MODEL]).chain(crate::pool_algorithms::MODELS) {
+            for model in pool::OBSERVATION_MODELS.into_iter().chain([crate::conditional::MODEL]).chain(crate::pool_algorithms::MODELS).chain([crate::fusion_rank_v4::MODEL]) {
                 comparison_cells.push(observation_cell(&records, model, red_count, blue_count, false));
             }
             let paired: Vec<_> = pool::COMPARISON_MODELS.into_iter()
@@ -692,6 +699,14 @@ pub fn pool_observations(root: &Path, draws: &[Draw]) -> Result<Value, String> {
             }).collect();
             ranking_paired_cells.push(json!({"red_count":red_count,"blue_count":blue_count,"n":models[0]["n"],"pending":models[0]["pending"],
                 "excluded_missing_comparison":records.len()-ranking_records.len(),"models":models}));
+            let models:Vec<_>=["weighted",crate::fusion_rank_v4::MODEL].into_iter().map(|m| {
+                let mut cell=observation_cell(&fusion_v4_records,m,red_count,blue_count,false);
+                cell["paired_periods_only"]=json!(true);
+                cell["excluded_missing_comparison"]=json!(records.len()-fusion_v4_records.len());
+                cell
+            }).collect();
+            fusion_v4_paired_cells.push(json!({"red_count":red_count,"blue_count":blue_count,"n":models[0]["n"],"pending":models[0]["pending"],
+                "excluded_missing_comparison":records.len()-fusion_v4_records.len(),"models":models}));
             let models:Vec<_>=["weighted",crate::conditional::MODEL].into_iter().map(|m| {
                 let mut c=observation_cell(&conditional_records,m,red_count,blue_count,false);
                 c["paired_periods_only"]=json!(true);c["excluded_missing_comparison"]=json!(records.len()-conditional_records.len());c
@@ -723,6 +738,7 @@ pub fn pool_observations(root: &Path, draws: &[Draw]) -> Result<Value, String> {
     let mut compression_cells = Vec::new();
     for model in pool::OBSERVATION_MODELS.into_iter()
         .chain([crate::conditional::MODEL]).chain(crate::pool_algorithms::MODELS)
+        .chain([crate::fusion_rank_v4::MODEL])
     {
         for blue in pool::BLUE_SIZES {
             for red in pool::TIER_RED_SIZES {
@@ -740,6 +756,7 @@ pub fn pool_observations(root: &Path, draws: &[Draw]) -> Result<Value, String> {
         "conditional_paired_cells":conditional_paired_cells,"conditional_policy":crate::conditional::policy(),
         "first_conditional_issue":conditional_records.first().map(|r|&r["issue"]),
         "ranking_paired_cells":ranking_paired_cells,"ranking_policy":crate::ranking::policy(),
+        "fusion_v4_paired_cells":fusion_v4_paired_cells,"fusion_v4_policy":crate::fusion_rank_v4::policy(),
         "first_ranking_issue":ranking_records.first().map(|r|&r["issue"]),
         "comparison_policy": pool::comparison_policy(),
         "first_comparison_issue": records.iter().find(|r| r["models"].as_array().unwrap().len() >= 3).map(|r| &r["issue"]),
@@ -856,7 +873,7 @@ fn observation_cell(records: &[Value], model: &str, red: usize, blue: usize, pai
         }
     }
     let rate = (n > 0).then(|| full as f64 / n as f64);
-    json!({"model": model, "label": if model == crate::conditional::MODEL {crate::conditional::LABEL} else if model == crate::ranking::MODEL {crate::ranking::LABEL} else if let Some(i)=crate::pool_algorithms::MODELS.iter().position(|m|*m==model) {crate::pool_algorithms::LABELS[i]} else {pool::COMPARISON_LABELS[pool::COMPARISON_MODELS.iter().position(|m| *m == model).unwrap()]},
+    json!({"model": model, "label": if model == crate::conditional::MODEL {crate::conditional::LABEL} else if model == crate::ranking::MODEL {crate::ranking::LABEL} else if model == crate::fusion_rank_v4::MODEL {crate::fusion_rank_v4::LABEL} else if let Some(i)=crate::pool_algorithms::MODELS.iter().position(|m|*m==model) {crate::pool_algorithms::LABELS[i]} else {pool::COMPARISON_LABELS[pool::COMPARISON_MODELS.iter().position(|m| *m == model).unwrap()]},
         "red_count": red, "blue_count": blue, "n": n, "pending": pending, "missing": missing,
         "excluded_missing_comparison": excluded, "paired_periods_only": paired, "scored_issues": issues,
         "full_red_periods": full, "full_red_rate": rate,
@@ -1632,10 +1649,10 @@ mod tests {
         let old_path=temp.0.join(format!("daily/{old_issue}.json"));write_new(&old_path,payload).unwrap();
         let old=fs::read(&old_path).unwrap();
         let existing=freeze_daily_with_clock(&temp.0,&draws,&old_issue,100,||10).unwrap();
-        assert_eq!(existing["comparison_models"],5);assert_eq!(existing["saved_models"].as_array().unwrap().len(),5);
+        assert_eq!(existing["comparison_models"],6);assert_eq!(existing["saved_models"].as_array().unwrap().len(),6);
         append_outcome(&mut draws);let issue=next(&draws);
         let frozen=freeze_daily_with_clock(&temp.0,&draws,&issue,100,||10).unwrap();
-        assert_eq!(frozen["comparison_models"],9);assert_eq!(frozen["comparison_number_pools"],144);
+        assert_eq!(frozen["comparison_models"],10);assert_eq!(frozen["comparison_number_pools"],162);
         let pending=pool_observations(&temp.0,&draws).unwrap();
         assert_eq!(pending["algorithm_paired_cells"].as_array().unwrap().len(),72);
         for c in pending["algorithm_paired_cells"].as_array().unwrap() {
@@ -1675,8 +1692,8 @@ mod tests {
         let new_issue=next(&draws);
         let result=freeze_daily_with_clock(&temp.0,&draws,&new_issue,100,||10).unwrap();
         assert_eq!(result["strategies"],26);
-        assert_eq!(result["comparison_models"],9);
-        assert_eq!(result["comparison_number_pools"],144);
+        assert_eq!(result["comparison_models"],10);
+        assert_eq!(result["comparison_number_pools"],162);
         let raw=read_checked(&temp.0.join(format!("daily/{new_issue}.json"))).unwrap();
         let p=&raw["payload"]["strategies"]["calibrated14"];
         let saved=&raw["payload"]["number_pools"]["comparison_models"][2];
@@ -1895,7 +1912,7 @@ mod tests {
         freeze_daily_with_clock(&temp.0, &draws, &next_issue, 100, || 10).unwrap();
         let actual = pool_observations(&temp.0, &draws).unwrap();
         assert_eq!(actual["data_sha256"],data_sha256(&draws));
-        assert_eq!(actual["compression_cells"].as_array().unwrap().len(),162);
+        assert_eq!(actual["compression_cells"].as_array().unwrap().len(),180);
         for c in actual["compression_cells"].as_array().unwrap().iter().filter(|c|c["model"]=="weighted") {
             assert_eq!(c["n"],1);assert_eq!(c["pending"],1);assert_eq!(c["excluded_missing_pair"],0);
             let full=c["red_count"].as_u64().unwrap()>=18;
@@ -1946,8 +1963,8 @@ mod tests {
         draws.push(winner);
         let common_issue = next(&draws);
         let frozen = freeze_daily_with_clock(&temp.0, &draws, &common_issue, 100, || 10).unwrap();
-        assert_eq!(frozen["comparison_models"], 9);
-        assert_eq!(frozen["comparison_number_pools"], 144);
+        assert_eq!(frozen["comparison_models"], 10);
+        assert_eq!(frozen["comparison_number_pools"], 162);
         let mut winner = draws.last().unwrap().clone();
         winner.issue = common_issue.parse().unwrap();
         draws.push(winner);
@@ -1955,7 +1972,7 @@ mod tests {
         let result = pool_observations(&temp.0, &draws).unwrap();
         assert_eq!(result["errors"], json!([]));
         assert_eq!(result["first_comparison_issue"], common_issue);
-        assert_eq!(result["comparison_cells"].as_array().unwrap().len(), 162);
+        assert_eq!(result["comparison_cells"].as_array().unwrap().len(), 180);
         for cell in result["comparison_cells"].as_array().unwrap() {
             assert_eq!(cell["n"], if cell["model"] == "weighted" { 2 } else { 1 });
             assert_eq!(cell["pending"], 1);

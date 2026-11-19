@@ -1,0 +1,131 @@
+{
+  "actual_recommendation": false,
+  "cutoff_issue": "26123",
+  "data_sha256": "a8c3157227f48c8f22ac8b1dbbf90fcf886064fbcf1668c256acbbadf998dbb7",
+  "gate": {
+    "clears_predeclared_mean_gate": false,
+    "confirmation_gain_vs_uniform": 0.0274725274725256,
+    "confirmation_gain_vs_weighted": -0.12179487179487225,
+    "replaces_weighted": false,
+    "required_mean_gain": 1.0,
+    "rewrites_archives": false,
+    "uniform_mean_cover_rank": 29.142857142857142
+  },
+  "kind": "exploratory_cooccurrence_pool_search_v6",
+  "latest_replay": {
+    "evaluations": 272,
+    "issue": "26123",
+    "objective": 202.77481870932215,
+    "passes": 1,
+    "pool": [
+      14,
+      26,
+      1,
+      22,
+      6,
+      32,
+      17,
+      18,
+      20,
+      7,
+      27,
+      19,
+      8,
+      2,
+      9,
+      10
+    ],
+    "upper_bound": 203.79256977444527,
+    "v6_cover_prefix": 31,
+    "v6_full_six_in_pool": false,
+    "weighted_cover_prefix": 33,
+    "weighted_full_six_in_16": false
+  },
+  "next_preview": {
+    "absolute_gap": 1.0177510651231216,
+    "evaluations": 272,
+    "note": "研究预览，不生成票面、不留档。",
+    "objective": 202.77481870932215,
+    "passes": 1,
+    "pool": [
+      14,
+      26,
+      1,
+      22,
+      6,
+      32,
+      17,
+      18,
+      20,
+      7,
+      27,
+      19,
+      8,
+      2,
+      9,
+      10
+    ],
+    "upper_bound": 203.79256977444527
+  },
+  "notes": [
+    "边际与共现计数只用23100及以前开奖；收缩参数60/200事先写定，不在确认窗搜索。",
+    "代理目标为池内边际log-lift与两两log-lift之和；交换搜索到局部最优，上界为前16边际lift加前120 pair lift的松弛。",
+    "盖住名次与全6入池为探索指标；多候选已被查看，确认窗改善不能视作独立确认。",
+    "共现结构未证明提高覆盖；门槛未过不替换默认、不改写原档、不接入生成或封存。"
+  ],
+  "policy": {
+    "actual_recommendation": false,
+    "automatic_promotion": false,
+    "certificate": "relaxation_upper_bound_top16_marginal_plus_top120_pair_lifts",
+    "expert_warmup_rows": 30,
+    "marginal_kappa": 60.0,
+    "note": "共现lift只是代理目标，不是覆盖概率；搜索为局部最优加松弛上界证书。门槛未过不替换任何默认与已封存票面。",
+    "objective": "predeclared_surrogate_sum_of_marginal_and_pair_log_lifts_inside_16_pool",
+    "pair_kappa": 200.0,
+    "required_mean_gain_vs_weighted_and_uniform": 1.0,
+    "research_only": true,
+    "score_kind": "co_occurrence_lift_surrogate_not_probability",
+    "search": "deterministic_best_improvement_single_exchanges_from_top16_marginal",
+    "training_last_issue": 23100,
+    "uniform_mean_cover_rank": 29.142857142857142,
+    "version": 6
+  },
+  "training": {
+    "history_sha256": "6977b2ed7ffaa4246224855b0058f996e6abe20772e0a5941ead0771646d8fdb",
+    "last_issue": 23100,
+    "n": 3044
+  },
+  "windows": {
+    "confirmation_exploratory": {
+      "n": 156,
+      "scope": "事后因果探索回放，不是实际推荐样本",
+      "v6_full_six_periods": 0,
+      "v6_mean_cover_prefix": 29.115384615384617,
+      "weighted_full_six_periods": 5,
+      "weighted_mean_cover_prefix": 28.993589743589745
+    },
+    "development": {
+      "n": 312,
+      "scope": "事后因果探索回放，不是实际推荐样本",
+      "v6_full_six_periods": 4,
+      "v6_mean_cover_prefix": 28.753205128205128,
+      "weighted_full_six_periods": 2,
+      "weighted_mean_cover_prefix": 29.208333333333332
+    },
+    "recent60": {
+      "n": 60,
+      "v6_full_six_periods": 0,
+      "v6_mean_cover_prefix": 29.083333333333332,
+      "weighted_full_six_periods": 3,
+      "weighted_mean_cover_prefix": 28.433333333333334
+    },
+    "tracking": {
+      "n": 8,
+      "scope": "事后因果探索回放，不是实际推荐样本",
+      "v6_full_six_periods": 0,
+      "v6_mean_cover_prefix": 28.5,
+      "weighted_full_six_periods": 0,
+      "weighted_mean_cover_prefix": 27.5
+    }
+  }
+}
