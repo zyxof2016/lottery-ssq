@@ -153,7 +153,7 @@ fn red_sets(tickets: &Value) -> Result<std::collections::BTreeSet<[u8; 6]>, Stri
     Ok(out)
 }
 
-pub fn build(draws: &[Draw], _parent: &Value, legacy: &Value) -> Result<Value, String> {
+pub fn build(draws: &[Draw], parent: &Value, legacy: &Value) -> Result<Value, String> {
     let prepared = crate::eval::prepare_forecast(draws)?;
     let snap = roll_all(draws)?;
     let cf = cover_fit(draws, &snap.rows)?;
