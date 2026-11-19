@@ -17,7 +17,7 @@ use ssq::{
     coverage::balanced_tickets,
     draw::{data_sha256, fmt_issue, load_csv, write_csv},
     eval::prepare_forecast,
-    fusion_model_v2, fusion_model_v3, fusion_model_v4, fusion_model_v5,
+    fusion_model_v2, fusion_model_v3, fusion_model_v4, fusion_model_v5, fusion_model_v7,
     fusion_v3_comparison::red_prize_outcomes,
     model::roll_all,
     protocol::Protocol,
@@ -72,7 +72,7 @@ fn summarize(rows: &[Value]) -> Value {
             "mean_used_blues": mean("used_blues"),
         })
     };
-    json!({"n":n,"from":rows[0]["issue"],"to":rows[n-1]["issue"],"v5":variant("v5"),"v4":variant("v4"),"v2":variant("v2"),"v3":variant("v3")})
+    json!({"n":n,"from":rows[0]["issue"],"to":rows[n-1]["issue"],"v7":variant("v7"),"v5":variant("v5"),"v4":variant("v4"),"v2":variant("v2"),"v3":variant("v3")})
 }
 
 fn replay(csv: &Path) -> Result<Value, String> {
@@ -158,8 +158,13 @@ fn replay(csv: &Path) -> Result<Value, String> {
             let blues5 = d5.blue_order()[..8].to_vec();
             let t5: Vec<([u8; 6], u8)> =
                 sel5.sets.iter().zip(&blues5).map(|(r, b)| (*r, *b)).collect();
+            let sel7 = fusion_model_v7::select_tickets(&d4, &ranking4)?;
+            let blues7 = d4.blue_order()[..8].to_vec();
+            let t7: Vec<([u8; 6], u8)> =
+                sel7.sets.iter().zip(&blues7).map(|(r, b)| (*r, *b)).collect();
             rows.push(json!({
                 "issue": fmt_issue(row.issue),
+                "v7": measure(&t7, row, fusion_model_v5::cover_prefix(&o4, row.red_mask))?,
                 "v2": measure(&t2, row, fusion_model_v5::cover_prefix(&o2, row.red_mask))?,
                 "v4": measure(&t4, row, fusion_model_v5::cover_prefix(&o4, row.red_mask))?,
                 "v3": measure(&t3, row, fusion_model_v5::cover_prefix(&rank_desc(&rw), row.red_mask))?,
@@ -204,7 +209,7 @@ fn replay(csv: &Path) -> Result<Value, String> {
         "latest_replay": rows.last(),
         "notes": [
             "逐期只用此前数据；25111前权重按协议展开拟合，之后冻结。参考支持在回放中取中性均匀，实际封存票面使用同期参考父档支持。",
-            "v2、v4、v5红球各取自身评分前16并均衡8注；v2配协议蓝榜前2，v4、v5配冻结蓝v2前8；v3为全33红16蓝无约束质量最优8注。v5排序为预声明正则0.005的最小盖住名次信号。",
+            "v2、v4、v5红球各取自身评分前16并均衡8注，v7取v4评分前24并均衡8注（每红2次）；v2配协议蓝榜前2，v4、v5、v7配冻结蓝v2前8；v3为全33红16蓝无约束质量最优8注。v5排序为预声明正则0.005的最小盖住名次信号。",
             "cover_prefix为盖住全部6个开奖红球所需的最靠后名次；均匀随机顺序期望为6*34/7≈29.14。",
             "均匀常规奖覆盖按全部C(33,6)×16个等可能结果精确枚举去重；这是覆盖结构差异，不是已验证的预测优势。",
             "本回放是事后探索材料，不计入v4、v5实际首次留档样本；多候选已被查看，近期改善不能视作独立确认。",
@@ -238,6 +243,7 @@ fn fixture(csv: &Path, dir: &Path) -> Result<(), String> {
     let v2 = ssq::fusion_v2::freeze(&root, &draws, &target, gate.deadline_unix)?;
     let v4 = ssq::fusion_v4::freeze(&root, &draws, &target, gate.deadline_unix)?;
     let v5 = ssq::fusion_v5::freeze(&root, &draws, &target, gate.deadline_unix)?;
+    let v7 = ssq::fusion_v7::freeze(&root, &draws, &target, gate.deadline_unix)?;
     println!(
         "{}",
         serde_json::to_string_pretty(&json!({
@@ -247,6 +253,7 @@ fn fixture(csv: &Path, dir: &Path) -> Result<(), String> {
             "v2_status": v2["status"],
             "v4_status": v4["status"],
             "v5_status": v5["status"],
+            "v7_status": v7["status"],
             "serve": format!("cargo run --release -- serve --data {} --audit {}/audit/log.jsonl --out {} --bind 127.0.0.1:6791", dir.join("data/ssq.csv").display(), dir.display(), dir.join("publish").display()),
         }))
         .map_err(|e| e.to_string())?

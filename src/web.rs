@@ -190,6 +190,16 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
             let result=load_csv(&app.data).and_then(|draws|crate::fusion_v5::review_artifact(&recommendation_dir(app),&draws,&path["/api/reference-pools/fusion-v5/reviews/".len()..]));
             match result{Ok(bytes)=>return(200,"application/json",bytes),Err(e)=>Err(e)}
         },
+        ("GET", "/api/reference-pools/fusion-v7") => load_csv(&app.data).and_then(|draws|crate::fusion_v7::report(&recommendation_dir(app),&draws,query_value(query,"issue").as_deref())),
+        ("POST", "/api/reference-pools/fusion-v7/freeze") => freeze_fusion_v7(app,body),
+        ("GET", path) if path.starts_with("/api/reference-pools/fusion-v7/archives/") => {
+            let result=load_csv(&app.data).and_then(|draws|crate::fusion_v7::artifact(&recommendation_dir(app),&draws,&path["/api/reference-pools/fusion-v7/archives/".len()..]));
+            match result{Ok(bytes)=>return(200,"application/json",bytes),Err(e)=>Err(e)}
+        },
+        ("GET", path) if path.starts_with("/api/reference-pools/fusion-v7/reviews/") => {
+            let result=load_csv(&app.data).and_then(|draws|crate::fusion_v7::review_artifact(&recommendation_dir(app),&draws,&path["/api/reference-pools/fusion-v7/reviews/".len()..]));
+            match result{Ok(bytes)=>return(200,"application/json",bytes),Err(e)=>Err(e)}
+        },
         ("GET", "/api/reference-pools/fusion-v2") => load_csv(&app.data).and_then(|draws|crate::fusion_v2::report(&recommendation_dir(app),&draws,query_value(query,"issue").as_deref())),
         ("POST", "/api/reference-pools/fusion-v2/freeze") => freeze_fusion_v2(app,body),
         ("GET", path) if path.starts_with("/api/reference-pools/fusion-v2/archives/") => {
@@ -1194,6 +1204,14 @@ fn freeze_fusion_v4(app:&App,body:&str)->Result<Value,String>{
     if expected["data_sha256"]!=data_sha256(&draws)||expected["target"]!=gate.target{return Err("融合覆盖v4数据或期号已变化，请刷新".into());}
     if !gate.publish{return Err(gate.reason);}
     crate::fusion_v4::freeze_confirmed(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix,&expected)
+}
+
+fn freeze_fusion_v7(app:&App,body:&str)->Result<Value,String>{
+    let draws=load_csv(&app.data)?;let last=draws.last().ok_or("没有开奖数据")?;let gate=cycle::decide(recommendations::now_unix(),last.issue,last.date,false);
+    let expected:Value=serde_json::from_str(body).map_err(|_|"融合覆盖v7封存请求无效")?;
+    if expected["data_sha256"]!=data_sha256(&draws)||expected["target"]!=gate.target{return Err("融合覆盖v7数据或期号已变化，请刷新".into());}
+    if !gate.publish{return Err(gate.reason);}
+    crate::fusion_v7::freeze_confirmed(&recommendation_dir(app),&draws,&gate.target,gate.deadline_unix,&expected)
 }
 
 fn freeze_fusion_v5(app:&App,body:&str)->Result<Value,String>{

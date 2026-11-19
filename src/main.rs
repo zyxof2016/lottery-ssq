@@ -187,6 +187,7 @@ fn run() -> Result<(), String> {
             if ssq::fusion_v3::enabled(&root){result["fusion_v3_archive"]=ssq::fusion_v3::freeze(&root,&draws,&gate.target,gate.deadline_unix)?;}
             if ssq::fusion_v4::enabled(&root){result["fusion_v4_archive"]=ssq::fusion_v4::freeze(&root,&draws,&gate.target,gate.deadline_unix)?;}
             if ssq::fusion_v5::enabled(&root){result["fusion_v5_archive"]=ssq::fusion_v5::freeze(&root,&draws,&gate.target,gate.deadline_unix)?;}
+            if ssq::fusion_v7::enabled(&root){result["fusion_v7_archive"]=ssq::fusion_v7::freeze(&root,&draws,&gate.target,gate.deadline_unix)?;}
             println!("{}",serde_json::to_string(&result).map_err(|e|e.to_string())?);
         }
         Cmd::Verify {
