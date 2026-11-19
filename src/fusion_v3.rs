@@ -328,12 +328,12 @@ pub fn report(root: &Path, draws: &[Draw], requested: Option<&str>) -> Result<Va
     let (current, comparison) = if let Some(archive) = checked(root, draws, issue)? {
         let draw = draws.iter().find(|d| fmt_issue(d.issue) == issue);
         let view = archive_view(root, &archive.envelope, draw)?;
-        let comparison = fusion_v3_comparison::compare(&view["bundle"], &archive.v2, draw)?;
+        let comparison = fusion_v3_comparison::compare(&view["bundle"], &archive.v2, draw, "v3")?;
         (view, comparison)
     } else if issue == target && gate.publish && gate.target == issue {
         if let Some((parent, legacy)) = parents(root, draws, issue)? {
             let bundle = reconstructed_bundle(draws, &parent, &legacy)?;
-            let comparison = fusion_v3_comparison::compare(&bundle, &legacy, None)?;
+            let comparison = fusion_v3_comparison::compare(&bundle, &legacy, None, "v3")?;
             (
                 json!({"status":"preview","issue":issue,"pending":true,"actual_recommendation":false,"model_source_sha256":source(),"bundle_sha256":bundle_sha256(&bundle),"bundle":model::reviewed(&bundle,None)?}),
                 comparison,

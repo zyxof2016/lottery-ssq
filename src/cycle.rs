@@ -81,6 +81,8 @@ pub fn run_cycle(data: &Path, audit: &Path, publish_dir: &Path, review_dir: &Pat
     if gate.publish {match crate::fusion_v2::freeze(&recommendation_dir,&draws,&gate.target,gate.deadline_unix){Ok(v)=>notes.push(format!("融合修正版v2 {}",v["status"])),Err(e)=>notes.push(format!("融合v2未封存：{e}"))}}
     if gate.publish && crate::fusion_v3::enabled(&recommendation_dir) {match crate::fusion_v3::freeze(&recommendation_dir,&draws,&gate.target,gate.deadline_unix){Ok(v)=>notes.push(format!("联合优化v3 {}",v["status"])),Err(e)=>notes.push(format!("联合优化v3未封存：{e}"))}}
     let fusion_trial=crate::fusion_v3::settle(&recommendation_dir,&draws);notes.push(format!("联合优化v3复盘新增 {} 份",fusion_trial.settled));notes.extend(fusion_trial.errors);
+    if gate.publish && crate::fusion_v4::enabled(&recommendation_dir) {match crate::fusion_v4::freeze(&recommendation_dir,&draws,&gate.target,gate.deadline_unix){Ok(v)=>notes.push(format!("融合覆盖v4 {}",v["status"])),Err(e)=>notes.push(format!("融合覆盖v4未封存：{e}"))}}
+    let coverage_trial=crate::fusion_v4::settle(&recommendation_dir,&draws);notes.push(format!("融合覆盖v4复盘新增 {} 份",coverage_trial.settled));notes.extend(coverage_trial.errors);
     let repaired=crate::fusion_v2::settle(&recommendation_dir,&draws);notes.push(format!("融合v2复盘新增 {} 份",repaired.settled));notes.extend(repaired.errors);
     let fused_dantuo=crate::fusion_dantuo::settle(&recommendation_dir,&draws);notes.push(format!("融合胆拖复盘新增 {} 份",fused_dantuo.settled));notes.extend(fused_dantuo.errors);
     if gate.publish {match crate::jackpot::freeze_current(&recommendation_dir,&draws,&gate.target,gate.deadline_unix){Ok(v)=>notes.push(format!("头奖目标8注 {}",v["status"])),Err(e)=>notes.push(format!("头奖目标未封存：{e}"))}}

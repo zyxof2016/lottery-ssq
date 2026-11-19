@@ -10,7 +10,9 @@ fn red_mask(numbers: &[u8]) -> u64 {
     numbers.iter().fold(0, |mask, n| mask | (1 << (n - 1)))
 }
 
-fn red_prize_outcomes(reds: &HashSet<[u8; 6]>) -> Result<u64, String> {
+/// Exact count of red outcomes earning a regular prize without the blue,
+/// deduplicated across the whole ticket set.
+pub fn red_prize_outcomes(reds: &std::collections::BTreeSet<[u8; 6]>) -> Result<u64, String> {
     let mut outcomes = HashSet::new();
     // With no blue match, a regular prize requires at least four matching reds.
     // Deduplicate the qualifying outcomes across tickets and across blue variants.
@@ -43,7 +45,7 @@ fn entry(plan: &Value, draw: Option<&Draw>) -> Result<Value, String> {
     )?;
     let summary = &reviewed["summary"];
     let tickets = reviewed["tickets"].as_array().ok_or("缺少完整对照票面")?;
-    let mut red_sets = HashSet::new();
+    let mut red_sets = std::collections::BTreeSet::new();
     for ticket in tickets {
         let mut red: [u8; 6] =
             serde_json::from_value(ticket["red"].clone()).map_err(|_| "对照红票无效")?;
@@ -70,26 +72,34 @@ fn entry(plan: &Value, draw: Option<&Draw>) -> Result<Value, String> {
     }))
 }
 
-pub(crate) fn compare(v3: &Value, legacy: &Value, draw: Option<&Draw>) -> Result<Value, String> {
+pub(crate) fn compare(
+    trial: &Value,
+    legacy: &Value,
+    draw: Option<&Draw>,
+    label: &str,
+) -> Result<Value, String> {
     let mut pairs = Vec::new();
-    for plan in v3["plans"].as_array().ok_or("v3缺少对照方案")? {
+    for plan in trial["plans"].as_array().ok_or("联合票面缺少对照方案")? {
         let old_id = &plan["same_budget_v2_comparison"]["id"];
-        let group = if plan["id"] == "joint8" {
-            "singles"
-        } else {
+        let group = if plan["mode"] == "dantuo" {
             "dantuo"
+        } else {
+            "singles"
         };
         let old = legacy["payload"]["bundle"][group]
             .as_array()
             .and_then(|plans| plans.iter().find(|p| p["id"] == *old_id))
-            .ok_or("v3缺少已绑定的v2同预算方案")?;
+            .ok_or("联合票面缺少已绑定的v2同预算方案")?;
         if old["cost"] != plan["cost"] || old["bet_count"] != plan["bet_count"] {
-            return Err("v3与v2对照预算不一致".into());
+            return Err("联合票面与v2对照预算不一致".into());
         }
-        pairs.push(json!({
-            "id": plan["id"], "bets": plan["bet_count"], "cost": plan["cost"],
-            "v3": entry(plan, draw)?, "v2": entry(old, draw)?,
-        }));
+        let mut pair = serde_json::Map::new();
+        pair.insert("id".into(), plan["id"].clone());
+        pair.insert("bets".into(), plan["bet_count"].clone());
+        pair.insert("cost".into(), plan["cost"].clone());
+        pair.insert(label.into(), entry(plan, draw)?);
+        pair.insert("v2".into(), entry(old, draw)?);
+        pairs.push(Value::Object(pair));
     }
     Ok(json!({
         "uniform_outcomes": binom(33, 6) * BLUE_OUTCOMES,

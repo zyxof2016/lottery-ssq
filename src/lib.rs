@@ -55,4 +55,6 @@ pub mod cover16;
 pub mod rank_pool_audit;
 pub mod fusion_model_v3;
 pub mod fusion_v3;
-mod fusion_v3_comparison;
+pub mod fusion_v3_comparison;
+pub mod fusion_model_v4;
+pub mod fusion_v4;
