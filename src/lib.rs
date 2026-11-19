@@ -64,3 +64,5 @@ pub mod fusion_rank_v4;
 pub mod fusion_v6_study;
 pub mod fusion_model_v7;
 pub mod fusion_v7;
+pub mod fusion_model_v8;
+pub mod fusion_v8;
