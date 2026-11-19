@@ -9,7 +9,7 @@
  const fileUrl = path => SSQApp.url('api/recommendations/files', {path});
  // v2 was first published for 26128. Earlier archives retain their original
  // version; an explicit URL choice always wins and is carried into reviews.
- const preferredFusionVersion=(search,issue)=>{const v=new URLSearchParams(search||'').get('fusion');return ['v1','v2','v3','v4','v5'].includes(v)?v:issue&&String(issue)<'26128'?'v1':'v2';};
+ const preferredFusionVersion=(search,issue)=>{const v=new URLSearchParams(search||'').get('fusion');return ['v1','v2','v3','v4','v5'].includes(v)?v:issue&&String(issue)<'26128'?'v1':issue&&String(issue)<'26133'?'v2':'v4';};
  async function copyText(text) {
   if (navigator.clipboard) return navigator.clipboard.writeText(text);
   const input = document.createElement('textarea');
@@ -281,7 +281,7 @@
   async function copy(){const p=plan.value,c=current.value;if(!p)return;const body=p.tickets.map((t,i)=>(i+1)+'. '+t.red.map(pad).join(' ')+' + '+pad(t.blue)).join('\n');try{await copyText('双色球 '+props.issue+'期 · '+p.title+'\n'+body+'\n'+p.bet_count+'注，共'+p.cost+'元\n融合覆盖试验，未证明真实预测优势。'+(c.status==='frozen'?('来自v'+ver+'首次原档。'):'当前为未封存预览。'));message.value='v'+ver+'试验票面已复制。';}catch(e){message.value=e.message;}}
   Vue.onMounted(load);Vue.watch(()=>props.issue,()=>{message.value='';load();});return{ver,report,current,bundle,plan,comparison,error,loading,busy,message,rawUrl,reviewUrl,blueRows,redRows,load,freeze,copy,pad,time,flag,nullable,percent};
  },template:`<section class="fusion-v${ver}" :data-fusion-v${ver}="''" aria-label="融合覆盖试验v${ver}">
-  <p v-if="ver==='4'" class="notice" :data-v${ver}-experiment="''">融合覆盖试验v4：红球评分去掉v2额外的EWMA二次加权（EWMA只计一次），8注在16红池内每红恰出现3次，配8个不同蓝球。均匀常规奖覆盖结构性高于v2同预算票组，但模型本身仍未证明优于均匀；独立留档观察，不替换v2默认。</p>
+  <p v-if="ver==='4'" class="notice" :data-v${ver}-experiment="''">融合覆盖v4：红球评分去掉v2额外的EWMA二次加权（EWMA只计一次），8注在16红池内每红恰出现3次，配8个不同蓝球。均匀常规奖覆盖结构性高于v2同预算票组，但模型本身仍未证明优于均匀。经2026-11-19用户决定，自26133期起为融合推荐默认；v2保留可切换，旧原档不改写，前瞻样本独立累计。</p>
   <p v-else class="notice" :data-v${ver}-experiment="''">融合最小覆盖池试验v5：限定16红，排序目标是最小化盖住全部6个开奖红球所需的最靠后名次；正则0.005事先写定、只在23100及以前拟合。票面沿用v4均衡16红8注与8个不同蓝球。盖住名次是排序证据不是概率；预声明门槛未过不替换任何默认。</p>
   <p v-if="loading" class="muted" role="status">正在核对覆盖约束票面…</p><p v-if="error" class="notice error" role="alert">{{error}}</p>
   <template v-if="report"><p v-if="!bundle" class="muted" :data-v${ver}-missing="''">{{current.reason}}</p><template v-if="bundle&&plan">
