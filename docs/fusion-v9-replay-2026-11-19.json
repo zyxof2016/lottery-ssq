@@ -1,0 +1,124 @@
+{
+  "actual_recommendation": false,
+  "cutoff_issue": "26123",
+  "data_sha256": "a8c3157227f48c8f22ac8b1dbbf90fcf886064fbcf1668c256acbbadf998dbb7",
+  "gate": {
+    "clears_predeclared_mean_gate": false,
+    "confirmation_gain_vs_uniform": 0.2261904761904745,
+    "confirmation_gain_vs_weighted": 0.07692307692307665,
+    "replaces_weighted": false,
+    "required_mean_gain": 1.0,
+    "rewrites_archives": false,
+    "uniform_mean_cover_rank": 29.142857142857142
+  },
+  "kind": "exploratory_cross_model_successful_small_pool_consensus_v9",
+  "latest_replay": {
+    "blue_covered": false,
+    "issue": "26123",
+    "pool": [
+      1,
+      14,
+      7,
+      3,
+      8,
+      26,
+      17,
+      20,
+      2,
+      18,
+      13,
+      22,
+      6,
+      5,
+      32,
+      27,
+      10,
+      30,
+      4,
+      9,
+      16,
+      12,
+      19,
+      11
+    ],
+    "support_top": 373,
+    "uniform_any_prize_rate": 0.2753095069557806,
+    "v9_cover_prefix": 26,
+    "v9_full_six_in_pool": false,
+    "weighted_cover_prefix": 33,
+    "weighted_full_six_in_24": false
+  },
+  "notes": [
+    "成功小池＝某模型盖住全部6红的最小前缀且长度<=18；只累计严格早于当期的开奖，9模型等权。",
+    "支持度是因果证据不是概率；同分用当期加权融合分数破，再按号码升序。",
+    "票面沿用v7的24红每红2次均衡结构与v8的4蓝每蓝2注；均匀常规奖覆盖按精确枚举。",
+    "门槛未过不替换默认、不改写原档；多候选已被查看，确认窗改善不能视作独立确认。"
+  ],
+  "policy": {
+    "K": 18,
+    "actual_recommendation": false,
+    "automatic_promotion": false,
+    "causality": "only_draws_strictly_before_the_evaluated_draw_contribute",
+    "models": "weighted_equal_and_seven_experts_equal_votes",
+    "note": "成功小池支持度是因果累计证据，不是覆盖概率；门槛未过不替换默认、不改写原档、不接入生成或封存。",
+    "objective": "integrate_numbers_of_historically_successful_small_pools",
+    "pool": "top24_by_cumulative_support_ties_by_weighted_fusion",
+    "required_mean_gain_vs_weighted_and_uniform": 1.0,
+    "research_only": true,
+    "score_kind": "cross_model_support_evidence_not_probability",
+    "success_definition": "model_minimum_full_cover_prefix <= K",
+    "tickets": "v7_balanced_24_red_each_twice_plus_v8_four_blues_two_each",
+    "uniform_mean_cover_rank": 29.142857142857142,
+    "version": 9
+  },
+  "success_counts_per_model": [
+    65,
+    59,
+    68,
+    55,
+    61,
+    49,
+    60,
+    49,
+    50
+  ],
+  "windows": {
+    "confirmation_exploratory": {
+      "n": 156,
+      "scope": "事后因果探索回放，不是实际推荐样本",
+      "v9_blue_covered_periods": 41,
+      "v9_full_six_periods": 21,
+      "v9_mean_cover_prefix": 28.916666666666668,
+      "v9_mean_uniform_any_prize_rate": 0.275832716713209,
+      "weighted_full_six_periods": 16,
+      "weighted_mean_cover_prefix": 28.993589743589745
+    },
+    "development": {
+      "n": 312,
+      "scope": "事后因果探索回放，不是实际推荐样本",
+      "v9_blue_covered_periods": 87,
+      "v9_full_six_periods": 55,
+      "v9_mean_cover_prefix": 28.528846153846153,
+      "v9_mean_uniform_any_prize_rate": null,
+      "weighted_full_six_periods": 45,
+      "weighted_mean_cover_prefix": 29.208333333333332
+    },
+    "recent60": {
+      "n": 60,
+      "v9_full_six_periods": 8,
+      "v9_mean_cover_prefix": 28.966666666666665,
+      "weighted_full_six_periods": 10,
+      "weighted_mean_cover_prefix": 28.433333333333334
+    },
+    "tracking": {
+      "n": 8,
+      "scope": "事后因果探索回放，不是实际推荐样本",
+      "v9_blue_covered_periods": 1,
+      "v9_full_six_periods": 2,
+      "v9_mean_cover_prefix": 28.625,
+      "v9_mean_uniform_any_prize_rate": 0.2754933557126966,
+      "weighted_full_six_periods": 3,
+      "weighted_mean_cover_prefix": 27.5
+    }
+  }
+}
