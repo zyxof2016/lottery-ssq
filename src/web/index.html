@@ -16,7 +16,7 @@
 <div v-if="toast.show" :class="['notice','toast',toast.type==='error'?'error':'success']" :role="toast.type==='error'?'alert':'status'"><div class="row between"><span>{{ toast.message }}</span><button @click="toast.show=false" aria-label="关闭提示">×</button></div></div>
 <section v-show="currentTab==='generator'" id="panel-generator" role="tabpanel" aria-labelledby="tab-generator">
 <div class="notice">当前以单注6红＋1蓝为头奖目标；号码池包含开奖号与完整单注全中分别核对。模型排序尚未证明预测优势。<a href="?tab=reviews" @click.prevent="openTab('reviews')">查看每期实际推荐与复盘</a></div>
-<div class="workspace-intro"><div><p class="eyebrow">方案生成</p><h2>先选目标，再查看本期号码</h2><p class="muted">第 {{ overview.next_issue || '待载入' }} 期 · 依据截止 {{ overview.latest_draw?.issue || '待核对' }}</p></div><button @click="openTab('pools',{pane:'reference'})">参考5注、胆拖与融合 →</button></div>
+<div class="workspace-intro"><div><p class="eyebrow">方案生成</p><h2>先选目标，再查看本期号码</h2><p class="muted">第 {{ overview.next_issue || '待载入' }} 期 · 依据截止 {{ overview.latest_draw?.issue || '待核对' }}</p></div><button class="primary" @click="openTab('pools',{pane:'reference'})">查看本期融合推荐</button></div>
 <section class="card goal-presets" aria-label="按目标生成方案"><h2>按目标生成方案</h2><div class="grid3">
 <button id="goal-jackpot8" class="preset goal-card goal-blue" :disabled="generating||saving||syncing||!overview.next_issue" @click="generateJackpot({issue:overview.next_issue,data_sha256:overview.data_sha256})"><strong>头奖目标 · 4组6红各配2蓝</strong><small>保留完整六红组合，逐注核对6红1蓝；未证实头奖优势。</small><span class="goal-tag">8注 · 16元 · 试验</span></button>
 <button id="goal-pool16" class="preset goal-card goal-red" :disabled="generating||saving||syncing" @click="generateCompact(16)"><strong>16红＋2蓝 · 观察号码池</strong><small>先看一组精简号码，保存原池并观察全6红覆盖。</small><span class="goal-tag">号码池预览</span></button>

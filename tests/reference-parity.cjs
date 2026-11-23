@@ -16,3 +16,12 @@ const duplicate=structuredClone(record);duplicate.tickets[1]=duplicate.tickets[0
 const invalid=structuredClone(record);invalid.metadata.dantuo_plan.amount=200;assert.throws(()=>compareSource(site,invalid),/金额/);
 console.log('Reference parity: same-run numbers, issue and profile differences, order-only differences, banker roles, missing evidence, budget integrity and privacy verified');
 const {preferredFusionVersion}=require('../src/web/static/reference-pools.js');assert.equal(preferredFusionVersion('?fusion=v3','26132'),'v3');assert.equal(preferredFusionVersion('?fusion=v2','26132'),'v2');assert.equal(preferredFusionVersion('','26132'),'v2');assert.equal(preferredFusionVersion('','26127'),'v1');assert.equal(preferredFusionVersion('','26133'),'v8');assert.equal(preferredFusionVersion('','26134'),'v8');assert.equal(preferredFusionVersion('?fusion=v7','26134'),'v7');assert.equal(preferredFusionVersion('?fusion=v4','26134'),'v4');assert.equal(preferredFusionVersion('?fusion=v2','26134'),'v2');assert.equal(preferredFusionVersion('?fusion=v5','26134'),'v5');
+const {isFusionVersion}=require('../src/web/static/reference-pools.js');
+for(const version of ['v1','v2','v3','v4','v5','v7','v8']){
+  assert.equal(isFusionVersion(version),true);
+  assert.equal(preferredFusionVersion('?fusion='+version,'26135'),version);
+}
+for(const invalid of ['v6','v9','',null]){
+  assert.equal(isFusionVersion(invalid),false);
+}
+assert.equal(preferredFusionVersion('?fusion=v6','26135'),'v8');

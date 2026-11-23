@@ -1,6 +1,8 @@
 const {createApp,ref,computed,onMounted,onUnmounted,nextTick}=Vue;
 createApp({components:{JackpotFocus:SSQJackpot.component,PoolIntersection:SSQPoolIntersection.component,PoolCompression:SSQPoolCompression.component,BlueFocus:SSQBlueFocus.component,SmallRed:SSQSmallRed.component,ReferencePools:SSQReferencePools.component},setup(){
   const {url}=SSQApp,initial=new URLSearchParams(location.search);
+  const {isFusionVersion}=SSQReferencePools.parity;
+  const fusionParam=version=>isFusionVersion(version)?version:null;
   const tabs=[{id:'generator',name:'方案生成',icon:'🎯'},{id:'pools',name:'观察池',icon:''},{id:'records',name:'我的方案',icon:'📊'},{id:'reviews',name:'推荐与复盘',icon:'📋'},{id:'draws',name:'开奖历史',icon:'🎱'},{id:'backtest',name:'科学回测',icon:'🧪'},{id:'research',name:'研究评估',icon:'🔬'},{id:'settings',name:'系统设置',icon:'⚙️'}];
   const jackpotApiUrl=url('api/jackpot'),intersectionApiUrl=url('api/pools'),blueApiUrl=url('api/blue'),smallRedApiUrl=url('api/small-red');
   const currentTab=ref(tabs.some(t=>t.id===initial.get('tab'))?initial.get('tab'):'generator');
@@ -12,18 +14,28 @@ createApp({components:{JackpotFocus:SSQJackpot.component,PoolIntersection:SSQPoo
   const activePreset=ref(''),plan=ref(null),poolPreview=ref(null),lastRequest=ref(null),planSaved=ref(false),generating=ref(false),saving=ref(false),syncing=ref(false);
   const records=ref([]),recordFilter=ref('all'),recordsLoading=ref(false),settling=ref(false),draws=ref([]),drawBefore=ref(''),moreDraws=ref(true),drawsLoading=ref(false);
   const tests=ref([]),reportCards=ref([]),reportLoading=ref(false),reportLoaded=ref(false),verdict=ref('选择评估后显示原冻结确认窗结果。');
-  const poolPane=ref(initial.get('pane')||'small');
-  const poolsSrc=ref(url('pools',{embed:1,pane:poolPane.value}));
-  const poolsStandalone=computed(()=>{const u=new URL(poolsSrc.value);u.searchParams.delete('embed');u.searchParams.set('pane',poolPane.value);return u.href;});
-  const reviewsSrc=ref(url('reviews',{embed:1,issue:initial.get('issue'),archive:initial.get('archive'),strategy:initial.get('strategy')}));
+  const initialPane=initial.get('pane')||'small';
+  const poolsSrc=ref(url('pools',{embed:1,pane:initialPane,fusion:fusionParam(initial.get('fusion'))}));
+  const reviewsSrc=ref(url('reviews',{
+    embed:1,issue:initial.get('issue'),archive:initial.get('archive'),strategy:initial.get('strategy'),
+    fusion:fusionParam(initial.get('fusion')),section:initial.get('section')==='fusion'?'fusion':null,
+  }));
   const researchSrc=ref(url('research',{embed:1,view:initial.get('view')||'pools'})),openedFrames=ref({pools:false,reviews:false,research:false});
+  const frameRoutes={pools:ref(poolsSrc.value),reviews:ref(reviewsSrc.value),research:ref(researchSrc.value)};
+  const frameSources={pools:poolsSrc,reviews:reviewsSrc,research:researchSrc};
+  function standalone(route){
+    const address=new URL(route.value);
+    address.searchParams.delete('embed');
+    return address.href;
+  }
+  const poolsStandalone=computed(()=>standalone(frameRoutes.pools));
   const currentResult=computed(()=>poolPreview.value||plan.value),generatedIssue=computed(()=>currentResult.value?.issue||''),resultArchive=computed(()=>currentResult.value?.recommendation_archive);
   const poolCanFreeze=computed(()=>!!cycle.value?.publish&&poolPreview.value?.issue===cycle.value?.target);
   const stalePreview=computed(()=>!!currentResult.value&&!!overview.value.data_sha256&&currentResult.value.input_history_sha256!==overview.value.data_sha256);
   const planRedUnion=computed(()=>[...new Set((plan.value?.tickets||[]).flatMap(t=>t.red))]),planBlueUnion=computed(()=>[...new Set((plan.value?.tickets||[]).map(t=>t.blue))]);
   const shownRecords=computed(()=>records.value.filter(r=>recordFilter.value==='all'||r.status===recordFilter.value));
   const scoredCover=computed(()=>{const rs=records.value.filter(r=>r.status==='scored'&&r.coverage?.red_hit_n!=null);return rs.length?(rs.reduce((s,r)=>s+r.coverage.red_hit_n,0)/rs.length).toFixed(2)+'/6':'—';});
-  const reviewsStandalone=computed(()=>{const u=new URL(reviewsSrc.value);u.searchParams.delete('embed');return u.href;}),researchStandalone=computed(()=>{const u=new URL(researchSrc.value);u.searchParams.delete('embed');return u.href;}),researchUrl=url('research',{view:'observations'});
+  const reviewsStandalone=computed(()=>standalone(frameRoutes.reviews)),researchStandalone=computed(()=>standalone(frameRoutes.research)),researchUrl=url('research',{view:'observations'});
   const pad=n=>String(n).padStart(2,'0'),f4=n=>n==null?'—':Number(n).toFixed(4),percent=n=>n==null?'—':(n*100).toFixed(2)+'%',freezeTime=n=>n?new Date(n*1000).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):'时间未留存';
   let toastTimer;
   function showToast(message,type='success'){clearTimeout(toastTimer);toast.value={show:true,message,type};toastTimer=setTimeout(()=>toast.value.show=false,6000);}
@@ -33,16 +45,39 @@ createApp({components:{JackpotFocus:SSQJackpot.component,PoolIntersection:SSQPoo
   async function loadCycle(){cycle.value=await read('api/cycle');if(!deadline.value)deadline.value=cycle.value.deadline?.replace(' ','T')||'';}
   async function loadRecords(){recordsLoading.value=true;try{records.value=(await read('api/records')).records;}catch(e){showToast(e.message,'error');}finally{recordsLoading.value=false;}}
   async function loadDraws(before=''){if(drawsLoading.value)return;drawsLoading.value=true;try{const q=new URLSearchParams({limit:30});if(before)q.set('before',before);const d=await read('api/draws?'+q);draws.value=before?draws.value.concat(d.rows):d.rows;drawBefore.value=d.rows.at(-1)?.issue||'';moreDraws.value=d.rows.length===30;}catch(e){showToast(e.message,'error');}finally{drawsLoading.value=false;}}
-  function setRoute(tab,params={}){const u=new URL(location.href);u.search='';if(tab!=='generator')u.searchParams.set('tab',tab);for(const [key,value]of Object.entries(params))if(['issue','archive','strategy','view','pane'].includes(key)&&value)u.searchParams.set(key,value);history.replaceState(null,'',u);}
+  const frameRouteKeys={pools:['pane','fusion'],reviews:['issue','archive','strategy','fusion','section'],research:['view']};
+  function setRoute(tab){
+    const address=new URL(location.href);
+    address.search='';
+    if(tab!=='generator')address.searchParams.set('tab',tab);
+    if(frameRoutes[tab]){
+      const params=new URL(frameRoutes[tab].value).searchParams;
+      for(const key of frameRouteKeys[tab]){
+        const value=params.get(key);
+        if(value)address.searchParams.set(key,value);
+      }
+    }
+    history.replaceState(null,'',address);
+  }
   async function openTab(id,params={}){
     if(!tabs.some(t=>t.id===id))return;
     const changed=currentTab.value!==id;currentTab.value=id;nextTick(()=>document.getElementById('tab-'+id)?.scrollIntoView({block:'nearest',inline:'nearest'}));if(changed)window.scrollTo({top:0,behavior:'instant'});
-    if(id==='pools'){const u=new URL(poolsSrc.value);if(params.pane){u.searchParams.set('pane',params.pane);poolPane.value=params.pane;}poolsSrc.value=u.href;openedFrames.value.pools=true;setRoute(id,{pane:poolPane.value});}
-    else if(id==='reviews'||id==='research'){
-      if(Object.keys(params).length){const old=new URL(id==='reviews'?reviewsSrc.value:researchSrc.value);if(id==='reviews'){for(const key of ['issue','archive','strategy'])old.searchParams.delete(key);}for(const [k,v]of Object.entries(params))if(['issue','archive','strategy','view'].includes(k)&&v)old.searchParams.set(k,v);if(id==='reviews')reviewsSrc.value=old.href;else researchSrc.value=old.href;}
+    if(frameRoutes[id]){
+      if(Object.keys(params).length){
+        const address=new URL(frameRoutes[id].value);
+        if(id==='reviews'&&params.issue){
+          for(const key of frameRouteKeys.reviews)address.searchParams.delete(key);
+        }
+        for(const key of frameRouteKeys[id]){
+          const value=key==='fusion'?fusionParam(params[key]):params[key];
+          if(value)address.searchParams.set(key,value);
+        }
+        frameRoutes[id].value=address.href;
+        frameSources[id].value=address.href;
+      }
       openedFrames.value[id]=true;
-      const src=new URL(id==='reviews'?reviewsSrc.value:researchSrc.value);setRoute(id,Object.fromEntries(src.searchParams));
-    }else setRoute(id);
+    }
+    setRoute(id);
     if(id==='records')await loadRecords();
     if(id==='backtest'&&!reportLoaded.value)await loadReport(false);
     if(id==='settings'){try{await loadCycle();}catch(e){showToast(e.message,'error');}}
@@ -162,7 +197,12 @@ createApp({components:{JackpotFocus:SSQJackpot.component,PoolIntersection:SSQPoo
     showToast('号码文本已复制。');
   }
   async function settle(){if(settling.value)return;settling.value=true;try{const data=await post('api/settle');records.value=data.records;await loadOverview();refreshFrame('reviews');showToast(data.errors?.length?data.errors.join('；'):`新增${data.settled}条对奖记录。`,data.errors?.length?'error':'success');}catch(e){showToast(e.message,'error');}finally{settling.value=false;}}
-  function refreshFrame(tab){if(!openedFrames.value[tab])return;const source={reviews:reviewsSrc,research:researchSrc,pools:poolsSrc}[tab];const u=new URL(source.value);if(tab==='pools')u.searchParams.set('pane',poolPane.value);u.searchParams.set('refresh',Date.now());source.value=u.href;}
+  function refreshFrame(tab){
+    if(!openedFrames.value[tab])return;
+    const address=new URL(frameRoutes[tab].value);
+    address.searchParams.set('refresh',Date.now());
+    frameSources[tab].value=address.href;
+  }
   async function syncDraws(){if(syncing.value||generating.value||saving.value)return;syncing.value=true;try{const data=await post('api/sync');await Promise.all([loadOverview(),loadRecords(),loadDraws(),loadCycle()]);reportLoaded.value=false;refreshFrame('reviews');refreshFrame('research');refreshFrame('pools');showToast(`已同步到${data.latest_draw.issue}期，共${data.n}期。`);}catch(e){showToast(e.message,'error');}finally{syncing.value=false;}}
   async function loadReport(force=false){if(reportLoading.value)return;reportLoading.value=true;try{const d=force?await post('api/backtest'):await read('api/report'),s=d.summary,c=s.confirmation;tests.value=s.tests||[];const good=tests.value.filter(t=>t.p_holm<.05&&(t.better_if_positive?t.estimate>0:t.estimate<0));verdict.value=good.length?`确认窗有${good.length}项经Holm校正后指向有利方向。`:'确认窗的预注册检验经Holm校正后，没有一项指向稳定优势。';reportCards.value=[{k:'确认窗',v:`${c.start}–${c.end}`,s:`${c.n}期`},{k:'有效独立源',v:f4(s.n_eff),s:'参与比'},{k:'随机单注中红期望',v:'1.09',s:'6×6/33'},{k:'可检出超额',v:f4(s.mde.red_hits),s:'80%功效'}];reportLoaded.value=true;}catch(e){showToast(e.message,'error');}finally{reportLoading.value=false;}}
   const hitRed=(n,r)=>r.draw?.red.includes(n)===true,hitBlue=(n,r)=>r.draw?.blue===n;
@@ -173,7 +213,17 @@ createApp({components:{JackpotFocus:SSQJackpot.component,PoolIntersection:SSQPoo
     const data=event.data;if(!data||typeof data!=='object')return;
     if(data.type==='ssq:generate-small')generateSmall(data.choice||{});
     if(data.type==='ssq:generate-blue')generateBlue(data.choice||{});
-    if(data.type==='ssq:pool-pane'&&data.pane&&currentTab.value==='pools'){poolPane.value=data.pane;setRoute('pools',{pane:data.pane});}
+    if(data.type==='ssq:route'){
+      const tab=frame.closest('[role="tabpanel"]')?.id.slice('panel-'.length);
+      if(!frameRoutes[tab]||typeof data.href!=='string')return;
+      let address;
+      try{address=new URL(data.href);}catch{return;}
+      const expected=new URL(frameRoutes[tab].value);
+      if(address.origin!==expected.origin||address.pathname!==expected.pathname)return;
+      address.searchParams.delete('refresh');
+      frameRoutes[tab].value=address.href;
+      if(tab===currentTab.value)setRoute(tab);
+    }
     if(data.type==='ssq:resize'&&Number.isFinite(data.height))frame.style.height=Math.max(500,Math.min(30000,data.height))+'px';
     if(data.type==='ssq:navigate'&&tabs.some(t=>t.id===data.tab))openTab(data.tab,data.params||{});
   }

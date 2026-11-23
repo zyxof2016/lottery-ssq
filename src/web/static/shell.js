@@ -11,7 +11,11 @@
     for (const [key, value] of Object.entries(params)) if (value != null && value !== '') u.searchParams.set(key, value);
     return u.href;
   };
-  window.SSQApp = {base, embedded, url};
+  function replaceRoute(route) {
+    history.replaceState(history.state, '', route);
+    if (embedded) parent.postMessage({type:'ssq:route', href:location.href}, location.origin);
+  }
+  window.SSQApp = {base, embedded, url, replaceRoute};
   if (!embedded) return;
   let lastHeight = 0;
   const resize = () => {
