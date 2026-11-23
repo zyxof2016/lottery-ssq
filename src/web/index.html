@@ -26,9 +26,9 @@
 <button id="goal-compound7" class="preset goal-card" :disabled="generating||saving||syncing" @click="applyPreset('compound7')"><strong>7红复式</strong><small>选择7个红球配1蓝，完整展开7注。</small><span class="goal-tag">7注 · 14元</span></button>
 </div></section>
 <jackpot-focus :api-url="jackpotApiUrl" :busy="generating||saving||syncing" @generate="generateJackpot"></jackpot-focus>
-<form class="card" @submit.prevent="generateCustom"><h2>自定义参数生成</h2><div class="grid4">
+<form id="custom-plan" class="card" @submit.prevent="generateCustom"><h2>自定义参数生成</h2><div class="grid4">
 <label class="field">选择玩法<input value="双色球 · 6 红 + 1 蓝" readonly></label>
-<label class="field" for="plan-mode">投注形态<select id="plan-mode" v-model="form.mode" @change="activePreset='';form.ranking_model=['frozen','jackpot'].includes(form.mode)?'weighted':form.ranking_model;form.blue_model='weighted'">
+<label class="field" for="plan-mode">投注形态<select id="plan-mode" v-model="form.mode" @change="changePlanMode">
 <option value="jackpot">头奖目标单式 · 8注</option><option value="pool_observation">分档号码池观察</option><option value="balanced">均衡覆盖单式</option><option value="single">单式多注</option><option value="compound_red">红球复式</option><option value="compound_blue">蓝球复式</option><option value="dantuo">胆拖投注</option><option value="frozen">协议冻结票组</option></select></label>
 <label class="field" for="ranking-model">红球排名<select id="ranking-model" v-model="form.ranking_model" :disabled="['frozen','jackpot'].includes(form.mode)"><option value="fusion_v4">融合v4口径 · EWMA单计 · 默认</option><option value="small_recent">小池近况融合 · 16红内试验</option><option value="conditional_gap">条件频率 · 24红试验</option><option value="repeat_calibrated">重号偏置校准 · 试验</option><option value="dual_support">双专家支持 · 24红试验</option><option value="rank_consensus">名次共识 · 试验</option><option value="scenario_cover">全6情景覆盖 · 试验</option><option value="robust_cover">三窗稳健覆盖 · 试验</option><option value="equal">等权融合 · 对照</option><option value="weighted">协议加权融合</option></select></label>
 <label class="field" for="target-issue">目标期号<input id="target-issue" v-model="target" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" required placeholder="如 26118"></label>

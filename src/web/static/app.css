@@ -74,3 +74,7 @@
 .is-embedded #independent-reference{scroll-margin-top:130px}
 @media(max-width:760px){.fusion-tickets-compact{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:350px){.fusion-summary{grid-template-columns:minmax(0,1fr)}.fusion-summary button{justify-self:start}.fusion-tickets-compact li{grid-template-columns:minmax(0,1fr)}.fusion-tickets-compact small{grid-column:1}}
+.reference-budget-shortcut{min-height:44px;color:#b91c1c;border-color:#fecaca}
+.reference-compound-links{display:flex;align-items:center;flex-wrap:wrap;gap:0 16px}
+.reference-compound-links a{display:inline-flex;align-items:center;min-height:44px}
+#custom-plan,.is-embedded #reference-budget{scroll-margin-top:130px}

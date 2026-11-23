@@ -87,15 +87,17 @@
   props:{bundle:{type:Object,default:null},issue:{type:String,default:''},archived:{type:Boolean,default:false}},
   setup(props){
    const message=Vue.ref(''),plan=Vue.computed(()=>props.bundle?.plan);
+   const kind=Vue.computed(()=>plan.value?.red_dan.length?'胆拖':'复式');
+   Vue.watch(()=>props.issue,()=>{message.value='';});
    async function copy(expanded){const p=plan.value;if(!p)return;const label=p.red_dan.length?'参考原始胆拖':'参考原始预算复式';
     const body=expanded?p.tickets.map((t,i)=>(i+1)+'. '+t.red.map(pad).join(' ')+' + '+pad(t.blue)).join('\n'):
      (p.red_dan.length?'红胆：'+p.red_dan.map(pad).join(' ')+'\n红拖：':'复式红球：')+p.red_tuo.map(pad).join(' ')+'\n蓝球：'+p.blues.map(pad).join(' ');
     try{await copyText('双色球 '+props.issue+' 期 · '+label+'\n'+body+'\n'+p.bet_count+'注，共'+p.cost+'元（每注2元）\n'+(props.bundle.status==='frozen'?'来自参考同次原始报告的独立封存档。':'原始报告预览，尚未封存。'));message.value=expanded?'完整展开票面已复制。':'预算方案已复制。';}catch(e){message.value=e.message||'复制未成功。';}
    }
-   return{plan,message,copy,pad,nullable,flag,time,fileUrl};
+   return{plan,kind,message,copy,pad,nullable,flag,time,fileUrl};
   },
   template:`<section class="reference-dantuo" data-reference-dantuo aria-label="参考原始预算方案">
-   <h4>参考同次原始方案 · 胆拖／复式</h4>
+   <h4 v-if="plan">参考原始{{kind}}</h4>
    <template v-if="plan"><p class="muted">参考程序同次生成的原始方案，原样保留胆码、拖码和蓝球。原始5注与本方案可选择一种。</p>
     <p class="reference-buyable-budget"><strong>{{plan.bet_count}}注 · {{plan.cost}}元</strong><span>{{plan.red_dan.length?plan.red_dan.length+'胆＋'+plan.red_tuo.length+'拖':plan.red_tuo.length+'红复式'}}＋{{plan.blues.length}}蓝；每注2元。</span></p>
     <div v-if="plan.red_dan.length" class="reference-plan-row"><b>红胆</b><div class="balls"><span v-for="n in plan.red_dan" :key="n" class="ball selected red">{{pad(n)}}</span></div></div>
@@ -104,10 +106,10 @@
     <p class="muted">展开 C({{plan.red_tuo.length}},{{6-plan.red_dan.length}}) × {{plan.blues.length}} ＝ {{plan.bet_count}}注。</p>
     <p v-if="bundle.status==='frozen'" class="muted">预算方案独立保存于{{time(bundle.published_at_unix)}}。</p><p v-else class="muted">原始报告预览，预算方案尚未独立封存。</p>
     <p v-if="plan.summary?.max_ticket_red_hits!=null" class="muted">红胆命中{{plan.dan_hits}}/{{plan.red_dan.length}} · 红球并集中{{plan.red_union_hits}}/6 · 最佳单注中{{plan.summary.max_ticket_red_hits}}红 · 常规中奖{{plan.summary.prize_tickets}}注 · 已知固定奖金{{plan.summary.fixed_prize}}元。浮动奖金与特别奖另核。</p>
-    <div class="row reference-actions"><button type="button" @click="copy(false)">复制胆拖／复式方案</button><button type="button" @click="copy(true)">复制展开{{plan.bet_count}}注</button></div>
+    <div class="row reference-actions"><button type="button" @click="copy(false)">复制参考{{kind}}</button><button type="button" @click="copy(true)">复制展开{{plan.bet_count}}注</button></div>
     <details class="reference-union"><summary>查看展开{{plan.bet_count}}注完整票面与逐注对奖</summary><ol class="reference-tickets" aria-label="参考预算方案展开票面"><li v-for="(ticket,index) in plan.tickets" :key="index" data-dantuo-ticket><span class="reference-ticket-label">第{{index+1}}注</span><div class="balls"><span v-for="n in ticket.red" :key="n" class="ball selected red">{{pad(n)}}</span><span class="reference-plus">+</span><span class="ball selected blue">{{pad(ticket.blue)}}</span></div><small class="muted">中红{{nullable(plan.ticket_results?.[index]?.red_hits)}}/6 · 中蓝{{flag(plan.ticket_results?.[index]?.blue_hit)}}<template v-if="plan.ticket_results?.[index]?.red_hits!=null"> · {{plan.ticket_results[index].prize_level?plan.ticket_results[index].prize_level+'等奖':plan.ticket_results[index].special_prize_candidate?'福运奖待核实':'未中常规奖'}}</template></small></li></ol></details>
-    <div class="row reference-actions"><a v-if="bundle.raw_file" :href="fileUrl(bundle.raw_file)">参考胆拖原档JSON</a><a v-if="bundle.review_file" :href="fileUrl(bundle.review_file)">参考胆拖逐注复盘JSON</a></div>
-   </template><p v-else class="muted">{{archived?'旧档未保存参考胆拖，不补造历史号码。':bundle?.reason||'等待参考程序导出原始胆拖方案。'}}</p>
+    <div class="row reference-actions"><a v-if="bundle.raw_file" :href="fileUrl(bundle.raw_file)">参考{{kind}}原档 JSON</a><a v-if="bundle.review_file" :href="fileUrl(bundle.review_file)">参考{{kind}}逐注复盘 JSON</a></div>
+   </template><p v-else class="muted">{{archived?'本期缺少参考复式或胆拖原档。':bundle?.reason||'等待参考程序导出本期预算方案。'}}</p>
    <p v-if="message" class="muted" role="status">{{message}}</p>
   </section>`
  };
@@ -397,6 +399,17 @@
   emits:['fusion-version-change'],
   setup(props,{emit}) {
    const count=Vue.ref(16),message=Vue.ref(''),referenceOpened=Vue.ref(false);
+   const budgetDetails=Vue.ref(null);
+   const budgetPlan=Vue.computed(()=>props.dantuoBundle?.plan);
+   const redCompoundUrl=SSQApp.url('',{mode:'compound_red'});
+   const blueCompoundUrl=SSQApp.url('',{mode:'compound_blue'});
+   function openBudget(){
+    const details=budgetDetails.value;
+    if(!details)return;
+    details.open=true;
+    details.querySelector('summary').focus({preventScroll:true});
+    details.scrollIntoView({block:'start'});
+   }
    const fusionVersion=Vue.ref(preferredFusionVersion(global.location?.search,props.issue));
    const periodDefault=Vue.computed(()=>defaultFusionVersion(props.issue));
    function chooseFusionVersion(version){
@@ -423,12 +436,13 @@
     try{await copyText('双色球 '+props.issue+' 期 · '+title+'\n'+body+'\n'+note+'\n'+(sealed?'完整号码来自首次封存档。':'当前完整票面预览，尚未封存。'));message.value=title+'已复制。';}
     catch (e) { message.value = e.message || '复制未成功，请手动选择号码。'; }
    }
-   return {count, message, original, pool, ticketPlan, scored, copy, pad, sorted, nullable, flag,fusionVersion,fusionVersions,periodDefault,chooseFusionVersion,referenceOpened};
+   return {count, message, original, pool, ticketPlan, scored, copy, pad, sorted, nullable, flag,fusionVersion,fusionVersions,periodDefault,chooseFusionVersion,referenceOpened,budgetDetails,budgetPlan,redCompoundUrl,blueCompoundUrl,openBudget};
   },
   template:`<div class="reference-numbers">
     <article class="reference-box" data-reference-model="reference_fused16">
      <div class="fusion-panel-heading">
       <h3>第 {{ issue }} 期融合票面</h3>
+      <button type="button" class="reference-budget-shortcut" aria-controls="reference-budget" @click="openBudget">复式与胆拖</button>
       <div class="fusion-version"><label for="fusion-version">版本</label>
        <select id="fusion-version" :value="fusionVersion" @change="chooseFusionVersion($event.target.value)">
         <option v-for="version in fusionVersions" :key="version.id" :value="version.id">{{version.id}} · {{version.label}}{{version.id===periodDefault?'（本期默认）':''}}</option>
@@ -451,15 +465,22 @@
      </template>
      <fusion-dantuo :issue="issue" :snapshot="snapshot"></fusion-dantuo></template>
     </article>
+    <details id="reference-budget" ref="budgetDetails" class="reference-box reference-secondary">
+     <summary>参考复式与胆拖<span v-if="budgetPlan" class="muted"> · {{budgetPlan.red_dan.length?'胆拖':'复式'}} {{budgetPlan.bet_count}} 注，{{budgetPlan.cost}} 元</span></summary>
+     <div class="detail-content">
+      <div class="reference-compound-links"><a :href="redCompoundUrl">自定义红球复式</a><a :href="blueCompoundUrl">自定义蓝球复式</a></div>
+      <reference-dantuo :bundle="dantuoBundle" :issue="issue" :archived="archived"></reference-dantuo>
+     </div>
+    </details>
     <details class="reference-box reference-secondary" data-reference-model="reference_original5" @toggle="referenceOpened=referenceOpened||$event.target.open">
-     <summary>参考原始 5 注与预算方案</summary><div class="detail-content"><p><strong>原始单式 5 注 · 10 元</strong></p>
+     <summary>参考原始 5 注</summary><div class="detail-content"><p><strong>原始单式 5 注 · 10 元</strong></p>
      <p class="muted">5注合计覆盖 <b>{{ original.red_count }} 个不同红球</b>、{{ original.blue_count }} 个蓝球。</p>
      <ol class="reference-tickets" aria-label="参考代码原始5注票面">
       <li v-for="(ticket,index) in original.tickets" :key="index"><span class="reference-ticket-label">第{{ index+1 }}注</span><div class="balls"><span v-for="n in ticket.red" :key="'r'+n" class="ball selected red">{{ pad(n) }}</span><span class="reference-plus" aria-hidden="true">+</span><span class="ball selected blue">{{ pad(ticket.blue) }}</span></div><small v-if="scored" class="muted">中红 {{ nullable(original.ticket_results?.[index]?.red_hits) }}/6 · 中蓝 {{ flag(original.ticket_results?.[index]?.blue_hit) }}</small></li>
      </ol>
      <p v-if="scored" class="muted">并集中红 {{ nullable(original.red_hits) }}/6 · 全6红 {{ flag(original.full_red) }}<br>最佳单注中红 {{ nullable(original.best_ticket_red_hits) }}/6 · 蓝球入池 {{ flag(original.blue_hit) }}</p>
      <details class="reference-union"><summary>查看{{ original.red_count }}红并集及同数量对照</summary><p class="reference-number-text">{{ sorted(original.reds).map(pad).join(' ') }}</p><p class="muted">原加权融合榜同取{{ original.red_count }}红：{{ sorted(original.baseline.reds).map(pad).join(' ') }}</p><p v-if="scored" class="muted">同数量原榜中红 {{ nullable(original.baseline.red_hits) }}/6 · 全6红 {{ flag(original.baseline.full_red) }}</p></details>
-     <button type="button" @click="copy('reference')">复制原始5注</button><reference-dantuo :bundle="dantuoBundle" :issue="issue" :archived="archived"></reference-dantuo>
+     <button type="button" @click="copy('reference')">复制原始5注</button>
      <reference-provenance v-if="referenceOpened" :issue="issue" :snapshot="snapshot"></reference-provenance>
     </div></details>
    <p v-if="message" class="muted reference-message" role="status">{{ message }}</p>
@@ -500,7 +521,8 @@
    const cells=Vue.computed(()=>report.value?.actual?.cells || []);
    const archive=Vue.computed(()=>report.value?.next_archive);
    Vue.onMounted(load);
-   return {report,error,message,loading,freezing,load,freeze,download,archive,cells,reviewUrl,historyUrl,lastArchive,waiting,fileUrl,percent,time,fusionVersion};
+   const redCompoundUrl=SSQApp.url('',{mode:'compound_red'});
+   return {report,error,message,loading,freezing,load,freeze,download,archive,cells,reviewUrl,historyUrl,lastArchive,waiting,fileUrl,percent,time,fusionVersion,redCompoundUrl};
   },
   template:`<section class="card reference-observation" id="reference-pools" aria-label="参考代码与融合观察池">
    <div class="fusion-page-heading">
@@ -515,6 +537,7 @@
      <p :role="report.status==='error'?'alert':'status'">{{report.reason || '参考结果准备好后将显示本期融合票面。'}}</p>
      <p v-if="waiting" class="muted">页面打开时会自动检查进度。<template v-if="report.job?.started_at_unix&&report.status==='running'">开始于 {{time(report.job.started_at_unix)}}。</template></p>
      <button type="button" :disabled="loading" @click="load">{{loading?'检查中…':'立即检查'}}</button>
+     <a :href="redCompoundUrl">自定义复式</a>
     </div>
     <template v-else>
      <reference-numbers :dantuo-bundle="report.dantuo" :ticket-bundle="report.fusion_tickets" :snapshot="report.next" :issue="report.target" :archived="!!archive" live @fusion-version-change="fusionVersion=$event"></reference-numbers>
