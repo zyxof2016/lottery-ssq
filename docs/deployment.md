@@ -1,5 +1,7 @@
 # 现有生产部署
 
+2026-11-23 参考组件恢复。部分 11 月 19 日后的发布目录缺少 `reference/`，导致参考任务无法启动，26134 缺少参考和融合原档。恢复原目录后，按原规则计算并封存当前期。发布前新增参考包校验，覆盖二进制之外的运行依赖。
+
 2026-11-19 跨模型成功小池共识研究v9：只读研究模块与example fusion_v9入库，无API/封存/生成/默认变更；确认窗全6入24改善但预声明门槛未过，不晋升。发布仅同步二进制与文档，只读核验健康与旧档字节。见 [v9研究](fusion-v9-2026-11-19.md)。
 
 2026-11-19 融合覆盖24·压缩蓝v8（用户决定4蓝×2注）：新冻结版本v8沿用v7的24红每红2次票面与v4评分，蓝取冻结蓝v2前4每蓝2注同序配对；独立封存recommendations/fusion-v8及原reviews目录，沿用原cycle与参考回调不新增timer；preferredFusionVersion自26133起默认v8；v7/v4原档与全部历史档案不变。发布先只读核对既有接口与运行文件，再为26133首封v8并核验默认与旧档字节。见 [v8复盘](fusion-v8-2026-11-19.md)。
@@ -60,7 +62,7 @@
 
 入口为 <http://1.14.208.189/ssq/>，HTTPS 同路径也可访问。通过 `ssh ubuntu@1.14.208.189` 使用现有 SSH 密钥连接，管理服务可用 `sudo -n systemctl`。不要在仓库中保存密钥或其他凭据。
 
-应用根目录为 `/data/apps/lottery-ssq`，`current` 是指向 `releases/` 内某个版本目录的符号链接。版本目录包含 `ssq` 二进制和 `data/ssq.csv`。二进制内置网页与静态资源，无需单独上传前端。
+应用根目录为 `/data/apps/lottery-ssq`，`current` 是指向 `releases/` 内某个版本目录的符号链接。版本目录包含 `ssq` 二进制、`data/ssq.csv` 和完整的 `reference/`。二进制内置网页与静态资源，参考计算从版本目录单独加载 Python 组件。
 
 `ssq-web.service` 以 `ubuntu` 运行，监听 `127.0.0.1:6791`；Nginx 将 `/ssq/` 代理到该端口。`ssq-cycle.timer` 每 30 分钟调用 `ssq-cycle.service`，继续使用原有同步、封存和复盘规则。两个服务都从 `current/ssq` 启动，开奖文件为 `current/data/ssq.csv`，审计和发布参数分别为根目录下的 `audit/log.jsonl` 与 `publish`。
 
@@ -69,10 +71,19 @@
 ## 发布步骤
 
 1. 核对实际分支和远端，完成本次改动所需验证，提交并推送。使用 `cargo build --release --locked` 构建；生产环境为 Linux x86_64、glibc 2.39，上传前确认二进制兼容。
-2. 新建带提交号与时间的版本目录，上传二进制和版本清单，校验 SHA256。保存切换前的 `current` 目标和运行数据备份。
-3. 暂停 `ssq-cycle.timer`，等当前 `ssq-cycle.service` 结束。短暂停止网页服务后，将生产正在使用的开奖 CSV 复制到新版本；保留生产数据，不用仓库内的快照替换它。
-4. 通过同目录临时符号链接与 `mv -T` 原子切换 `current`，启动 `ssq-web.service`。运行 `systemctl is-active ssq-web.service`、访问 `/ssq/health` 和 `/ssq/api/overview`，并核对网页、静态资源及本次新增功能。
-5. 失败时将 `current` 原子恢复到原目标并重启网页服务。成功或回滚后均恢复原本启用的 `ssq-cycle.timer`，保留旧版本和备份。
+2. 新建带提交号与时间的版本目录，上传二进制和版本清单，校验 SHA256。每次发布都用该提交的 `git archive <commit> reference scripts/check-reference-release.py` 打包参考组件与检查器，在新版本目录解包。切换前用下方命令核对新版本和回滚目标的参考包。保存切换前的 `current` 目标和运行数据备份。
+3. 暂停 `ssq-cycle.timer` 和 `ssq-reference.timer`，等待两个对应 service 运行结束。短暂停止网页服务后，将生产正在使用的开奖 CSV 复制到新版本。
+4. 通过同目录临时符号链接与 `mv -T` 原子切换 `current`，启动 `ssq-web.service`。等待 `/ssq/health` 就绪后，核对 `/ssq/api/overview`、网页与静态资源、参考包和当前融合入口。
+5. 失败时将 `current` 原子恢复到原目标并重启网页服务。成功或回滚后均恢复原本启用的两个 timer，保留旧版本和备份。
+
+在服务器应用根目录执行，`$ssq_release` 为新版本目录的路径。
+
+```sh
+reference-venv/bin/python -B "$ssq_release/scripts/check-reference-release.py" "$ssq_release"
+reference-venv/bin/python -B "$ssq_release/scripts/check-reference-release.py" current
+```
+
+查看 `ssq-reference.service` 最近一次任务结果和 `/ssq/api/reference-pools` 的当前期状态。已封存的期号可从融合入口核对同一期票面。新期仍在运算时，以后台任务状态和相同输入摘要核对进度，完成后再核对原档。
 
 本地存在而生产缺少的真实推荐档案，只能在核对原始摘要、输入历史及目标期号后单独导入；用原子创建保证不覆盖同名档案。导入不改原文件内容、推荐时间或独立时间证明字段。临时验证目录及模拟开奖不得上传到生产。
 
