@@ -67,3 +67,5 @@ pub mod fusion_v7;
 pub mod fusion_model_v8;
 pub mod fusion_v8;
 pub mod fusion_v9_study;
+mod v36_model;
+mod v36_observation;

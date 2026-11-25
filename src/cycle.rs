@@ -101,6 +101,16 @@ pub fn run_cycle(data: &Path, audit: &Path, publish_dir: &Path, review_dir: &Pat
     if gate.publish {match crate::blue_v2::freeze(&recommendation_dir,&draws,&gate.target,gate.deadline_unix){Ok(v)=>notes.push(format!("蓝球v2 {}",v["status"])),Err(e)=>notes.push(format!("蓝球v2未封存：{e}"))}}
     let blue_v2=crate::blue_v2::settle(&recommendation_dir,&draws);notes.push(format!("蓝球v2复盘新增 {} 份",blue_v2.settled));notes.extend(blue_v2.errors);
     let calibration=crate::calibration::settle(&recommendation_dir,&draws);notes.push(format!("完整概率校准复盘新增 {} 份",calibration.settled));notes.extend(calibration.errors);
+    if gate.publish {
+        match crate::v36_observation::freeze(&recommendation_dir, &draws, &gate.target, gate.deadline_unix) {
+            Ok(true) => notes.push(format!("V3.6 评分观察 {} 已首次封存", gate.target)),
+            Ok(false) => notes.push(format!("V3.6 评分观察 {} 已有原档", gate.target)),
+            Err(e) => notes.push(format!("V3.6 评分观察未封存：{e}")),
+        }
+    }
+    let v36 = crate::v36_observation::settle(&recommendation_dir, &draws);
+    notes.push(format!("V3.6 评分观察复盘新增 {} 份", v36.settled));
+    notes.extend(v36.errors);
     let settlement = recommendations::settle_archives(&recommendation_dir, &draws);
     notes.push(format!("实际推荐复盘新增 {} 份", settlement.settled));
     notes.extend(settlement.errors);

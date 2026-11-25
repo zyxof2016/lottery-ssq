@@ -262,6 +262,17 @@ fn route(app: &App, method: &str, path: &str, query: &str, body: &str) -> (u16, 
             let issue = &path["/api/rank-board/".len()..];
             load_csv(&app.data).and_then(|draws| crate::rank_board::issue(&recommendation_dir(app), &draws, issue))
         }
+        ("GET", "/api/research/v36") => load_csv(&app.data)
+            .and_then(|draws| crate::v36_observation::report(&recommendation_dir(app), &draws)),
+        ("GET", path) if path.starts_with("/api/research/v36/archives/") => {
+            let issue = &path["/api/research/v36/archives/".len()..];
+            let result = load_csv(&app.data)
+                .and_then(|draws| crate::v36_observation::artifact(&recommendation_dir(app), &draws, issue));
+            match result {
+                Ok(bytes) => return (200, "application/json", bytes),
+                Err(e) => Err(e),
+            }
+        }
         ("GET", "/api/pools") => load_csv(&app.data).and_then(|draws| pool::analyze(&draws)),
         ("GET", "/api/pool-algorithms") => load_csv(&app.data).and_then(|draws| crate::pool_algorithms::cached_analyze(&draws)),
         ("GET", "/api/full6") => load_csv(&app.data).and_then(|draws| crate::conditional::analyze(&draws)),
