@@ -466,17 +466,32 @@ fn save_plan_value(app: &App, body: &str) -> Result<Value, String> {
 fn build_requested(body: &str, draws: &[Draw]) -> Result<(Plan, crate::eval::Prepared), String> {
     let req = parse_gen(body)?;
     if req.expected_data_sha256.as_deref().is_some_and(|expected|expected!=crate::draw::data_sha256(draws)){return Err("开奖输入已变化，请刷新推荐预览后重新生成".into());}
-    let spec = plan::resolve(
-        req.preset.as_deref(),
-        req.mode.as_deref(),
-        req.tickets,
-        req.pool,
-        req.overlap,
-        req.red_count,
-        req.blue_count,
-        req.bankers,
-        req.drags,
-    )?;
+    let spec = if req.preset.is_none() && req.mode.as_deref() == Some("split_two") {
+        plan::Spec {
+            mode: "split_two",
+            title: "两注分散单式".into(),
+            detail: "红榜前6名配蓝榜第1名，红榜第7–12名配蓝榜第2名。".into(),
+            tickets: 2,
+            pool: 12,
+            overlap: 0,
+            red_count: 6,
+            blue_count: 2,
+            bankers: 0,
+            drags: 0,
+        }
+    } else {
+        plan::resolve(
+            req.preset.as_deref(),
+            req.mode.as_deref(),
+            req.tickets,
+            req.pool,
+            req.overlap,
+            req.red_count,
+            req.blue_count,
+            req.bankers,
+            req.drags,
+        )?
+    };
     let model = req.ranking_model.as_deref().unwrap_or(if req.preset.as_deref()==Some("coverage24") {crate::conditional::MODEL} else if req.preset.as_deref()==Some("calibrated14") {crate::ranking::MODEL} else if req.preset.as_deref()==Some("equal24") {"equal"} else if req.preset.as_deref()==Some("weighted24") {"weighted"} else if crate::blue::PRESETS.contains(&req.preset.as_deref().unwrap_or(""))||req.preset.as_deref()==Some(crate::prize_coverage::PRESET)||spec.mode=="frozen"||spec.mode=="jackpot" {"weighted"} else {crate::fusion_rank_v4::MODEL});
     if !["weighted","equal",crate::ranking::MODEL,crate::conditional::MODEL,crate::small_red::MODEL,crate::fusion_rank_v4::MODEL].contains(&model) && !crate::pool_algorithms::is_model(model) {return Err("未知红球排名模型".into());}
     if req.preset.as_deref()==Some("calibrated14") && model!="repeat_calibrated" {return Err("校准排名预设须使用校准模型".into());}
@@ -497,8 +512,28 @@ fn build_requested(body: &str, draws: &[Draw]) -> Result<(Plan, crate::eval::Pre
         if req.issue.as_deref().is_some_and(|i|i!=fmt_issue(prepared.cutoff_issue+1)) {return Err("蓝球试验仅支持当前开奖紧邻下一期".into());}
         prepared=crate::blue::apply(prepared,draws)?;
     }
-    let built = plan::build(&prepared.forecast, &spec)?;
+    let built = if spec.mode == "split_two" {
+        split_two_plan(&prepared.forecast, &spec)
+    } else {
+        plan::build(&prepared.forecast, &spec)?
+    };
     Ok((built, prepared))
+}
+
+fn split_two_plan(fc: &crate::select::Forecast, spec: &plan::Spec) -> Plan {
+    let numbers = |order: &[usize]| order.iter().map(|&i| i as u8 + 1).collect::<Vec<_>>();
+    let reds = numbers(&fc.red_order[..spec.pool]);
+    let blues = numbers(&fc.blue_order[..spec.blue_count]);
+    let tickets = reds
+        .chunks_exact(6)
+        .zip(&blues)
+        .map(|(group, &blue)| plan::PlanTicket {
+            red: group.try_into().expect("six red numbers"),
+            blue,
+        })
+        .collect();
+    let rescued = numbers(&fc.mild.rescued);
+    plan::finish(spec, tickets, reds, vec![], vec![], blues, rescued)
 }
 
 fn parse_gen(body: &str) -> Result<GenReq, String> {
@@ -1700,6 +1735,47 @@ mod tests {
         assert_eq!(query_value("archive=interactive%3Aa+b", "archive").as_deref(), Some("interactive:a b"));
         assert_eq!(query_value("path=%GG", "path"), None);
         let _ = fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn split_two_keeps_the_first_compound_ticket_and_both_blues_through_save() {
+        let (dir, app, draws) = fixture("split-two");
+        let issue = fmt_issue(draws.last().unwrap().issue + 1);
+        let mut request = json!({
+            "issue": issue,
+            "mode": "compound_blue",
+            "ranking_model": "fusion_v4",
+            "blue_model": "weighted",
+            "blue_count": 2
+        });
+        let original = generate_value(&app, &request.to_string()).unwrap();
+        request["mode"] = json!("split_two");
+        request["expected_data_sha256"] = original["input_history_sha256"].clone();
+        let split = generate_value(&app, &request.to_string()).unwrap();
+        assert_eq!(split["bet_count"], 2);
+        assert_eq!(split["cost"], 4);
+        assert_eq!(split["tickets"][0], original["tickets"][0]);
+        assert_eq!(split["blues"], original["blues"]);
+        assert_eq!(split["tickets"][1]["blue"], original["tickets"][1]["blue"]);
+        assert_eq!(
+            split["tickets"][1]["red"],
+            json!(split["ranking"]["red_ranking"].as_array().unwrap()[6..12])
+        );
+        let archive = &split["recommendation_archive"];
+        let detail = format!("/api/recommendations/issues/{issue}");
+        let query = format!("archive={}", archive["archive_id"].as_str().unwrap());
+        let (status, _, bytes) = route(&app, "GET", &detail, &query, "");
+        assert_eq!(status, 200);
+        let review: Value = serde_json::from_slice(&bytes).unwrap();
+        assert_eq!(review["detail"]["summary"]["red_coverage"], 12);
+        assert!(review["compact_preview"].is_null());
+
+        request["expected_archive_sha256"] = archive["sha256"].clone();
+        let (status, _, bytes) = route(&app, "POST", "/api/plans", "", &request.to_string());
+        assert_eq!(status, 200);
+        let saved: Value = serde_json::from_slice(&bytes).unwrap();
+        assert_eq!(saved["plan"]["tickets"], split["tickets"]);
+        fs::remove_dir_all(dir).unwrap();
     }
 
     #[test]

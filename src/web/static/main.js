@@ -3,7 +3,7 @@ createApp({components:{JackpotFocus:SSQJackpot.component,PoolIntersection:SSQPoo
   const {url}=SSQApp,initial=new URLSearchParams(location.search);
   const {isFusionVersion}=SSQReferencePools.parity;
   const fusionParam=version=>isFusionVersion(version)?version:null;
-  const compoundMode=mode=>['compound_red','compound_blue'].includes(mode)?mode:'';
+  const directPlanMode=mode=>['compound_red','compound_blue','split_two'].includes(mode)?mode:'';
   const tabs=[{id:'generator',name:'方案生成',icon:'🎯'},{id:'pools',name:'观察池',icon:''},{id:'records',name:'我的方案',icon:'📊'},{id:'reviews',name:'推荐与复盘',icon:'📋'},{id:'draws',name:'开奖历史',icon:'🎱'},{id:'backtest',name:'科学回测',icon:'🧪'},{id:'research',name:'研究评估',icon:'🔬'},{id:'settings',name:'系统设置',icon:'⚙️'}];
   const jackpotApiUrl=url('api/jackpot'),intersectionApiUrl=url('api/pools'),blueApiUrl=url('api/blue'),smallRedApiUrl=url('api/small-red');
   const currentTab=ref(tabs.some(t=>t.id===initial.get('tab'))?initial.get('tab'):'generator');
@@ -65,7 +65,7 @@ createApp({components:{JackpotFocus:SSQJackpot.component,PoolIntersection:SSQPoo
     activePreset.value='';
     if(['frozen','jackpot'].includes(form.value.mode))form.value.ranking_model='weighted';
     form.value.blue_model='weighted';
-    if(new URLSearchParams(location.search).has('mode'))setRoute('generator',compoundMode(form.value.mode));
+    if(new URLSearchParams(location.search).has('mode'))setRoute('generator',directPlanMode(form.value.mode));
   }
   async function openTab(id,params={}){
     if(!tabs.some(t=>t.id===id))return;
@@ -85,7 +85,7 @@ createApp({components:{JackpotFocus:SSQJackpot.component,PoolIntersection:SSQPoo
       }
       openedFrames.value[id]=true;
     }
-    const mode=id==='generator'?compoundMode(params.mode):'';
+    const mode=id==='generator'?directPlanMode(params.mode):'';
     setRoute(id,mode);
     if(mode){
       form.value.mode=mode;
@@ -183,6 +183,16 @@ createApp({components:{JackpotFocus:SSQJackpot.component,PoolIntersection:SSQPoo
     Object.assign(form.value,{blue_model:'weighted'},configs[id]);if(!['pool_observation','calibrated14','coverage24','equal24'].includes(id))form.value.ranking_model='weighted';return generate(id==='pool_observation'?{}:id==='balanced16'?{mode:'balanced',tickets:8,pool:16,blue_count:2,...expected}:{preset:id,...expected});
   }
   function generateCustom(){activePreset.value='';const f=form.value;return generate({mode:f.mode,tickets:f.tickets,pool:f.pool,overlap:f.overlap,red_count:f.red_count,blue_count:f.blue_count,bankers:f.bankers,drags:f.drags});}
+  function compareTwoBets(){
+    const source=lastRequest.value;
+    if(!source||!plan.value||generating.value||saving.value||syncing.value||stalePreview.value)return;
+    const mode=plan.value.mode==='split_two'?'compound_blue':'split_two';
+    target.value=source.issue;
+    form.value.mode=mode;
+    changePlanMode();
+    Object.assign(form.value,{ranking_model:source.ranking_model,blue_model:source.blue_model,blue_count:2});
+    return generate({mode,blue_count:2,expected_data_sha256:plan.value.input_history_sha256});
+  }
   async function savePlan(){
     if(saving.value||generating.value||planSaved.value||!currentResult.value)return;
     if(stalePreview.value){showToast('数据已经变化，请重新生成后保存。','error');return;}
@@ -247,9 +257,9 @@ createApp({components:{JackpotFocus:SSQJackpot.component,PoolIntersection:SSQPoo
     window.addEventListener('message',frameMessage);
     const results=await Promise.allSettled([loadOverview(),loadRecords(),loadDraws(),loadCycle()]);
     for(const result of results)if(result.status==='rejected')showToast(result.reason.message,'error');
-    const mode=currentTab.value==='generator'?compoundMode(initial.get('mode')):'';
+    const mode=currentTab.value==='generator'?directPlanMode(initial.get('mode')):'';
     await openTab(currentTab.value,mode?{mode}:{});
   });
   onUnmounted(()=>{window.removeEventListener('message',frameMessage);clearTimeout(toastTimer);});
-  return {jackpotApiUrl,generateJackpot,poolsSrc,poolsStandalone,smallRedApiUrl,blueApiUrl,intersectionApiUrl,tabs,currentTab,overview,cycle,toast,target,deadline,form,compactModel,compactAlgorithms,compactChoices,presets,activePreset,plan,poolPreview,planSaved,generating,saving,syncing,currentResult,generatedIssue,resultArchive,stalePreview,poolCanFreeze,planRedUnion,planBlueUnion,records,recordFilter,recordsLoading,shownRecords,scoredCover,settling,draws,drawBefore,drawsLoading,moreDraws,tests,reportCards,reportLoading,verdict,reviewsSrc,researchSrc,reviewsStandalone,researchStandalone,openedFrames,researchUrl,pad,f4,percent,freezeTime,openTab,navigateTabs,openReviewUrl,changePlanMode,generateSmall,generateBlue,generateCompact,generatePoolTier,generateCoverage,applyPreset,generateCustom,savePlan,copyPlan,loadRecords,loadDraws,settle,syncDraws,loadReport,hitRed,hitBlue,frameLoaded};
+  return {jackpotApiUrl,generateJackpot,poolsSrc,poolsStandalone,smallRedApiUrl,blueApiUrl,intersectionApiUrl,tabs,currentTab,overview,cycle,toast,target,deadline,form,compactModel,compactAlgorithms,compactChoices,presets,activePreset,plan,poolPreview,planSaved,generating,saving,syncing,currentResult,generatedIssue,resultArchive,stalePreview,poolCanFreeze,planRedUnion,planBlueUnion,records,recordFilter,recordsLoading,shownRecords,scoredCover,settling,draws,drawBefore,drawsLoading,moreDraws,tests,reportCards,reportLoading,verdict,reviewsSrc,researchSrc,reviewsStandalone,researchStandalone,openedFrames,researchUrl,pad,f4,percent,freezeTime,openTab,navigateTabs,openReviewUrl,changePlanMode,generateSmall,generateBlue,generateCompact,generatePoolTier,generateCoverage,applyPreset,generateCustom,compareTwoBets,savePlan,copyPlan,loadRecords,loadDraws,settle,syncDraws,loadReport,hitRed,hitBlue,frameLoaded};
 }}).mount('#app');
