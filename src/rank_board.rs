@@ -8,6 +8,7 @@ use serde_json::{json, Value};
 use crate::draw::{data_sha256, fmt_date, fmt_issue, Draw};
 use crate::eval::prepare_forecast;
 use crate::model::roll_all;
+use crate::{fusion_model_v3, pool_five};
 use crate::protocol::Protocol;
 use crate::select::{equal7, fuse6, fuse7, quantize_simplex, rank_desc, score_key};
 
@@ -40,6 +41,8 @@ struct Settled {
     blue: u8,
     algos: Vec<Algo>,
     blues: Vec<BlueAlgo>,
+    pool_five: pool_five::Selection,
+    pool_five_comparison: pool_five::Comparison,
 }
 
 struct Board {
@@ -48,6 +51,7 @@ struct Board {
     next_issue: u32,
     next_algos: Vec<Algo>,
     next_blues: Vec<BlueAlgo>,
+    next_pool_five: pool_five::Selection,
     cover: crate::cover_rank::Fit,
 }
 
@@ -67,6 +71,8 @@ pub fn issue(root: &Path, draws: &[Draw], issue: &str) -> Result<Value, String> 
         let mut value = algorithms_value(issue, false, None, &board.next_algos);
         value["pools"] = frozen_pools(root, draws, issue, None)?;
         value["blue_rankings"] = blue_value(&board.next_blues, None);
+        value["pool_five"] = board.next_pool_five.view(None);
+        value["data_sha256"] = json!(board.sha);
         return Ok(value);
     }
     let row = board
@@ -80,6 +86,8 @@ pub fn issue(root: &Path, draws: &[Draw], issue: &str) -> Result<Value, String> 
     let mut value = algorithms_value(issue, true, Some((row.date, &row.red, row.blue)), &row.algos);
     value["pools"] = frozen_pools(root, draws, issue, draw)?;
     value["blue_rankings"] = blue_value(&row.blues, Some(row.blue));
+    value["pool_five"] = row.pool_five.view(draw);
+    value["data_sha256"] = json!(board.sha);
     Ok(value)
 }
 
@@ -100,8 +108,7 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
     let prepared = prepare_forecast(draws)?;
     let snap = roll_all(draws)?;
     let cover = crate::cover_rank::fit_rows(&snap.rows)?;
-    let red_fit = crate::red_model_v2::fit_causal(&snap.rows)?;
-    let blue_fit = fit_blue(&snap.rows)?;
+    let fit = fusion_model_v3::fit(draws, &snap.rows)?;
     let hit_weights = blue_hit_weights(&snap.rows)?;
     let weights = prepared.weights;
     let blue_weights = prepared.blue_weights;
@@ -124,9 +131,15 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
             draws[pos - 1].red_mask,
             &fmt_issue(row.issue),
             &cover.beta,
-            &red_fit.beta,
-            &blue_fit.beta,
+            &fit.red,
+            &fit.blue,
         )?;
+        let weighted_red = fuse7(&row.expert_p, &weights);
+        let pool_five = pool_five::Selection::new(
+            &fusion_model_v3::distribution(&row.expert_p, &row.blue_p, &fit)?,
+            &rank_desc(&weighted_red),
+        );
+        let pool_five_comparison = pool_five.compare(&weighted_red, &fuse6(&row.blue_p, &blue_weights), draw);
         settled.push(Settled {
             issue: row.issue,
             date: draw.date,
@@ -134,7 +147,9 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
             previous_red: draws[pos - 1].red,
             blue: draw.blue,
             algos,
-            blues: blue_rankings(&row.blue_p, &blue_weights, &hit_weights, &blue_fit.beta)?,
+            blues: blue_rankings(&row.blue_p, &blue_weights, &hit_weights, &fit.blue)?,
+            pool_five,
+            pool_five_comparison,
         });
     }
     let last = draws.last().ok_or("没有开奖数据")?;
@@ -146,15 +161,19 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
         last.red_mask,
         &fmt_issue(last.issue + 1),
         &cover.beta,
-        &red_fit.beta,
-        &blue_fit.beta,
+        &fit.red,
+        &fit.blue,
     )?;
     Ok(Board {
         sha: data_sha256(draws),
         settled,
         next_issue: last.issue + 1,
         next_algos,
-        next_blues: blue_rankings(&snap.next_blue, &blue_weights, &hit_weights, &blue_fit.beta)?,
+        next_blues: blue_rankings(&snap.next_blue, &blue_weights, &hit_weights, &fit.blue)?,
+        next_pool_five: pool_five::Selection::new(
+            &fusion_model_v3::distribution(&snap.next_red, &snap.next_blue, &fit)?,
+            &prepared.forecast.red_order,
+        ),
         cover,
     })
 }
@@ -221,24 +240,6 @@ fn rank_all(
         blue_source: "协议加权蓝球",
     });
     Ok(algos)
-}
-
-fn fit_blue(rows: &[crate::model::Row]) -> Result<crate::blue_model_v2::Fit, String> {
-    if !rows.iter().any(|row| row.issue == crate::blue_model_v2::TRAIN_END) {
-        return Err("蓝球v2需要完整23100训练边界，不能用部分历史冒充冻结模型".into());
-    }
-    let training = rows
-        .iter()
-        .skip(30)
-        .filter(|row| row.issue <= crate::blue_model_v2::TRAIN_END)
-        .map(|row| {
-            Ok(crate::blue_model_v2::Sample {
-                x: crate::blue_model_v2::features(&row.blue_p)?,
-                winner: row.blue as usize,
-            })
-        })
-        .collect::<Result<Vec<_>, String>>()?;
-    crate::blue_model_v2::fit(&training)
 }
 
 fn blue_order(beta: &[f64; 5], expert: &[[f64; 16]; 6]) -> Result<Vec<u8>, String> {
@@ -525,6 +526,11 @@ fn overview_value(board: &Board) -> Value {
         "historical_fit":historical_fit,
         "equal_rank":equal_rank,
         "blue_study":blue_study,
+        "pool_five": {
+            "confirmation_25111_26115": pool_five::summary(confirm.iter().map(|row| row.pool_five_comparison)),
+            "tracking_after_26115": pool_five::summary(board.settled.iter().filter(|row| row.issue > CONFIRM_END).map(|row| row.pool_five_comparison)),
+            "all_from_25111": pool_five::summary(board.settled.iter().map(|row| row.pool_five_comparison)),
+        },
         "issues":issues,
         "next_issue":fmt_issue(board.next_issue),
         "note":"名次只用目标期以前的专家特征和25111前冻结的融合权重。盖住6个红球的名次是这6个号码里最靠后的名次；均匀随机顺序的期望是6×34/7。前16名期望命中16×6/33个，蓝球期望名次是8.5。这些对照不是中奖概率，也不替换已封存号码池。"
@@ -996,6 +1002,15 @@ mod tests {
         let replay = issue(&dir, &earlier, &fmt_issue(newest.issue)).unwrap();
         let kept = issue(&dir, &earlier, &prior).unwrap();
         let full_prior = issue(&dir, &draws, &prior).unwrap();
+        let (plan, prepared) = pool_five::build(&earlier, prepare_forecast(&earlier).unwrap()).unwrap();
+        let expected: Vec<_> = plan.tickets.iter().map(|t| json!({"red":t.red,"blue":t.blue})).collect();
+        assert_eq!(plan.cost, 10);
+        assert_eq!(plan.reds.iter().collect::<BTreeSet<_>>().len(), 30);
+        assert_eq!(plan.blues.iter().collect::<BTreeSet<_>>().len(), 5);
+        assert_eq!(replay["pool_five"]["tickets"], json!(expected));
+        assert_eq!(replay["pool_five"]["tickets"], view["pool_five"]["tickets"]);
+        assert_eq!(replay["pool_five"]["red_ranking"], prepared.ranking.unwrap()["red_ranking"]);
+        assert_eq!(kept["pool_five"], full_prior["pool_five"]);
         for (left, right) in replay["algorithms"].as_array().unwrap().iter().zip(view["algorithms"].as_array().unwrap()) {
             assert_eq!(left["red_ranking"], right["red_ranking"]);
             assert_eq!(left["blue_ranking"], right["blue_ranking"]);

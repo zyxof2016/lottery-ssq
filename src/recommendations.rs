@@ -19,8 +19,9 @@ use crate::pool;
 use crate::protocol::Protocol;
 use crate::select::rank_desc;
 
-pub const PRESETS: [&str; 17] = [
+pub const PRESETS: [&str; 18] = [
     "frozen",
+    crate::pool_five::MODE,
     "disjoint5",
     "single8",
     "compound7",
@@ -72,6 +73,10 @@ fn source_sha() -> String {
             include_str!("efficiency.rs"),
             include_str!("stats.rs"),
             include_str!("pool.rs"),
+            include_str!("pool_five.rs"),
+            include_str!("fusion_model_v3.rs"),
+            include_str!("red_model_v2.rs"),
+            include_str!("blue_model_v2.rs"),
             include_str!("coverage.rs"),
             include_str!("ranking.rs"),
             include_str!("conditional.rs"),
@@ -275,7 +280,8 @@ fn strategy(plan: &Plan, prepared: &Prepared) -> Value {
             "bankers": plan.spec.bankers, "drags": plan.spec.drags},
         "evidence": evidence, "funnel": stages, "red_weights": prepared.ranking.as_ref().map(|r|r["red_weights"].clone()).unwrap_or_else(||json!(prepared.weights)),
         "ranking": prepared.ranking,
-        "blue_weights": prepared.blue_weights, "bankers": plan.bankers, "drags": plan.drags,
+        "blue_weights": (plan.mode != crate::pool_five::MODE).then_some(prepared.blue_weights),
+        "bankers": plan.bankers, "drags": plan.drags,
     });
     if let Some(ranking)=&prepared.blue_ranking {saved["blue_ranking"]=ranking.clone();}
     if plan.title==crate::prize_coverage::TITLE {saved["prize_coverage"]=crate::prize_coverage::policy();}
@@ -382,7 +388,15 @@ fn freeze_daily_with_clock(
     let equal = crate::ranking::prepare_equal(draws)?;
     let blue_hit=crate::blue::apply(prepare_forecast(draws)?,draws)?;
     let mut variants = BTreeMap::new();
-    for name in PRESETS {
+    let presets: Vec<_> = PRESETS.into_iter().filter(|&name| {
+        name != crate::pool_five::MODE || crate::pool_five::available(draws)
+    }).collect();
+    for &name in &presets {
+        if name == crate::pool_five::MODE {
+            let (plan, ranked) = crate::pool_five::build(draws, prepare_forecast(draws)?)?;
+            variants.insert(name.to_string(), strategy(&plan, &ranked));
+            continue;
+        }
         let prepared = if ["bluehit2","bluehit4"].contains(&name) {&blue_hit} else if name == "calibrated14" {&ranked} else if name == "coverage24" {&conditional} else if name == "equal24" {&equal} else {&prepared};
         let spec = plan::resolve(Some(name), None, None, None, None, None, None, None, None)?;
         variants.insert(
@@ -402,7 +416,7 @@ fn freeze_daily_with_clock(
     }
     let mut payload = base_payload(&prepared, issue, "daily", completed, Some(deadline));
     payload["strategies"] = json!(variants);
-    payload["presets"] = json!(PRESETS);
+    payload["presets"] = json!(presets);
     payload["number_pools"] = pool::saved_current(&prepared, draws);
     payload["small_red_pools"] = crate::small_red::saved(&prepared);
     payload["efficiency"] = json!({"version": efficiency::VERSION, "seed": format!("0x{:016x}", Protocol::SEED),
@@ -450,7 +464,12 @@ pub fn archive_plan(
     } else {
         let mut payload = base_payload(prepared, issue, "interactive", now_unix(), deadline);
         payload["strategies"] = json!({"custom": saved});
-        if saved.get("prize_coverage").is_some()||saved.get("jackpot_goal").is_some(){let deadline=deadline.ok_or("前瞻票组缺少封存截止")?;write_new_before(&path,payload,Some(deadline),now_unix)?.0}else{write_new(&path,payload)?.0}
+        if saved.get("prize_coverage").is_some() || saved.get("jackpot_goal").is_some() || plan.mode == crate::pool_five::MODE {
+            let deadline = deadline.ok_or("前瞻票组缺少封存截止")?;
+            write_new_before(&path, payload, Some(deadline), now_unix)?.0
+        } else {
+            write_new(&path, payload)?.0
+        }
     };
     Ok(
         json!({"archive_id": format!("interactive:{identity}"), "sha256": envelope["sha256"],
@@ -543,6 +562,9 @@ pub(crate) fn validate_archive(payload: &Value, issue: &str, draws: &[Draw]) -> 
     if let Some(strategies)=payload["strategies"].as_object() {
         let mut expected_blue:Option<Value>=None;
         for strategy in strategies.values() {
+            if strategy["mode"] == crate::pool_five::MODE || strategy["ranking"]["model"] == crate::pool_five::MODE {
+                crate::pool_five::validate_saved(strategy, payload, draws)?;
+            }
             if strategy.get("jackpot_goal").is_some(){crate::jackpot::validate_saved(strategy,payload,draws)?;}
             if strategy.get("prize_coverage").is_some(){crate::prize_coverage::validate_saved(strategy,payload,draws)?;}
             if let Some(ranking)=strategy.get("blue_ranking") {
@@ -1734,7 +1756,7 @@ mod tests {
             efficiency::VERSION
         );
         let variants = archive["payload"]["strategies"].as_object().unwrap();
-        assert_eq!(variants.len(), PRESETS.len() + efficiency::PROFILE_COUNT);
+        assert_eq!(variants.len(), archive["payload"]["presets"].as_array().unwrap().len() + efficiency::PROFILE_COUNT);
         for name in variants.keys() {
             let view = issue_detail(&temp.0, &draws, &[], &issue, None, Some(name)).unwrap();
             assert_eq!(view["detail"]["numbers"].as_array().unwrap().len(), 49);

@@ -34,6 +34,13 @@
         ['all_from_25111', '25111 之后全部']
       ];
       const selectedWindow = Vue.computed(() => overview.value?.windows[windowName.value]);
+      const fiveWindow = Vue.computed(() => overview.value?.pool_five?.[windowName.value]);
+      const fiveGenerateUrl = Vue.computed(() => SSQApp.url('', {
+        mode: 'pool_five', issue: detail.value?.issue, expected_data_sha256: detail.value?.data_sha256,
+      }));
+      const fiveArchiveUrl = Vue.computed(() => detail.value?.pools?.items.some(row => row.model === 'pool_five')
+        ? SSQApp.url('reviews', {issue: detail.value.issue, archive: 'daily', strategy: 'pool_five'}) : '');
+      const rate = n => (n * 100).toFixed(2) + '%';
       function historyMean(name) {
         const row = (overview.value?.windows?.all_from_25111?.algorithms || []).find((item) => item.name === name);
         return row ? row.mean_cover_rank : Number.POSITIVE_INFINITY;
@@ -161,7 +168,7 @@
       return {
         overview, detail, error, loading, issue, panel, windowName, sort, rankSpan, poolSort, poolKind, poolSearch,
         cover16, cover16Error, cover16Loading, loadCover16, cover16Url, lossNames, yes, sourceUrl,
-        windows, selectedWindow, algorithms, pools, pad, decimal, roleName, kindName, loadIssue, step, issueAt,
+        windows, selectedWindow, fiveWindow, fiveGenerateUrl, fiveArchiveUrl, rate, algorithms, pools, pad, decimal, roleName, kindName, loadIssue, step, issueAt,
         numberAlgo, blueAlgo, blueSort, blueRows, openedKey, selectedAlgo, redBalls, blueBalls, openedPool, poolKey, redRanks, hitStyle, head,
         scaleLabel, rankClass, lineClass, blueLineClass, historyBlue, blueHistory, historyMean
       };
@@ -204,6 +211,17 @@
         </div>
 
         <template v-if="panel==='rank' && detail">
+          <section v-if="detail.pool_five" class="inner-card" id="pool-five-ranking">
+            <div class="toolbar"><h3>号码池分散推荐 · 5注10元</h3><a v-if="fiveArchiveUrl" :href="fiveArchiveUrl">查看首次封存</a><a v-if="!detail.settled" class="primary" :href="fiveGenerateUrl">生成并复制票面</a></div>
+            <p class="muted">原加权榜圈定30红，历史拟合重排池内红球并选前5蓝。每个红球只用一次，每注配一个不同蓝球。均匀开奖下，30红并集覆盖全部6红的概率为 {{ rate(detail.pool_five.uniform.full_red_union) }}。</p>
+            <h4>入池红球 · 按名次排列</h4>
+            <div class="rank-strip" aria-label="前30名入池红球"><span v-for="(n,i) in detail.pool_five.red_ranking.slice(0,30)" :key="n" :title="'第'+(i+1)+'名'" :class="{hit:detail.draw?.red.includes(n)}">{{ pad(n) }}</span></div>
+            <p class="muted">未入池红球 {{ detail.pool_five.excluded_reds.map(pad).join('、') }} · 前5蓝 {{ detail.pool_five.blue_ranking.slice(0,5).map(pad).join('、') }}</p>
+            <p v-if="detail.settled && detail.pool_five.outcome" class="muted">回放命中 {{ detail.pool_five.outcome.red_hits }}/6 红 · 蓝球{{ detail.pool_five.outcome.blue_covered?'入池':'未入池' }} · 最佳单注 {{ detail.pool_five.outcome.max_ticket_red_hits }} 红 · 常规奖{{ detail.pool_five.outcome.any_regular_prize?'有':'无' }}</p>
+            <details><summary>{{ detail.settled?'查看回放票面':'查看本期5注' }}</summary>
+              <ol class="reference-tickets"><li v-for="ticket in detail.pool_five.tickets" :key="ticket.blue">{{ ticket.red.map(pad).join(' ') }} + {{ pad(ticket.blue) }}</li></ol>
+            </details>
+          </section>
           <p v-if="overview.equal_rank" class="notice" id="equal-rank-note">{{ overview.equal_rank.note }}</p>
           <p v-if="overview.historical_fit" class="notice" id="historical-fit-note">{{ overview.historical_fit.note }}</p>
           <div class="toolbar">
@@ -300,6 +318,15 @@
         </template>
 
         <template v-if="panel==='study'">
+          <section v-if="fiveWindow" class="inner-card" id="pool-five-history">
+            <h3>同预算5注 · 历史回放</h3>
+            <p class="muted">按下方验证窗口统计。新旧方案均覆盖30红。全6红入池容易受池大小影响，逐注命中及常规奖按实际票面计算。</p>
+            <div class="scroll"><table><thead><tr><th>方案</th><th>全6红入池</th><th>蓝球入池</th><th>6红＋蓝均入池</th><th>有单注4红以上</th><th>至少一注常规奖</th><th>单注6＋1</th></tr></thead><tbody>
+              <tr v-for="[label,row] in [['原加权30红 · 拟合5蓝',fiveWindow.ranked],['原加权30红 · 2蓝',fiveWindow.legacy]]" :key="label"><th>{{ label }}</th><td>{{ row.full_red_union }}/{{ fiveWindow.n }}</td><td>{{ row.blue_union }}</td><td>{{ row.full_draw_union }}</td><td>{{ row.any_ticket_four_reds }}</td><td>{{ row.any_regular_prize }}</td><td>{{ row.jackpot }}</td></tr>
+            </tbody></table></div>
+            <p v-if="fiveWindow.n" class="muted">若直接用历史拟合榜取前30红，全6红入池 {{ fiveWindow.fit_only_red_union.full_red_union }}/{{ fiveWindow.n }}，相对原加权补中 {{ fiveWindow.fit_only_red_union.paired_gains }} 期、丢失 {{ fiveWindow.fit_only_red_union.paired_losses }} 期。均匀开奖下，30红并集全中6红的概率为 {{ rate(fiveWindow.ranked.uniform.full_red_union) }}。</p>
+            <p v-else class="muted">所选窗口暂无已开奖样本。</p>
+          </section>
           <section class="inner-card" id="history-summary">
             <h3>历史汇总</h3>
             <details id="direct-cover16" @toggle="loadCover16"><summary>16红全六覆盖 · 直接目标核验</summary>

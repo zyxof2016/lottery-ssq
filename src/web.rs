@@ -404,6 +404,7 @@ fn generate_value(app: &App, body: &str) -> Result<Value, String> {
     let draws = load_csv(&app.data)?;
     let (plan, prepared) = build_requested(body, &draws)?;
     let mut req = parse_gen(body)?;
+    apply_pool_five_deadline(&mut req, &plan, &draws)?;
     if req.preset.as_deref()==Some(crate::prize_coverage::PRESET)||plan.mode=="jackpot"{let last=draws.last().ok_or("没有开奖数据")?;let gate=decide(recommendations::now_unix(),last.issue,last.date,true);if !gate.publish||req.issue.as_ref().is_some_and(|s|s!=&gate.target){return Err("前瞻票组仅在截止前生成当前紧邻下一期".into());}req.not_after=Some(req.not_after.unwrap_or(gate.deadline_unix).min(gate.deadline_unix));}
     let issue = req.issue.unwrap_or_else(|| fmt_issue(prepared.cutoff_issue + 1));
     let archive = recommendations::archive_plan(&recommendation_dir(app), &plan, &prepared, &issue, req.not_after)?;
@@ -416,9 +417,10 @@ fn generate_value(app: &App, body: &str) -> Result<Value, String> {
 
 fn save_plan_value(app: &App, body: &str) -> Result<Value, String> {
     let draws = load_csv(&app.data)?;
-    let req: GenReq = parse_gen(body)?;
+    let mut req = parse_gen(body)?;
     let issue = parse_issue(req.issue.as_deref().unwrap_or(""))?;
     let (plan, prepared) = build_requested(body, &draws)?;
+    apply_pool_five_deadline(&mut req, &plan, &draws)?;
     let canonical = plan_canonical(&issue, &plan);
     if let Some(expected) = req.expected_archive_sha256.as_deref() {
         recommendations::check_displayed_plan(&recommendation_dir(app), &plan, &prepared, &issue, expected)?;
@@ -474,9 +476,31 @@ fn save_plan_value(app: &App, body: &str) -> Result<Value, String> {
     }))
 }
 
+fn apply_pool_five_deadline(req: &mut GenReq, plan: &Plan, draws: &[Draw]) -> Result<(), String> {
+    if plan.mode == crate::pool_five::MODE {
+        let last = draws.last().ok_or("没有开奖数据")?;
+        let gate = decide(recommendations::now_unix(), last.issue, last.date, false);
+        if !gate.publish || req.issue.as_ref().is_some_and(|issue| issue != &gate.target) {
+            return Err(format!("分散5注仅在截止前生成当前期。{}", gate.reason));
+        }
+        req.not_after = Some(req.not_after.unwrap_or(gate.deadline_unix).min(gate.deadline_unix));
+    }
+    Ok(())
+}
+
 fn build_requested(body: &str, draws: &[Draw]) -> Result<(Plan, crate::eval::Prepared), String> {
     let req = parse_gen(body)?;
     if req.expected_data_sha256.as_deref().is_some_and(|expected|expected!=crate::draw::data_sha256(draws)){return Err("开奖输入已变化，请刷新推荐预览后重新生成".into());}
+    if req.preset.as_deref().or(req.mode.as_deref()) == Some(crate::pool_five::MODE) {
+        let prepared = prepare_forecast(draws)?;
+        if req.issue.as_deref().is_some_and(|issue| issue != fmt_issue(prepared.cutoff_issue + 1)) {
+            return Err("分散5注仅支持当前开奖紧邻下一期".into());
+        }
+        if [req.ranking_model, req.blue_model].iter().flatten().any(|model| model != crate::pool_five::MODE) {
+            return Err("分散5注使用专用红蓝排序".into());
+        }
+        return crate::pool_five::build(draws, prepared);
+    }
     let spec = if req.preset.is_none() && req.mode.as_deref() == Some("split_two") {
         plan::Spec {
             mode: "split_two",
