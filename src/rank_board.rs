@@ -8,7 +8,7 @@ use serde_json::{json, Value};
 use crate::draw::{data_sha256, fmt_date, fmt_issue, Draw};
 use crate::eval::prepare_forecast;
 use crate::model::roll_all;
-use crate::{fusion_model_v3, pool_five};
+use crate::pool_five;
 use crate::protocol::Protocol;
 use crate::select::{equal7, fuse6, fuse7, quantize_simplex, rank_desc, score_key};
 
@@ -108,7 +108,7 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
     let prepared = prepare_forecast(draws)?;
     let snap = roll_all(draws)?;
     let cover = crate::cover_rank::fit_rows(&snap.rows)?;
-    let fit = fusion_model_v3::fit(draws, &snap.rows)?;
+    let fit = pool_five::fit(draws, &snap.rows)?;
     let hit_weights = blue_hit_weights(&snap.rows)?;
     let weights = prepared.weights;
     let blue_weights = prepared.blue_weights;
@@ -136,7 +136,7 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
         )?;
         let weighted_red = fuse7(&row.expert_p, &weights);
         let pool_five = pool_five::Selection::new(
-            &fusion_model_v3::distribution(&row.expert_p, &row.blue_p, &fit)?,
+            &fit.distribution(&row.expert_p, &row.blue_p)?,
             &rank_desc(&weighted_red),
         );
         let pool_five_comparison = pool_five.compare(&weighted_red, &fuse6(&row.blue_p, &blue_weights), draw);
@@ -171,7 +171,7 @@ fn build(draws: &[Draw]) -> Result<Board, String> {
         next_algos,
         next_blues: blue_rankings(&snap.next_blue, &blue_weights, &hit_weights, &fit.blue)?,
         next_pool_five: pool_five::Selection::new(
-            &fusion_model_v3::distribution(&snap.next_red, &snap.next_blue, &fit)?,
+            &fit.distribution(&snap.next_red, &snap.next_blue)?,
             &prepared.forecast.red_order,
         ),
         cover,

@@ -1,13 +1,17 @@
 //! Five disjoint singles from one ranked 30-red / 5-blue pool.
 use crate::{
-    draw::{fmt_issue, Draw},
+    blue_model_v2 as blue,
+    draw::{data_sha256, fmt_issue, Draw},
     eval::Prepared,
-    fusion_model_v3::{self as model, Distribution},
+    fusion_model_v3::Distribution,
+    model::Row,
     plan::{self, Plan, PlanTicket, Spec},
+    red_model_v2 as red,
     select::rank_desc,
     stats::binom,
 };
 use serde_json::{json, Value};
+use std::sync::{Mutex, OnceLock};
 
 pub(crate) const MODE: &str = "pool_five";
 const TICKETS: usize = 5;
@@ -32,8 +36,64 @@ fn spec() -> Spec {
 
 pub(crate) fn available(draws: &[Draw]) -> bool {
     draws
-        .binary_search_by_key(&model::TRAIN_END, |draw| draw.issue)
+        .binary_search_by_key(&red::TRAIN_END, |draw| draw.issue)
         .is_ok()
+}
+
+#[derive(Clone)]
+pub(crate) struct Fit {
+    pub(crate) red: [f64; 6],
+    pub(crate) blue: [f64; 5],
+    training_sha: String,
+}
+
+// Use the frozen model APIs here so existing fusion archive source hashes stay valid.
+pub(crate) fn fit(draws: &[Draw], rows: &[Row]) -> Result<Fit, String> {
+    static CACHE: OnceLock<Mutex<Option<Fit>>> = OnceLock::new();
+    let train_end = draws.partition_point(|d| d.issue <= red::TRAIN_END);
+    let training_sha = data_sha256(&draws[..train_end]);
+    let mut cache = CACHE
+        .get_or_init(|| Mutex::new(None))
+        .lock()
+        .map_err(|_| "历史拟合缓存不可用")?;
+    if let Some(fit) = cache
+        .as_ref()
+        .filter(|fit| fit.training_sha == training_sha)
+    {
+        return Ok(fit.clone());
+    }
+    let red = red::fit_causal(rows)?.beta;
+    let training = rows
+        .iter()
+        .skip(30)
+        .take_while(|row| row.issue <= blue::TRAIN_END)
+        .map(|row| {
+            Ok(blue::Sample {
+                x: blue::features(&row.blue_p)?,
+                winner: row.blue as usize,
+            })
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+    let result = Fit {
+        red,
+        blue: blue::fit(&training)?.beta,
+        training_sha,
+    };
+    *cache = Some(result.clone());
+    Ok(result)
+}
+
+impl Fit {
+    pub(crate) fn distribution(
+        &self,
+        red: &[[f64; 33]; 7],
+        blue: &[[f64; 16]; 6],
+    ) -> Result<Distribution, String> {
+        Distribution::new(
+            &red::weights(&self.red, &red::features(red)?)?,
+            &blue::distribution(&self.blue, &blue::features(blue)?),
+        )
+    }
 }
 
 fn policy() -> Value {
@@ -41,7 +101,7 @@ fn policy() -> Value {
         "version": 1,
         "model": MODE,
         "label": "30红池覆盖排序",
-        "training_last_issue": fmt_issue(model::TRAIN_END),
+        "training_last_issue": fmt_issue(red::TRAIN_END),
         "red_pool_selection": "protocol_weighted_top30",
         "red_pool_order": "historical_fit_within_selected_and_excluded_groups",
         "red_model": "complete_six_red_v2",
@@ -227,8 +287,8 @@ fn ticket_values(tickets: &[PlanTicket]) -> Vec<Value> {
 }
 
 pub(crate) fn build(draws: &[Draw], mut prepared: Prepared) -> Result<(Plan, Prepared), String> {
-    let fit = model::fit(draws, &crate::model::roll_all(draws)?.rows)?;
-    let dist = model::distribution(&prepared.expert_red, &prepared.expert_blue, &fit)?;
+    let fit = fit(draws, &crate::model::roll_all(draws)?.rows)?;
+    let dist = fit.distribution(&prepared.expert_red, &prepared.expert_blue)?;
     let selection = Selection::new(&dist, &prepared.forecast.red_order);
     prepared.ranking = Some(json!({
         "model": MODE,

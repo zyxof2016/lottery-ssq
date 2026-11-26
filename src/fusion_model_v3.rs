@@ -214,13 +214,13 @@ impl Distribution {
     }
 }
 #[derive(Clone)]
-pub(crate) struct Fit {
-    pub(crate) red: [f64; 6],
-    pub(crate) blue: [f64; 5],
-    pub(crate) training_sha: String,
+struct Fit {
+    red: [f64; 6],
+    blue: [f64; 5],
+    training_sha: String,
     n: usize,
 }
-pub(crate) fn fit(draws: &[Draw], rows: &[crate::model::Row]) -> Result<Fit, String> {
+fn fit(draws: &[Draw], rows: &[crate::model::Row]) -> Result<Fit, String> {
     static CACHE: OnceLock<Mutex<Option<(String, Fit)>>> = OnceLock::new();
     let training: Vec<_> = draws
         .iter()
@@ -259,7 +259,7 @@ pub(crate) fn fit(draws: &[Draw], rows: &[crate::model::Row]) -> Result<Fit, Str
     *lock = Some((sha, result.clone()));
     Ok(result)
 }
-pub(crate) fn distribution(r: &[[f64; 33]; 7], b: &[[f64; 16]; 6], f: &Fit) -> Result<Distribution, String> {
+fn distribution(r: &[[f64; 33]; 7], b: &[[f64; 16]; 6], f: &Fit) -> Result<Distribution, String> {
     Distribution::new(
         &red::weights(&f.red, &red::features(r)?)?,
         &blue::distribution(&f.blue, &blue::features(b)?),
